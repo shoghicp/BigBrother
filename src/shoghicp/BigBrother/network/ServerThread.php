@@ -64,6 +64,7 @@ class ServerThread extends \Thread{
 		stream_set_blocking($this->internalSocket, 1);
 		$this->externalSocket = $sockets[1];
 		stream_set_blocking($this->externalSocket, 0);
+		@stream_set_write_buffer($this->externalSocket, 1024 * 1024 * 8);
 
 		$this->start(PTHREADS_INHERIT_ALL & ~PTHREADS_INHERIT_CLASSES);
 	}

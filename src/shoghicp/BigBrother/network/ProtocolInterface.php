@@ -62,14 +62,14 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function emergencyShutdown(){
-		fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_EMERGENCY_SHUTDOWN));
+		@fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_EMERGENCY_SHUTDOWN));
 	}
 
 	public function shutdown(){
 		foreach($this->sessionsPlayers as $player){
 			$player->close($player->getName() . " has left the game", $this->plugin->getServer()->getProperty("settings.shutdown-message", "Server closed"));
 		}
-		fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_SHUTDOWN));
+		@fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
 	public function setName($name){
@@ -85,19 +85,19 @@ class ProtocolInterface implements SourceInterface{
 		}else{
 			return;
 		}
-		fwrite($this->fp, Binary::writeInt(5) . chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
+		@fwrite($this->fp, Binary::writeInt(5) . chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
 	}
 
 	protected function sendPacket($target, Packet $packet){
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
-		fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+		@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
 	}
 
 	public function enableEncryption(DesktopPlayer $player, $secret){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
 			$data = chr(ServerManager::PACKET_ENABLE_ENCRYPTION) . Binary::writeInt($target) . $secret;
-			fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+			@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
 		}
 	}
 
@@ -146,7 +146,7 @@ class ProtocolInterface implements SourceInterface{
 		$buffer = "";
 
 		while(strlen($buffer) < $len){
-			$buffer .= (string) fread($this->fp, $len - strlen($buffer));
+			$buffer .= (string) @fread($this->fp, $len - strlen($buffer));
 		}
 
 		return $buffer;
