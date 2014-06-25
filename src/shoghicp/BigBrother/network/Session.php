@@ -18,6 +18,7 @@
 namespace shoghicp\BigBrother\network;
 
 use phpseclib\Crypt\AES;
+use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\protocol\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\PingPacket;
 use shoghicp\BigBrother\utils\Binary;
@@ -44,8 +45,6 @@ class Session{
 		$this->address = substr($addr, 0, $final);
 
 		$this->aes = new AES(CRYPT_AES_MODE_CFB);
-		$this->aes->setKeyLength(128);
-		$this->aes->disablePadding();
 	}
 
 	public function write($data){
@@ -158,11 +157,11 @@ class Session{
 					$this->status = -1;
 					if($protocol < Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reason = "{\"text\":\"§lOutdated client!§r\\n\\nPlease use ".Info::VERSION."\"}";
+						$packet->reson = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
 						$this->writePacket($packet);
 					}elseif($protocol > Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reason = "{\"text\":\"§lOutdated server!§r\\n\\nI'm using ".Info::VERSION."\"}";
+						$packet->reson = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
 						$this->writePacket($packet);
 					}else{
 						$this->manager->openSession($this);

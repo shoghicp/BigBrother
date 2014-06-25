@@ -24,21 +24,25 @@ use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\network\protocol\Info;
 use pocketmine\network\protocol\LoginPacket;
+use pocketmine\network\protocol\SetEntityMotionPacket;
 use pocketmine\network\protocol\SetTimePacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
 use pocketmine\scheduler\CallbackTask;
 use pocketmine\Server;
 use pocketmine\tile\Spawnable;
+use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
 use shoghicp\BigBrother\network\protocol\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
+use shoghicp\BigBrother\network\protocol\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\LoginStartPacket;
 use shoghicp\BigBrother\network\protocol\LoginSuccessPacket;
 use shoghicp\BigBrother\network\protocol\PlayDisconnectPacket;
+use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\tasks\AuthenticateOnline;
 use shoghicp\BigBrother\utils\Binary;
@@ -46,8 +50,9 @@ use shoghicp\BigBrother\utils\Binary;
 class DesktopPlayer extends Player{
 
 	private $bigBrother_status = 0; //0 = log in, 1 = playing
-	private $bigBrother_uuid;
-	private $bigBrother_formatedUUID;
+	protected $bigBrother_uuid;
+	protected $bigBrother_formatedUUID;
+	protected $bigBrother_properties = [];
 	private $bigBrother_checkToken;
 	private $bigBrother_secret;
 	private $bigBrother_username;
@@ -172,7 +177,54 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function bigBrother_authenticate($username, $uuid, $onlineMode){
+	public function spawnTo(Player $player){
+		if($player instanceof DesktopPlayer){
+			if($this !== $player and $this->spawned === true and $player->getLevel() === $this->getLevel() and $player->canSee($this)){
+				$this->hasSpawned[$player->getID()] = $player;
+				$pk = new SpawnPlayerPacket();
+				if($player->getRemoveFormat()){
+					$pk->name = TextFormat::clean($this->nameTag);
+				}else{
+					$pk->name = $this->nameTag;
+				}
+				$pk->eid = $this->getID();
+				$pk->uuid = $this->bigBrother_formatedUUID;
+				$pk->x = $this->x;
+				$pk->z = $this->y;
+				$pk->y = $this->z;
+				$pk->yaw = $this->yaw;
+				$pk->pitch = $this->pitch;
+				$pk->item = $this->inventory->getItemInHand()->getID();
+				$pk->metadata = $this->getData();
+				$pk->data = $this->bigBrother_properties;
+				$player->interface->putRawPacket($player, $pk);
+
+				$pk = new EntityTeleportPacket();
+				$pk->eid = $this->getID();
+				$pk->x = $this->x;
+				$pk->z = $this->y;
+				$pk->y = $this->z;
+				$pk->yaw = $this->yaw;
+				$pk->pitch = $this->pitch;
+				$player->interface->putRawPacket($player, $pk);
+
+				$pk = new SetEntityMotionPacket();
+				$pk->eid = $this->getID();
+				$pk->speedX = $this->motionX;
+				$pk->speedY = $this->motionY;
+				$pk->speedZ = $this->motionZ;
+				$player->dataPacket($pk);
+
+				$this->inventory->sendHeldItem($player);
+
+				$this->inventory->sendArmorContents($player);
+			}
+		}else{
+			parent::spawnTo($player);
+		}
+	}
+
+	public function bigBrother_authenticate($username, $uuid, $onlineModeData = null){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
 			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
@@ -182,6 +234,9 @@ class DesktopPlayer extends Player{
 			$pk->name = $this->username;
 			$this->interface->putRawPacket($this, $pk);
 			$this->bigBrother_status = 1;
+			if($onlineModeData !== null and is_array($onlineModeData)){
+				$this->bigBrother_properties = $onlineModeData;
+			}
 
 			$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
 			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 1);
@@ -220,7 +275,7 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
 				$this->interface->putRawPacket($this, $pk);
 			}else{
-				$this->bigBrother_authenticate($username, "00000000000040008000000000000000", false);
+				$this->bigBrother_authenticate($username, "00000000000040008000000000000000", null);
 			}
 		}
 
@@ -276,15 +331,11 @@ class DesktopPlayer extends Player{
 	public function close($message = "", $reason = "generic reason"){
 		if($this->bigBrother_status === 0){
 			$pk = new LoginDisconnectPacket();
-			$pk->reason = json_encode([
-				"text" => $reason === "" ? "You have been disconnected." : $reason
-			]);
+			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
 			$this->interface->putRawPacket($this, $pk);
 		}else{
 			$pk = new PlayDisconnectPacket();
-			$pk->reason = json_encode([
-				"text" => $reason === "" ? "You have been disconnected." : $reason
-			]);
+			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);;
 			$this->interface->putRawPacket($this, $pk);
 		}
 		parent::close($message, $reason);

@@ -55,7 +55,6 @@ class ServerThread extends \Thread{
 		$this->loadPaths = array_reverse($loadPaths);
 		$this->shutdown = false;
 
-		$sockets = [];
 		if(($sockets = stream_socket_pair((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? STREAM_PF_INET : STREAM_PF_UNIX), STREAM_SOCK_STREAM, STREAM_IPPROTO_IP)) === false){
 			throw new \Exception("Could not create IPC streams. Reason: ".socket_strerror(socket_last_error()));
 		}

@@ -457,6 +457,7 @@ class Base
         $const_crypt_mode = 'CRYPT_' . $this->const_namespace . '_MODE';
 
         // Determining the availibility of mcrypt support for the cipher
+
         if (!defined($const_crypt_mode)) {
             switch (true) {
                 case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms()):
@@ -639,6 +640,7 @@ class Base
                 $this->changed = false;
             }
             if ($this->enchanged) {
+
                 mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
                 $this->enchanged = false;
             }
@@ -646,7 +648,7 @@ class Base
             // re: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
             // using mcrypt's default handing of CFB the above would output two different things.  using phpseclib's
             // rewritten CFB implementation the above outputs the same thing twice.
-            if ($this->mode == CRYPT_MODE_CFB && $this->continuousBuffer) {
+            if (false && $this->continuousBuffer) {
                 $block_size = $this->block_size;
                 $iv = &$this->encryptIV;
                 $pos = &$this->enbuffer['pos'];
@@ -770,47 +772,48 @@ class Base
                     }
                 }
                 break;
+
             case CRYPT_MODE_CFB:
-                // cfb loosely routines inspired by openssl's:
-                // {@link http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1}
-                if ($this->continuousBuffer) {
-                    $iv = &$this->encryptIV;
-                    $pos = &$buffer['pos'];
-                } else {
-                    $iv = $this->encryptIV;
-                    $pos = 0;
-                }
-                $len = strlen($plaintext);
-                $i = 0;
-                if ($pos) {
-                    $orig_pos = $pos;
-                    $max = $block_size - $pos;
-                    if ($len >= $max) {
-                        $i = $max;
-                        $len-= $max;
-                        $pos = 0;
-                    } else {
-                        $i = $len;
-                        $pos+= $len;
-                        $len = 0;
-                    }
-                    // ie. $i = min($max, $len), $len-= $i, $pos+= $i, $pos%= $blocksize
-                    $ciphertext = substr($iv, $orig_pos) ^ $plaintext;
-                    $iv = substr_replace($iv, $ciphertext, $orig_pos, $i);
-                }
-                while ($len >= $block_size) {
-                    $iv = $this->_encryptBlock($iv) ^ substr($plaintext, $i, $block_size);
-                    $ciphertext.= $iv;
-                    $len-= $block_size;
-                    $i+= $block_size;
-                }
-                if ($len) {
-                    $iv = $this->_encryptBlock($iv);
-                    $block = $iv ^ substr($plaintext, $i);
-                    $iv = substr_replace($iv, $block, 0, $len);
-                    $ciphertext.= $block;
-                    $pos = $len;
-                }
+	            // cfb loosely routines inspired by openssl's:
+	            // {@link http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1}
+	            if ($this->continuousBuffer) {
+		            $iv = &$this->encryptIV;
+		            $pos = &$buffer['pos'];
+	            } else {
+		            $iv = $this->encryptIV;
+		            $pos = 0;
+	            }
+	            $len = strlen($plaintext);
+	            $i = 0;
+	            if ($pos) {
+		            $orig_pos = $pos;
+		            $max = $block_size - $pos;
+		            if ($len >= $max) {
+			            $i = $max;
+			            $len-= $max;
+			            $pos = 0;
+		            } else {
+			            $i = $len;
+			            $pos+= $len;
+			            $len = 0;
+		            }
+		            // ie. $i = min($max, $len), $len-= $i, $pos+= $i, $pos%= $blocksize
+		            $ciphertext = substr($iv, $orig_pos) ^ $plaintext;
+		            $iv = substr_replace($iv, $ciphertext, $orig_pos, $i);
+	            }
+	            while ($len >= $block_size) {
+		            $iv = $this->_encryptBlock($iv) ^ substr($plaintext, $i, $block_size);
+		            $ciphertext.= $iv;
+		            $len-= $block_size;
+		            $i+= $block_size;
+	            }
+	            if ($len) {
+		            $iv = $this->_encryptBlock($iv);
+		            $block = $iv ^ substr($plaintext, $i);
+		            $iv = substr_replace($iv, $block, 0, $len);
+		            $ciphertext.= $block;
+		            $pos = $len;
+	            }
                 break;
             case CRYPT_MODE_OFB:
                 $xor = $this->encryptIV;
@@ -872,7 +875,7 @@ class Base
                 $this->dechanged = false;
             }
 
-            if ($this->mode == CRYPT_MODE_CFB && $this->continuousBuffer) {
+            if (false && $this->continuousBuffer) {
                 $iv = &$this->decryptIV;
                 $pos = &$this->debuffer['pos'];
                 $len = strlen($ciphertext);
@@ -1274,7 +1277,7 @@ class Base
                 CRYPT_MODE_CTR    => 'ctr',
                 CRYPT_MODE_ECB    => MCRYPT_MODE_ECB,
                 CRYPT_MODE_CBC    => MCRYPT_MODE_CBC,
-                CRYPT_MODE_CFB    => 'ncfb',
+                CRYPT_MODE_CFB    => 'cfb',
                 CRYPT_MODE_OFB    => MCRYPT_MODE_NOFB,
                 CRYPT_MODE_STREAM => MCRYPT_MODE_STREAM,
             );
@@ -1285,13 +1288,13 @@ class Base
             // we need the $ecb mcrypt resource (only) in MODE_CFB with enableContinuousBuffer()
             // to workaround mcrypt's broken ncfb implementation in buffered mode
             // see: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
-            if ($this->mode == CRYPT_MODE_CFB) {
+            if (false) {
                 $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
             }
 
         } // else should mcrypt_generic_deinit be called?
 
-        if ($this->mode == CRYPT_MODE_CFB) {
+        if (false) {
             mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
         }
     }

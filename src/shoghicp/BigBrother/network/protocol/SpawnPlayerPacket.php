@@ -51,8 +51,8 @@ class SpawnPlayerPacket extends Packet{
 		$this->putInt(intval($this->x * 32));
 		$this->putInt(intval($this->y * 32));
 		$this->putInt(intval($this->z * 32));
-		$this->putByte((int) ($this->yaw * (256 / 360)));
-		$this->putByte((int) ($this->pitch * (256 / 360)));
+		$this->putByte(($this->yaw / 360) << 8);
+		$this->putByte(($this->pitch / 360) << 8);
 		$this->putShort($this->item);
 		$this->put(Binary::writeMetadata($this->metadata));
 	}

@@ -42,12 +42,6 @@ class EntityTeleportPacket extends Packet{
 	}
 
 	public function decode(){
-		$this->x = $this->getDouble();
-		$this->y = $this->getDouble();
-		$this->headY = $this->getDouble();
-		$this->z = $this->getDouble();
-		$this->yaw = $this->getFloat();
-		$this->pitch = $this->getFloat();
-		$this->onGround = $this->getByte() > 0;
+
 	}
 }

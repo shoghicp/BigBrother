@@ -21,9 +21,12 @@ use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\protocol\Info;
 use pocketmine\network\protocol\MessagePacket;
 use pocketmine\network\protocol\MovePlayerPacket;
+use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\protocol\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\DestroyEntitiesPacket;
+use shoghicp\BigBrother\network\protocol\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\JoinGamePacket;
 use shoghicp\BigBrother\network\protocol\PlayerPositionAndLookPacket;
@@ -85,6 +88,16 @@ class Translator_16 implements Translator{
 
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
 		switch($packet->pid()){
+
+			case Info::UPDATE_BLOCK_PACKET:
+				$pk = new BlockChangePacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->blockId = $packet->block;
+				$pk->blockMeta = $packet->meta;
+				return $pk;
+
 			case Info::START_GAME_PACKET:
 				$packets = [];
 				$pk = new JoinGamePacket();
@@ -93,7 +106,7 @@ class Translator_16 implements Translator{
 				$pk->dimension = 0;
 				$pk->difficulty = $player->getServer()->getDifficulty();
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
-				$pk->levelType = "flat";//"default";
+				$pk->levelType = "default";
 				$packets[] = $pk;
 
 				$pk = new SpawnPositionPacket();
@@ -115,9 +128,7 @@ class Translator_16 implements Translator{
 			case Info::MESSAGE_PACKET:
 				$pk = new STCChatPacket();
 
-				$pk->message = json_encode([
-					"text" => $packet->message
-				]);
+				$pk->message = TextFormat::toJSON($packet->message);
 				return $pk;
 
 			case Info::SET_TIME_PACKET:
@@ -148,7 +159,9 @@ class Translator_16 implements Translator{
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
 					$pk->onGround = $player->isOnGround();
+					return $pk;
 				}else{
+					$packets = [];
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->eid;
 					$pk->x = $packet->x;
@@ -156,10 +169,17 @@ class Translator_16 implements Translator{
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
+					$packets[] = $pk;
+
+					$pk = new EntityHeadLookPacket();
+					$pk->eid = $packet->eid;
+					$pk->yaw = $packet->yaw;
+					$packets[] = $pk;
+					return $packets;
 				}
-				return $pk;
 
 			case Info::MOVE_ENTITY_PACKET_POSROT:
+				$packets = [];
 				$pk = new EntityTeleportPacket();
 				$pk->eid = $packet->eid;
 				$pk->x = $packet->x;
@@ -167,7 +187,13 @@ class Translator_16 implements Translator{
 				$pk->z = $packet->z;
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
-				return $pk;
+				$packets[] = $pk;
+
+				$pk = new EntityHeadLookPacket();
+				$pk->eid = $packet->eid;
+				$pk->yaw = $packet->yaw;
+				$packets[] = $pk;
+				return $packets;
 
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
@@ -193,6 +219,8 @@ class Translator_16 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 				return $packets;
+
+
 
 			default:
 				return null;

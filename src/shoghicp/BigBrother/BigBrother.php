@@ -65,6 +65,10 @@ class BigBrother extends PluginBase implements Listener{
 
 		//TODO: work on online mode
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
+		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
+			$this->onlineMode = false;
+			$this->getLogger()->notice("no mcrypt detected, online-mode has been disabled");
+		}
 
 		if(Info::CURRENT_PROTOCOL === 16){
 			$this->translator = new Translator_16();
@@ -76,11 +80,10 @@ class BigBrother extends PluginBase implements Listener{
 
 		$this->rsa = new RSA();
 
-
-
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
 		if($this->onlineMode){
+			$this->getLogger()->info("Server is being started in the background");
 			$task = new GeneratePrivateKey($this->getServer()->getLogger(), $this->getServer()->getLoader());
 			$this->getServer()->getScheduler()->scheduleAsyncTask($task);
 		}else{

@@ -42,9 +42,9 @@ class AuthenticateOnline extends AsyncTask{
 	public function onCompletion(Server $server){
 		foreach($server->getOnlinePlayers() as $clientID => $player){
 			if($player instanceof DesktopPlayer and $clientID === $this->clientID){
-				$result = json_decode($this->getResult(), false);
-				if($result instanceof \stdClass and isset($result->id)){
-					$player->bigBrother_authenticate($this->username, $result->id, true);
+				$result = json_decode($this->getResult(), true);
+				if(is_array($result) and isset($result["id"])){
+					$player->bigBrother_authenticate($this->username, $result["id"], $result["properties"]);
 				}else{
 					$player->close("", "User not premium");
 				}

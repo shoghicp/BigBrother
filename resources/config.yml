@@ -15,4 +15,5 @@ online-mode-simpleauth: false
 #kickpc: kicks the PC player
 #kickold: kicks the player that was on the server
 #kicknew: kicks the player that is connecting
-action-on-conflict: kickpe
+#none: do nothing, leave it up to PocketMine-MP and other plugins
+action-on-conflict: none
