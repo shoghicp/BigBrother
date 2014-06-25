@@ -1,0 +1,18 @@
+#Configuration file for BigBrother plugin
+
+#Do not change the interface if you don't know what you are doing. It's good as it is now
+interface: 0.0.0.0
+port: 25565
+
+#Use Mojang services to authenticate players
+online-mode: true
+
+#Automatically authenticate players on SimpleAuth that were authenticated via Mojang servers
+online-mode-simpleauth: false
+
+#Action when there is a nick conflict
+#kickpe: kicks the Pocket Edition player
+#kickpc: kicks the PC player
+#kickold: kicks the player that was on the server
+#kicknew: kicks the player that is connecting
+action-on-conflict: kickpe

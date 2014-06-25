@@ -1,0 +1,9 @@
+name: BigBrother
+version: 1.0.0
+api: 1.0.0
+description: "Allows the connection of Minecraft: PC clients to PocketMine-MP servers"
+author: shoghicp
+website: https://github.com/shoghicp/BigBrother
+load: STARTUP
+main: shoghicp\BigBrother\BigBrother
+softdepend: [SimpleAuth]
