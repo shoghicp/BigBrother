@@ -84,23 +84,23 @@ namespace phpseclib\Math;
  * @see BigInteger::_montgomery()
  * @see BigInteger::_prepMontgomery()
  */
-define('MATH_BIGINTEGER_MONTGOMERY', 0);
+@define('MATH_BIGINTEGER_MONTGOMERY', 0);
 /**
  * @see BigInteger::_barrett()
  */
-define('MATH_BIGINTEGER_BARRETT', 1);
+@define('MATH_BIGINTEGER_BARRETT', 1);
 /**
  * @see BigInteger::_mod2()
  */
-define('MATH_BIGINTEGER_POWEROF2', 2);
+@define('MATH_BIGINTEGER_POWEROF2', 2);
 /**
  * @see BigInteger::_remainder()
  */
-define('MATH_BIGINTEGER_CLASSIC', 3);
+@define('MATH_BIGINTEGER_CLASSIC', 3);
 /**
  * @see BigInteger::__clone()
  */
-define('MATH_BIGINTEGER_NONE', 4);
+@define('MATH_BIGINTEGER_NONE', 4);
 /**#@-*/
 
 /**#@+
@@ -114,11 +114,11 @@ define('MATH_BIGINTEGER_NONE', 4);
 /**
  * $result[MATH_BIGINTEGER_VALUE] contains the value.
  */
-define('MATH_BIGINTEGER_VALUE', 0);
+@define('MATH_BIGINTEGER_VALUE', 0);
 /**
  * $result[MATH_BIGINTEGER_SIGN] contains the sign.
  */
-define('MATH_BIGINTEGER_SIGN', 1);
+@define('MATH_BIGINTEGER_SIGN', 1);
 /**#@-*/
 
 /**#@+
@@ -131,11 +131,11 @@ define('MATH_BIGINTEGER_SIGN', 1);
  *
  * $cache[MATH_BIGINTEGER_VARIABLE] tells us whether or not the cached data is still valid.
  */
-define('MATH_BIGINTEGER_VARIABLE', 0);
+@define('MATH_BIGINTEGER_VARIABLE', 0);
 /**
  * $cache[MATH_BIGINTEGER_DATA] contains the cached data.
  */
-define('MATH_BIGINTEGER_DATA', 1);
+@define('MATH_BIGINTEGER_DATA', 1);
 /**#@-*/
 
 /**#@+
@@ -147,19 +147,19 @@ define('MATH_BIGINTEGER_DATA', 1);
 /**
  * To use the pure-PHP implementation
  */
-define('MATH_BIGINTEGER_MODE_INTERNAL', 1);
+@define('MATH_BIGINTEGER_MODE_INTERNAL', 1);
 /**
  * To use the BCMath library
  *
  * (if enabled; otherwise, the internal implementation will be used)
  */
-define('MATH_BIGINTEGER_MODE_BCMATH', 2);
+@define('MATH_BIGINTEGER_MODE_BCMATH', 2);
 /**
  * To use the GMP library
  *
  * (if present; otherwise, either the BCMath or the internal implementation will be used)
  */
-define('MATH_BIGINTEGER_MODE_GMP', 3);
+@define('MATH_BIGINTEGER_MODE_GMP', 3);
 /**#@-*/
 
 /**
@@ -169,7 +169,7 @@ define('MATH_BIGINTEGER_MODE_GMP', 3);
  *
  * @access private
  */
-define('MATH_BIGINTEGER_KARATSUBA_CUTOFF', 25);
+@define('MATH_BIGINTEGER_KARATSUBA_CUTOFF', 25);
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -258,18 +258,18 @@ class BigInteger
      * @return BigInteger
      * @access public
      */
-    function BigInteger($x = 0, $base = 10)
+    function __construct($x = 0, $base = 10)
     {
         if ( !defined('MATH_BIGINTEGER_MODE') ) {
             switch (true) {
                 case extension_loaded('gmp'):
-                    define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
+                    @define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
                     break;
                 case extension_loaded('bcmath'):
-                    define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
+                    @define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
                     break;
                 default:
-                    define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
+                    @define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
             }
         }
 
@@ -294,43 +294,43 @@ class BigInteger
                 case !isset($versions['Header']):
                 case !isset($versions['Library']):
                 case $versions['Header'] == $versions['Library']:
-                    define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
+                    @define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
                     break;
                 default:
-                    define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+                    @define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
             }
         }
 
         if (!defined('PHP_INT_SIZE')) {
-            define('PHP_INT_SIZE', 4);
+            @define('PHP_INT_SIZE', 4);
         }
 
         if (!defined('MATH_BIGINTEGER_BASE') && MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_INTERNAL) {
             switch (PHP_INT_SIZE) {
                 case 8: // use 64-bit integers if int size is 8 bytes
-                    define('MATH_BIGINTEGER_BASE',       31);
-                    define('MATH_BIGINTEGER_BASE_FULL',  0x80000000);
-                    define('MATH_BIGINTEGER_MAX_DIGIT',  0x7FFFFFFF);
-                    define('MATH_BIGINTEGER_MSB',        0x40000000);
+                    @define('MATH_BIGINTEGER_BASE',       31);
+                    @define('MATH_BIGINTEGER_BASE_FULL',  0x80000000);
+                    @define('MATH_BIGINTEGER_MAX_DIGIT',  0x7FFFFFFF);
+                    @define('MATH_BIGINTEGER_MSB',        0x40000000);
                     // 10**9 is the closest we can get to 2**31 without passing it
-                    define('MATH_BIGINTEGER_MAX10',      1000000000);
-                    define('MATH_BIGINTEGER_MAX10_LEN',  9);
+                    @define('MATH_BIGINTEGER_MAX10',      1000000000);
+                    @define('MATH_BIGINTEGER_MAX10_LEN',  9);
                     // the largest digit that may be used in addition / subtraction
-                    define('MATH_BIGINTEGER_MAX_DIGIT2', pow(2, 62));
+                    @define('MATH_BIGINTEGER_MAX_DIGIT2', pow(2, 62));
                     break;
                 //case 4: // use 64-bit floats if int size is 4 bytes
                 default:
-                    define('MATH_BIGINTEGER_BASE',       26);
-                    define('MATH_BIGINTEGER_BASE_FULL',  0x4000000);
-                    define('MATH_BIGINTEGER_MAX_DIGIT',  0x3FFFFFF);
-                    define('MATH_BIGINTEGER_MSB',        0x2000000);
+                    @define('MATH_BIGINTEGER_BASE',       26);
+                    @define('MATH_BIGINTEGER_BASE_FULL',  0x4000000);
+                    @define('MATH_BIGINTEGER_MAX_DIGIT',  0x3FFFFFF);
+                    @define('MATH_BIGINTEGER_MSB',        0x2000000);
                     // 10**7 is the closest to 2**26 without passing it
-                    define('MATH_BIGINTEGER_MAX10',      10000000);
-                    define('MATH_BIGINTEGER_MAX10_LEN',  7);
+                    @define('MATH_BIGINTEGER_MAX10',      10000000);
+                    @define('MATH_BIGINTEGER_MAX10_LEN',  7);
                     // the largest digit that may be used in addition / subtraction
                     // we do pow(2, 52) instead of using 4503599627370496 directly because some
                     // PHP installations will truncate 4503599627370496.
-                    define('MATH_BIGINTEGER_MAX_DIGIT2', pow(2, 52));
+                    @define('MATH_BIGINTEGER_MAX_DIGIT2', pow(2, 52));
             }
         }
 
@@ -3064,9 +3064,9 @@ class BigInteger
      */
     function _random_number_helper($size)
     {
-        $crypt_random = function_exists('crypt_random_string') || (!class_exists('Random') && function_exists('crypt_random_string'));
+        $crypt_random = function_exists('phpseclib\\Crypt\\crypt_random_string') || (!class_exists('phpseclib\\Crypt\\Random') && function_exists('phpseclib\\Crypt\\crypt_random_string'));
         if ($crypt_random) {
-            $random = crypt_random_string($size);
+            $random = \phpseclib\Crypt\crypt_random_string($size);
         } else {
             $random = '';
 

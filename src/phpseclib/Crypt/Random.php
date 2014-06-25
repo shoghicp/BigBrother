@@ -47,7 +47,8 @@ namespace phpseclib\Crypt;
  *
  * @access private
  */
-define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+@define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+
 
 /**
  * Generate a random string.
@@ -60,6 +61,12 @@ define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
  * @return String
  * @access public
  */
+
+class Random{
+
+}
+
+if(!function_exists("phpseclib\\Crypt\\crypt_random_string")){
 function crypt_random_string($length)
 {
     if (CRYPT_RANDOM_IS_WINDOWS) {
@@ -189,16 +196,16 @@ function crypt_random_string($length)
         //
         // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
         switch (true) {
-            case class_exists('AES'):
+            case class_exists('phpseclib\\Crypt\\AES'):
                 $crypto = new AES(CRYPT_AES_MODE_CTR);
                 break;
-            case class_exists('TripleDES'):
+            case class_exists('phpseclib\\Crypt\\TripleDES'):
                 $crypto = new TripleDES(CRYPT_DES_MODE_CTR);
                 break;
-            case class_exists('DES'):
+            case class_exists('phpseclib\\Crypt\\DES'):
                 $crypto = new DES(CRYPT_DES_MODE_CTR);
                 break;
-            case class_exists('RC4'):
+            case class_exists('phpseclib\\Crypt\\RC4'):
                 $crypto = new RC4();
                 break;
             default:
@@ -245,4 +252,6 @@ function crypt_random_string($length)
         $result.= $r;
     }
     return substr($result, 0, $length);
+}
+
 }

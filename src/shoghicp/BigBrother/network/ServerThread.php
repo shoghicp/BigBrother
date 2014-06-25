@@ -119,7 +119,7 @@ class ServerThread extends \Thread{
 	public function run(){
 		//Load removed dependencies, can't use require_once()
 		foreach($this->loadPaths as $name => $path){
-			if(!class_exists($name, false) and !class_exists($name, false)){
+			if(!class_exists($name, false) and !interface_exists($name, false)){
 				require($path);
 			}
 		}

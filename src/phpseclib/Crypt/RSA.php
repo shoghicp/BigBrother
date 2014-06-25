@@ -85,14 +85,14 @@ namespace phpseclib\Crypt;
  */
 use phpseclib\Math\BigInteger;
 
-define('CRYPT_RSA_ENCRYPTION_OAEP',  1);
+@define('CRYPT_RSA_ENCRYPTION_OAEP',  1);
 /**
  * Use PKCS#1 padding.
  *
  * Although CRYPT_RSA_ENCRYPTION_OAEP offers more security, including PKCS#1 padding is necessary for purposes of backwards
  * compatability with protocols (like SSH-1) written before OAEP's introduction.
  */
-define('CRYPT_RSA_ENCRYPTION_PKCS1', 2);
+@define('CRYPT_RSA_ENCRYPTION_PKCS1', 2);
 /**#@-*/
 
 /**#@+
@@ -109,14 +109,14 @@ define('CRYPT_RSA_ENCRYPTION_PKCS1', 2);
  * @see RSA::setSaltLength()
  * @see RSA::setMGFHash()
  */
-define('CRYPT_RSA_SIGNATURE_PSS',  1);
+@define('CRYPT_RSA_SIGNATURE_PSS',  1);
 /**
  * Use the PKCS#1 scheme by default.
  *
  * Although CRYPT_RSA_SIGNATURE_PSS offers more security, including PKCS#1 signing is necessary for purposes of backwards
  * compatability with protocols (like SSH-2) written before PSS's introduction.
  */
-define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
+@define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
 /**#@-*/
 
 /**#@+
@@ -126,15 +126,15 @@ define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
 /**
  * ASN1 Integer
  */
-define('CRYPT_RSA_ASN1_INTEGER',   2);
+@define('CRYPT_RSA_ASN1_INTEGER',   2);
 /**
  * ASN1 Bit String
  */
-define('CRYPT_RSA_ASN1_BITSTRING', 3);
+@define('CRYPT_RSA_ASN1_BITSTRING', 3);
 /**
  * ASN1 Sequence (with the constucted bit set)
  */
-define('CRYPT_RSA_ASN1_SEQUENCE', 48);
+@define('CRYPT_RSA_ASN1_SEQUENCE', 48);
 /**#@-*/
 
 /**#@+
@@ -144,19 +144,19 @@ define('CRYPT_RSA_ASN1_SEQUENCE', 48);
 /**
  * To use the pure-PHP implementation
  */
-define('CRYPT_RSA_MODE_INTERNAL', 1);
+@define('CRYPT_RSA_MODE_INTERNAL', 1);
 /**
  * To use the OpenSSL library
  *
  * (if enabled; otherwise, the internal implementation will be used)
  */
-define('CRYPT_RSA_MODE_OPENSSL', 2);
+@define('CRYPT_RSA_MODE_OPENSSL', 2);
 /**#@-*/
 
 /**
  * Default openSSL configuration file.
  */
-define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
+@define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
 
 /**#@+
  * @access public
@@ -168,15 +168,15 @@ define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
  *
  * Used by OpenSSH
  */
-define('CRYPT_RSA_PRIVATE_FORMAT_PKCS1', 0);
+@define('CRYPT_RSA_PRIVATE_FORMAT_PKCS1', 0);
 /**
  * PuTTY formatted private key
  */
-define('CRYPT_RSA_PRIVATE_FORMAT_PUTTY', 1);
+@define('CRYPT_RSA_PRIVATE_FORMAT_PUTTY', 1);
 /**
  * XML formatted private key
  */
-define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
+@define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
 /**#@-*/
 
 /**#@+
@@ -197,29 +197,29 @@ define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
  *
  * 1, n, modulo, modulus
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 3);
+@define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 3);
 /**
  * PKCS#1 formatted public key (raw)
  *
  * Used by File/X509.php
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW', 4);
+@define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW', 4);
 /**
  * XML formatted public key
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_XML', 5);
+@define('CRYPT_RSA_PUBLIC_FORMAT_XML', 5);
 /**
  * OpenSSH formatted public key
  *
  * Place in $HOME/.ssh/authorized_keys
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_OPENSSH', 6);
+@define('CRYPT_RSA_PUBLIC_FORMAT_OPENSSH', 6);
 /**
  * PKCS#1 formatted public key (encapsulated)
  *
  * Used by PHP's openssl_public_encrypt() and openssl's rsautl (when -pubin is set)
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
+@define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
 /**#@-*/
 
 /**
@@ -444,7 +444,7 @@ class RSA
      * @return RSA
      * @access public
      */
-    function RSA()
+    function __construct()
     {
 
         $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
@@ -454,7 +454,7 @@ class RSA
             // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
             // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
             if ( defined('MATH_BIGINTEGER_OPENSSL_DISABLE') ) {
-                define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+                @define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
             }
 
             switch ( !defined('CRYPT_RSA_MODE') ) { // ie. only run this if the above didn't set CRYPT_RSA_MODE already
@@ -479,15 +479,15 @@ class RSA
                         case !isset($versions['Header']):
                         case !isset($versions['Library']):
                         case $versions['Header'] == $versions['Library']:
-                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
+                            @define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
                             break;
                         default:
-                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
-                            define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+                            @define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+                            @define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
                     }
                     break;
                 case true:
-                    define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+                    @define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
             }
         }
 
@@ -519,7 +519,7 @@ class RSA
     {
         if (!defined('CRYPT_RSA_EXPONENT')) {
             // http://en.wikipedia.org/wiki/65537_%28number%29
-            define('CRYPT_RSA_EXPONENT', '65537');
+            @define('CRYPT_RSA_EXPONENT', '65537');
         }
         // per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
         // than 256 bits. as a consequence if the key you're trying to create is 1024 bits and you've set CRYPT_RSA_SMALLEST_PRIME
@@ -528,7 +528,7 @@ class RSA
         // CRYPT_RSA_SMALLEST_PRIME is ignored (ie. multi-prime RSA support is more intended as a way to speed up RSA key
         // generation when there's a chance neither gmp nor OpenSSL are installed)
         if (!defined('CRYPT_RSA_SMALLEST_PRIME')) {
-            define('CRYPT_RSA_SMALLEST_PRIME', 4096);
+            @define('CRYPT_RSA_SMALLEST_PRIME', 4096);
         }
 
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum

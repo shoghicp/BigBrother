@@ -84,31 +84,31 @@ namespace phpseclib\Crypt;
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
  */
-define('CRYPT_RIJNDAEL_MODE_CTR', CRYPT_MODE_CTR);
+@define('CRYPT_RIJNDAEL_MODE_CTR', CRYPT_MODE_CTR);
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
  */
-define('CRYPT_RIJNDAEL_MODE_ECB', CRYPT_MODE_ECB);
+@define('CRYPT_RIJNDAEL_MODE_ECB', CRYPT_MODE_ECB);
 /**
  * Encrypt / decrypt using the Code Book Chaining mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
-define('CRYPT_RIJNDAEL_MODE_CBC', CRYPT_MODE_CBC);
+@define('CRYPT_RIJNDAEL_MODE_CBC', CRYPT_MODE_CBC);
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
  */
-define('CRYPT_RIJNDAEL_MODE_CFB', CRYPT_MODE_CFB);
+@define('CRYPT_RIJNDAEL_MODE_CFB', CRYPT_MODE_CFB);
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
  */
-define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
+@define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
 /**#@+
@@ -118,11 +118,11 @@ define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
 /**
  * Toggles the internal implementation
  */
-define('CRYPT_RIJNDAEL_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
+@define('CRYPT_RIJNDAEL_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
 /**
  * Toggles the mcrypt implementation
  */
-define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
+@define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**#@-*/
 
 /**
@@ -692,9 +692,10 @@ class Rijndael extends Base
      * @param optional Integer $mode
      * @access public
      */
-    function Rijndael($mode = CRYPT_RIJNDAEL_MODE_CBC)
+
+    function __construct($mode = CRYPT_RIJNDAEL_MODE_CBC)
     {
-        parent::Base($mode);
+        parent::__construct($mode);
     }
 
     /**
@@ -816,7 +817,7 @@ class Rijndael extends Base
      */
     function _setupEngine()
     {
-        if (constant('CRYPT_' . $this->const_namespace . '_MODE') == CRYPT_MODE_INTERNAL) {
+        if (@constant('CRYPT_' . $this->const_namespace . '_MODE') == CRYPT_MODE_INTERNAL) {
             // No mcrypt support at all for rijndael
             return;
         }

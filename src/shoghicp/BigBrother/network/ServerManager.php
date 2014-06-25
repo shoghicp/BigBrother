@@ -52,6 +52,13 @@ class ServerManager{
 	const PACKET_CLOSE_SESSION = 0x03;
 
 	/*
+	 * ENABLE_ENCRYPTION payload:
+	 * int32 (session identifier)
+	 * byte[] (secret)
+	 */
+	const PACKET_ENABLE_ENCRYPTION = 0x04;
+
+	/*
 	 * no payload
 	 */
 	const PACKET_SHUTDOWN = 0xfe;
@@ -121,6 +128,15 @@ class ServerManager{
 				return;
 			}
 			$this->sessions[$id]->writeRaw($data);
+		}elseif($pid === self::PACKET_ENABLE_ENCRYPTION){
+			$id = Binary::readInt(substr($buffer, 0, 4));
+			$secret = substr($buffer, 4);
+
+			if(!isset($this->sessions[$id])){
+				$this->closeSession($id);
+				return;
+			}
+			$this->sessions[$id]->enableEncryption($secret);
 		}elseif($pid === self::PACKET_CLOSE_SESSION){
 			$id = Binary::readInt(substr($buffer, 0, 4));
 			if(isset($this->sessions[$id])){
@@ -164,12 +180,7 @@ class ServerManager{
 					}
 				}elseif(isset($sockets[0])){
 					if($sockets[0] !== $this->fp){
-						foreach($this->sockets as $identifier => $socket){
-							if($identifier > 0 and $socket === $sockets[0]){
-								$this->sessions[$identifier]->process();
-								break;
-							}
-						}
+						$this->findSocket($sockets[0]);
 					}else{
 						$this->processPacket();
 					}
@@ -177,8 +188,21 @@ class ServerManager{
 				}
 
 				foreach($sockets as $identifier => $socket){
-					$this->sessions[$identifier]->process();
+					if(isset($this->sessions[$identifier]) and $this->sockets[$identifier] === $socket){
+						$this->sessions[$identifier]->process();
+					}else{
+						$this->findSocket($socket);
+					}
 				}
+			}
+		}
+	}
+
+	protected function findSocket($s){
+		foreach($this->sockets as $identifier => $socket){
+			if($identifier > 0 and $socket === $s){
+				$this->sessions[$identifier]->process();
+				break;
 			}
 		}
 	}

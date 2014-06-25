@@ -17,6 +17,7 @@
 
 namespace shoghicp\BigBrother\network;
 
+use phpseclib\Crypt\AES;
 use shoghicp\BigBrother\network\protocol\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\PingPacket;
 use shoghicp\BigBrother\utils\Binary;
@@ -29,6 +30,9 @@ class Session{
 	private $status = 0;
 	protected $address;
 	protected $port;
+	/** @var \phpseclib\Crypt\Rijndael  */
+	protected $aes;
+	protected $hasCrypto = false;
 
 	public function __construct(ServerManager $manager, $identifier, $socket){
 		$this->manager = $manager;
@@ -39,6 +43,30 @@ class Session{
 		$this->port = (int) substr($addr, $final + 1);
 		$this->address = substr($addr, 0, $final);
 
+		$this->aes = new AES(CRYPT_AES_MODE_CFB);
+		$this->aes->setKeyLength(128);
+		$this->aes->disablePadding();
+	}
+
+	public function write($data){
+		if($this->hasCrypto){
+			@fwrite($this->socket, $this->aes->encrypt($data));
+		}else{
+			@fwrite($this->socket, $data);
+		}
+	}
+
+	public function read($len){
+		if($this->hasCrypto){
+			$data = @fread($this->socket, $len);
+			if(strlen($data) > 0){
+				return $this->aes->decrypt($data);
+			}else{
+				return $data;
+			}
+		}else{
+			return @fread($this->socket, $len);
+		}
 	}
 
 	public function getAddress(){
@@ -48,17 +76,25 @@ class Session{
 	public function getPort(){
 		return $this->port;
 	}
+
+	public function enableEncryption($secret){
+		$this->aes->setKey($secret);
+		$this->aes->setIV($secret);
+		$this->aes->enableContinuousBuffer();
+		$this->hasCrypto = true;
+	}
+
 	public function writePacket(Packet $packet){
 		$data = $packet->write();
-		@fwrite($this->socket, Binary::writeVarInt(strlen($data)) . $data);
+		$this->write(Binary::writeVarInt(strlen($data)) . $data);
 	}
 
 	public function writeRaw($data){
-		@fwrite($this->socket, Binary::writeVarInt(strlen($data)) . $data);
+		$this->write(Binary::writeVarInt(strlen($data)) . $data);
 	}
 
 	public function process(){
-		$length = Binary::readVarIntStream($this->socket);
+		$length = Binary::readVarIntSession($this);
 		if($length === false or $this->status === -1){
 			$this->close("Connection closed");
 			return;
@@ -69,7 +105,7 @@ class Session{
 
 		$offset = 0;
 
-		$buffer = fread($this->socket, $length);
+		$buffer = $this->read($length);
 
 		if($this->status === 2){ //Login
 			$this->manager->sendPacket($this->identifier, $buffer);

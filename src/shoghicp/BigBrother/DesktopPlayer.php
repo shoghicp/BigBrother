@@ -30,19 +30,27 @@ use pocketmine\Player;
 use pocketmine\scheduler\CallbackTask;
 use pocketmine\Server;
 use pocketmine\tile\Spawnable;
+use pocketmine\utils\Utils;
 use shoghicp\BigBrother\network\protocol\ChunkDataPacket;
+use shoghicp\BigBrother\network\protocol\EncryptionRequestPacket;
+use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\LoginStartPacket;
 use shoghicp\BigBrother\network\protocol\LoginSuccessPacket;
 use shoghicp\BigBrother\network\protocol\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
+use shoghicp\BigBrother\tasks\AuthenticateOnline;
+use shoghicp\BigBrother\utils\Binary;
 
 class DesktopPlayer extends Player{
 
 	private $bigBrother_status = 0; //0 = log in, 1 = playing
 	private $bigBrother_uuid;
 	private $bigBrother_formatedUUID;
+	private $bigBrother_checkToken;
+	private $bigBrother_secret;
+	private $bigBrother_username;
 	/** @var ProtocolInterface */
 	protected $interface;
 
@@ -164,10 +172,10 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function bigBrother_authenticate(){
-		if($this->bigBrother_status === 0 and $this->loggedIn === true){
-			$this->bigBrother_uuid = "00000000000000000000000000000000";
-			$this->bigBrother_formatedUUID = substr($this->bigBrother_uuid, 0, 8) ."-". substr($this->bigBrother_uuid, 8, 4) ."-". substr($this->bigBrother_uuid, 12, 4) ."-". substr($this->bigBrother_uuid, 16, 4) ."-". substr($this->bigBrother_uuid, 20);
+	public function bigBrother_authenticate($username, $uuid, $onlineMode){
+		if($this->bigBrother_status === 0){
+			$this->bigBrother_uuid = $uuid;
+			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
 
 			$pk = new LoginSuccessPacket();
 			$pk->uuid = $this->bigBrother_formatedUUID;
@@ -175,19 +183,45 @@ class DesktopPlayer extends Player{
 			$this->interface->putRawPacket($this, $pk);
 			$this->bigBrother_status = 1;
 
-			$this->tasks[] = $this->server->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180);
+			$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
+			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 1);
 		}
 	}
 
-	public function bigBrother_handleAuthentication(LoginStartPacket $packet){
+	public function bigBrother_processAuthentication(BigBrother $plugin, EncryptionResponsePacket $packet){
+		$this->bigBrother_secret = $plugin->decryptBinary($packet->sharedSecret);
+		$token = $plugin->decryptBinary($packet->verifyToken);
+		$this->interface->enableEncryption($this, $this->bigBrother_secret);
+		if($token !== $this->bigBrother_checkToken){
+			$this->close("", "Invalid check token");
+		}else{
+			$task = new AuthenticateOnline($this->clientID, $this->bigBrother_username, Binary::sha1("" . $this->bigBrother_secret . $plugin->getASN1PublicKey()));
+			$this->server->getScheduler()->scheduleAsyncTask($task);
+		}
+	}
+
+	public function bigBrother_authenticationCallback($username){
+		$pk = new LoginPacket();
+		$pk->username = $username;
+		$pk->clientId = crc32($this->clientID);
+		$pk->protocol1 = Info::CURRENT_PROTOCOL;
+		$pk->protocol2 = Info::CURRENT_PROTOCOL;
+		$pk->loginData = "";
+		$this->handleDataPacket($pk);
+	}
+
+	public function bigBrother_handleAuthentication(BigBrother $plugin, $username, $onlineMode){
 		if($this->bigBrother_status === 0){
-			$pk = new LoginPacket();
-			$pk->username = $packet->name;
-			$pk->clientId = crc32($this->clientID);
-			$pk->protocol1 = Info::CURRENT_PROTOCOL;
-			$pk->protocol2 = Info::CURRENT_PROTOCOL;
-			$pk->loginData = "";
-			$this->handleDataPacket($pk);
+			$this->bigBrother_username = $username;
+			if($onlineMode === true){
+				$pk = new EncryptionRequestPacket();
+				$pk->serverID = "";
+				$pk->publicKey = $plugin->getASN1PublicKey();
+				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
+				$this->interface->putRawPacket($this, $pk);
+			}else{
+				$this->bigBrother_authenticate($username, "00000000000040008000000000000000", false);
+			}
 		}
 
 		/*//Login start

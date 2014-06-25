@@ -57,23 +57,20 @@ namespace phpseclib\Crypt;
 /**
  * Include DES
  */
-if (!class_exists('DES')) {
-    include_once 'DES.php';
-}
 
 /**
  * Encrypt / decrypt using inner chaining
  *
  * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
  */
-define('CRYPT_DES_MODE_3CBC', -2);
+@define('CRYPT_DES_MODE_3CBC', -2);
 
 /**
  * Encrypt / decrypt using outer chaining
  *
  * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
  */
-define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
+@define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
 
 /**
  * Pure-PHP implementation of Triple DES.

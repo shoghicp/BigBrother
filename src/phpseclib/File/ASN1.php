@@ -49,10 +49,10 @@ namespace phpseclib\File;
  */
 use phpseclib\Math\BigInteger;
 
-define('FILE_ASN1_CLASS_UNIVERSAL',        0);
-define('FILE_ASN1_CLASS_APPLICATION',      1);
-define('FILE_ASN1_CLASS_CONTEXT_SPECIFIC', 2);
-define('FILE_ASN1_CLASS_PRIVATE',          3);
+@define('FILE_ASN1_CLASS_UNIVERSAL',        0);
+@define('FILE_ASN1_CLASS_APPLICATION',      1);
+@define('FILE_ASN1_CLASS_CONTEXT_SPECIFIC', 2);
+@define('FILE_ASN1_CLASS_PRIVATE',          3);
 /**#@-*/
 
 /**#@+
@@ -61,21 +61,21 @@ define('FILE_ASN1_CLASS_PRIVATE',          3);
  * @access private
  * @link http://www.obj-sys.com/asn1tutorial/node124.html
  */
-define('FILE_ASN1_TYPE_BOOLEAN',           1);
-define('FILE_ASN1_TYPE_INTEGER',           2);
-define('FILE_ASN1_TYPE_BIT_STRING',        3);
-define('FILE_ASN1_TYPE_OCTET_STRING',      4);
-define('FILE_ASN1_TYPE_NULL',              5);
-define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER', 6);
-//define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR', 7);
-//define('FILE_ASN1_TYPE_INSTANCE_OF',       8); // EXTERNAL
-define('FILE_ASN1_TYPE_REAL',              9);
-define('FILE_ASN1_TYPE_ENUMERATED',       10);
-//define('FILE_ASN1_TYPE_EMBEDDED',         11);
-define('FILE_ASN1_TYPE_UTF8_STRING',      12);
-//define('FILE_ASN1_TYPE_RELATIVE_OID',     13);
-define('FILE_ASN1_TYPE_SEQUENCE',         16); // SEQUENCE OF
-define('FILE_ASN1_TYPE_SET',              17); // SET OF
+@define('FILE_ASN1_TYPE_BOOLEAN',           1);
+@define('FILE_ASN1_TYPE_INTEGER',           2);
+@define('FILE_ASN1_TYPE_BIT_STRING',        3);
+@define('FILE_ASN1_TYPE_OCTET_STRING',      4);
+@define('FILE_ASN1_TYPE_NULL',              5);
+@define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER', 6);
+//@define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR', 7);
+//@define('FILE_ASN1_TYPE_INSTANCE_OF',       8); // EXTERNAL
+@define('FILE_ASN1_TYPE_REAL',              9);
+@define('FILE_ASN1_TYPE_ENUMERATED',       10);
+//@define('FILE_ASN1_TYPE_EMBEDDED',         11);
+@define('FILE_ASN1_TYPE_UTF8_STRING',      12);
+//@define('FILE_ASN1_TYPE_RELATIVE_OID',     13);
+@define('FILE_ASN1_TYPE_SEQUENCE',         16); // SEQUENCE OF
+@define('FILE_ASN1_TYPE_SET',              17); // SET OF
 /**#@-*/
 /**#@+
  * More Tag Classes
@@ -83,19 +83,19 @@ define('FILE_ASN1_TYPE_SET',              17); // SET OF
  * @access private
  * @link http://www.obj-sys.com/asn1tutorial/node10.html
  */
-define('FILE_ASN1_TYPE_NUMERIC_STRING',   18);
-define('FILE_ASN1_TYPE_PRINTABLE_STRING', 19);
-define('FILE_ASN1_TYPE_TELETEX_STRING',   20); // T61String
-define('FILE_ASN1_TYPE_VIDEOTEX_STRING',  21);
-define('FILE_ASN1_TYPE_IA5_STRING',       22);
-define('FILE_ASN1_TYPE_UTC_TIME',         23);
-define('FILE_ASN1_TYPE_GENERALIZED_TIME', 24);
-define('FILE_ASN1_TYPE_GRAPHIC_STRING',   25);
-define('FILE_ASN1_TYPE_VISIBLE_STRING',   26); // ISO646String
-define('FILE_ASN1_TYPE_GENERAL_STRING',   27);
-define('FILE_ASN1_TYPE_UNIVERSAL_STRING', 28);
-//define('FILE_ASN1_TYPE_CHARACTER_STRING', 29);
-define('FILE_ASN1_TYPE_BMP_STRING',       30);
+@define('FILE_ASN1_TYPE_NUMERIC_STRING',   18);
+@define('FILE_ASN1_TYPE_PRINTABLE_STRING', 19);
+@define('FILE_ASN1_TYPE_TELETEX_STRING',   20); // T61String
+@define('FILE_ASN1_TYPE_VIDEOTEX_STRING',  21);
+@define('FILE_ASN1_TYPE_IA5_STRING',       22);
+@define('FILE_ASN1_TYPE_UTC_TIME',         23);
+@define('FILE_ASN1_TYPE_GENERALIZED_TIME', 24);
+@define('FILE_ASN1_TYPE_GRAPHIC_STRING',   25);
+@define('FILE_ASN1_TYPE_VISIBLE_STRING',   26); // ISO646String
+@define('FILE_ASN1_TYPE_GENERAL_STRING',   27);
+@define('FILE_ASN1_TYPE_UNIVERSAL_STRING', 28);
+//@define('FILE_ASN1_TYPE_CHARACTER_STRING', 29);
+@define('FILE_ASN1_TYPE_BMP_STRING',       30);
 /**#@-*/
 
 /**#@+
@@ -105,8 +105,8 @@ define('FILE_ASN1_TYPE_BMP_STRING',       30);
  *
  * @access private
  */
-define('FILE_ASN1_TYPE_CHOICE',          -1);
-define('FILE_ASN1_TYPE_ANY',             -2);
+@define('FILE_ASN1_TYPE_CHOICE',          -1);
+@define('FILE_ASN1_TYPE_ANY',             -2);
 /**#@-*/
 
 /**
@@ -136,7 +136,7 @@ class ASN1_Element
      * @return ASN1_Element
      * @access public
      */
-    function ASN1_Element($encoded)
+    function __construct($encoded)
     {
         $this->element = $encoded;
     }
@@ -251,7 +251,7 @@ class ASN1
      *
      * @access public
      */
-    function ASN1()
+    function __construct()
     {
         static $static_init = null;
         if (!$static_init) {
@@ -1192,7 +1192,7 @@ class ASN1
     /**
      * Load filters
      *
-     * See File_X509, etc, for an example.
+     * See X059, etc, for an example.
      *
      * @access public
      * @param Array $filters

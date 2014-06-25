@@ -23,7 +23,11 @@ use pocketmine\Player;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\protocol\CTSChatPacket;
+use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\LoginStartPacket;
+use shoghicp\BigBrother\network\protocol\PlayerLookPacket;
+use shoghicp\BigBrother\network\protocol\PlayerPositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\PlayerPositionPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\utils\Binary;
 
@@ -89,6 +93,14 @@ class ProtocolInterface implements SourceInterface{
 		fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
 	}
 
+	public function enableEncryption(DesktopPlayer $player, $secret){
+		if(isset($this->sessions[$player])){
+			$target = $this->sessions[$player];
+			$data = chr(ServerManager::PACKET_ENABLE_ENCRYPTION) . Binary::writeInt($target) . $secret;
+			fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+		}
+	}
+
 	public function putRawPacket(DesktopPlayer $player, Packet $packet){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
@@ -147,19 +159,35 @@ class ProtocolInterface implements SourceInterface{
 		$status = $player->bigBrother_getStatus();
 
 		if($status === 1){
-			if($pid === 0x01){
-				$pk = new CTSChatPacket();
-				$pk->read($payload, $offset);
-
-			}else{
-				return;
+			switch($pid){
+				case 0x01:
+					$pk = new CTSChatPacket();
+					break;
+				case 0x04:
+					$pk = new PlayerPositionPacket();
+					break;
+				case 0x05:
+					$pk = new PlayerLookPacket();
+					break;
+				case 0x06:
+					$pk = new PlayerPositionAndLookPacket();
+					break;
+				default:
+					return;
 			}
+
+
+			$pk->read($payload, $offset);
 			$this->receivePacket($player, $pk);
 		}elseif($status === 0){
 			if($pid === 0x00){
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
-				$player->bigBrother_handleAuthentication($pk);
+				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
+			}elseif($pid === 0x01 and $this->plugin->isOnlineMode()){
+				$pk = new EncryptionResponsePacket();
+				$pk->read($payload, $offset);
+				$player->bigBrother_processAuthentication($this->plugin, $pk);
 			}else{
 				$player->close($player->getName() . " has left the game", "Unexpected packet $pid");
 			}

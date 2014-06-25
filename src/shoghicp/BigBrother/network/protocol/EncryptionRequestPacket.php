@@ -19,30 +19,25 @@ namespace shoghicp\BigBrother\network\protocol;
 
 use shoghicp\BigBrother\network\Packet;
 
-class PlayerPositionAndLookPacket extends Packet{
+class EncryptionRequestPacket extends Packet{
 
-	public $x;
-	public $y;
-	public $z;
-	public $yaw;
-	public $pitch;
-	public $onGround;
+	public $serverID;
+	public $publicKey;
+	public $verifyToken;
 
 	public function pid(){
-		return 0x06;
+		return 0x01;
 	}
 
 	public function encode(){
-
+		$this->putString($this->serverID);
+		$this->putShort(strlen($this->publicKey));
+		$this->put($this->publicKey);
+		$this->putShort(strlen($this->verifyToken));
+		$this->put($this->verifyToken);
 	}
 
 	public function decode(){
-		$this->x = $this->getDouble();
-		$this->y = $this->getDouble();
-		$this->headY = $this->getDouble();
-		$this->z = $this->getDouble();
-		$this->yaw = $this->getFloat();
-		$this->pitch = $this->getFloat();
-		$this->onGround = $this->getByte() > 0;
+
 	}
 }

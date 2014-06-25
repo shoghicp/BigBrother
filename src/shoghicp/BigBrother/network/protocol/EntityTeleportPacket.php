@@ -19,21 +19,26 @@ namespace shoghicp\BigBrother\network\protocol;
 
 use shoghicp\BigBrother\network\Packet;
 
-class PlayerPositionAndLookPacket extends Packet{
+class EntityTeleportPacket extends Packet{
 
+	public $eid;
 	public $x;
 	public $y;
 	public $z;
 	public $yaw;
 	public $pitch;
-	public $onGround;
 
 	public function pid(){
-		return 0x06;
+		return 0x18;
 	}
 
 	public function encode(){
-
+		$this->putInt($this->eid);
+		$this->putInt(intval($this->x * 32));
+		$this->putInt(intval($this->y * 32));
+		$this->putInt(intval($this->z * 32));
+		$this->putByte((int) ($this->yaw * (256 / 360)));
+		$this->putByte((int) ($this->pitch * (256 / 360)));
 	}
 
 	public function decode(){

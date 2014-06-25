@@ -69,19 +69,19 @@ namespace phpseclib\Crypt;
 /**
  * Toggles the internal implementation
  */
-define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
+@define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
 /**
  * Toggles the mcrypt implementation
  */
-define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
+@define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**#@-*/
 
 /**#@+
  * @access private
  * @see RC4::_crypt()
  */
-define('CRYPT_RC4_ENCRYPT', 0);
-define('CRYPT_RC4_DECRYPT', 1);
+@define('CRYPT_RC4_ENCRYPT', 0);
+@define('CRYPT_RC4_DECRYPT', 1);
 /**#@-*/
 
 /**

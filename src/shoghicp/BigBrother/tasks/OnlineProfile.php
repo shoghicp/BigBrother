@@ -15,34 +15,13 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol;
+namespace shoghicp\BigBrother\tasks;
 
-use shoghicp\BigBrother\network\Packet;
+use pocketmine\scheduler\PluginTask;
 
-class PlayerPositionAndLookPacket extends Packet{
+class OnlineProfile extends PluginTask{
 
-	public $x;
-	public $y;
-	public $z;
-	public $yaw;
-	public $pitch;
-	public $onGround;
+	public function onRun($currentTick){
 
-	public function pid(){
-		return 0x06;
-	}
-
-	public function encode(){
-
-	}
-
-	public function decode(){
-		$this->x = $this->getDouble();
-		$this->y = $this->getDouble();
-		$this->headY = $this->getDouble();
-		$this->z = $this->getDouble();
-		$this->yaw = $this->getFloat();
-		$this->pitch = $this->getFloat();
-		$this->onGround = $this->getByte() > 0;
 	}
 }

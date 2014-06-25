@@ -67,36 +67,36 @@ namespace phpseclib\Crypt;
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
  */
-define('CRYPT_MODE_CTR', -1);
+@define('CRYPT_MODE_CTR', -1);
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
  */
-define('CRYPT_MODE_ECB', 1);
+@define('CRYPT_MODE_ECB', 1);
 /**
  * Encrypt / decrypt using the Code Book Chaining mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
-define('CRYPT_MODE_CBC', 2);
+@define('CRYPT_MODE_CBC', 2);
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
  */
-define('CRYPT_MODE_CFB', 3);
+@define('CRYPT_MODE_CFB', 3);
 /**
  * Encrypt / decrypt using the Output Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
  */
-define('CRYPT_MODE_OFB', 4);
+@define('CRYPT_MODE_OFB', 4);
 /**
  * Encrypt / decrypt using streaming mode.
  *
  */
-define('CRYPT_MODE_STREAM', 5);
+@define('CRYPT_MODE_STREAM', 5);
 /**#@-*/
 
 /**#@+
@@ -106,11 +106,11 @@ define('CRYPT_MODE_STREAM', 5);
 /**
  * Base value for the internal implementation $engine switch
  */
-define('CRYPT_MODE_INTERNAL', 1);
+@define('CRYPT_MODE_INTERNAL', 1);
 /**
  * Base value for the mcrypt implementation $engine switch
  */
-define('CRYPT_MODE_MCRYPT', 2);
+@define('CRYPT_MODE_MCRYPT', 2);
 /**#@-*/
 
 /**
@@ -447,7 +447,12 @@ class Base
      * @param optional Integer $mode
      * @access public
      */
-    function Base($mode = CRYPT_MODE_CBC)
+
+	public function Base($mode = CRYPT_MODE_CBC){
+		$this->__construct($mode);
+	}
+
+    function __construct($mode = CRYPT_MODE_CBC)
     {
         $const_crypt_mode = 'CRYPT_' . $this->const_namespace . '_MODE';
 
@@ -455,10 +460,10 @@ class Base
         if (!defined($const_crypt_mode)) {
             switch (true) {
                 case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms()):
-                    define($const_crypt_mode, CRYPT_MODE_MCRYPT);
+                    @define($const_crypt_mode, CRYPT_MODE_MCRYPT);
                     break;
                 default:
-                    define($const_crypt_mode, CRYPT_MODE_INTERNAL);
+                    @define($const_crypt_mode, CRYPT_MODE_INTERNAL);
             }
         }
 

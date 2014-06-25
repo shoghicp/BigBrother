@@ -17,7 +17,57 @@
 
 namespace shoghicp\BigBrother\utils;
 
+use phpseclib\Math\BigInteger;
+use shoghicp\BigBrother\network\Session;
+
 class Binary extends \pocketmine\utils\Binary{
+
+	public static function sha1($input){
+		$number = new BigInteger(sha1($input, true), -256);
+		$zero = new BigInteger(0);
+		return ($zero->compare($number) <= 0 ? "":"-") . ltrim($number->toHex(), "0");
+	}
+
+	public static function UUIDtoString($uuid){
+		return substr($uuid, 0, 8) ."-". substr($uuid, 8, 4) ."-". substr($uuid, 12, 4) ."-". substr($uuid, 16, 4) ."-". substr($uuid, 20);
+	}
+
+	public static function writeMetadata(array $data){
+		$m = "";
+		foreach($data as $bottom => $d){
+			$m .= chr(($d["type"] << 5) | ($bottom & 0x1F));
+			switch($d["type"]){
+				case 0:
+					$m .= self::writeByte($d["value"]);
+					break;
+				case 1:
+					$m .= self::writeShort($d["value"]);
+					break;
+				case 2:
+					$m .= self::writeInt($d["value"]);
+					break;
+				case 3:
+					$m .= self::writeFloat($d["value"]);
+					break;
+				case 4:
+					$m .= self::writeShort(strlen($d["value"])) . $d["value"];
+					break;
+				case 5:
+					$m .= self::writeShort($d["value"][0]);
+					$m .= self::writeByte($d["value"][1]);
+					$m .= self::writeShort($d["value"][2]);
+					break;
+				case 6:
+					$m .= self::writeInt($d["value"][0]);
+					$m .= self::writeInt($d["value"][1]);
+					$m .= self::writeInt($d["value"][2]);
+					break;
+			}
+		}
+		$m .= "\x7f";
+
+		return $m;
+	}
 
 	public static function readVarInt($buffer, &$offset = 0){
 		$number = 0;
@@ -33,6 +83,27 @@ class Binary extends \pocketmine\utils\Binary{
 		}
 		return $number;
 	}
+
+	public static function readVarIntSession(Session $session, &$offset = 0){
+		$number = 0;
+		$shift = 0;
+
+
+		while(true){
+			$b = $session->read(1);
+			$c = ord($b);
+			$number |= ($c & 0x7f) << $shift;
+			$shift += 7;
+			++$offset;
+			if($b === false){
+				return false;
+			}elseif(($c & 0x80) === 0x00){
+				break;
+			}
+		}
+		return $number;
+	}
+
 
 	public static function readVarIntStream($fp, &$offset = 0){
 		$number = 0;

@@ -65,15 +65,15 @@ namespace phpseclib\Crypt;
  */
 use phpseclib\Math\BigInteger;
 
-define('CRYPT_HASH_MODE_INTERNAL', 1);
+@define('CRYPT_HASH_MODE_INTERNAL', 1);
 /**
  * Toggles the mhash() implementation, which has been deprecated on PHP 5.3.0+.
  */
-define('CRYPT_HASH_MODE_MHASH',    2);
+@define('CRYPT_HASH_MODE_MHASH',    2);
 /**
  * Toggles the hash() implementation, which works on PHP 5.1.2+.
  */
-define('CRYPT_HASH_MODE_HASH',     3);
+@define('CRYPT_HASH_MODE_HASH',     3);
 /**#@-*/
 
 /**
@@ -161,13 +161,13 @@ class Hash
         if ( !defined('CRYPT_HASH_MODE') ) {
             switch (true) {
                 case extension_loaded('hash'):
-                    define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
+                    @define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
                     break;
                 case extension_loaded('mhash'):
-                    define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_MHASH);
+                    @define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_MHASH);
                     break;
                 default:
-                    define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_INTERNAL);
+                    @define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_INTERNAL);
             }
         }
 
