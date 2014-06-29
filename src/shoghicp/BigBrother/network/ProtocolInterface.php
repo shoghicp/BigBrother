@@ -20,6 +20,7 @@ namespace shoghicp\BigBrother\network;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
+use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\protocol\CTSChatPacket;
@@ -67,7 +68,7 @@ class ProtocolInterface implements SourceInterface{
 
 	public function shutdown(){
 		foreach($this->sessionsPlayers as $player){
-			$player->close($player->getName() . " has left the game", $this->plugin->getServer()->getProperty("settings.shutdown-message", "Server closed"));
+			$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", $this->plugin->getServer()->getProperty("settings.shutdown-message", "Server closed"));
 		}
 		@fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_SHUTDOWN));
 	}
@@ -81,7 +82,7 @@ class ProtocolInterface implements SourceInterface{
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
 			unset($this->sessionsPlayers[$identifier]);
-			$player->close($player->getName() . " has left the game", "Connection closed");
+			$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", "Connection closed");
 		}else{
 			return;
 		}
@@ -189,7 +190,7 @@ class ProtocolInterface implements SourceInterface{
 				$pk->read($payload, $offset);
 				$player->bigBrother_processAuthentication($this->plugin, $pk);
 			}else{
-				$player->close($player->getName() . " has left the game", "Unexpected packet $pid");
+				$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", "Unexpected packet $pid");
 			}
 		}
 	}

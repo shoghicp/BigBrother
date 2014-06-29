@@ -49,7 +49,7 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var Translator */
 	protected $translator;
 
-	public function onEnable(){
+	public function onLoad(){
 		$this->getServer()->getLoader()->add("phpseclib", [
 			$this->getFile() . "src"
 		]);
@@ -59,6 +59,9 @@ class BigBrother extends PluginBase implements Listener{
 		class_exists("phpseclib\\Crypt\\Base", true);
 		class_exists("phpseclib\\Crypt\\Rijndael", true);
 		class_exists("phpseclib\\Crypt\\AES", true);
+	}
+
+	public function onEnable(){
 
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
@@ -67,7 +70,7 @@ class BigBrother extends PluginBase implements Listener{
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
 		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
 			$this->onlineMode = false;
-			$this->getLogger()->notice("no mcrypt detected, online-mode has been disabled");
+			$this->getLogger()->notice("no mcrypt detected, online-mode has been disabled. Try using the latest PHP binaries");
 		}
 
 		if(Info::CURRENT_PROTOCOL === 16){

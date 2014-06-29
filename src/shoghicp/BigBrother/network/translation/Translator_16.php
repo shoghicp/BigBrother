@@ -29,7 +29,6 @@ use shoghicp\BigBrother\network\protocol\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\JoinGamePacket;
-use shoghicp\BigBrother\network\protocol\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\PositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPositionPacket;

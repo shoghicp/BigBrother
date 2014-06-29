@@ -45,6 +45,7 @@ use shoghicp\BigBrother\network\protocol\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\tasks\AuthenticateOnline;
+use shoghicp\BigBrother\tasks\OnlineProfile;
 use shoghicp\BigBrother\utils\Binary;
 
 class DesktopPlayer extends Player{
@@ -275,7 +276,8 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
 				$this->interface->putRawPacket($this, $pk);
 			}else{
-				$this->bigBrother_authenticate($username, "00000000000040008000000000000000", null);
+				$task = new OnlineProfile($this->clientID, $this->bigBrother_username);
+				$this->server->getScheduler()->scheduleAsyncTask($task);
 			}
 		}
 
@@ -284,20 +286,7 @@ class DesktopPlayer extends Player{
 		$packet->read($buffer);
 		$this->username = $packet->name;
 		//TODO: authentication
-		//TODO: async task
-		$ch = curl_init("https://api.mojang.com/profiles/minecraft");
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);
-		curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([$this->username]));
-		curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0 PocketMine-MP", "Content-Type: application/json"));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$ret = json_decode(curl_exec($ch), false);
-		curl_close($ch);
+
 
 		if(!is_array($ret) or ($profile = array_shift($ret)) === null){
 			$this->status = -1;

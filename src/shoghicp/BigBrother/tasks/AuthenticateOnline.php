@@ -35,7 +35,7 @@ class AuthenticateOnline extends AsyncTask{
 	}
 
 	public function onRun(){
-		$result = Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$this->username."&serverId=".$this->hash);
+		$result = Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$this->username."&serverId=".$this->hash, 5);
 		$this->setResult($result);
 	}
 

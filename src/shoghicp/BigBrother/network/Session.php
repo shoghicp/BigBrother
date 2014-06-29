@@ -17,10 +17,10 @@
 
 namespace shoghicp\BigBrother\network;
 
-use phpseclib\Crypt\AES;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\protocol\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\PingPacket;
+use shoghicp\BigBrother\utils\AES;
 use shoghicp\BigBrother\utils\Binary;
 
 class Session{
@@ -31,7 +31,7 @@ class Session{
 	private $status = 0;
 	protected $address;
 	protected $port;
-	/** @var \phpseclib\Crypt\Rijndael  */
+	/** @var AES */
 	protected $aes;
 	protected $hasCrypto = false;
 
@@ -43,8 +43,6 @@ class Session{
 		$final = strrpos($addr, ":");
 		$this->port = (int) substr($addr, $final + 1);
 		$this->address = substr($addr, 0, $final);
-
-		$this->aes = new AES(CRYPT_AES_MODE_CFB);
 	}
 
 	public function write($data){
@@ -77,9 +75,11 @@ class Session{
 	}
 
 	public function enableEncryption($secret){
+		$this->aes = new AES(128, "CFB", 8);
 		$this->aes->setKey($secret);
 		$this->aes->setIV($secret);
-		$this->aes->enableContinuousBuffer();
+		$this->aes->init();
+
 		$this->hasCrypto = true;
 	}
 
