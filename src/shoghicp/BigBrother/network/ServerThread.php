@@ -24,6 +24,7 @@ class ServerThread extends \Thread{
 	/** @var \ThreadedLogger */
 	protected $logger;
 	protected $loader;
+	protected $data = [];
 
 	public $loadPaths = [];
 
@@ -37,10 +38,12 @@ class ServerThread extends \Thread{
 	 * @param \SplAutoloader  $loader
 	 * @param int             $port 1-65536
 	 * @param string          $interface
+	 * @param string          $motd
+	 * @param string          $icon
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \SplAutoloader $loader, $port, $interface = "0.0.0.0"){
+	public function __construct(\ThreadedLogger $logger, \SplAutoloader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
 		$this->port = (int) $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
@@ -49,6 +52,10 @@ class ServerThread extends \Thread{
 		$this->interface = $interface;
 		$this->logger = $logger;
 		$this->loader = $loader;
+		$this->data = serialize([
+			"motd" => $motd,
+			"icon" => $icon
+		]);
 		$loadPaths = [];
 		$this->addDependency($loadPaths, new \ReflectionClass($logger));
 		$this->addDependency($loadPaths, new \ReflectionClass($loader));
@@ -124,7 +131,7 @@ class ServerThread extends \Thread{
 			}
 		}
 		$this->loader->register();
-
-		$manager = new ServerManager($this, $this->port, $this->interface);
+		$data = unserialize($this->data);
+		$manager = new ServerManager($this, $this->port, $this->interface, $data["motd"], $data["icon"]);
 	}
 }

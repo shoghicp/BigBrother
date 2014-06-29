@@ -118,7 +118,7 @@ class Session{
 						"id" => $id
 					];
 				}
-				$data = json_encode([
+				$data = [
 					"version" => [
 						"name" => Info::VERSION,
 						"protocol" => Info::PROTOCOL
@@ -128,9 +128,12 @@ class Session{
 						"online" => $this->manager->players,
 						"sample" => $sample,
 					],
-					"description" => $this->manager->description,
-					"favicon" => $this->manager->favicon
-				], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+					"description" => json_decode(TextFormat::toJSON($this->manager->description))
+				];
+				if($this->manager->favicon !== null){
+					$data["favicon"] = $this->manager->favicon;
+				}
+				$data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 				$data = Binary::writeVarInt(0x00) . Binary::writeVarInt(strlen($data)) . $data;
 				$this->writeRaw($data);

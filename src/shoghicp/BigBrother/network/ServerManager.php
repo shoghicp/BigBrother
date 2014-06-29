@@ -82,10 +82,17 @@ class ServerManager{
 	public $maxPlayers = 20;
 	/** @var string[] */
 	public $sample = [];
-	public $description = "§bPocketMine-MP server using §6§lBigBrother§r§b plugin\n§aConnect to Minecraft: PE servers from PC clients";
-	public $favicon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA6mAAAOpgGH3KlvAAAAB3RJTUUH3gIJDS8ZnYfI6wAAA3VJREFUeNrtW8tOFEEUrXZmGNhNjAHjEwGBoLige1AGE2cH+AMakRATTYyJfoGsiF9gogY1ajQaP0AJiTEYYOTRDZEEA0p4iGhmVhM3MsBMu+WcxZ30wlXf2t2u6pqq03XOvbeqxhoaGvLNnpLL5faaJpvNgl0oFIxUtra2zP8slZWVYn08Hge7pqYG7OrqarD3mZAXBSDsAEQ3NjbgQT6fF1/YTCbxgY8Yth1uB9tbnQTbQooaK2KBXfpbBNuuTWF/axn8glURsE/MfQmkYUoBBSDsGlCO84nuG8hxCzk3s4QcN0dPI4djRPriDpju9ymwncbz4njs2g7ShM843q7rqGkjT0SNUwooAGHXAPaLvzrPol9eRY7ajWmwk61p8QdmFsawfQty3ElfE993R59h3GC2MQzZLtEnjYK5cqoV7MOzrq4ABUAB2KMBnL/7fgztGHLKHGxAO7eKnP34FBGO+di+tIsaMfoSNSLdh5yP4Teyj3XSJ4xQ/5hLGMo1eL5KAQUg7BrAD9ra+oL1QJxzGilWXx6jXGCXNAL9updBv+8XyM9HUKPcxXHab8ApWRVxXQEKgAIQQAO8iRfod+s6KH/PiPm9cxL99F3npjiAnv3yAIf/LOKDQ01or2Fsb6d6xf7WP33QFaAAKACCBjCnjY+xPO/jWxURMdbnkkjIA+ItSj5XsFkDOPbfRM3w1nA/44CuAAVAARA1wK7vFP3u++5mscN37Ocz8gBaWtDOUHs+S/RmXmOccKsf45DhBXzf2tYVoAAoAEHiAPLj7tgrsYOBkSUxbkilmkWOc0mlSEPuU25wu7fMlDBO8Yu+rgAFQAEIoAFz2WlEqCoqdjDY1STWX3z4HOx7C5RrGLx/MDCPnB08YwWqd5dx/E4DnkWuT03oClAAFAApDohifu/vxOQ4YF72sxy7k5suW3oe4PvetByXOBf6dQUoAApAAA3g+/d+CTXATl7B/QCDsbg7/gZ7pC1CpwPfdyffBhogx/JO+1UaD51l/v6GmrGC9wiP0HyVAgpA2DWA/2NT581gizL3BZzjeDfY+zErtz93CfN7cxkb0L5+sqk92Izo/kH9Vw/rab5KAQUg7BqQoMM6vk+ff3ynjKPms8OimAtwXMFl9ife+fHpb4p2Ud7nzw8/Eut5vkoBBSDkxdL/DisFFIBQl3+nqxY3IYpcCgAAAABJRU5ErkJggg==";
+	public $description;
+	public $favicon;
 
-	public function __construct(ServerThread $thread, $port, $interface){
+	public function __construct(ServerThread $thread, $port, $interface, $description = "", $favicon = null){
+		$this->description = $description;
+		if($favicon === null or ($image = file_get_contents($favicon)) == ""){
+			$this->favicon = null;
+		}else{
+			$this->favicon = "data:image/png;base64,".base64_encode($favicon);
+		}
+
 		$this->logger = $thread->getLogger();
 		$this->fp = $thread->getInternalIPC();
 		if($interface === ""){

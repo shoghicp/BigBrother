@@ -4,6 +4,9 @@
 interface: 0.0.0.0
 port: 25565
 
+#Sets the server description on the server list
+motd: "§bPocketMine-MP server using §6§lBigBrother§r§b plugin\n§aConnect to Minecraft: PE servers from PC clients"
+
 #Use Mojang services to authenticate players
 online-mode: true
 

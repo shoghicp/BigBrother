@@ -64,6 +64,7 @@ class BigBrother extends PluginBase implements Listener{
 	public function onEnable(){
 
 		$this->saveDefaultConfig();
+		$this->saveResource("server-icon.png", false);
 		$this->reloadConfig();
 
 		//TODO: work on online mode
@@ -71,6 +72,10 @@ class BigBrother extends PluginBase implements Listener{
 		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
 			$this->onlineMode = false;
 			$this->getLogger()->notice("no mcrypt detected, online-mode has been disabled. Try using the latest PHP binaries");
+		}
+
+		if(!$this->getConfig()->exists("motd")){
+			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
 		if(Info::CURRENT_PROTOCOL === 16){
@@ -106,7 +111,7 @@ class BigBrother extends PluginBase implements Listener{
 		$port = (int) $this->getConfig()->get("port");
 		$interface = $this->getConfig()->get("interface");
 		$this->getLogger()->info("Starting Minecraft: PC server on ".($interface === "0.0.0.0" ? "*" : $interface).":$port version ".MCInfo::VERSION);
-		$this->thread = new ServerThread($this->getServer()->getLogger(), $this->getServer()->getLoader(), $port, $interface);
+		$this->thread = new ServerThread($this->getServer()->getLogger(), $this->getServer()->getLoader(), $port, $interface, (string) $this->getConfig()->get("motd"), $this->getDataFolder() . "server-icon.png");
 
 		$this->interface = new ProtocolInterface($this, $this->thread, $this->translator);
 		$this->getServer()->addInterface($this->interface);
