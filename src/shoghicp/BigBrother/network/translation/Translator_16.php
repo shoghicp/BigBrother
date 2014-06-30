@@ -96,27 +96,6 @@ class Translator_16 implements Translator{
 				return null;
 
 			case 0x08; //PlayerBlockPlacementPacket
-
-				$target = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
-				$block = $target->getSide($packet->direction);
-
-				$pk = new UpdateBlockPacket;
-				$pk->x = $target->x;
-				$pk->y = $target->y;
-				$pk->z = $target->z;
-				$pk->block = $target->getID();
-				$pk->meta = $target->getDamage();
-				$player->dataPacket($pk);
-
-				$pk = new UpdateBlockPacket;
-				$pk->x = $block->x;
-				$pk->y = $block->y;
-				$pk->z = $block->z;
-				$pk->block = $block->getID();
-				$pk->meta = $block->getDamage();
-				$player->dataPacket($pk);
-				break;
-				//TODO
 				$pk = new UseItemPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
@@ -133,8 +112,6 @@ class Translator_16 implements Translator{
 			default:
 				return null;
 		}
-
-		return null;
 	}
 
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
