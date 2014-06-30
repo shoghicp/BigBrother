@@ -38,7 +38,7 @@ use shoghicp\BigBrother\network\protocol\STCChatPacket;
 use shoghicp\BigBrother\network\protocol\TimeUpdatePacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class Translator_16 implements Translator{
+class Translator_17 implements Translator{
 
 
 
@@ -204,21 +204,23 @@ class Translator_16 implements Translator{
 					return $packets;
 				}
 
-			case Info::MOVE_ENTITY_PACKET_POSROT:
+			case Info::MOVE_ENTITY_PACKET:
 				$packets = [];
-				$pk = new EntityTeleportPacket();
-				$pk->eid = $packet->eid;
-				$pk->x = $packet->x;
-				$pk->y = $packet->y;
-				$pk->z = $packet->z;
-				$pk->yaw = $packet->yaw;
-				$pk->pitch = $packet->pitch;
-				$packets[] = $pk;
+				foreach($packet->entities as $d){
+					$pk = new EntityTeleportPacket();
+					$pk->eid = $d[0];
+					$pk->x = $d[1];
+					$pk->y = $d[2];
+					$pk->z = $d[3];
+					$pk->yaw = $d[4];
+					$pk->pitch = $d[5];
+					$packets[] = $pk;
 
-				$pk = new EntityHeadLookPacket();
-				$pk->eid = $packet->eid;
-				$pk->yaw = $packet->yaw;
-				$packets[] = $pk;
+					$pk = new EntityHeadLookPacket();
+					$pk->eid = $d[0];
+					$pk->yaw = $d[4];
+					$packets[] = $pk;
+				}
 				return $packets;
 
 			case Info::ADD_PLAYER_PACKET:
@@ -245,8 +247,6 @@ class Translator_16 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 				return $packets;
-
-
 
 			default:
 				return null;

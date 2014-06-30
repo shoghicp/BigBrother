@@ -26,7 +26,7 @@ use pocketmine\plugin\PluginBase;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\ServerThread;
-use shoghicp\BigBrother\network\translation\Translator_16;
+use shoghicp\BigBrother\network\translation\Translator_17;
 use shoghicp\BigBrother\tasks\GeneratePrivateKey;
 
 class BigBrother extends PluginBase implements Listener{
@@ -78,8 +78,8 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
-		if(Info::CURRENT_PROTOCOL === 16){
-			$this->translator = new Translator_16();
+		if(Info::CURRENT_PROTOCOL === 17){
+			$this->translator = new Translator_17();
 		}else{
 			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
 			$this->getPluginLoader()->disablePlugin($this);
@@ -137,8 +137,10 @@ class BigBrother extends PluginBase implements Listener{
 
 	public function onDisable(){
 		//TODO: make it fully /reload compatible (remove from server)
-		$this->interface->shutdown();
-		$this->thread->join();
+		if($this->interface instanceof ProtocolInterface){
+			$this->interface->shutdown();
+			$this->thread->join();
+		}
 	}
 
 	/**
