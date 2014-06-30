@@ -17,13 +17,11 @@
 
 namespace shoghicp\BigBrother\network\translation;
 
-use pocketmine\math\Vector3;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\protocol\Info;
 use pocketmine\network\protocol\MessagePacket;
 use pocketmine\network\protocol\MovePlayerPacket;
 use pocketmine\network\protocol\RemoveBlockPacket;
-use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\network\protocol\UseItemPacket;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\DesktopPlayer;

@@ -90,7 +90,7 @@ class ServerManager{
 		if($favicon === null or ($image = file_get_contents($favicon)) == ""){
 			$this->favicon = null;
 		}else{
-			$this->favicon = "data:image/png;base64,".base64_encode($favicon);
+			$this->favicon = "data:image/png;base64,".base64_encode($image);
 		}
 
 		$this->logger = $thread->getLogger();

@@ -50,7 +50,7 @@ class Binary extends \pocketmine\utils\Binary{
 					$m .= self::writeFloat($d["value"]);
 					break;
 				case 4:
-					$m .= self::writeShort(strlen($d["value"])) . $d["value"];
+					$m .= self::writeVarInt(strlen($d["value"])) . $d["value"];
 					break;
 				case 5:
 					$m .= self::writeShort($d["value"][0]);
