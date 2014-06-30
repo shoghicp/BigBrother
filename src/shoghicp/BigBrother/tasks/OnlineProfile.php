@@ -67,7 +67,6 @@ class OnlineProfile extends AsyncTask{
 		foreach($server->getOnlinePlayers() as $clientID => $player){
 			if($player instanceof DesktopPlayer and $clientID === $this->clientID){
 				$result = $this->getResult();
-				var_dump($result);
 				if(is_array($result) and isset($result["id"])){
 					$player->bigBrother_authenticate($this->username, $result["id"], $result["properties"]);
 				}else{

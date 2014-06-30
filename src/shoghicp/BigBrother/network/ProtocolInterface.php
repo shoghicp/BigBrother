@@ -26,6 +26,8 @@ use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\protocol\CTSChatPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\LoginStartPacket;
+use shoghicp\BigBrother\network\protocol\PlayerBlockPlacementPacket;
+use shoghicp\BigBrother\network\protocol\PlayerDiggingPacket;
 use shoghicp\BigBrother\network\protocol\PlayerLookPacket;
 use shoghicp\BigBrother\network\protocol\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\PlayerPositionPacket;
@@ -172,6 +174,12 @@ class ProtocolInterface implements SourceInterface{
 					break;
 				case 0x06:
 					$pk = new PlayerPositionAndLookPacket();
+					break;
+				case 0x07:
+					$pk = new PlayerDiggingPacket();
+					break;
+				case 0x08:
+					$pk = new PlayerBlockPlacementPacket();
 					break;
 				default:
 					return;

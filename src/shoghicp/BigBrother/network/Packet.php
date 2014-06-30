@@ -17,6 +17,7 @@
 
 namespace shoghicp\BigBrother\network;
 
+use pocketmine\item\Item;
 use shoghicp\BigBrother\utils\Binary;
 
 abstract class Packet extends \stdClass{
@@ -55,6 +56,35 @@ abstract class Packet extends \stdClass{
 
 	protected function getDouble(){
 		return Binary::readDouble($this->get(8));
+	}
+
+	/**
+	 * @return Item
+	 */
+	protected function getSlot(){
+		$itemId = $this->getShort();
+		if($itemId === -1){ //Empty
+			return Item::get(Item::AIR, 0, 0);
+		}else{
+			$count = $this->getByte();
+			$damage = $this->getShort(true);
+			$len = $this->getShort(true);
+			if($len > 0){
+				$nbt = $this->get($len);
+			}
+			return Item::get($itemId, $damage, $count);
+		}
+	}
+
+	protected function putSlot(Item $item){
+		if($item->getID() === 0){
+			$this->putShort(-1);
+		}else{
+			$this->putShort($item->getID());
+			$this->putByte($item->getCount());
+			$this->putShort($item->getDamage());
+			$this->putShort(0);
+		}
 	}
 
 	protected function getShort($unsigned = false){
