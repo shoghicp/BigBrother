@@ -72,7 +72,7 @@ class DesktopPlayer extends Player{
 
 	public function bigBrother_updateTitleBar(){
 		if($this->bigBrother_titleBarID === null){
-			$this->bigBrother_titleBarID = PHP_INT_MAX;
+			$this->bigBrother_titleBarID = 2147483647;
 
 			$pk = new SpawnMobPacket();
 			$pk->eid = $this->bigBrother_titleBarID;
