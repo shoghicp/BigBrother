@@ -138,7 +138,7 @@ class BigBrother extends PluginBase implements Listener{
 	public function onDisable(){
 		//TODO: make it fully /reload compatible (remove from server)
 		if($this->interface instanceof ProtocolInterface){
-			$this->interface->shutdown();
+			$this->getServer()->removeInterface($this->interface);
 			$this->thread->join();
 		}
 	}

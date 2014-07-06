@@ -141,6 +141,10 @@ class DesktopPlayer extends Player{
 		return $this->bigBrother_status;
 	}
 
+	public function sendChunk($x, $z, $payload){
+
+	}
+
 	public function sendNextChunk(){
 		if($this->connected === false or !isset($this->chunkLoadTask)){
 			return;
@@ -173,7 +177,7 @@ class DesktopPlayer extends Player{
 				$pk->chunkZ = $Z;
 				$pk->groundUp = true;
 				$pk->addBitmap = 0;
-				$chunk = $this->getLevel()->getChunkAt($X, $Z);
+				$chunk = $this->getLevel()->getChunkAt($X, $Z, true);
 				$ids = "";
 				$meta = "";
 				$blockLight = "";
@@ -184,6 +188,8 @@ class DesktopPlayer extends Player{
 					$section = $chunk->getSection($s);
 					if(!($section instanceof EmptyChunkSection)){
 						$bitmap |= 1 << $s;
+					}else{
+						continue;
 					}
 					$ids .= $section->getIdArray();
 					$meta .= $section->getDataArray();

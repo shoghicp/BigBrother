@@ -27,10 +27,12 @@ use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\BlockChangePacket;
+use shoghicp\BigBrother\network\protocol\ChangeGameStatePacket;
 use shoghicp\BigBrother\network\protocol\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\JoinGamePacket;
+use shoghicp\BigBrother\network\protocol\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\PositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPositionPacket;
@@ -126,6 +128,7 @@ class Translator_17 implements Translator{
 
 			case Info::START_GAME_PACKET:
 				$packets = [];
+
 				$pk = new JoinGamePacket();
 				$pk->eid = $packet->eid;
 				$pk->gamemode = $player->getGamemode();
@@ -134,6 +137,25 @@ class Translator_17 implements Translator{
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
 				$pk->levelType = "default";
 				$packets[] = $pk;
+
+				$pk = new PlayerAbilitiesPacket();
+				$pk->flyingSpeed = 0.05;
+				$pk->walkingSpeed = 0.1;
+				$pk->canFly = ($player->getGamemode() & 0x01) > 0;
+				$pk->damageDisabled = ($player->getGamemode() & 0x01) > 0;
+				$pk->isFlying = false;
+				$pk->isCreative = ($player->getGamemode() & 0x01) > 0;
+				if($player->spawned === true){
+					$packets = [$pk];
+
+					$pk = new ChangeGameStatePacket();
+					$pk->reason = 3;
+					$pk->value = $player->getGamemode();
+					$packets[] = $pk;
+					return $packets;
+				}else{
+					$packets[] = $pk;
+				}
 
 				$pk = new SpawnPositionPacket();
 				$pk->spawnX = $packet->spawnX;
