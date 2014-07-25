@@ -78,7 +78,7 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
-		if(Info::CURRENT_PROTOCOL === 17){
+		if(Info::CURRENT_PROTOCOL === 18){
 			$this->translator = new Translator_17();
 		}else{
 			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
