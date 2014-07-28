@@ -18,15 +18,16 @@
 namespace shoghicp\BigBrother;
 
 use phpseclib\Crypt\RSA;
+use pocketmine\event\player\PlayerRespawnEvent;
+use shoghicp\BigBrother\network\protocol\RespawnPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\network\protocol\Info;
 use pocketmine\plugin\PluginBase;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\ServerThread;
-use shoghicp\BigBrother\network\translation\Translator_17;
+use shoghicp\BigBrother\network\translation\Translator_18;
 use shoghicp\BigBrother\tasks\GeneratePrivateKey;
 
 class BigBrother extends PluginBase implements Listener{
@@ -78,8 +79,8 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
-		if(Info::CURRENT_PROTOCOL === 17){
-			$this->translator = new Translator_17();
+		if(Info::CURRENT_PROTOCOL === 17 or Info::CURRENT_PROTOCOL === 18){
+			$this->translator = new Translator_18();
 		}else{
 			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
 			$this->getPluginLoader()->disablePlugin($this);
@@ -144,17 +145,20 @@ class BigBrother extends PluginBase implements Listener{
 	}
 
 	/**
-	 * @param PlayerLoginEvent $event
+	 * @param PlayerRespawnEvent $event
 	 *
-	 * @priority MONITOR
+	 * @priority NORMAL
 	 */
-	public function onLogin(PlayerLoginEvent $event){
-		/*$player = $event->getPlayer();
+	public function onRespawn(PlayerRespawnEvent $event){
+		$player = $event->getPlayer();
 		if($player instanceof DesktopPlayer){
-			if(!$event->isCancelled()){
-				$player->bigBrother_authenticate();
-			}
-		}*/
+			$pk = new RespawnPacket();
+			$pk->dimension = 0;
+			$pk->gamemode = $player->getGamemode();
+			$pk->difficulty = $player->getServer()->getDifficulty();
+			$pk->levelType = "default";
+			$player->putRawPacket($pk);
+		}
 	}
 
 }
