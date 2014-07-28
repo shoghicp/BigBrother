@@ -20,7 +20,7 @@ namespace shoghicp\BigBrother\network\protocol;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\utils\Binary;
 
-class SpawnMobPacket extends Packet{
+class SpawnObjectPacket extends Packet{
 
 	public $eid;
 	public $type;
@@ -29,14 +29,10 @@ class SpawnMobPacket extends Packet{
 	public $z;
 	public $yaw;
 	public $pitch;
-	public $headPitch;
-	public $velocityX;
-	public $velocityY;
-	public $velocityZ;
-	public $metadata;
+	public $data = "";
 
 	public function pid(){
-		return 0x0f;
+		return 0x0e;
 	}
 
 	public function encode(){
@@ -47,11 +43,7 @@ class SpawnMobPacket extends Packet{
 		$this->putInt(intval($this->z * 32));
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
-		$this->putByte(($this->headPitch / 360) << 8);
-		$this->putShort($this->velocityX * 8000);
-		$this->putShort($this->velocityY * 8000);
-		$this->putShort($this->velocityZ * 8000);
-		$this->put(Binary::writeMetadata($this->metadata));
+		$this->putInt(0); //TODO: extra data
 	}
 
 	public function decode(){

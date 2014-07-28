@@ -33,6 +33,7 @@ use pocketmine\Server;
 use pocketmine\tile\Spawnable;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
+use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
@@ -86,14 +87,14 @@ class DesktopPlayer extends Player{
 			$pk->velocityX = 0;
 			$pk->velocityY = 0;
 			$pk->velocityZ = 0;
-			$pk->metadata = array(
+			$pk->metadata = [
 				0 => ["type" => 0, "value" => 0x20],
 				6 => ["type" => 3, "value" => 200 * ($this->bigBrother_titleBarLevel / 100)],
 				7 => ["type" => 2, "value" => 0],
 				10 => ["type" => 4, "value" => $this->bigBrother_titleBarText],
 				11 => ["type" => 0, "value" => 1]
-			);
-			$this->interface->putRawPacket($this, $pk);
+			];
+			$this->putRawPacket($pk);
 			$this->tasks[] = $this->getServer()->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_updateTitleBar"]), 5, 20);
 		}else{
 			$pk = new EntityTeleportPacket();
@@ -103,18 +104,18 @@ class DesktopPlayer extends Player{
 			$pk->z = $this->z;
 			$pk->yaw = 0;
 			$pk->pitch = 0;
-			$this->interface->putRawPacket($this, $pk);
+			$this->putRawPacket($pk);
 
 			$pk = new EntityMetadataPacket();
 			$pk->eid = $this->bigBrother_titleBarID;
-			$pk->metadata = array(
+			$pk->metadata = [
 				0 => ["type" => 0, "value" => 0x20],
 				6 => ["type" => 3, "value" => 200 * ($this->bigBrother_titleBarLevel / 100)],
 				7 => ["type" => 2, "value" => 0],
 				10 => ["type" => 4, "value" => $this->bigBrother_titleBarText],
 				11 => ["type" => 0, "value" => 1]
-			);
-			$this->interface->putRawPacket($this, $pk);
+			];
+			$this->putRawPacket($pk);
 
 		}
 	}
@@ -134,7 +135,7 @@ class DesktopPlayer extends Player{
 	public function bigBrother_sendKeepAlive(){
 		$pk = new KeepAlivePacket();
 		$pk->id = mt_rand();
-		$this->interface->putRawPacket($this, $pk);
+		$this->putRawPacket($pk);
 	}
 
 	public function bigBrother_getStatus(){
@@ -199,7 +200,7 @@ class DesktopPlayer extends Player{
 
 				$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
 				$pk->primaryBitmap = $bitmap;
-				$this->interface->putRawPacket($this, $pk);
+				$this->putRawPacket($pk);
 
 				foreach($chunk->getEntities() as $entity){
 					if($entity !== $this){
@@ -273,7 +274,7 @@ class DesktopPlayer extends Player{
 				$pk->item = $this->inventory->getItemInHand()->getID();
 				$pk->metadata = $this->getData();
 				$pk->data = $this->bigBrother_properties;
-				$player->interface->putRawPacket($player, $pk);
+				$player->putRawPacket($pk);
 
 				$pk = new EntityTeleportPacket();
 				$pk->eid = $this->getID();
@@ -282,7 +283,7 @@ class DesktopPlayer extends Player{
 				$pk->y = $this->z;
 				$pk->yaw = $this->yaw;
 				$pk->pitch = $this->pitch;
-				$player->interface->putRawPacket($player, $pk);
+				$player->putRawPacket($pk);
 
 				$pk = new SetEntityMotionPacket();
 				$pk->eid = $this->getID();
@@ -308,7 +309,7 @@ class DesktopPlayer extends Player{
 			$pk = new LoginSuccessPacket();
 			$pk->uuid = $this->bigBrother_formatedUUID;
 			$pk->name = $this->username;
-			$this->interface->putRawPacket($this, $pk);
+			$this->putRawPacket($pk);
 			$this->bigBrother_status = 1;
 			if($onlineModeData !== null and is_array($onlineModeData)){
 				$this->bigBrother_properties = $onlineModeData;
@@ -349,7 +350,7 @@ class DesktopPlayer extends Player{
 				$pk->serverID = "";
 				$pk->publicKey = $plugin->getASN1PublicKey();
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
-				$this->interface->putRawPacket($this, $pk);
+				$this->putRawPacket($pk);
 			}else{
 				$task = new OnlineProfile($this->clientID, $this->bigBrother_username);
 				$this->server->getScheduler()->scheduleAsyncTask($task);
@@ -396,12 +397,16 @@ class DesktopPlayer extends Player{
 		if($this->bigBrother_status === 0){
 			$pk = new LoginDisconnectPacket();
 			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
-			$this->interface->putRawPacket($this, $pk);
+			$this->putRawPacket($pk);
 		}else{
 			$pk = new PlayDisconnectPacket();
 			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);;
-			$this->interface->putRawPacket($this, $pk);
+			$this->putRawPacket($pk);
 		}
 		parent::close($message, $reason);
+	}
+
+	public function putRawPacket(Packet $packet){
+		$this->interface->putRawPacket($this, $packet);
 	}
 }

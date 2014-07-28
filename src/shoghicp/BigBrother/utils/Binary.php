@@ -53,9 +53,16 @@ class Binary extends \pocketmine\utils\Binary{
 					$m .= self::writeVarInt(strlen($d["value"])) . $d["value"];
 					break;
 				case 5:
-					$m .= self::writeShort($d["value"][0]);
-					$m .= self::writeByte($d["value"][1]);
-					$m .= self::writeShort($d["value"][2]);
+					/** @var \pocketmine\item\Item $item */
+					$item = $d["value"];
+					if($item->getID() === 0){
+						$m .= self::writeShort(-1);
+					}else{
+						$m .= self::writeShort($item->getID());
+						$m .= self::writeByte($item->getCount());
+						$m .= self::writeShort($item->getDamage());
+						$m .= self::writeShort(-1);
+					}
 					break;
 				case 6:
 					$m .= self::writeInt($d["value"][0]);

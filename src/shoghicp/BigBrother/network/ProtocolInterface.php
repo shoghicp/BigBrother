@@ -23,7 +23,9 @@ use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
+use shoghicp\BigBrother\network\protocol\ClientStatusPacket;
 use shoghicp\BigBrother\network\protocol\CTSChatPacket;
+use shoghicp\BigBrother\network\protocol\CTSCloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\LoginStartPacket;
 use shoghicp\BigBrother\network\protocol\PlayerBlockPlacementPacket;
@@ -31,6 +33,7 @@ use shoghicp\BigBrother\network\protocol\PlayerDiggingPacket;
 use shoghicp\BigBrother\network\protocol\PlayerLookPacket;
 use shoghicp\BigBrother\network\protocol\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\PlayerPositionPacket;
+use shoghicp\BigBrother\network\protocol\UseEntityPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\utils\Binary;
 
@@ -166,6 +169,9 @@ class ProtocolInterface implements SourceInterface{
 				case 0x01:
 					$pk = new CTSChatPacket();
 					break;
+				case 0x02:
+					$pk = new UseEntityPacket();
+					break;
 				case 0x04:
 					$pk = new PlayerPositionPacket();
 					break;
@@ -180,6 +186,12 @@ class ProtocolInterface implements SourceInterface{
 					break;
 				case 0x08:
 					$pk = new PlayerBlockPlacementPacket();
+					break;
+				case 0x0d:
+					$pk = new CTSCloseWindowPacket();
+					break;
+				case 0x16:
+					$pk = new ClientStatusPacket();
 					break;
 				default:
 					return;

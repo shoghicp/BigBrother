@@ -17,11 +17,15 @@
 
 namespace shoghicp\BigBrother\network\translation;
 
+use pocketmine\item\Item;
+use pocketmine\network\protocol\ContainerClosePacket;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\protocol\Info;
+use pocketmine\network\protocol\InteractPacket;
 use pocketmine\network\protocol\MessagePacket;
 use pocketmine\network\protocol\MovePlayerPacket;
 use pocketmine\network\protocol\RemoveBlockPacket;
+use pocketmine\network\protocol\RespawnPacket;
 use pocketmine\network\protocol\UseItemPacket;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\DesktopPlayer;
@@ -30,14 +34,22 @@ use shoghicp\BigBrother\network\protocol\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\ChangeGameStatePacket;
 use shoghicp\BigBrother\network\protocol\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\EntityHeadLookPacket;
+use shoghicp\BigBrother\network\protocol\EntityMetadataPacket;
 use shoghicp\BigBrother\network\protocol\EntityTeleportPacket;
+use shoghicp\BigBrother\network\protocol\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\JoinGamePacket;
+use shoghicp\BigBrother\network\protocol\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\PositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\SetSlotPacket;
+use shoghicp\BigBrother\network\protocol\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\STCChatPacket;
+use shoghicp\BigBrother\network\protocol\STCCloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\TimeUpdatePacket;
+use shoghicp\BigBrother\network\protocol\UpdateHealthPacket;
+use shoghicp\BigBrother\network\protocol\WindowItemsPacket;
 use shoghicp\BigBrother\utils\Binary;
 
 class Translator_17 implements Translator{
@@ -52,6 +64,12 @@ class Translator_17 implements Translator{
 				$pk = new MessagePacket();
 				$pk->source = "";
 				$pk->message = $packet->message;
+				return $pk;
+
+			case 0x02: //UseEntityPacket
+				$pk = new InteractPacket();
+				$pk->target = $packet->target;
+				$pk->action = $packet->mouse;
 				return $pk;
 
 			case 0x04: //PlayerPositionPacket
@@ -108,6 +126,22 @@ class Translator_17 implements Translator{
 				$pk->fy = $packet->cursorY / 16;
 				$pk->fz = $packet->cursorZ / 16;
 				return $pk;
+
+			case 0x0d: //CTSCloseWindowPacket
+				$pk = new ContainerClosePacket();
+				$pk->windowid = $packet->windowID;
+				return $pk;
+
+			case 0x16: //ClientStatusPacket
+				if($packet->actionID === 0){
+					$pk = new RespawnPacket();
+					$pk->eid = 0;
+					$pk->x = $player->getSpawn()->getX();
+					$pk->y = $player->getSpawn()->getX();
+					$pk->z = $player->getSpawn()->getX();
+					return $pk;
+				}
+				return null;
 
 			default:
 				return null;
@@ -172,6 +206,13 @@ class Translator_17 implements Translator{
 				$pk->onGround = $player->isOnGround();
 				$packets[] = $pk;
 				return $packets;
+
+			case Info::SET_HEALTH_PACKET:
+				$pk = new UpdateHealthPacket();
+				$pk->health = $packet->health;
+				$pk->food = 20;
+				$pk->saturation = 5;
+				return $pk;
 
 			case Info::MESSAGE_PACKET:
 				$pk = new STCChatPacket();
@@ -244,6 +285,90 @@ class Translator_17 implements Translator{
 					$packets[] = $pk;
 				}
 				return $packets;
+
+			case Info::SET_ENTITY_MOTION_PACKET:
+				$packets = [];
+				foreach($packet->entities as $d){
+					$pk = new EntityVelocityPacket();
+					$pk->eid = $d[0];
+					$pk->velocityX = $d[1];
+					$pk->velocityY = $d[2];
+					$pk->velocityZ = $d[3];
+					$packets[] = $pk;
+				}
+				return $packets;
+
+			case Info::CONTAINER_CLOSE_PACKET:
+				$pk = new STCCloseWindowPacket();
+				$pk->windowID = $packet->windowid;
+				return $pk;
+
+			case Info::CONTAINER_OPEN_PACKET:
+				$pk = new OpenWindowPacket();
+				$pk->windowID = $packet->windowid;
+				$pk->inventoryType = $packet->type;
+				$pk->windowTitle = "";
+				$pk->slots = $packet->slots;
+				return $pk;
+
+			case Info::CONTAINER_SET_SLOT_PACKET:
+				$pk = new SetSlotPacket();
+				$pk->windowID = $packet->windowid;
+				if($pk->windowID === 0){
+					$pk->slot = $packet->slot + 9;
+				}elseif($pk->windowID === 0x78){
+					$pk->windowID = 0;
+					$pk->slot = $packet->slot + 5;
+				}else{
+					$pk->slot = $packet->slot;
+				}
+				$pk->item = $packet->item;
+				return $pk;
+
+			case Info::CONTAINER_SET_CONTENT_PACKET:
+				$pk = new WindowItemsPacket();
+				$pk->windowID = $packet->windowid;
+				if($pk->windowID === 0 or $pk->windowID === 0x78){
+					$pk->windowID = 0;
+					for($i = 0; $i < 5; ++$i){
+						$pk->items[] = Item::get(Item::AIR, 0, 0);
+					}
+					$pk->items[] = $player->getInventory()->getHelmet();
+					$pk->items[] = $player->getInventory()->getChestplate();
+					$pk->items[] = $player->getInventory()->getLeggings();
+					$pk->items[] = $player->getInventory()->getBoots();
+					$slots = $player->getInventory()->getSize();
+					for($i = 0; $i < $slots; ++$i){
+						$pk->items[] = $player->getInventory()->getItem($i);
+					}
+				}else{
+					$pk->items = $packet->slots;
+				}
+
+				return $pk;
+
+			case Info::ADD_ITEM_ENTITY_PACKET:
+				$packets = [];
+				$pk = new SpawnObjectPacket();
+				$pk->eid = $packet->eid;
+				$pk->type = 2;
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->yaw = $packet->yaw;
+				$pk->pitch = $packet->pitch;
+				$packets[] = $pk;
+
+				$pk = new EntityMetadataPacket();
+				$pk->eid = $packet->eid;
+				$pk->metadata = $pk->metadata = [
+					0 => ["type" => 0, "value" => 0],
+					10 => ["type" => 5, "value" => $packet->item],
+				];
+				$packets[] = $pk;
+
+				return $packets;
+
 
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];

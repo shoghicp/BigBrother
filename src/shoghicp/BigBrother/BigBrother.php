@@ -18,6 +18,8 @@
 namespace shoghicp\BigBrother;
 
 use phpseclib\Crypt\RSA;
+use pocketmine\event\player\PlayerRespawnEvent;
+use shoghicp\BigBrother\network\protocol\RespawnPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerLoginEvent;
@@ -144,17 +146,20 @@ class BigBrother extends PluginBase implements Listener{
 	}
 
 	/**
-	 * @param PlayerLoginEvent $event
+	 * @param PlayerRespawnEvent $event
 	 *
-	 * @priority MONITOR
+	 * @priority NORMAL
 	 */
-	public function onLogin(PlayerLoginEvent $event){
-		/*$player = $event->getPlayer();
+	public function onRespawn(PlayerRespawnEvent $event){
+		$player = $event->getPlayer();
 		if($player instanceof DesktopPlayer){
-			if(!$event->isCancelled()){
-				$player->bigBrother_authenticate();
-			}
-		}*/
+			$pk = new RespawnPacket();
+			$pk->dimension = 0;
+			$pk->gamemode = $player->getGamemode();
+			$pk->difficulty = $player->getServer()->getDifficulty();
+			$pk->levelType = "default";
+			$player->putRawPacket($pk);
+		}
 	}
 
 }

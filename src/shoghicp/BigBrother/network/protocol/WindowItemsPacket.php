@@ -18,40 +18,23 @@
 namespace shoghicp\BigBrother\network\protocol;
 
 use shoghicp\BigBrother\network\Packet;
-use shoghicp\BigBrother\utils\Binary;
 
-class SpawnMobPacket extends Packet{
+class WindowItemsPacket extends Packet{
 
-	public $eid;
-	public $type;
-	public $x;
-	public $y;
-	public $z;
-	public $yaw;
-	public $pitch;
-	public $headPitch;
-	public $velocityX;
-	public $velocityY;
-	public $velocityZ;
-	public $metadata;
+	public $windowID;
+	/** @var \pocketmine\item\Item[] */
+	public $items = [];
 
 	public function pid(){
-		return 0x0f;
+		return 0x30;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte($this->type);
-		$this->putInt(intval($this->x * 32));
-		$this->putInt(intval($this->y * 32));
-		$this->putInt(intval($this->z * 32));
-		$this->putByte(($this->yaw / 360) << 8);
-		$this->putByte(($this->pitch / 360) << 8);
-		$this->putByte(($this->headPitch / 360) << 8);
-		$this->putShort($this->velocityX * 8000);
-		$this->putShort($this->velocityY * 8000);
-		$this->putShort($this->velocityZ * 8000);
-		$this->put(Binary::writeMetadata($this->metadata));
+		$this->putByte($this->windowID);
+		$this->putShort(count($this->items));
+		foreach($this->items as $item){
+			$this->putSlot($item);
+		}
 	}
 
 	public function decode(){

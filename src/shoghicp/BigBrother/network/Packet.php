@@ -42,8 +42,8 @@ abstract class Packet extends \stdClass{
 		return $buffer;
 	}
 
-	protected function getLong($unsigned = false){
-		return Binary::readLong($this->get(8), $unsigned);
+	protected function getLong($signed = true){
+		return Binary::readLong($this->get(8), $signed);
 	}
 
 	protected function getInt(){
@@ -83,12 +83,12 @@ abstract class Packet extends \stdClass{
 			$this->putShort($item->getID());
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
-			$this->putShort(0);
+			$this->putShort(-1);
 		}
 	}
 
-	protected function getShort($unsigned = false){
-		return Binary::readShort($this->get(2), $unsigned);
+	protected function getShort($signed = true){
+		return Binary::readShort($this->get(2), $signed);
 	}
 
 	protected function getTriad(){

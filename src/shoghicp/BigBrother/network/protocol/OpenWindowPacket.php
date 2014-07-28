@@ -18,40 +18,29 @@
 namespace shoghicp\BigBrother\network\protocol;
 
 use shoghicp\BigBrother\network\Packet;
-use shoghicp\BigBrother\utils\Binary;
 
-class SpawnMobPacket extends Packet{
+class OpenWindowPacket extends Packet{
 
-	public $eid;
-	public $type;
-	public $x;
-	public $y;
-	public $z;
-	public $yaw;
-	public $pitch;
-	public $headPitch;
-	public $velocityX;
-	public $velocityY;
-	public $velocityZ;
-	public $metadata;
+	public $windowID;
+	public $inventoryType;
+	public $windowTitle;
+	public $slots;
+	public $useTitle = false;
+	public $entityId;
 
 	public function pid(){
-		return 0x0f;
+		return 0x2d;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte($this->type);
-		$this->putInt(intval($this->x * 32));
-		$this->putInt(intval($this->y * 32));
-		$this->putInt(intval($this->z * 32));
-		$this->putByte(($this->yaw / 360) << 8);
-		$this->putByte(($this->pitch / 360) << 8);
-		$this->putByte(($this->headPitch / 360) << 8);
-		$this->putShort($this->velocityX * 8000);
-		$this->putShort($this->velocityY * 8000);
-		$this->putShort($this->velocityZ * 8000);
-		$this->put(Binary::writeMetadata($this->metadata));
+		$this->putByte($this->windowID);
+		$this->putByte($this->inventoryType);
+		$this->putString($this->windowTitle);
+		$this->putByte($this->slots);
+		$this->putByte($this->useTitle ? 1 : 0);
+		if($this->windowID === 11){
+			$this->putInt($this->entityId);
+		}
 	}
 
 	public function decode(){
