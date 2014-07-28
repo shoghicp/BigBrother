@@ -40,7 +40,7 @@ use shoghicp\BigBrother\network\protocol\STCChatPacket;
 use shoghicp\BigBrother\network\protocol\TimeUpdatePacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class Translator_17 implements Translator{
+class Translator_18 implements Translator{
 
 
 
