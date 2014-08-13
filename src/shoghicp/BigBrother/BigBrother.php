@@ -69,7 +69,6 @@ class BigBrother extends PluginBase implements Listener{
 		$this->saveResource("server-icon.png", false);
 		$this->reloadConfig();
 
-		//TODO: work on online mode
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
 		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
 			$this->onlineMode = false;

@@ -19,6 +19,8 @@ namespace shoghicp\BigBrother;
 
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
+use pocketmine\level\format\anvil\Chunk as AnvilChunk;
+use pocketmine\level\format\mcregion\Chunk as McRegionChunk;
 use pocketmine\level\format\generic\EmptyChunkSection;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -142,6 +144,18 @@ class DesktopPlayer extends Player{
 		return $this->bigBrother_status;
 	}
 
+	public function bigBrother_sendChunk($x, $z, $payload){
+		$pk = new ChunkDataPacket();
+		$pk->chunkX = $x;
+		$pk->chunkZ = $z;
+		$pk->groundUp = true;
+		$pk->addBitmap = 0;
+
+		$pk->payload = $payload;
+		$pk->primaryBitmap = 0xff;
+		$this->putRawPacket($pk);
+	}
+
 	public function sendChunk($x, $z, $payload){
 
 	}
@@ -173,34 +187,39 @@ class DesktopPlayer extends Player{
 				$this->usedChunks[$index] = [true, 0];
 
 				$this->getLevel()->useChunk($X, $Z, $this);
-				$pk = new ChunkDataPacket();
-				$pk->chunkX = $X;
-				$pk->chunkZ = $Z;
-				$pk->groundUp = true;
-				$pk->addBitmap = 0;
-				$chunk = $this->getLevel()->getChunkAt($X, $Z, true);
-				$ids = "";
-				$meta = "";
-				$blockLight = "";
-				$skyLight = "";
-				$biomeIds = $chunk->getBiomeIdArray();
-				$bitmap = 0;
-				for($s = 0; $s < 8; ++$s){
-					$section = $chunk->getSection($s);
-					if(!($section instanceof EmptyChunkSection)){
-						$bitmap |= 1 << $s;
-					}else{
-						continue;
-					}
-					$ids .= $section->getIdArray();
-					$meta .= $section->getDataArray();
-					$blockLight .= $section->getLightArray();
-					$skyLight .= $section->getSkyLightArray();
-				}
 
-				$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
-				$pk->primaryBitmap = $bitmap;
-				$this->putRawPacket($pk);
+				$chunk = $this->getLevel()->getChunkAt($X, $Z, true);
+				if($chunk instanceof AnvilChunk){
+					$pk = new ChunkDataPacket();
+					$pk->chunkX = $X;
+					$pk->chunkZ = $Z;
+					$pk->groundUp = true;
+					$pk->addBitmap = 0;
+					$ids = "";
+					$meta = "";
+					$blockLight = "";
+					$skyLight = "";
+					$biomeIds = $chunk->getBiomeIdArray();
+					$bitmap = 0;
+					for($s = 0; $s < 8; ++$s){
+						$section = $chunk->getSection($s);
+						if(!($section instanceof EmptyChunkSection)){
+							$bitmap |= 1 << $s;
+						}else{
+							continue;
+						}
+						$ids .= $section->getIdArray();
+						$meta .= $section->getDataArray();
+						$blockLight .= $section->getLightArray();
+						$skyLight .= $section->getSkyLightArray();
+					}
+
+					$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
+					$pk->primaryBitmap = $bitmap;
+					$this->putRawPacket($pk);
+				}elseif($chunk instanceof McRegionChunk){
+
+				}
 
 				foreach($chunk->getEntities() as $entity){
 					if($entity !== $this){
