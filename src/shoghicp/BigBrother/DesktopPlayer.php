@@ -50,6 +50,7 @@ use shoghicp\BigBrother\network\protocol\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\tasks\AuthenticateOnline;
+use shoghicp\BigBrother\tasks\McRegionToAnvil;
 use shoghicp\BigBrother\tasks\OnlineProfile;
 use shoghicp\BigBrother\utils\Binary;
 
@@ -218,7 +219,8 @@ class DesktopPlayer extends Player{
 					$pk->primaryBitmap = $bitmap;
 					$this->putRawPacket($pk);
 				}elseif($chunk instanceof McRegionChunk){
-
+					$task = new McRegionToAnvil($this, $chunk);
+					$this->server->getScheduler()->scheduleAsyncTask($task);
 				}
 
 				foreach($chunk->getEntities() as $entity){
