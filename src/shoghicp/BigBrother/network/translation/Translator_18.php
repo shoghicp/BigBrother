@@ -298,6 +298,7 @@ class Translator_18 implements Translator{
 				}
 				return $packets;
 
+			/*
 			case Info::CONTAINER_CLOSE_PACKET:
 				$pk = new STCCloseWindowPacket();
 				$pk->windowID = $packet->windowid;
@@ -346,6 +347,7 @@ class Translator_18 implements Translator{
 				}
 
 				return $pk;
+			*/
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
 				$packets = [];
