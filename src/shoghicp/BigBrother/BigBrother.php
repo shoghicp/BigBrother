@@ -51,9 +51,6 @@ class BigBrother extends PluginBase implements Listener{
 	protected $translator;
 
 	public function onLoad(){
-		$this->getServer()->getLoader()->add("phpseclib", [
-			$this->getFile() . "src"
-		]);
 
 		class_exists("phpseclib\\Math\\BigInteger", true);
 		class_exists("phpseclib\\Crypt\\Random", true);
