@@ -35,7 +35,7 @@ class ServerThread extends \Thread{
 
 	/**
 	 * @param \ThreadedLogger $logger
-	 * @param \SplAutoloader  $loader
+	 * @param \ClassLoader  $loader
 	 * @param int             $port 1-65536
 	 * @param string          $interface
 	 * @param string          $motd
@@ -43,7 +43,7 @@ class ServerThread extends \Thread{
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \SplAutoloader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
+	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
 		$this->port = (int) $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
