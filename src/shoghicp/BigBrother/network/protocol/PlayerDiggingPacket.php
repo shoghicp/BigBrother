@@ -37,9 +37,7 @@ class PlayerDiggingPacket extends Packet{
 
 	public function decode(){
 		$this->status = $this->getByte();
-		$this->x = $this->getInt();
-		$this->y = $this->getByte();
-		$this->z = $this->getInt();
+		$this->getPosition($this->x, $this->y, $this->z);
 		$this->face = $this->getByte();
 	}
 }

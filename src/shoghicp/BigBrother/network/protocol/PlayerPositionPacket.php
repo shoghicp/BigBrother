@@ -23,7 +23,6 @@ class PlayerPositionPacket extends Packet{
 
 	public $x;
 	public $y;
-	public $headY;
 	public $z;
 	public $onGround;
 
@@ -38,7 +37,6 @@ class PlayerPositionPacket extends Packet{
 	public function decode(){
 		$this->x = $this->getDouble();
 		$this->y = $this->getDouble();
-		$this->headY = $this->getDouble();
 		$this->z = $this->getDouble();
 		$this->onGround = $this->getByte() > 0;
 	}

@@ -24,8 +24,6 @@ class SpawnPlayerPacket extends Packet{
 
 	public $eid;
 	public $uuid;
-	public $name;
-	public $data = [];
 	public $x;
 	public $y;
 	public $z;
@@ -41,13 +39,6 @@ class SpawnPlayerPacket extends Packet{
 	public function encode(){
 		$this->putVarInt($this->eid);
 		$this->putString($this->uuid);
-		$this->putString($this->name);
-		$this->putVarInt(count($this->data));
-		foreach($this->data as $ob){
-			$this->putString($ob["name"]);
-			$this->putString($ob["value"]);
-			$this->putString($ob["signature"]);
-		}
 		$this->putInt(intval($this->x * 32));
 		$this->putInt(intval($this->y * 32));
 		$this->putInt(intval($this->z * 32));

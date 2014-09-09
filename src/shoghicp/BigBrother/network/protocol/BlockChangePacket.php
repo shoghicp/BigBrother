@@ -32,11 +32,8 @@ class BlockChangePacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putInt($this->x);
-		$this->putByte($this->y);
-		$this->putInt($this->z);
-		$this->putVarInt($this->blockId);
-		$this->putByte($this->blockMeta);
+		$this->putPosition($this->x, $this->y, $this->z);
+		$this->putVarInt(($this->blockId << 4) | $this->blockMeta);
 	}
 
 	public function decode(){

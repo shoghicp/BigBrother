@@ -59,6 +59,13 @@ class ServerManager{
 	const PACKET_ENABLE_ENCRYPTION = 0x04;
 
 	/*
+	 * ENABLE_ENCRYPTION payload:
+	 * int32 (session identifier)
+	 * int (threshold)
+	 */
+	const PACKET_SET_COMPRESSION = 0x05;
+
+	/*
 	 * no payload
 	 */
 	const PACKET_SHUTDOWN = 0xfe;
@@ -95,6 +102,7 @@ class ServerManager{
 
 		$this->logger = $thread->getLogger();
 		$this->fp = $thread->getInternalIPC();
+		stream_set_blocking($this->fp, 1);
 		if($interface === ""){
 			$interface = "0.0.0.0";
 		}
@@ -121,11 +129,17 @@ class ServerManager{
 
 		$len = Binary::readInt($len);
 		$pid = ord(fgetc($this->fp));
+
+		$buffer = "";
+
 		if($len > 1){
 			$buffer = fread($this->fp, $len - 1);
-		}else{
-			$buffer = "";
+
+			while(strlen($buffer) < ($len - 1) and !feof($this->fp)){
+				$buffer .= fread($this->fp, $len - 1 - strlen($buffer));
+			}
 		}
+
 		if($pid === self::PACKET_SEND_PACKET){
 			$id = Binary::readInt(substr($buffer, 0, 4));
 			$data = substr($buffer, 4);
@@ -144,6 +158,15 @@ class ServerManager{
 				return;
 			}
 			$this->sessions[$id]->enableEncryption($secret);
+		}elseif($pid === self::PACKET_SET_COMPRESSION){
+			$id = Binary::readInt(substr($buffer, 0, 4));
+			$threshold = Binary::readInt(substr($buffer, 4, 4));
+
+			if(!isset($this->sessions[$id])){
+				$this->closeSession($id);
+				return;
+			}
+			$this->sessions[$id]->setCompression($threshold);
 		}elseif($pid === self::PACKET_CLOSE_SESSION){
 			$id = Binary::readInt(substr($buffer, 0, 4));
 			if(isset($this->sessions[$id])){

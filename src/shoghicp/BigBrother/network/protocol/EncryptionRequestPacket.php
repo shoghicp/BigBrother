@@ -31,9 +31,9 @@ class EncryptionRequestPacket extends Packet{
 
 	public function encode(){
 		$this->putString($this->serverID);
-		$this->putShort(strlen($this->publicKey));
+		$this->putVarInt(strlen($this->publicKey));
 		$this->put($this->publicKey);
-		$this->putShort(strlen($this->verifyToken));
+		$this->putVarInt(strlen($this->verifyToken));
 		$this->put($this->verifyToken);
 	}
 

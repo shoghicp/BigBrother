@@ -40,9 +40,7 @@ class PlayerBlockPlacementPacket extends Packet{
 	}
 
 	public function decode(){
-		$this->x = $this->getInt();
-		$this->y = $this->getByte();
-		$this->z = $this->getInt();
+		$this->getPosition($this->x, $this->y, $this->z);
 		$this->direction = $this->getByte();
 		$this->heldItem = $this->getSlot();
 		$this->cursorX = $this->getByte();

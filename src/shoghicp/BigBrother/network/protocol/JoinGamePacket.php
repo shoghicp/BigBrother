@@ -27,6 +27,7 @@ class JoinGamePacket extends Packet{
 	public $difficulty;
 	public $maxPlayers;
 	public $levelType;
+	public $reducedDebugInfo = false;
 
 	public function pid(){
 		return 0x01;
@@ -39,6 +40,7 @@ class JoinGamePacket extends Packet{
 		$this->putByte($this->difficulty);
 		$this->putByte($this->maxPlayers);
 		$this->putString($this->levelType);
+		$this->putByte($this->reducedDebugInfo ? 1 : 0);
 	}
 
 	public function decode(){

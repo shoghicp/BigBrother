@@ -22,6 +22,7 @@ use pocketmine\level\Level;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use shoghicp\BigBrother\DesktopPlayer;
+use shoghicp\BigBrother\utils\Binary;
 
 class McRegionToAnvil extends AsyncTask{
 
@@ -56,7 +57,7 @@ class McRegionToAnvil extends AsyncTask{
 	}
 
 	public function onRun(){
-		$ids = $data = $blockLight = $skyLight = ["", "", "", "", "", "", "", ""];
+		$ids = $blockLight = $skyLight = ["", "", "", "", "", "", "", ""];
 
 		/*for($z = 0; $z < 16; ++$z){
 			for($x = 0; $x < 16; ++$x){
@@ -75,18 +76,21 @@ class McRegionToAnvil extends AsyncTask{
 					for($x = 0; $x < 16; ++$x){
 						$index = ($x << 11) + ($z << 7) + $offset;
 						$halfIndex = ($x << 10) + ($z << 6) + ($offset >> 1);
-						$ids[$Y] .= $this->blockIds[$index];
-						//TODO: half data
-						//$data[$Y] .= $this->blockIds[$index];
+						if(($y & 1) === 0){
+							$data = ord($this->blockData[$halfIndex]) & 0x0F;
+						}else{
+							$data = ord($this->blockData[$halfIndex]) >> 4;
+						}
+						$ids[$Y] .= Binary::writeLShort((ord($this->blockIds[$index]) << 4) | $data);
 					}
 				}
 			}
 		}
 
 		//placeholder
-		$data = $blockLight = $skyLight = [$half = str_repeat("\x00", 4096), $half, $half, $half, $half, $half, $half, $half];
+		$blockLight = $skyLight = [$half = str_repeat("\xff", 4096), $half, $half, $half, $half, $half, $half, $half];
 
-		$this->setResult(zlib_encode(implode($ids) . implode($data) . implode($blockLight) . implode($skyLight) . $this->biomeIds, ZLIB_ENCODING_DEFLATE, $this->compressionLevel));
+		$this->setResult(implode($ids) . implode($blockLight) . implode($skyLight) . $this->biomeIds);
 	}
 
 	public function onCompletion(Server $server){

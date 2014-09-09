@@ -99,6 +99,14 @@ class ProtocolInterface implements SourceInterface{
 		@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
 	}
 
+	public function setCompression(DesktopPlayer $player, $threshold){
+		if(isset($this->sessions[$player])){
+			$target = $this->sessions[$player];
+			$data = chr(ServerManager::PACKET_SET_COMPRESSION) . Binary::writeInt($target) . Binary::writeInt($threshold);
+			@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+		}
+	}
+
 	public function enableEncryption(DesktopPlayer $player, $secret){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];

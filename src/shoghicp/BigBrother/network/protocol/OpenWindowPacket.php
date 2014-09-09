@@ -34,7 +34,20 @@ class OpenWindowPacket extends Packet{
 
 	public function encode(){
 		$this->putByte($this->windowID);
-		$this->putByte($this->inventoryType);
+		$type = "";
+		switch($this->inventoryType){
+			case 0:
+				$type = "minecraft:chest";
+				break;
+			case 1:
+				$type = "minecraft:crafting_table";
+				break;
+			case 2:
+				$type = "minecraft:furnace";
+				break;
+			//TODO: http://wiki.vg/Inventory#Windows
+		}
+		$this->putString($type);
 		$this->putString($this->windowTitle);
 		$this->putByte($this->slots);
 		$this->putByte($this->useTitle ? 1 : 0);

@@ -27,18 +27,20 @@ class EntityTeleportPacket extends Packet{
 	public $z;
 	public $yaw;
 	public $pitch;
+	public $onGround = true;
 
 	public function pid(){
 		return 0x18;
 	}
 
 	public function encode(){
-		$this->putInt($this->eid);
+		$this->putVarInt($this->eid);
 		$this->putInt(intval($this->x * 32));
 		$this->putInt(intval($this->y * 32));
 		$this->putInt(intval($this->z * 32));
 		$this->putByte((int) ($this->yaw * (256 / 360)));
 		$this->putByte((int) ($this->pitch * (256 / 360)));
+		$this->putByte($this->onGround ? 1 : 0);
 	}
 
 	public function decode(){

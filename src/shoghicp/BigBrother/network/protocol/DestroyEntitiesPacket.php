@@ -28,9 +28,9 @@ class DestroyEntitiesPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putByte(count($this->ids));
+		$this->putVarInt(count($this->ids));
 		foreach($this->ids as $id){
-			$this->putInt($id);
+			$this->putVarInt($id);
 		}
 	}
 

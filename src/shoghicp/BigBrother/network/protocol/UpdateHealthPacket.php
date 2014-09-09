@@ -31,7 +31,7 @@ class UpdateHealthPacket extends Packet{
 
 	public function encode(){
 		$this->putFloat($this->health);
-		$this->putShort($this->food);
+		$this->putVarInt($this->food);
 		$this->putFloat($this->saturation);
 	}
 

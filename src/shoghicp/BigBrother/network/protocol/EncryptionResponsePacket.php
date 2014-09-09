@@ -33,7 +33,7 @@ class EncryptionResponsePacket extends Packet{
 	}
 
 	public function decode(){
-		$this->sharedSecret = $this->get($this->getShort());
-		$this->verifyToken = $this->get($this->getShort());
+		$this->sharedSecret = $this->get($this->getVarInt());
+		$this->verifyToken = $this->get($this->getVarInt());
 	}
 }

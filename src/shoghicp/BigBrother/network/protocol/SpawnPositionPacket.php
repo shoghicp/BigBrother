@@ -30,9 +30,7 @@ class SpawnPositionPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putInt($this->spawnX);
-		$this->putInt($this->spawnY);
-		$this->putInt($this->spawnZ);
+		$this->putPosition($this->spawnX, $this->spawnY, $this->spawnZ);
 	}
 
 	public function decode(){

@@ -19,6 +19,7 @@ namespace shoghicp\BigBrother;
 
 use phpseclib\Crypt\RSA;
 use pocketmine\event\player\PlayerRespawnEvent;
+use pocketmine\event\player\PlayerPreLoginEvent;
 use shoghicp\BigBrother\network\protocol\RespawnPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use pocketmine\event\Listener;
@@ -138,6 +139,23 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getServer()->removeInterface($this->interface);
 			$this->thread->join();
 		}
+	}
+
+	/**
+	 * @param PlayerPreLoginEvent $event
+	 *
+	 * @priority NORMAL
+	 */
+	public function onPreLogin(PlayerPreLoginEvent $event){
+		$player = $event->getPlayer();
+		if($player instanceof DesktopPlayer){
+			$threshold = $this->getConfig()->get("network-compression-threshold");
+			if($threshold === false){
+				$threshold = -1;
+			}
+			$player->bigBrother_setCompression($threshold);
+		}
+
 	}
 
 	/**

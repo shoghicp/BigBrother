@@ -150,7 +150,6 @@ class DesktopPlayer extends Player{
 		$pk->chunkX = $x;
 		$pk->chunkZ = $z;
 		$pk->groundUp = true;
-		$pk->addBitmap = 0;
 
 		$pk->payload = $payload;
 		$pk->primaryBitmap = 0xff;
@@ -191,11 +190,11 @@ class DesktopPlayer extends Player{
 
 				$chunk = $this->getLevel()->getChunkAt($X, $Z, true);
 				if($chunk instanceof AnvilChunk){
-					$pk = new ChunkDataPacket();
+					//TODO!
+					/*$pk = new ChunkDataPacket();
 					$pk->chunkX = $X;
 					$pk->chunkZ = $Z;
 					$pk->groundUp = true;
-					$pk->addBitmap = 0;
 					$ids = "";
 					$meta = "";
 					$blockLight = "";
@@ -217,7 +216,7 @@ class DesktopPlayer extends Player{
 
 					$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
 					$pk->primaryBitmap = $bitmap;
-					$this->putRawPacket($pk);
+					$this->putRawPacket($pk);*/
 				}elseif($chunk instanceof McRegionChunk){
 					$task = new McRegionToAnvil($this, $chunk);
 					$this->server->getScheduler()->scheduleAsyncTask($task);
@@ -378,40 +377,6 @@ class DesktopPlayer extends Player{
 			}
 		}
 
-		/*//Login start
-		$packet = new LoginStartPacket();
-		$packet->read($buffer);
-		$this->username = $packet->name;
-		//TODO: authentication
-
-
-		if(!is_array($ret) or ($profile = array_shift($ret)) === null){
-			$this->status = -1;
-			$pk = new LoginDisconnectPacket();
-			$pk->reason = "{\"text\":\"§lInvalid player name!\"}";
-			$this->writePacket($pk);
-			return;
-		}
-
-		//$this->uuid = $profile->id;
-		$this->formattedUUID = substr($this->uuid, 0, 8) ."-". substr($this->uuid, 8, 4) ."-". substr($this->uuid, 12, 4) ."-". substr($this->uuid, 16, 4) ."-". substr($this->uuid, 20);
-		//$this->username = $profile->name;
-
-		$pk = new LoginSuccessPacket();
-		$pk->uuid = $this->formattedUUID;
-		$pk->name = $this->username;
-		$this->writePacket($pk);
-		usleep(50000); //TODO: remove this
-
-		//TODO
-		//From here on, everything is done by the translator on the main thread :)
-		//$this->status = 3;
-		$this->status = -1;
-		$pk = new PlayDisconnectPacket();
-		$pk->reason = json_encode([
-			"text" => TextFormat::BOLD . "You logged in correctly!".TextFormat::RESET."\n\n".TextFormat::BOLD."Name: ".TextFormat::RESET . $this->username."\n".TextFormat::BOLD."UUID: ".TextFormat::RESET . $this->formattedUUID."\n\n".TextFormat::GOLD."TODO: ".TextFormat::RESET."Implement translator"
-		], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-		$this->writePacket($pk);*/
 	}
 
 	public function close($message = "", $reason = "generic reason"){
@@ -425,6 +390,10 @@ class DesktopPlayer extends Player{
 			$this->putRawPacket($pk);
 		}
 		parent::close($message, $reason);
+	}
+
+	public function bigBrother_setCompression($threshold){
+		$this->interface->setCompression($this, $threshold);
 	}
 
 	public function putRawPacket(Packet $packet){

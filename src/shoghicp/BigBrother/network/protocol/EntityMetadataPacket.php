@@ -30,7 +30,7 @@ class EntityMetadataPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putInt($this->eid);
+		$this->putVarInt($this->eid);
 		$this->put(Binary::writeMetadata($this->metadata));
 	}
 

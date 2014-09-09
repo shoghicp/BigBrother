@@ -22,6 +22,7 @@ use shoghicp\BigBrother\network\Packet;
 class STCChatPacket extends Packet{
 
 	public $message;
+	public $position = 0; //0 = chat, 1 = system message, 2 = action bar
 
 	public function pid(){
 		return 0x02;
@@ -29,9 +30,11 @@ class STCChatPacket extends Packet{
 
 	public function encode(){
 		$this->putString($this->message);
+		$this->putByte($this->position);
 	}
 
 	public function decode(){
 		$this->message = $this->getString();
+		$this->position = $this->getByte();
 	}
 }

@@ -28,10 +28,10 @@ class KeepAlivePacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putInt($this->id);
+		$this->putVarInt($this->id);
 	}
 
 	public function decode(){
-		$this->id = $this->getInt();
+		$this->id = $this->getVarInt();
 	}
 }

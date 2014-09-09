@@ -35,6 +35,8 @@ class Session{
 	protected $aes;
 	protected $hasCrypto = false;
 
+	private $threshold = null;
+
 	public function __construct(ServerManager $manager, $identifier, $socket){
 		$this->manager = $manager;
 		$this->identifier = $identifier;
@@ -43,6 +45,11 @@ class Session{
 		$final = strrpos($addr, ":");
 		$this->port = (int) substr($addr, $final + 1);
 		$this->address = substr($addr, 0, $final);
+	}
+
+	public function setCompression($threshold){
+		$this->writeRaw(Binary::writeVarInt(0x46) . Binary::writeVarInt($threshold >= 0 ? $threshold : -1));
+		$this->threshold = $threshold === -1 ? null : $threshold;
 	}
 
 	public function write($data){
@@ -85,11 +92,35 @@ class Session{
 
 	public function writePacket(Packet $packet){
 		$data = $packet->write();
-		$this->write(Binary::writeVarInt(strlen($data)) . $data);
+		if($this->threshold === null){
+			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+		}else{
+			$dataLength = strlen($data);
+			if($dataLength >= $this->threshold){
+				$data = zlib_encode($data, ZLIB_ENCODING_DEFLATE, 7);
+			}else{
+				$dataLength = 0;
+			}
+
+			$data = Binary::writeVarInt($dataLength) . $data;
+			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+		}
 	}
 
 	public function writeRaw($data){
-		$this->write(Binary::writeVarInt(strlen($data)) . $data);
+		if($this->threshold === null){
+			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+		}else{
+			$dataLength = strlen($data);
+			if($dataLength >= $this->threshold){
+				$data = zlib_encode($data, ZLIB_ENCODING_DEFLATE, 7);
+			}else{
+				$dataLength = 0;
+			}
+
+			$data = Binary::writeVarInt($dataLength) . $data;
+			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+		}
 	}
 
 	public function process(){
@@ -105,6 +136,21 @@ class Session{
 		$offset = 0;
 
 		$buffer = $this->read($length);
+
+		if($this->threshold !== null){
+			$dataLength = Binary::readVarInt($buffer, $offset);
+			if($dataLength !== 0){
+				if($dataLength < $this->threshold){
+					$this->close("Invalid compression threshold");
+				}else{
+					$buffer = zlib_decode(substr($buffer, $offset));
+					$offset = 0;
+				}
+			}else{
+				$buffer = substr($buffer, $offset);
+				$offset = 0;
+			}
+		}
 
 		if($this->status === 2){ //Login
 			$this->manager->sendPacket($this->identifier, $buffer);

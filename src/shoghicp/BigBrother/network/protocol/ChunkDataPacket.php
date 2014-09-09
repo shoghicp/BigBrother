@@ -25,7 +25,6 @@ class ChunkDataPacket extends Packet{
 	public $chunkZ;
 	public $groundUp;
 	public $primaryBitmap;
-	public $addBitmap;
 	public $payload;
 
 	public function pid(){
@@ -37,8 +36,7 @@ class ChunkDataPacket extends Packet{
 		$this->putInt($this->chunkZ);
 		$this->putByte($this->groundUp ? 1 : 0);
 		$this->putShort($this->primaryBitmap);
-		$this->putShort($this->addBitmap);
-		$this->putInt(strlen($this->payload));
+		$this->putVarInt(strlen($this->payload));
 		$this->put($this->payload);
 	}
 

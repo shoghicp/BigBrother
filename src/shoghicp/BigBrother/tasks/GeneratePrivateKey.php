@@ -30,7 +30,7 @@ class GeneratePrivateKey extends AsyncTask{
 	/** @var array */
 	protected $loadPaths;
 
-	public function __construct(\ThreadedLogger $logger, \SplAutoloader $loader){
+	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader){
 		$this->logger = $logger;
 		$this->loader = $loader;
 		$loadPaths = [];

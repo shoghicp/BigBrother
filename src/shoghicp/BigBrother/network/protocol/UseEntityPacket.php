@@ -23,7 +23,7 @@ use shoghicp\BigBrother\utils\Binary;
 class UseEntityPacket extends Packet{
 
 	public $target;
-	public $mouse;
+	public $type;
 
 	public function pid(){
 		return 0x02;
@@ -34,7 +34,13 @@ class UseEntityPacket extends Packet{
 	}
 
 	public function decode(){
-		$this->target = $this->getInt();
-		$this->mouse = $this->getByte();
+		$this->target = $this->getVarInt();
+		$this->type = $this->getVarInt();
+		if($this->type){
+			//TODO
+			//$this->targetX = $this->getFloat();
+			//$this->targetY = $this->getFloat();
+			//$this->targetZ = $this->getFloat();
+		}
 	}
 }
