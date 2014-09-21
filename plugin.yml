@@ -1,5 +1,5 @@
 name: BigBrother
-version: 1.3.0-beta
+version: 1.4.0-beta
 api: 1.2.0
 description: "Allows the connection of Minecraft: PC clients to PocketMine-MP servers"
 author: shoghicp
