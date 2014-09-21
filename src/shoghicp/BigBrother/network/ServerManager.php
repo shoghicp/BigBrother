@@ -75,6 +75,8 @@ class ServerManager{
 	 */
 	const PACKET_EMERGENCY_SHUTDOWN = 0xff;
 
+	/** @var ServerThread */
+	protected $thread;
 	protected $fp;
 	protected $socket;
 	protected $identifier = 0;
@@ -93,6 +95,7 @@ class ServerManager{
 	public $favicon;
 
 	public function __construct(ServerThread $thread, $port, $interface, $description = "", $favicon = null){
+		$this->thread = $thread;
 		$this->description = $description;
 		if($favicon === null or ($image = file_get_contents($favicon)) == ""){
 			$this->favicon = null;
@@ -100,9 +103,9 @@ class ServerManager{
 			$this->favicon = "data:image/png;base64,".base64_encode($image);
 		}
 
-		$this->logger = $thread->getLogger();
-		$this->fp = $thread->getInternalIPC();
-		stream_set_blocking($this->fp, 1);
+		$this->logger = $this->thread->getLogger();
+		$this->fp = $this->thread->getInternalSocket();
+
 		if($interface === ""){
 			$interface = "0.0.0.0";
 		}
@@ -121,78 +124,70 @@ class ServerManager{
 	}
 
 	protected function processPacket(){
-		$len = fread($this->fp, 4);
-		if($len === false){
-			$this->logger->critical("[BigBrother] Invalid internal ICP stream");
-			exit(1);
+		@fread($this->fp, 1);
+		if(strlen($packet = $this->thread->readMainToThreadPacket()) > 0){
+			$pid = ord($packet{0});
+
+			$buffer = substr($packet, 1);
+
+			if($pid === self::PACKET_SEND_PACKET){
+				$id = Binary::readInt(substr($buffer, 0, 4));
+				$data = substr($buffer, 4);
+
+				if(!isset($this->sessions[$id])){
+					$this->closeSession($id);
+					return true;
+				}
+				$this->sessions[$id]->writeRaw($data);
+			}elseif($pid === self::PACKET_ENABLE_ENCRYPTION){
+				$id = Binary::readInt(substr($buffer, 0, 4));
+				$secret = substr($buffer, 4);
+
+				if(!isset($this->sessions[$id])){
+					$this->closeSession($id);
+					return true;
+				}
+				$this->sessions[$id]->enableEncryption($secret);
+			}elseif($pid === self::PACKET_SET_COMPRESSION){
+				$id = Binary::readInt(substr($buffer, 0, 4));
+				$threshold = Binary::readInt(substr($buffer, 4, 4));
+
+				if(!isset($this->sessions[$id])){
+					$this->closeSession($id);
+					return true;
+				}
+				$this->sessions[$id]->setCompression($threshold);
+			}elseif($pid === self::PACKET_CLOSE_SESSION){
+				$id = Binary::readInt(substr($buffer, 0, 4));
+				if(isset($this->sessions[$id])){
+					$this->close($this->sessions[$id]);
+				}
+			}elseif($pid === self::PACKET_SHUTDOWN){
+				$this->shutdown = true;
+				foreach($this->sessions as $session){
+					$session->close();
+				}
+			}elseif($pid === self::PACKET_EMERGENCY_SHUTDOWN){
+				$this->shutdown = true;
+			}
+
+			return true;
 		}
 
-		$len = Binary::readInt($len);
-		$pid = ord(fgetc($this->fp));
-
-		$buffer = "";
-
-		if($len > 1){
-			$buffer = fread($this->fp, $len - 1);
-
-			while(strlen($buffer) < ($len - 1) and !feof($this->fp)){
-				$buffer .= fread($this->fp, $len - 1 - strlen($buffer));
-			}
-		}
-
-		if($pid === self::PACKET_SEND_PACKET){
-			$id = Binary::readInt(substr($buffer, 0, 4));
-			$data = substr($buffer, 4);
-
-			if(!isset($this->sessions[$id])){
-				$this->closeSession($id);
-				return;
-			}
-			$this->sessions[$id]->writeRaw($data);
-		}elseif($pid === self::PACKET_ENABLE_ENCRYPTION){
-			$id = Binary::readInt(substr($buffer, 0, 4));
-			$secret = substr($buffer, 4);
-
-			if(!isset($this->sessions[$id])){
-				$this->closeSession($id);
-				return;
-			}
-			$this->sessions[$id]->enableEncryption($secret);
-		}elseif($pid === self::PACKET_SET_COMPRESSION){
-			$id = Binary::readInt(substr($buffer, 0, 4));
-			$threshold = Binary::readInt(substr($buffer, 4, 4));
-
-			if(!isset($this->sessions[$id])){
-				$this->closeSession($id);
-				return;
-			}
-			$this->sessions[$id]->setCompression($threshold);
-		}elseif($pid === self::PACKET_CLOSE_SESSION){
-			$id = Binary::readInt(substr($buffer, 0, 4));
-			if(isset($this->sessions[$id])){
-				$this->close($this->sessions[$id]);
-			}
-		}elseif($pid === self::PACKET_SHUTDOWN){
-			$this->shutdown = true;
-			foreach($this->sessions as $session){
-				$session->close();
-			}
-		}elseif($pid === self::PACKET_EMERGENCY_SHUTDOWN){
-			$this->shutdown = true;
-		}
+		return false;
 	}
 
 	public function sendPacket($id, $buffer){
-		fwrite($this->fp, Binary::writeInt(strlen($buffer) + 5) . chr(self::PACKET_SEND_PACKET) . Binary::writeInt($id) . $buffer);
+		$this->thread->pushThreadToMainPacket(chr(self::PACKET_SEND_PACKET) . Binary::writeInt($id) . $buffer);
 	}
 
 	public function openSession(Session $session){
 		$data = chr(self::PACKET_OPEN_SESSION) . Binary::writeInt($session->getID()) . chr(strlen($session->getAddress())) . $session->getAddress() . Binary::writeShort($session->getPort());
-		fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+		$this->thread->pushThreadToMainPacket($data);
 	}
 
 	protected function closeSession($id){
-		fwrite($this->fp, Binary::writeInt(5) . chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id));
+		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id));
 	}
 
 	private function process(){
@@ -212,7 +207,7 @@ class ServerManager{
 					if($sockets[0] !== $this->fp){
 						$this->findSocket($sockets[0]);
 					}else{
-						$this->processPacket();
+						while($this->processPacket()){}
 					}
 					unset($sockets[0]);
 				}

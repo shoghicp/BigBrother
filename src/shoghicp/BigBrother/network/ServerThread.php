@@ -17,7 +17,9 @@
 
 namespace shoghicp\BigBrother\network;
 
-class ServerThread extends \Thread{
+use pocketmine\Thread;
+
+class ServerThread extends Thread{
 
 	protected $port;
 	protected $interface;
@@ -29,6 +31,11 @@ class ServerThread extends \Thread{
 	public $loadPaths = [];
 
 	protected $shutdown;
+
+	/** @var \Threaded */
+	protected $externalQueue;
+	/** @var \Threaded */
+	protected $internalQueue;
 
 	protected $externalSocket;
 	protected $internalSocket;
@@ -67,12 +74,14 @@ class ServerThread extends \Thread{
 		}
 
 		$this->internalSocket = $sockets[0];
-		stream_set_blocking($this->internalSocket, 1);
+		stream_set_blocking($this->internalSocket, 0);
 		$this->externalSocket = $sockets[1];
 		stream_set_blocking($this->externalSocket, 0);
-		@stream_set_write_buffer($this->externalSocket, 1024 * 1024 * 8);
 
-		$this->start(PTHREADS_INHERIT_ALL & ~PTHREADS_INHERIT_CLASSES);
+		$this->externalQueue = new \Threaded();
+		$this->internalQueue = new \Threaded();
+
+		$this->start();
 	}
 
 	protected function addDependency(array &$loadPaths, \ReflectionClass $dep){
@@ -115,12 +124,39 @@ class ServerThread extends \Thread{
 		return $this->logger;
 	}
 
-	public function getExternalIPC(){
-		return $this->externalSocket;
+	/**
+	 * @return \Threaded
+	 */
+	public function getExternalQueue(){
+		return $this->externalQueue;
 	}
 
-	public function getInternalIPC(){
+	/**
+	 * @return \Threaded
+	 */
+	public function getInternalQueue(){
+		return $this->internalQueue;
+	}
+
+	public function getInternalSocket(){
 		return $this->internalSocket;
+	}
+
+	public function pushMainToThreadPacket($str){
+		$this->internalQueue[] = $str;
+		@fwrite($this->externalSocket, "\xff", 1); //Notify
+	}
+
+	public function readMainToThreadPacket(){
+		return $this->internalQueue->shift();
+	}
+
+	public function pushThreadToMainPacket($str){
+		$this->externalQueue[] = $str;
+	}
+
+	public function readThreadToMainPacket(){
+		return $this->externalQueue->shift();
 	}
 
 	public function run(){

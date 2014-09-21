@@ -81,7 +81,7 @@ class McRegionToAnvil extends AsyncTask{
 						}else{
 							$data = ord($this->blockData[$halfIndex]) >> 4;
 						}
-						$ids[$Y] .= Binary::writeLShort((ord($this->blockIds[$index]) << 4) | $data);
+						$ids[$Y] .= pack("v", (ord($this->blockIds[$index]) << 4) | $data);
 					}
 				}
 			}

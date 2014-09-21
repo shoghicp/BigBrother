@@ -45,8 +45,6 @@ class ProtocolInterface implements SourceInterface{
 	protected $translator;
 	/** @var ServerThread */
 	protected $thread;
-	/** @var resource */
-	protected $fp;
 
 	/** @var \SplObjectStorage<DesktopPlayer> */
 	protected $sessions;
@@ -63,19 +61,18 @@ class ProtocolInterface implements SourceInterface{
 		$this->plugin = $plugin;
 		$this->translator = $translator;
 		$this->thread = $thread;
-		$this->fp = $this->thread->getExternalIPC();
 		$this->sessions = new \SplObjectStorage();
 	}
 
 	public function emergencyShutdown(){
-		@fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_EMERGENCY_SHUTDOWN));
+		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_EMERGENCY_SHUTDOWN));
 	}
 
 	public function shutdown(){
 		foreach($this->sessionsPlayers as $player){
 			$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", $this->plugin->getServer()->getProperty("settings.shutdown-message", "Server closed"));
 		}
-		@fwrite($this->fp, Binary::writeInt(1) . chr(ServerManager::PACKET_SHUTDOWN));
+		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
 	public function setName($name){
@@ -91,19 +88,19 @@ class ProtocolInterface implements SourceInterface{
 		}else{
 			return;
 		}
-		@fwrite($this->fp, Binary::writeInt(5) . chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
+		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
 	}
 
 	protected function sendPacket($target, Packet $packet){
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
-		@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+		$this->thread->pushMainToThreadPacket($data);
 	}
 
 	public function setCompression(DesktopPlayer $player, $threshold){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
 			$data = chr(ServerManager::PACKET_SET_COMPRESSION) . Binary::writeInt($target) . Binary::writeInt($threshold);
-			@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+			$this->thread->pushMainToThreadPacket($data);
 		}
 	}
 
@@ -111,7 +108,7 @@ class ProtocolInterface implements SourceInterface{
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
 			$data = chr(ServerManager::PACKET_ENABLE_ENCRYPTION) . Binary::writeInt($target) . $secret;
-			@fwrite($this->fp, Binary::writeInt(strlen($data)) . $data);
+			$this->thread->pushMainToThreadPacket($data);
 		}
 	}
 
@@ -154,16 +151,6 @@ class ProtocolInterface implements SourceInterface{
 				$player->handleDataPacket($packets);
 			}
 		}
-	}
-
-	public function readStream($len){
-		$buffer = "";
-
-		while(strlen($buffer) < $len){
-			$buffer .= (string) @fread($this->fp, $len - strlen($buffer));
-		}
-
-		return $buffer;
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
@@ -224,20 +211,13 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function process(){
-		while(true){
-			if(count($this->identifiers) > 0){
-				foreach($this->identifiers as $id => $player){
-					$player->handleACK($id);
-				}
+		if(count($this->identifiers) > 0){
+			foreach($this->identifiers as $id => $player){
+				$player->handleACK($id);
 			}
+		}
 
-			$len = fread($this->fp, 4);
-			if($len === false or $len === ""){
-				return;
-			}
-
-			$buffer = $this->readStream(Binary::readInt($len));
-
+		while(strlen($buffer = $this->thread->readThreadToMainPacket()) > 0){
 			$offset = 1;
 			$pid = ord($buffer{0});
 
@@ -252,7 +232,7 @@ class ProtocolInterface implements SourceInterface{
 				$id = Binary::readInt(substr($buffer, $offset, 4));
 				$offset += 4;
 				if(isset($this->sessionsPlayers[$id])){
-					return;
+					continue;
 				}
 				$len = ord($buffer{$offset++});
 				$address = substr($buffer, $offset, $len);
@@ -268,12 +248,14 @@ class ProtocolInterface implements SourceInterface{
 			}elseif($pid === ServerManager::PACKET_CLOSE_SESSION){
 				$id = Binary::readInt(substr($buffer, $offset, 4));
 				if(!isset($this->sessionsPlayers[$id])){
-					return;
+					continue;
 				}
 				$this->close($this->sessionsPlayers[$id]);
 			}
 
 		}
+
+		return true;
 
 	}
 }
