@@ -50,6 +50,7 @@ class Session{
 	public function setCompression($threshold){
 		$this->writeRaw(Binary::writeVarInt(0x46) . Binary::writeVarInt($threshold >= 0 ? $threshold : -1));
 		$this->threshold = $threshold === -1 ? null : $threshold;
+		var_dump($this->threshold);
 	}
 
 	public function write($data){

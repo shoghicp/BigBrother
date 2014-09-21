@@ -224,52 +224,55 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function process(){
-		if(count($this->identifiers) > 0){
-			foreach($this->identifiers as $id => $player){
-				$player->handleACK($id);
+		while(true){
+			if(count($this->identifiers) > 0){
+				foreach($this->identifiers as $id => $player){
+					$player->handleACK($id);
+				}
 			}
-		}
 
-		$len = fread($this->fp, 4);
-		if($len === false or $len === ""){
-			return;
-		}
-
-		$buffer = $this->readStream(Binary::readInt($len));
-
-		$offset = 1;
-		$pid = ord($buffer{0});
-
-		if($pid === ServerManager::PACKET_SEND_PACKET){
-			$id = Binary::readInt(substr($buffer, $offset, 4));
-			$offset += 4;
-			if(isset($this->sessionsPlayers[$id])){
-				$payload = substr($buffer, $offset);
-				$this->handlePacket($this->sessionsPlayers[$id], $payload);
-			}
-		}elseif($pid === ServerManager::PACKET_OPEN_SESSION){
-			$id = Binary::readInt(substr($buffer, $offset, 4));
-			$offset += 4;
-			if(isset($this->sessionsPlayers[$id])){
+			$len = fread($this->fp, 4);
+			if($len === false or $len === ""){
 				return;
 			}
-			$len = ord($buffer{$offset++});
-			$address = substr($buffer, $offset, $len);
-			$offset += $len;
-			$port = Binary::readShort(substr($buffer, $offset, 2), false);
 
-			$identifier = "$id:$address:$port";
+			$buffer = $this->readStream(Binary::readInt($len));
 
-			$player = new DesktopPlayer($this, $identifier, $address, $port);
-			$this->sessions->attach($player, $id);
-			$this->sessionsPlayers[$id] = $player;
-			$this->plugin->getServer()->addPlayer($identifier, $player);
-		}elseif($pid === ServerManager::PACKET_CLOSE_SESSION){
-			$id = Binary::readInt(substr($buffer, $offset, 4));
-			if(!isset($this->sessionsPlayers[$id])){
-				return;
+			$offset = 1;
+			$pid = ord($buffer{0});
+
+			if($pid === ServerManager::PACKET_SEND_PACKET){
+				$id = Binary::readInt(substr($buffer, $offset, 4));
+				$offset += 4;
+				if(isset($this->sessionsPlayers[$id])){
+					$payload = substr($buffer, $offset);
+					$this->handlePacket($this->sessionsPlayers[$id], $payload);
+				}
+			}elseif($pid === ServerManager::PACKET_OPEN_SESSION){
+				$id = Binary::readInt(substr($buffer, $offset, 4));
+				$offset += 4;
+				if(isset($this->sessionsPlayers[$id])){
+					return;
+				}
+				$len = ord($buffer{$offset++});
+				$address = substr($buffer, $offset, $len);
+				$offset += $len;
+				$port = Binary::readShort(substr($buffer, $offset, 2), false);
+
+				$identifier = "$id:$address:$port";
+
+				$player = new DesktopPlayer($this, $identifier, $address, $port);
+				$this->sessions->attach($player, $id);
+				$this->sessionsPlayers[$id] = $player;
+				$this->plugin->getServer()->addPlayer($identifier, $player);
+			}elseif($pid === ServerManager::PACKET_CLOSE_SESSION){
+				$id = Binary::readInt(substr($buffer, $offset, 4));
+				if(!isset($this->sessionsPlayers[$id])){
+					return;
+				}
+				$this->close($this->sessionsPlayers[$id]);
 			}
-			$this->close($this->sessionsPlayers[$id]);
+
 		}
 
 	}

@@ -199,7 +199,7 @@ class Translator_18 implements Translator{
 
 				$pk = new PositionAndLookPacket();
 				$pk->x = $packet->x;
-				$pk->y = $packet->y + $player->height;
+				$pk->y = $packet->y;
 				$pk->z = $packet->z;
 				$pk->yaw = $player->yaw;
 				$pk->pitch = $player->pitch;
@@ -243,7 +243,7 @@ class Translator_18 implements Translator{
 				if($packet->eid === 0){
 					$pk = new PositionAndLookPacket();
 					$pk->x = $packet->x;
-					$pk->y = $packet->y + $player->height;
+					$pk->y = $packet->y;
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;

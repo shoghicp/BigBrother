@@ -26,7 +26,11 @@ class PositionAndLookPacket extends Packet{
 	public $z;
 	public $yaw;
 	public $pitch;
-	public $onGround;
+	public $isRelativeX;
+	public $isRelativeY;
+	public $isRelativeZ;
+	public $isRelativeYaw;
+	public $isRelativePitch;
 
 	public function pid(){
 		return 0x08;
@@ -38,7 +42,23 @@ class PositionAndLookPacket extends Packet{
 		$this->putDouble($this->z);
 		$this->putFloat($this->yaw);
 		$this->putFloat($this->pitch);
-		$this->putByte($this->onGround ? 1 : 0);
+		$flags = 0;
+		if($this->isRelativeX){
+			$flags |= 0x01;
+		}
+		if($this->isRelativeY){
+			$flags |= 0x02;
+		}
+		if($this->isRelativeZ){
+			$flags |= 0x04;
+		}
+		if($this->isRelativePitch){
+			$flags |= 0x08;
+		}
+		if($this->isRelativeYaw){
+			$flags |= 0x10;
+		}
+		$this->putByte($flags);
 	}
 
 	public function decode(){

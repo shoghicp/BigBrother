@@ -21,8 +21,8 @@ use pocketmine\level\format\mcregion\Chunk;
 use pocketmine\level\Level;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
+use pocketmine\utils\Binary;
 use shoghicp\BigBrother\DesktopPlayer;
-use shoghicp\BigBrother\utils\Binary;
 
 class McRegionToAnvil extends AsyncTask{
 
