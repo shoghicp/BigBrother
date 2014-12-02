@@ -237,7 +237,7 @@ class ProtocolInterface implements SourceInterface{
 				$len = ord($buffer{$offset++});
 				$address = substr($buffer, $offset, $len);
 				$offset += $len;
-				$port = Binary::readShort(substr($buffer, $offset, 2), false);
+				$port = Binary::readShort(substr($buffer, $offset, 2));
 
 				$identifier = "$id:$address:$port";
 
