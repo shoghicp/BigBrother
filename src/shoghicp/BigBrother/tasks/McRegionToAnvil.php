@@ -57,16 +57,8 @@ class McRegionToAnvil extends AsyncTask{
 	}
 
 	public function onRun(){
-		$ids = $blockLight = $skyLight = ["", "", "", "", "", "", "", ""];
-
-		/*for($z = 0; $z < 16; ++$z){
-			for($x = 0; $x < 16; ++$x){
-				$ids[$index = ($x << 4) + $z] = substr($this->blockIds, ($x << 11) + ($z << 7), 128);
-				$data[$index] = substr($this->blockData, $half = ($x << 10) + ($z << 6), 64);
-				$blockLight[$index] = substr($this->blockLight, $half, 64);
-				$skyLight[$index] = substr($this->blockSkyLight, $half, 64);
-			}
-		}*/
+		$ids = ["", "", "", "", "", "", "", ""];
+		$blockLight = $skyLight = [[], [], [], [], [], [], [], []];
 
 		//Complexity: O(MG)
 		for($Y = 0; $Y < 8; ++$Y){
@@ -78,17 +70,39 @@ class McRegionToAnvil extends AsyncTask{
 						$halfIndex = ($x << 10) + ($z << 6) + ($offset >> 1);
 						if(($y & 1) === 0){
 							$data = ord($this->blockData[$halfIndex]) & 0x0F;
+							$bLight = ord($this->blockLight[$halfIndex]) & 0x0F;
+							$sLight = ord($this->blockSkyLight[$halfIndex]) & 0x0F;
 						}else{
 							$data = ord($this->blockData[$halfIndex]) >> 4;
+							$bLight = ord($this->blockLight[$halfIndex]) >> 4;
+							$sLight = ord($this->blockSkyLight[$halfIndex]) >> 4;
 						}
 						$ids[$Y] .= pack("v", (ord($this->blockIds[$index]) << 4) | $data);
+
+						$blockLight[$Y][] = $bLight;
+						$skyLight[$Y][] = $sLight;
 					}
 				}
 			}
 		}
 
-		//placeholder
-		$blockLight = $skyLight = [$half = str_repeat("\xff", 4096), $half, $half, $half, $half, $half, $half, $half];
+		foreach($blockLight as $Y => $data){
+			$final = "";
+			$len = count($data);
+			for($i = 0; $i < $len; $i += 2){
+				$final .= chr(($data[$i + 1] << 4) | $data[$i]);
+			}
+			$blockLight[$Y] = $final;
+		}
+
+		foreach($skyLight as $Y => $data){
+			$final = "";
+			$len = count($data);
+			for($i = 0; $i < $len; $i += 2){
+				$final .= chr(($data[$i + 1] << 4) | $data[$i]);
+			}
+			$skyLight[$Y] = $final;
+		}
 
 		$this->setResult(implode($ids) . implode($blockLight) . implode($skyLight) . $this->biomeIds);
 	}
