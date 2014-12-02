@@ -71,16 +71,16 @@ class McRegionToAnvil extends AsyncTask{
 						if(($y & 1) === 0){
 							$data = ord($this->blockData[$halfIndex]) & 0x0F;
 							$bLight = ord($this->blockLight[$halfIndex]) & 0x0F;
-							$sLight = ord($this->blockSkyLight[$halfIndex]) & 0x0F;
+							//$sLight = ord($this->blockSkyLight[$halfIndex]) & 0x0F;
 						}else{
 							$data = ord($this->blockData[$halfIndex]) >> 4;
 							$bLight = ord($this->blockLight[$halfIndex]) >> 4;
-							$sLight = ord($this->blockSkyLight[$halfIndex]) >> 4;
+							//$sLight = ord($this->blockSkyLight[$halfIndex]) >> 4;
 						}
 						$ids[$Y] .= pack("v", (ord($this->blockIds[$index]) << 4) | $data);
 
 						$blockLight[$Y][] = $bLight;
-						$skyLight[$Y][] = $sLight;
+						//$skyLight[$Y][] = $sLight;
 					}
 				}
 			}
@@ -95,6 +95,7 @@ class McRegionToAnvil extends AsyncTask{
 			$blockLight[$Y] = $final;
 		}
 
+		/*
 		foreach($skyLight as $Y => $data){
 			$final = "";
 			$len = count($data);
@@ -103,6 +104,9 @@ class McRegionToAnvil extends AsyncTask{
 			}
 			$skyLight[$Y] = $final;
 		}
+		*/
+
+		$skyLight = [$half = str_repeat("\xff", 4096), $half, $half, $half, $half, $half, $half, $half];
 
 		$this->setResult(implode($ids) . implode($blockLight) . implode($skyLight) . $this->biomeIds);
 	}
