@@ -28,13 +28,15 @@ use pocketmine\plugin\PluginBase;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\ServerThread;
-use shoghicp\BigBrother\network\translation\Translator_18;
+use shoghicp\BigBrother\network\translation\Translator_20;
 use shoghicp\BigBrother\tasks\GeneratePrivateKey;
 
 class BigBrother extends PluginBase implements Listener{
 
 	/** @var ServerThread */
 	private $thread;
+	private $internalQueue;
+	private $externalQueue;
 
 	/** @var ProtocolInterface */
 	private $interface;
@@ -76,8 +78,8 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
-		if(Info::CURRENT_PROTOCOL === 17 or Info::CURRENT_PROTOCOL === 18){
-			$this->translator = new Translator_18();
+		if(Info::CURRENT_PROTOCOL === 20){
+			$this->translator = new Translator_20();
 		}else{
 			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
 			$this->getPluginLoader()->disablePlugin($this);
@@ -106,10 +108,12 @@ class BigBrother extends PluginBase implements Listener{
 	}
 
 	protected function enableServer(){
+		$this->externalQueue = new \Threaded;
+		$this->internalQueue = new \Threaded;
 		$port = (int) $this->getConfig()->get("port");
 		$interface = $this->getConfig()->get("interface");
 		$this->getLogger()->info("Starting Minecraft: PC server on ".($interface === "0.0.0.0" ? "*" : $interface).":$port version ".MCInfo::VERSION);
-		$this->thread = new ServerThread($this->getServer()->getLogger(), $this->getServer()->getLoader(), $port, $interface, (string) $this->getConfig()->get("motd"), $this->getDataFolder() . "server-icon.png");
+		$this->thread = new ServerThread($this->externalQueue, $this->internalQueue, $this->getServer()->getLogger(), $this->getServer()->getLoader(), $port, $interface, (string) $this->getConfig()->get("motd"), $this->getDataFolder() . "server-icon.png");
 
 		$this->interface = new ProtocolInterface($this, $this->thread, $this->translator);
 		$this->getServer()->addInterface($this->interface);

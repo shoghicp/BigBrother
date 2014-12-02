@@ -52,7 +52,7 @@ use shoghicp\BigBrother\network\protocol\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\WindowItemsPacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class Translator_18 implements Translator{
+class Translator_20 implements Translator{
 
 
 

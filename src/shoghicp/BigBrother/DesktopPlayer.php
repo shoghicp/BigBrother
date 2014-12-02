@@ -160,113 +160,108 @@ class DesktopPlayer extends Player{
 
 	}
 
-	public function sendNextChunk(){
-		if($this->connected === false or !isset($this->chunkLoadTask)){
+	protected function sendNextChunk(){
+		if($this->connected === false){
 			return;
 		}
 
-		if(count($this->loadQueue) === 0){
-			$this->chunkLoadTask->setNextRun($this->chunkLoadTask->getNextRun() + 30);
-		}else{
-			$count = 0;
-			$limit = (int) $this->server->getProperty("chunk-sending.per-tick", 1);
-			foreach($this->loadQueue as $index => $distance){
-				if($count >= $limit){
+		$count = 0;
+		foreach($this->loadQueue as $index => $distance){
+			if($count >= $this->chunksPerTick){
+				break;
+			}
+
+			$X = null;
+			$Z = null;
+			Level::getXZ($index, $X, $Z);
+			if(!$this->level->isChunkPopulated($X, $Z)){
+				$this->level->generateChunk($X, $Z);
+				if($this->spawned){
+					continue;
+				}else{
 					break;
 				}
-				++$count;
-				$X = null;
-				$Z = null;
-				Level::getXZ($index, $X, $Z);
-				if(!$this->getLevel()->isChunkPopulated($X, $Z)){
-					$this->chunkLoadTask->setNextRun($this->chunkLoadTask->getNextRun() + 30);
-					return;
+			}
+
+			++$count;
+
+			unset($this->loadQueue[$index]);
+			$this->usedChunks[$index] = true;
+
+			$this->level->useChunk($X, $Z, $this);
+			$chunk = $this->level->getChunk($X, $Z);
+			if($chunk instanceof AnvilChunk){
+				//TODO!
+				/*$pk = new ChunkDataPacket();
+				$pk->chunkX = $X;
+				$pk->chunkZ = $Z;
+				$pk->groundUp = true;
+				$ids = "";
+				$meta = "";
+				$blockLight = "";
+				$skyLight = "";
+				$biomeIds = $chunk->getBiomeIdArray();
+				$bitmap = 0;
+				for($s = 0; $s < 8; ++$s){
+					$section = $chunk->getSection($s);
+					if(!($section instanceof EmptyChunkSection)){
+						$bitmap |= 1 << $s;
+					}else{
+						continue;
+					}
+					$ids .= $section->getIdArray();
+					$meta .= $section->getDataArray();
+					$blockLight .= $section->getLightArray();
+					$skyLight .= $section->getSkyLightArray();
 				}
 
-				unset($this->loadQueue[$index]);
-				$this->usedChunks[$index] = [true, 0];
+				$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
+				$pk->primaryBitmap = $bitmap;
+				$this->putRawPacket($pk);*/
+			}elseif($chunk instanceof McRegionChunk){
+				$task = new McRegionToAnvil($this, $chunk);
+				$this->server->getScheduler()->scheduleAsyncTask($task);
+			}
 
-				$this->getLevel()->useChunk($X, $Z, $this);
-
-				$chunk = $this->getLevel()->getChunkAt($X, $Z, true);
-				if($chunk instanceof AnvilChunk){
-					//TODO!
-					/*$pk = new ChunkDataPacket();
-					$pk->chunkX = $X;
-					$pk->chunkZ = $Z;
-					$pk->groundUp = true;
-					$ids = "";
-					$meta = "";
-					$blockLight = "";
-					$skyLight = "";
-					$biomeIds = $chunk->getBiomeIdArray();
-					$bitmap = 0;
-					for($s = 0; $s < 8; ++$s){
-						$section = $chunk->getSection($s);
-						if(!($section instanceof EmptyChunkSection)){
-							$bitmap |= 1 << $s;
-						}else{
-							continue;
-						}
-						$ids .= $section->getIdArray();
-						$meta .= $section->getDataArray();
-						$blockLight .= $section->getLightArray();
-						$skyLight .= $section->getSkyLightArray();
-					}
-
-					$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
-					$pk->primaryBitmap = $bitmap;
-					$this->putRawPacket($pk);*/
-				}elseif($chunk instanceof McRegionChunk){
-					$task = new McRegionToAnvil($this, $chunk);
-					$this->server->getScheduler()->scheduleAsyncTask($task);
+			foreach($chunk->getEntities() as $entity){
+				if($entity !== $this){
+					$entity->spawnTo($this);
 				}
-
-				foreach($chunk->getEntities() as $entity){
-					if($entity !== $this){
-						$entity->spawnTo($this);
-					}
-				}
-				foreach($chunk->getTiles() as $tile){
-					if($tile instanceof Spawnable){
-						$tile->spawnTo($this);
-					}
+			}
+			foreach($chunk->getTiles() as $tile){
+				if($tile instanceof Spawnable){
+					$tile->spawnTo($this);
 				}
 			}
 		}
 
-		if($this->spawned === false){
-			//TODO
+		if(count($this->usedChunks) >= 4 and $this->spawned === false){
 
 			$this->bigBrother_setTitleBar(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.", 0);
 
-			//$this->heal($this->data->get("health"), "spawn", true);
 			$this->spawned = true;
 
-			$this->sendSettings();
-			$this->inventory->sendContents($this);
-			$this->inventory->sendArmorContents($this);
-
-			$this->blocked = false;
-
 			$pk = new SetTimePacket();
-			$pk->time = $this->getLevel()->getTime();
-			$pk->started = $this->getLevel()->stopTime == false;
+			$pk->time = $this->level->getTime();
+			$pk->started = $this->level->stopTime == false;
 			$this->dataPacket($pk);
 
-			$pos = new Position($this->x, $this->y, $this->z, $this->getLevel());
-			$pos = $this->getLevel()->getSafeSpawn($pos);
+			$pos = $this->level->getSafeSpawn($this);
 
 			$this->server->getPluginManager()->callEvent($ev = new PlayerRespawnEvent($this, $pos));
 
 			$this->teleport($ev->getRespawnPosition());
 
-			$this->spawnToAll();
+			$this->sendSettings();
+			$this->inventory->sendContents($this);
+			$this->inventory->sendArmorContents($this);
 
 			$this->server->getPluginManager()->callEvent($ev = new PlayerJoinEvent($this, TextFormat::YELLOW . $this->getName() . " joined the game"));
 			if(strlen(trim($ev->getJoinMessage())) > 0){
 				$this->server->broadcastMessage($ev->getJoinMessage());
 			}
+
+			$this->spawnToAll();
 
 			if($this->server->getUpdater()->hasUpdate() and $this->hasPermission(Server::BROADCAST_CHANNEL_ADMINISTRATIVE)){
 				$this->server->getUpdater()->showPlayerUpdate($this);

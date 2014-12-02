@@ -41,8 +41,10 @@ class ServerThread extends Thread{
 	protected $internalSocket;
 
 	/**
+	 * @param \Threaded       $externalQueue
+	 * @param \Threaded       $internalQueue
 	 * @param \ThreadedLogger $logger
-	 * @param \ClassLoader  $loader
+	 * @param \ClassLoader    $loader
 	 * @param int             $port 1-65536
 	 * @param string          $interface
 	 * @param string          $motd
@@ -50,7 +52,7 @@ class ServerThread extends Thread{
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
+	public function __construct(\Threaded $externalQueue, \Threaded $internalQueue, \ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
 		$this->port = (int) $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
@@ -78,8 +80,8 @@ class ServerThread extends Thread{
 		$this->externalSocket = $sockets[1];
 		stream_set_blocking($this->externalSocket, 0);
 
-		$this->externalQueue = new \Threaded();
-		$this->internalQueue = new \Threaded();
+		$this->externalQueue = $externalQueue;
+		$this->internalQueue = $internalQueue;
 
 		$this->start();
 	}
