@@ -381,7 +381,7 @@ class DesktopPlayer extends Player{
 			$this->putRawPacket($pk);
 		}else{
 			$pk = new PlayDisconnectPacket();
-			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);;
+			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
 			$this->putRawPacket($pk);
 		}
 		parent::close($message, $reason);
