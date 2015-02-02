@@ -226,7 +226,11 @@ class ProtocolInterface implements SourceInterface{
 				$offset += 4;
 				if(isset($this->sessionsPlayers[$id])){
 					$payload = substr($buffer, $offset);
-					$this->handlePacket($this->sessionsPlayers[$id], $payload);
+					try{
+						$this->handlePacket($this->sessionsPlayers[$id], $payload);
+					}catch(\Exception $e){
+
+					}
 				}
 			}elseif($pid === ServerManager::PACKET_OPEN_SESSION){
 				$id = Binary::readInt(substr($buffer, $offset, 4));

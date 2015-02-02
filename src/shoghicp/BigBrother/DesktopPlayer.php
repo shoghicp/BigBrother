@@ -21,6 +21,7 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\level\format\anvil\Chunk as AnvilChunk;
 use pocketmine\level\format\mcregion\Chunk as McRegionChunk;
+use pocketmine\level\format\leveldb\Chunk as LevelDBChunk;
 use pocketmine\level\format\generic\EmptyChunkSection;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -50,6 +51,7 @@ use shoghicp\BigBrother\network\protocol\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\tasks\AuthenticateOnline;
+use shoghicp\BigBrother\tasks\LevelDBToAnvil;
 use shoghicp\BigBrother\tasks\McRegionToAnvil;
 use shoghicp\BigBrother\tasks\OnlineProfile;
 use shoghicp\BigBrother\utils\Binary;
@@ -171,8 +173,6 @@ class DesktopPlayer extends Player{
 				break;
 			}
 
-			$X = null;
-			$Z = null;
 			Level::getXZ($index, $X, $Z);
 			if(!$this->level->isChunkPopulated($X, $Z)){
 				$this->level->generateChunk($X, $Z);
@@ -191,6 +191,7 @@ class DesktopPlayer extends Player{
 			$this->level->useChunk($X, $Z, $this);
 			$chunk = $this->level->getChunk($X, $Z);
 			if($chunk instanceof AnvilChunk){
+				$this->kick("Playing on Anvil worlds is not yet implemented");
 				//TODO!
 				/*$pk = new ChunkDataPacket();
 				$pk->chunkX = $X;
@@ -220,6 +221,9 @@ class DesktopPlayer extends Player{
 				$this->putRawPacket($pk);*/
 			}elseif($chunk instanceof McRegionChunk){
 				$task = new McRegionToAnvil($this, $chunk);
+				$this->server->getScheduler()->scheduleAsyncTask($task);
+			}elseif($chunk instanceof LevelDBChunk){
+				$task = new LevelDBToAnvil($this, $chunk);
 				$this->server->getScheduler()->scheduleAsyncTask($task);
 			}
 
