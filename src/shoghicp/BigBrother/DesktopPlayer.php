@@ -190,8 +190,7 @@ class DesktopPlayer extends Player{
 
 			$this->level->useChunk($X, $Z, $this);
 			$chunk = $this->level->getChunk($X, $Z);
-			if($chunk instanceof AnvilChunk){
-				$this->kick("Playing on Anvil worlds is not yet implemented");
+				$this->getLogger()->warning("BigBrother] A Desktop Player has joined and may receive lag because Anvil maps aren't implemented");
 				//TODO!
 				/*$pk = new ChunkDataPacket();
 				$pk->chunkX = $X;
