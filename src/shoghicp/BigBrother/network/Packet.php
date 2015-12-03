@@ -102,7 +102,13 @@ abstract class Packet extends \stdClass{
 			$this->putShort($item->getID());
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
-			$this->putShort(-1);
+			if($item->hasCompoundTag()){
+				$nbt = $item->getCompoundTag();
+				$this->putShort(\strlen($nbt));
+				$this->put($nbt);
+			}else{
+				$this->putShort(-1);
+			}
 		}
 	}
 
