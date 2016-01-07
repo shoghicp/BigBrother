@@ -15,16 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class KeepAlivePacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $id;
 
+	public function pid(){
+		return 0x00;
+	}
 
+	public function encode(){
+		$this->putVarInt($this->id);
+	}
+
+	public function decode(){
+		$this->id = $this->getVarInt();
+	}
 }

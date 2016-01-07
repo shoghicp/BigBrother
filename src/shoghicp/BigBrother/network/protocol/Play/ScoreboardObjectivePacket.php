@@ -15,16 +15,28 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class ScoreboardObjectivePacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $ObjectiveName;
+	public $Mode;
+	public $ObjectiveValue;
+	public $Type;
 
+	public function pid(){
+		return 0x3b;
+	}
 
+	public function encode(){
+		$this->putString($this->ObjectiveName);
+		$this->putByte($this->Mode);
+		$this->putString($this->ObjectiveValue);
+		$this->putString($this->Type);
+	}
+
+	public function decode(){
+	}
 }

@@ -18,10 +18,12 @@
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\utils\TextFormat;
-use shoghicp\BigBrother\network\protocol\LoginDisconnectPacket;
-use shoghicp\BigBrother\network\protocol\PingPacket;
+use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
+use shoghicp\BigBrother\network\protocol\Login\PingPacket;
 use shoghicp\BigBrother\utils\AES;
 use shoghicp\BigBrother\utils\Binary;
+
+use shoghicp\BigBrother\BigBrother;
 
 class Session{
 	/** @var ServerManager */
@@ -170,8 +172,8 @@ class Session{
 						"protocol" => Info::PROTOCOL
 					],
 					"players" => [
-						"max" => $this->manager->maxPlayers,
-						"online" => $this->manager->players,
+						"max" => $this->manager->getServerData()["MaxPlayers"],
+						"online" => $this->manager->getServerData()["OnlinePlayers"],
 						"sample" => $sample,
 					],
 					"description" => json_decode(TextFormat::toJSON($this->manager->description))
@@ -206,11 +208,11 @@ class Session{
 					$this->status = -1;
 					if($protocol < Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reson = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
+						$packet->reson = BigBrother::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
 						$this->writePacket($packet);
 					}elseif($protocol > Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reson = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
+						$packet->reson = BigBrother::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
 						$this->writePacket($packet);
 					}else{
 						$this->manager->openSession($this);

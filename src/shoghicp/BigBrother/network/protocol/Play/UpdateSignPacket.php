@@ -15,16 +15,33 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class UpdateSignPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $x;
+	public $y;
+	public $z;
+	public $line1;
+	public $line2;
+	public $line3;
+	public $line4;
 
+	public function pid(){
+		return 0x33;
+	}
 
+	public function encode(){
+		$this->putPosition($this->x, $this->y, $this->z);
+		$this->putString($this->line1);
+		$this->putString($this->line2);
+		$this->putString($this->line3);
+		$this->putString($this->line4);
+	}
+
+	public function decode(){
+	}
 }

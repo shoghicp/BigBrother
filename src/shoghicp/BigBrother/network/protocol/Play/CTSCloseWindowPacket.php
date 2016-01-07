@@ -15,16 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class CTSCloseWindowPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $windowID;
 
+	public function pid(){
+		return 0x0d;
+	}
 
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->windowID = $this->getByte();
+	}
 }

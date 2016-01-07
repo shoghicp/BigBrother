@@ -15,16 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class PlayDisconnectPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $reason;
 
+	public function pid(){
+		return 0x40;
+	}
 
+	public function encode(){
+		$this->putString($this->reason);
+	}
+
+	public function decode(){
+		$this->reason = $this->getString();
+	}
 }

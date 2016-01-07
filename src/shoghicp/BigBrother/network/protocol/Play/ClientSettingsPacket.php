@@ -15,16 +15,31 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class ClientSettingsPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $lang;
+	public $view;
+	public $chatmode;
+	public $chatcolor;
+	public $skinsetting;
 
+	public function pid(){
+		return 0x15;
+	}
 
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->lang = $this->getString();
+		$this->view = $this->getByte();
+		$this->chatmode = $this->getByte();
+		$this->chatcolor = (bool) $this->getByte();
+		$this->skinsetting = base_convert($this->getByte(), 10, 2);
+	}
 }

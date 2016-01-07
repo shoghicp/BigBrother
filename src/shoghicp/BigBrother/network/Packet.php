@@ -82,16 +82,17 @@ abstract class Packet extends \stdClass{
 	 */
 	protected function getSlot(){
 		$itemId = $this->getShort();
-		if($itemId === -1){ //Empty
+		if($itemId === 65535){ //Empty
 			return Item::get(Item::AIR, 0, 0);
 		}else{
 			$count = $this->getByte();
 			$damage = $this->getShort();
-			$len = $this->getShort();
+			$len = $this->getByte();
+			$nbt = "";
 			if($len > 0){
 				$nbt = $this->get($len);
 			}
-			return Item::get($itemId, $damage, $count);
+			return Item::get($itemId, $damage, $count, $nbt);
 		}
 	}
 
@@ -102,7 +103,9 @@ abstract class Packet extends \stdClass{
 			$this->putShort($item->getID());
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
-			$this->putShort(-1);
+			$nbt = $item->getCompoundTag();
+			$this->putByte(strlen($nbt));
+			$this->put($nbt);
 		}
 	}
 

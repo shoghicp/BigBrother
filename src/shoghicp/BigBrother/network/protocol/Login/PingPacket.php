@@ -15,16 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Login;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class PingPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $time;
 
+	public function pid(){
+		return 0x01;
+	}
 
+	public function encode(){
+		$this->putLong($this->time);
+	}
+
+	public function decode(){
+		$this->time = $this->getLong();
+	}
 }

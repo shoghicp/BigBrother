@@ -15,16 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class EntityPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $eid;
 
+	public function pid(){
+		return 0x14;
+	}
 
+	public function encode(){
+		$this->putVarInt($this->eid);
+	}
+
+	public function decode(){
+
+	}
 }

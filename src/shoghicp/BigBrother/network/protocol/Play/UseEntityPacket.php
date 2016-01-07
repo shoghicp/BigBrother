@@ -15,16 +15,31 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class UseEntityPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $target;
+	public $type;
 
+	public function pid(){
+		return 0x02;
+	}
 
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->target = $this->getVarInt();
+		$this->type = $this->getVarInt();
+		if($this->type === 2){
+			$this->targetX = $this->getFloat();
+			$this->targetY = $this->getFloat();
+			$this->targetZ = $this->getFloat();
+		}
+	}
 }

@@ -20,20 +20,32 @@ namespace shoghicp\BigBrother\network;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
-use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
-use shoghicp\BigBrother\network\protocol\ClientStatusPacket;
-use shoghicp\BigBrother\network\protocol\CTSChatPacket;
-use shoghicp\BigBrother\network\protocol\CTSCloseWindowPacket;
-use shoghicp\BigBrother\network\protocol\EncryptionResponsePacket;
-use shoghicp\BigBrother\network\protocol\LoginStartPacket;
-use shoghicp\BigBrother\network\protocol\PlayerBlockPlacementPacket;
-use shoghicp\BigBrother\network\protocol\PlayerDiggingPacket;
-use shoghicp\BigBrother\network\protocol\PlayerLookPacket;
-use shoghicp\BigBrother\network\protocol\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\PlayerPositionPacket;
-use shoghicp\BigBrother\network\protocol\UseEntityPacket;
+use shoghicp\BigBrother\network\Info; //Computer Edition
+use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
+use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
+use shoghicp\BigBrother\network\protocol\Play\AnimatePacket;
+use shoghicp\BigBrother\network\protocol\Play\ClientSettingsPacket;
+use shoghicp\BigBrother\network\protocol\Play\ClientStatusPacket;
+use shoghicp\BigBrother\network\protocol\Play\CreativeInventoryActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\CPlayerAbilitiesPacket;
+use shoghicp\BigBrother\network\protocol\Play\CTSChatPacket;
+use shoghicp\BigBrother\network\protocol\Play\CTSCloseWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\HeldItemChangePacket;
+use shoghicp\BigBrother\network\protocol\Play\KeepAlivePacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerArmSwingPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerBlockPlacementPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerDiggingPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerPositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerPositionPacket;
+use shoghicp\BigBrother\network\protocol\Play\PluginMessagePacket;
+use shoghicp\BigBrother\network\protocol\Play\ResourcePackStatusPacket;
+use shoghicp\BigBrother\network\protocol\Play\CTabCompletePacket;
+use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\utils\Binary;
 
@@ -57,10 +69,11 @@ class ProtocolInterface implements SourceInterface{
 
 	protected $identifier = 0;
 
-	public function __construct(BigBrother $plugin, ServerThread $thread, Translator $translator){
+	public function __construct(BigBrother $plugin, $server, Translator $translator){
 		$this->plugin = $plugin;
+		$this->server = $server;
 		$this->translator = $translator;
-		$this->thread = $thread;
+		$this->thread = new ServerThread($server->getLogger(), $server->getLoader(), $plugin->getPort(), $plugin->getIp(), $plugin->getMotd(), $plugin->getDataFolder()."server-icon.png");
 		$this->sessions = new \SplObjectStorage();
 	}
 
@@ -69,26 +82,36 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function shutdown(){
-		foreach($this->sessionsPlayers as $player){
-			$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", $this->plugin->getServer()->getProperty("settings.shutdown-message", "Server closed"));
-		}
-		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
+        $this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
 	public function setName($name){
+		$info = $this->plugin->getServer()->getQueryInformation();
+		$value = [
+			"MaxPlayers" => $info->getMaxPlayerCount(),
+			"OnlinePlayers" => $info->getPlayerCount(),
+		];
+		$buffer = chr(ServerManager::PACKET_SET_OPTION).chr(strlen("name"))."name".json_encode($value);
+        $this->thread->pushMainToThreadPacket($buffer);
+	}
 
+	public function closeSession($identifier){
+		if(isset($this->sessionsPlayers[$identifier])){
+			$player = $this->sessionsPlayers[$identifier];
+			unset($this->sessionsPlayers[$identifier]);
+			$player->close($player->getLeaveMessage(), "Connection closed");
+		}
 	}
 
 	public function close(Player $player, $reason = "unknown reason"){
 		if(isset($this->sessions[$player])){
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
-			unset($this->sessionsPlayers[$identifier]);
-			$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", "Connection closed");
+			unset($this->identifiers[$identifier]);
+			$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
 		}else{
 			return;
 		}
-		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
 	}
 
 	protected function sendPacket($target, Packet $packet){
@@ -161,11 +184,17 @@ class ProtocolInterface implements SourceInterface{
 
 		if($status === 1){
 			switch($pid){
+				case 0x00:
+					$pk = new KeepAlivePacket();
+					break;
 				case 0x01:
 					$pk = new CTSChatPacket();
 					break;
 				case 0x02:
 					$pk = new UseEntityPacket();
+					break;
+				case 0x03:
+					$pk = new PlayerPacket();
 					break;
 				case 0x04:
 					$pk = new PlayerPositionPacket();
@@ -182,21 +211,66 @@ class ProtocolInterface implements SourceInterface{
 				case 0x08:
 					$pk = new PlayerBlockPlacementPacket();
 					break;
+				case 0x09:
+					$pk = new HeldItemChangePacket();
+					break;
+				case 0x0a:
+					$pk = new PlayerArmSwingPacket();
+					break;
+				case 0x0b:
+					$pk = new AnimatePacket();
+					break;
+				/*case 0x0c:
+					//
+					break;*/
 				case 0x0d:
 					$pk = new CTSCloseWindowPacket();
+					break;
+				/*case 0x0e:
+					break;
+				case 0x0f:
+
+					break;*/
+				case 0x10:
+					$pk = new CreativeInventoryActionPacket();
+				break;
+				/*case 0x11:
+
+					break;
+				case 0x12:
+
+					break;*/
+				case 0x13:
+					$pk = new CPlayerAbilitiesPacket();
+					break;
+				case 0x14:
+					$pk = new CTabCompletePacket();
+					break;
+				case 0x15:
+					$pk = new ClientSettingsPacket();
 					break;
 				case 0x16:
 					$pk = new ClientStatusPacket();
 					break;
+				case 0x17:
+					$pk = new PluginMessagePacket();
+					break;
+				/*case 0x18:
+					//
+					break;*/
+				case 0x19:
+					$pk = new ResourcePackStatusPacket();
+					break;
 				default:
+					echo "[Receive] 0x".bin2hex(chr($pid))."\n"; //Debug
 					return;
 			}
-
 
 			$pk->read($payload, $offset);
 			$this->receivePacket($player, $pk);
 		}elseif($status === 0){
 			if($pid === 0x00){
+				echo "LoginStart\n";
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
@@ -205,7 +279,7 @@ class ProtocolInterface implements SourceInterface{
 				$pk->read($payload, $offset);
 				$player->bigBrother_processAuthentication($this->plugin, $pk);
 			}else{
-				$player->close(TextFormat::YELLOW . $player->getName() . " has left the game", "Unexpected packet $pid");
+				$player->close($player->getLeaveMessage(), "Unexpected packet $pid");
 			}
 		}
 	}
@@ -228,8 +302,15 @@ class ProtocolInterface implements SourceInterface{
 					$payload = substr($buffer, $offset);
 					try{
 						$this->handlePacket($this->sessionsPlayers[$id], $payload);
-					}catch(\Exception $e){
 
+					}catch(\Exception $e){
+						if(\pocketmine\DEBUG > 1){
+							$logger = $this->server->getLogger();
+							if($logger instanceof MainLogger){
+								$logger->debug("DesktopPacket 0x" . bin2hex($payload));
+								$logger->logException($e);
+							}
+						}
 					}
 				}
 			}elseif($pid === ServerManager::PACKET_OPEN_SESSION){
@@ -245,21 +326,27 @@ class ProtocolInterface implements SourceInterface{
 
 				$identifier = "$id:$address:$port";
 
-				$player = new DesktopPlayer($this, $identifier, $address, $port);
+				$player = new DesktopPlayer($this, $identifier, $address, $port, $this->plugin);
 				$this->sessions->attach($player, $id);
 				$this->sessionsPlayers[$id] = $player;
 				$this->plugin->getServer()->addPlayer($identifier, $player);
 			}elseif($pid === ServerManager::PACKET_CLOSE_SESSION){
 				$id = Binary::readInt(substr($buffer, $offset, 4));
-				if(!isset($this->sessionsPlayers[$id])){
-					continue;
+				$offset += 4;
+				$flag = Binary::readInt(substr($buffer, $offset, 4));
+
+				if(isset($this->sessionsPlayers[$id])){
+					if($flag === 0){
+						$this->close($this->sessionsPlayers[$id]);
+					}else{
+						$this->closeSession($id);
+					}
 				}
-				$this->close($this->sessionsPlayers[$id]);
 			}
 
 		}
 
 		return true;
-
 	}
+
 }

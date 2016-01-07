@@ -15,16 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class HeldItemChangePacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $selectedSlot;
 
+	public function pid(){
+		return 0x09;
+	}
 
+	public function encode(){
+	}
+
+	public function decode(){
+		$this->selectedSlot = $this->getShort();
+	}
 }

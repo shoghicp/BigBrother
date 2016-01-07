@@ -15,16 +15,29 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class PlayerDiggingPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $status;
+	public $x;
+	public $y;
+	public $z;
+	public $face;
 
+	public function pid(){
+		return 0x07;
+	}
 
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->status = $this->getByte();
+		$this->getPosition($this->x, $this->y, $this->z);
+		$this->face = $this->getByte();
+	}
 }

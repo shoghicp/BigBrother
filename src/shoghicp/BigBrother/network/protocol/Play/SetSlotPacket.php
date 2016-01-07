@@ -15,16 +15,28 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class SetSlotPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $windowID;
+	public $slot;
+	/** @var \pocketmine\item\Item */
+	public $item;
 
+	public function pid(){
+		return 0x2f;
+	}
 
+	public function encode(){
+		$this->putByte($this->windowID);
+		$this->putShort($this->slot);
+		$this->putSlot($this->item);
+	}
+
+	public function decode(){
+
+	}
 }

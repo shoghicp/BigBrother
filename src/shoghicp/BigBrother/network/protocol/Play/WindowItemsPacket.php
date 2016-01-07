@@ -15,16 +15,29 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class WindowItemsPacket extends Packet{
 
-	const VERSION = "1.8";
-	const PROTOCOL = 47;
+	public $windowID;
+	/** @var \pocketmine\item\Item[] */
+	public $items = [];
 
+	public function pid(){
+		return 0x30;
+	}
 
+	public function encode(){
+		$this->putByte($this->windowID);
+		$this->putShort(count($this->items));
+		foreach($this->items as $item){
+			$this->putSlot($item);
+		}
+	}
+
+	public function decode(){
+
+	}
 }
