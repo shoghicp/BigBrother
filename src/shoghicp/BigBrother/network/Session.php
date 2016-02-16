@@ -135,8 +135,6 @@ class Session{
 			return;
 		}
 
-		echo "Len: ".$length."\n";
-
 		$offset = 0;
 
 		$buffer = $this->read($length);
@@ -227,8 +225,6 @@ class Session{
 				$this->close("Unexpected packet $pid");
 			}
 		}
-
-		echo "id: ".$pid."\n";
 	}
 
 	public function getID(){
