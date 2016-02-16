@@ -163,7 +163,7 @@ class DesktopPlayer extends Player{
 
 			unset($this->loadQueue[$index]);
 			$chunk = new DesktopChunk($this, $X, $Z);
-			$this->bigBrother_sendChunk($X, $Z, $chunk->getData());//lag
+			$this->bigBrother_sendChunk($X, $Z, $chunk->getData());
 			$chunk = null;
 		}
 
@@ -209,10 +209,19 @@ class DesktopPlayer extends Player{
 			$pk->clientUUID = UUID::fromString($uuid);
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->clientSecret = "BigBrother";
-			$pk->slim = (bool) $this->plugin->getConfig()->get("skin-slim");
 			if($skin === null or $skin === false){
+				if($this->plugin->getConfig()->get("skin-slim")){
+					$pk->skinname = "Standard_Custom";
+				}else{
+					$pk->skinname = "Standard_CustomSlim";
+				}
 				$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
 			}else{
+				if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
+					$pk->skinname = "Standard_Custom";
+				}else{
+					$pk->skinname = "Standard_CustomSlim";
+				}
 				$pk->skin = $skin;
 			}
 
@@ -232,12 +241,12 @@ class DesktopPlayer extends Player{
 
 			$pk = new TitlePacket(); //Set SubTitle for this
 			$pk->actionID = TitlePacket::TYPE_SET_TITLE;
-			$pk->data = BigBrother::toJSON("");
+			$pk->data = TextFormat::toJSON("");
 			$this->putRawPacket($pk);
 
 			$pk = new TitlePacket();
 			$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
-			$pk->data = BigBrother::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
+			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
 			$this->putRawPacket($pk);
 		}
 	}

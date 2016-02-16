@@ -17,6 +17,8 @@
 
 namespace shoghicp\BigBrother\network\translation;
 
+use pocketmine\Achievement;
+use pocketmine\Player;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\Block\Block;
@@ -65,6 +67,9 @@ use pocketmine\network\protocol\TileEventPacket;
 use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\network\protocol\UseItemPacket;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\NBT;
+use pocketmine\tile\Tile;
+use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
@@ -99,15 +104,16 @@ use shoghicp\BigBrother\network\protocol\Play\STCCloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\TimeUpdatePacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
+use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
 use shoghicp\BigBrother\utils\Binary;
-use pocketmine\nbt\NBT;
-use pocketmine\tile\Tile;
-use pocketmine\Achievement;
 
-class Translator_34 implements Translator{
+class Translator_39 implements Translator{
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
+		if($packet->pid() !== 0x00 and $packet->pid() !== 0x03 and $packet->pid() !== 0x04 and $packet->pid() !== 0x05 and $packet->pid() !== 0x06){
+			echo "[Receive] 0x".bin2hex(chr($packet->pid()))."\n"; //Debug
+		}
 		switch($packet->pid()){
 			case 0x00: //KeepAlivePacket
 				$pk->id = mt_rand();
@@ -162,8 +168,6 @@ class Translator_34 implements Translator{
 				return $pk;
 
 			case 0x07: //PlayerDiggingPacket
-				echo "PlayerDiggingPacket: ".$packet->status."\n";
-
 				switch($packet->status){
 					case 0:
 						if($player->getGamemode() === 1){
@@ -175,37 +179,50 @@ class Translator_34 implements Translator{
 							return $pk;
 						}else{
 							$pk = new PlayerActionPacket();
-							$pk->eid = $packet->eid;
+							$pk->eid = 0;
 							$pk->action = PlayerActionPacket::ACTION_START_BREAK;
-							$pk->x = $player->getX();
-							$pk->y = $player->getY();
-							$pk->z = $player->getZ();
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
 							$pk->face = $packet->face;
 							return $pk;
 						}
 					break;
-					/*case 1:
+					case 1:
 						$pk = new PlayerActionPacket();
-						$pk->eid = $packet->eid;
+						$pk->eid = 0;
 						$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
-						$pk->x = $player->getX();
-						$pk->y = $player->getY();
-						$pk->z = $player->getZ();
+						$pk->x = $packet->x;
+						$pk->y = $packet->y;
+						$pk->z = $packet->z;
 						$pk->face = $packet->face;
 						return $pk;
-					break;*/
+					break;
 					case 2:
 						if($player->getGamemode() !== 1){
+							$packets = [];
+							$pk = new PlayerActionPacket();
+							$pk->eid = 0;
+							$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$pk->face = $packet->face;
+							$packets[] = $pk;
+
 							$pk = new RemoveBlockPacket();
 							$pk->eid = 0;
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
 							$pk->z = $packet->z;
-							return $pk;
+							$packets[] = $pk;
+							return $packets;
+						}else{
+							echo "PlayerDiggingPacket: ".$packet->status."\n";
 						}
 					break;
 					default:
-
+						echo "PlayerDiggingPacket: ".$packet->status."\n";
 					break;
 				}
 
@@ -213,6 +230,7 @@ class Translator_34 implements Translator{
 
 			case 0x08; //PlayerBlockPlacementPacket
 				echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
+
 				if($packet->direction !== 255){
 					$pk = new UseItemPacket();
 					$pk->x = $packet->x;
@@ -284,6 +302,16 @@ class Translator_34 implements Translator{
 							return $pk;
 						}
 					break;
+					case 2:
+						$pk = new PlayerActionPacket();
+						$pk->eid = $packet->eid;
+						$pk->action = PlayerActionPacket::ACTION_STOP_SLEEPING;
+						$pk->x = $player->getX();
+						$pk->y = $player->getY();
+						$pk->z = $player->getZ();
+						$pk->face = 0;
+						return $pk;
+					break;
 					case 3:
 						$pk = new PlayerActionPacket();
 						$pk->eid = $packet->eid;
@@ -314,9 +342,11 @@ class Translator_34 implements Translator{
 				return null;
 
 			case 0x0d: //CTSCloseWindowPacket
-				$pk = new ContainerClosePacket();
-				$pk->windowid = $packet->windowID;
-				return $pk;
+				if($packet->windowID !== 0x00){
+					$pk = new ContainerClosePacket();
+					$pk->windowid = $packet->windowID;
+					return $pk;
+				}
 
 			case 0x10: //CreativeInventoryActionPacket
 				echo "Slot: ".$packet->slot."\n";
@@ -400,7 +430,7 @@ class Translator_34 implements Translator{
 						$player->putRawPacket($pk);
 					break;
 					case 2:
-						//$player->awardAchievement("openInventory"); DesktopPlayer for this
+						//$player->awardAchievement("openInventory"); this for DesktopPlayer
 						//Achievement::broadcast($player, "openInventory");//Debug
 					break;
 				}
@@ -435,29 +465,32 @@ class Translator_34 implements Translator{
 			case Info::DISCONNECT_PACKET:
 				if($player->bigBrother_getStatus() === 0){
 					$pk = new LoginDisconnectPacket();
-					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
+					$pk->reason = TextFormat::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
 				}else{
 					$pk = new PlayDisconnectPacket();
-					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
+					$pk->reason = TextFormat::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
 				}
 				return $pk;
 
 			case Info::TEXT_PACKET:
-				//print_r($packet);
-				if($packet->message === "chat.type.achievement"){
+
+				echo $player->getSetting("Lang")."\n";
+
+				/*if($packet->message === "chat.type.achievement"){
 					/*$pk = new ScoreboardObjectivePacket();
 					$pk->ObjectiveName = $packet->parameters[0];
 					$pk->Mode = 0;
 					$pk->ObjectiveValue = 3;
 					return $pk;*/
-					echo "TextPacket: achievement\n";
+					/*echo "TextPacket: achievement\n";
 					return null;
 				}else{
 					$pk = new STCChatPacket();
 					$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
-				}
+				}*/
 
-				return $pk;
+				//return $pk;
+				return null;
 
 			case Info::SET_TIME_PACKET:
 				$pk = new TimeUpdatePacket();
@@ -490,17 +523,7 @@ class Translator_34 implements Translator{
 				$pk->damageDisabled = ($player->getGamemode() & 0x01) > 0;
 				$pk->isFlying = false;
 				$pk->isCreative = ($player->getGamemode() & 0x01) > 0;
-				if($player->spawned === true){
-					$packets = [$pk];
-
-					$pk = new ChangeGameStatePacket();
-					$pk->reason = 3;
-					$pk->value = $player->getGamemode();
-					$packets[] = $pk;
-					return $packets;
-				}else{
-					$packets[] = $pk;
-				}
+				$packets[] = $pk;
 
 				$pk = new PositionAndLookPacket();
 				$pk->x = $packet->x;
@@ -541,7 +564,7 @@ class Translator_34 implements Translator{
 				$pk->y = $packet->y;
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
-				$pk->item = 0;
+				$pk->item = $packetplayer->getInventory()->getItemInHand()->getId();
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
@@ -683,6 +706,25 @@ class Translator_34 implements Translator{
 				return $packets;
 
 			case Info::SET_ENTITY_DATA_PACKET:
+				/*if(isset($packet->metadata[16])){
+					if($packet->metadata[16][1] === 2){
+						$pk = new UseBedPacket(); //Bug
+						$pk->eid = $packet->eid;
+						$bedXYZ = $player->getSetting("BedXYZ");
+						$pk->bedX = $bedXYZ[0];
+						$pk->bedY = $bedXYZ[1];
+						$pk->bedZ = $bedXYZ[2];
+						$player->removeSetting("BedXYZ");
+					}else{
+						$pk = new CAnimatePacket();
+						$pk->eid = $packet->eid;
+						$pk->actionID = 2;
+					}
+					return $pk;
+				}elseif(isset($packet->metadata[17])){
+					$player->setSetting(["BedXYZ" => $packet->metadata[17][1]]);
+				}*/
+
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->eid;
 				$pk->metadata = $packet->metadata;
@@ -722,6 +764,12 @@ class Translator_34 implements Translator{
 						$pk->eid = $packet->eid;
 						return $pk;
 					break;
+					case 3: //LeaveBed
+						$pk = new CAnimatePacket();
+						$pk->actionID = 2;
+						$pk->eid = $packet->eid;
+						return $pk;
+					break;
 					default:
 						echo "AnimatePacket: ".$packet->action."\n";
 					break;
@@ -736,7 +784,7 @@ class Translator_34 implements Translator{
 				$pk->levelType = "default";
 				return $pk;
 
-			case Info::CONTAINER_OPEN_PACKET:
+			/*case Info::CONTAINER_OPEN_PACKET:
 				$pk = new OpenWindowPacket();
 				$pk->windowID = $packet->windowid;
 				$pk->inventoryType = $packet->type;
@@ -791,13 +839,13 @@ class Translator_34 implements Translator{
 					}
 					return $pk;
 				}
-				return null;
+				return null;*/
 
 			case Info::CRAFTING_DATA_PACKET:
 				$player->setSetting(["Recipes" => $packet->entries, "cleanRecipes" => $packet->cleanRecipes]);
 				return null;
 
-			case Info::TILE_ENTITY_DATA_PACKET:
+			case Info::BLOCK_ENTITY_DATA_PACKET:
 				$nbt = new NBT(NBT::LITTLE_ENDIAN);
 				$nbt->read($packet->namedtag);
 				$nbt = $nbt->getData();
@@ -824,6 +872,25 @@ class Translator_34 implements Translator{
 				$pk = new ServerDifficultyPacket();
 				$pk->difficulty = $packet->difficulty;
 				return $pk;
+
+			case Info::SET_PLAYER_GAMETYPE_PACKET:
+				$packets  = [];
+
+				$pk = new PlayerAbilitiesPacket();
+				$pk->flyingSpeed = 0.05;
+				$pk->walkingSpeed = 0.1;
+				$pk->canFly = ($player->getGamemode() & 0x01) > 0;
+				$pk->damageDisabled = ($player->getGamemode() & 0x01) > 0;
+				$pk->isFlying = false;
+				$pk->isCreative = ($player->getGamemode() & 0x01) > 0;
+				$packets[] = $pk;
+
+				$pk = new ChangeGameStatePacket();
+				$pk->reason = 3;
+				$pk->value = $player->getGamemode();
+				$packets[] = $pk;
+
+				return $packets;
 
 			case Info::PLAY_STATUS_PACKET:
 			case Info::PLAYER_LIST_PACKET:

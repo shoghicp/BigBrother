@@ -135,6 +135,8 @@ class Session{
 			return;
 		}
 
+		echo "Len: ".$length."\n";
+
 		$offset = 0;
 
 		$buffer = $this->read($length);
@@ -226,6 +228,7 @@ class Session{
 			}
 		}
 
+		echo "id: ".$pid."\n";
 	}
 
 	public function getID(){

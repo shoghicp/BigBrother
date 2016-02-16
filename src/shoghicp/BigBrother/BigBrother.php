@@ -25,7 +25,7 @@ use pocketmine\network\protocol\PlayerActionPacket;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_34;
+use shoghicp\BigBrother\network\translation\Translator_39;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackSendPacket;
 
@@ -33,7 +33,6 @@ use pocketmine\block\Block;
 use pocketmine\math\Vector3;
 use pocketmine\tile\Sign;
 use pocketmine\Achievement;
-use pocketmine\utils\TextFormat;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerPreLoginEvent;
@@ -57,14 +56,6 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var Translator */
 	protected $translator;
 
-	public function onLoad(){
-		class_exists("phpseclib\\Math\\BigInteger", true);
-		class_exists("phpseclib\\Crypt\\Random", true);
-		class_exists("phpseclib\\Crypt\\Base", true);
-		class_exists("phpseclib\\Crypt\\Rijndael", true);
-		class_exists("phpseclib\\Crypt\\AES", true);
-	}
-
 	public function onEnable(){
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
@@ -84,8 +75,8 @@ class BigBrother extends PluginBase implements Listener{
 		}
 
 		switch(Info::CURRENT_PROTOCOL){
-			case 34:
-				$this->translator = new Translator_34();
+			case 39:
+				$this->translator = new Translator_39();
 			break;
 			default:
 				$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
@@ -98,7 +89,7 @@ class BigBrother extends PluginBase implements Listener{
 
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
-		Achievement::add("openInventory","Taking Inventory"); //DesktopPlayer for this
+		Achievement::add("openInventory","Taking Inventory"); //this for DesktopPlayer
 
 		if($this->onlineMode){
 			$this->getLogger()->info("Server is being started in the background");
@@ -161,21 +152,6 @@ class BigBrother extends PluginBase implements Listener{
 
 	public function decryptBinary($secret){
 		return $this->rsa->decrypt($secret);
-	}
-
-	public static function toJSON($message, $type = 1, $parameters = null){
-		$result = TextFormat::toJSON($message);
-		if($type === 2 and is_array($parameters)){
-			$result = json_decode($result, true);
-			unset($result["text"]);
-			$result["translate"] = TextFormat::clean(str_replace("%", "", $message));
-			foreach($parameters as $num => $parameter){
-				$parameters[$num] = TextFormat::clean(str_replace("%", "", $parameter));//TODO
-			}
-			$result["with"] = $parameters;
-			$result = json_encode($result, JSON_UNESCAPED_SLASHES);
-		}
-		return $result;
 	}
 
 	/**
