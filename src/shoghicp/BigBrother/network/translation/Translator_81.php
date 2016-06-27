@@ -52,7 +52,7 @@ use shoghicp\BigBrother\network\protocol\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\WindowItemsPacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class Translator_20 implements Translator{
+class Translator_81 implements Translator{
 
 
 
@@ -214,11 +214,11 @@ class Translator_20 implements Translator{
 				$pk->saturation = 5;
 				return $pk;
 
-			case Info::MESSAGE_PACKET:
+			/*case Info::MESSAGE_PACKET:
 				$pk = new STCChatPacket();
 
 				$pk->message = TextFormat::toJSON($packet->message);
-				return $pk;
+				return $pk;*/
 
 			case Info::SET_TIME_PACKET:
 				$pk = new TimeUpdatePacket();
@@ -234,7 +234,7 @@ class Translator_20 implements Translator{
 				return $pk;
 
 			case Info::REMOVE_ENTITY_PACKET:
-			case Info::REMOVE_PLAYER_PACKET:
+			//case Info::REMOVE_PLAYER_PACKET:
 				$pk = new DestroyEntitiesPacket();
 				$pk->ids[] = $packet->eid;
 				return $pk;

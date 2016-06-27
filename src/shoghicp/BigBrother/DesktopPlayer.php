@@ -158,7 +158,7 @@ class DesktopPlayer extends Player{
 		$this->putRawPacket($pk);
 	}
 
-	public function sendChunk($x, $z, $payload){
+	public function sendChunk($x, $z, $payload, $ordering = FullChunkDataPacket::ORDER_COLUMNS){
 
 	}
 
@@ -378,7 +378,7 @@ class DesktopPlayer extends Player{
 
 	}
 
-	public function close($message = "", $reason = "generic reason"){
+	public function close($message = "", $reason = "generic reason", $notify = true){
 		if($this->bigBrother_status === 0){
 			$pk = new LoginDisconnectPacket();
 			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);

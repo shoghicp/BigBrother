@@ -28,7 +28,7 @@ use pocketmine\plugin\PluginBase;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\ServerThread;
-use shoghicp\BigBrother\network\translation\Translator_20;
+use shoghicp\BigBrother\network\translation\Translator_81;
 use shoghicp\BigBrother\tasks\GeneratePrivateKey;
 
 class BigBrother extends PluginBase implements Listener{
@@ -78,8 +78,8 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
-		if(Info::CURRENT_PROTOCOL === 20){
-			$this->translator = new Translator_20();
+		if(Info::CURRENT_PROTOCOL === 81){
+			$this->translator = new Translator_81();
 		}else{
 			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
 			$this->getPluginLoader()->disablePlugin($this);
@@ -102,8 +102,8 @@ class BigBrother extends PluginBase implements Listener{
 	public function receiveCryptoKeys($privateKey, $publicKey){
 		$this->privateKey = $privateKey;
 		$this->publicKey = $publicKey;
-		$this->rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
-		$this->rsa->loadKey($this->privateKey);
+		//$this->rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+		$this->rsa->load($this->privateKey);
 		$this->enableServer();
 	}
 
