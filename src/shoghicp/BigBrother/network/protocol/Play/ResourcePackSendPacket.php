@@ -15,15 +15,24 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class ResourcePackSendPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $url;
 
+	public function pid(){
+		return 0x48;
+	}
+
+	public function encode(){
+		$this->putString($this->url);
+		$this->putString(sha1($this->url));
+	}
+
+	public function decode(){
+
+	}
 }

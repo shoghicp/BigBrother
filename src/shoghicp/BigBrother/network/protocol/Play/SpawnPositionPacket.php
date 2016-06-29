@@ -15,15 +15,25 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class SpawnPositionPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $spawnX;
+	public $spawnY;
+	public $spawnZ;
 
+	public function pid(){
+		return 0x05;
+	}
+
+	public function encode(){
+		$this->putPosition($this->spawnX, $this->spawnY, $this->spawnZ);
+	}
+
+	public function decode(){
+
+	}
 }

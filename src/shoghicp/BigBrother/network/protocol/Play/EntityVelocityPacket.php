@@ -15,15 +15,30 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class EntityVelocityPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $eid;
+	public $velocityX;
+	public $velocityY;
+	public $velocityZ;
 
+	public function pid(){
+		return 0x12;
+	}
+
+	public function encode(){
+		$this->putVarInt($this->eid);
+		$this->putShort($this->velocityX * 8000);
+		$this->putShort($this->velocityY * 8000);
+		$this->putShort($this->velocityZ * 8000);
+	}
+
+	public function decode(){
+
+	}
 }

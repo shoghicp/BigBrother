@@ -15,15 +15,33 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class PlayerPositionAndLookPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $x;
+	public $y;
+	public $z;
+	public $yaw;
+	public $pitch;
+	public $onGround;
 
+	public function pid(){
+		return 0x06;
+	}
+
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->x = $this->getDouble();
+		$this->y = $this->getDouble();
+		$this->z = $this->getDouble();
+		$this->yaw = $this->getFloat();
+		$this->pitch = $this->getFloat();
+		$this->onGround = ($this->getByte() > 0);
+	}
 }

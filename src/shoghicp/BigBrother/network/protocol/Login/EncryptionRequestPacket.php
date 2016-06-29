@@ -15,15 +15,29 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Login;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class EncryptionRequestPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $serverID;
+	public $publicKey;
+	public $verifyToken;
 
+	public function pid(){
+		return 0x01;
+	}
+
+	public function encode(){
+		$this->putString($this->serverID);
+		$this->putVarInt(strlen($this->publicKey));
+		$this->put($this->publicKey);
+		$this->putVarInt(strlen($this->verifyToken));
+		$this->put($this->verifyToken);
+	}
+
+	public function decode(){
+
+	}
 }

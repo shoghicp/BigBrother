@@ -15,15 +15,29 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class RespawnPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $dimension;
+	public $difficulty;
+	public $gamemode;
+	public $levelType;
 
+	public function pid(){
+		return 0x07;
+	}
+
+	public function encode(){
+		$this->putInt($this->dimension);
+		$this->putByte($this->difficulty);
+		$this->putByte($this->gamemode);
+		$this->putString($this->levelType);
+	}
+
+	public function decode(){
+
+	}
 }

@@ -15,15 +15,25 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class STabCompletePacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $matches = [];
 
+	public function pid(){
+		return 0x3a;
+	}
+
+	public function encode(){
+		$this->putVarInt(count($this->matches));
+		foreach($this->matches as $match){
+			$this->putString($match);
+		}
+	}
+
+	public function decode(){
+	}
 }

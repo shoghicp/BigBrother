@@ -15,15 +15,30 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class AnimatePacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	
 
+	public $eid;
+	public $action;
+	public $jump;
+
+	public function pid(){
+		return 0x0b;
+	}
+
+	public function encode(){
+		$this->putVarInt($this->eid);
+		$this->putByte($this->actionID);
+	}
+
+	public function decode(){
+		$this->eid = $this->getVarInt();
+		$this->actionID = $this->getVarInt();
+		$this->jump = $this->getVarInt();
+	}
 }

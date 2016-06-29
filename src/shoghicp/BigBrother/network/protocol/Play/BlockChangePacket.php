@@ -15,15 +15,28 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class BlockChangePacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $x;
+	public $y;
+	public $z;
+	public $blockId;
+	public $blockMeta;
 
+	public function pid(){
+		return 0x23;
+	}
+
+	public function encode(){
+		$this->putPosition($this->x, $this->y, $this->z);
+		$this->putVarInt(($this->blockId << 4) | $this->blockMeta);
+	}
+
+	public function decode(){
+
+	}
 }

@@ -15,15 +15,33 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class ClickWindowPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $windowID;
+	public $slot;
+	public $button;
+	public $actionID;
+	public $mode;
+	public $clickedItem;
 
+	public function pid(){
+		return 0x0e;
+	}
+
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->windowID = $this->getByte();
+		$this->slot = $this->getShort();
+		$this->button = $this->getByte();
+		$this->actionID = $this->getShort();
+		$this->mode = $this->getByte();
+		$this->clickedItem = $this->getSlot();
+	}
 }

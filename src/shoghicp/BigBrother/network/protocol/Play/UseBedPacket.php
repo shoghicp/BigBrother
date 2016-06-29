@@ -15,15 +15,26 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class UseBedPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $eid;
+	public $bedX;
+	public $bedY;
+	public $bedZ;
 
+	public function pid(){
+		return 0x0a;
+	}
+
+	public function encode(){
+		$this->putVarInt($this->eid);
+		$this->putPosition($this->bedX, $this->bedY, $this->bedZ);
+	}
+
+	public function decode(){
+	}
 }

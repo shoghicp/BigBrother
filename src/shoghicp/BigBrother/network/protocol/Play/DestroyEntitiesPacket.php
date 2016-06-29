@@ -15,15 +15,26 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class DestroyEntitiesPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $ids = [];
 
+	public function pid(){
+		return 0x13;
+	}
+
+	public function encode(){
+		$this->putVarInt(count($this->ids));
+		foreach($this->ids as $id){
+			$this->putVarInt($id);
+		}
+	}
+
+	public function decode(){
+
+	}
 }

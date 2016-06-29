@@ -15,15 +15,25 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class ChangeGameStatePacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $reason;
+	public $value;
 
+	public function pid(){
+		return 0x2b;
+	}
+
+	public function encode(){
+		$this->putByte($this->reason);
+		$this->putFloat($this->value);
+	}
+
+	public function decode(){
+
+	}
 }

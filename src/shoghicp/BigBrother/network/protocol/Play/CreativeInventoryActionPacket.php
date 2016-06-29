@@ -15,15 +15,25 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class CreativeInventoryActionPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $slot;
+	public $item;
 
+	public function pid(){
+		return 0x10;
+	}
+
+	public function encode(){
+
+	}
+
+	public function decode(){
+		$this->slot = $this->getShort();
+		$this->item = $this->getSlot();
+	}
 }

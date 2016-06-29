@@ -15,15 +15,28 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class StatisticsPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $count;
+	public $statistic = [];
 
+	public function pid(){
+		return 0x37;
+	}
+
+	public function encode(){
+		$this->putVarInt($this->count);
+		foreach($this->statistic as $statistic){
+			$this->putString($statistic[0]);
+			$this->putVarInt($statistic[1]);
+		}
+	}
+
+	public function decode(){
+
+	}
 }

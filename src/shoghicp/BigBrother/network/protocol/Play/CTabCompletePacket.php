@@ -15,15 +15,29 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class CTabCompletePacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $text;
+	public $x;
+	public $y;
+	public $z;
 
+	public function pid(){
+		return 0x14;
+	}
+
+	public function encode(){
+	}
+
+	public function decode(){
+		$this->text = $this->getString();
+		$flag = (bool) $this->getByte();
+		if($flag){
+			$this->getPosition($this->x, $this->y, $this->z);
+		}
+	}
 }

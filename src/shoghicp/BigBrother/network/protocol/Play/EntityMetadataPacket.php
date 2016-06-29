@@ -15,15 +15,26 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class EntityMetadataPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $eid;
+	public $metadata;
 
+	public function pid(){
+		return 0x1c;
+	}
+
+	public function encode(){
+		$this->putVarInt($this->eid);
+		$this->put(Binary::writeMetadata($this->metadata));
+	}
+
+	public function decode(){
+
+	}
 }

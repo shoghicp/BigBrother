@@ -15,15 +15,26 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class STCChatPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $message;
+	public $position = 0; //0 = chat, 1 = system message, 2 = action bar
 
+	public function pid(){
+		return 0x02;
+	}
+
+	public function encode(){
+		$this->putString($this->message);
+		$this->putByte($this->position);
+	}
+
+	public function decode(){
+		$this->message = $this->getString();
+		$this->position = $this->getByte();
+	}
 }

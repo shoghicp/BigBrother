@@ -15,15 +15,32 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
-abstract class Info{
+use shoghicp\BigBrother\network\Packet;
 
-	/**
-	 * Actual Minecraft protocol version
-	 */
+class ChunkDataPacket extends Packet{
 
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
+	public $chunkX;
+	public $chunkZ;
+	public $groundUp;
+	public $primaryBitmap;
+	public $payload;
 
+	public function pid(){
+		return 0x21;
+	}
+
+	public function encode(){
+		$this->putInt($this->chunkX);
+		$this->putInt($this->chunkZ);
+		$this->putByte($this->groundUp ? 1 : 0);
+		$this->putShort($this->primaryBitmap);
+		$this->putVarInt(strlen($this->payload));
+		$this->put($this->payload);
+	}
+
+	public function decode(){
+
+	}
 }
