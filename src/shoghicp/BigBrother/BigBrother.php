@@ -25,7 +25,7 @@ use pocketmine\network\protocol\PlayerActionPacket;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_81;
+use shoghicp\BigBrother\network\translation\TranslatorProtocol;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackSendPacket;
 
@@ -74,16 +74,18 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		switch(Info::CURRENT_PROTOCOL){
+		$this->translator = new TranslatorProtocol();
+
+		/*switch(Info::CURRENT_PROTOCOL){
 			case 81:
-				$this->translator = new Translator_81();
+				$this->translator = new TranslatorProtocol();
 			break;
 			default:
 				$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
 				$this->getPluginLoader()->disablePlugin($this);
 				return;
 			break;
-		}
+		}*/
 
 		$this->rsa = new RSA();
 

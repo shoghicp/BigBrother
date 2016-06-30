@@ -152,8 +152,8 @@ class ServerThread extends Thread{
 	}
 
 	public function readMainToThreadPacket(){
-		//echo "internalQueue: ".$this->internalQueue."\n";
-		return $this->internalQueue->shift();
+		$var = $this->internalQueue->shift();
+		return $var;
 	}
 
 	public function pushThreadToMainPacket($str){

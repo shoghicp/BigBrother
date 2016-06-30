@@ -133,7 +133,7 @@ class ServerManager{
 	public function shutdown(){
 		$this->thread->shutdown();
 		usleep(50000); //Sleep for 1 tick
-       	//$this->thread->kill();
+       	//$this->thread->quit();
 	}
 
 	protected function processPacket(){

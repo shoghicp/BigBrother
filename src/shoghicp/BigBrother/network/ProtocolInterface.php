@@ -78,11 +78,11 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function emergencyShutdown(){
-		$this->thread->pushMainToThreadPacket(ServerManager::PACKET_EMERGENCY_SHUTDOWN);
+		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_EMERGENCY_SHUTDOWN));
 	}
 
 	public function shutdown(){
-        $this->thread->pushMainToThreadPacket(ServerManager::PACKET_SHUTDOWN);
+        $this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
 	public function setName($name){
@@ -91,7 +91,7 @@ class ProtocolInterface implements SourceInterface{
 			"MaxPlayers" => $info->getMaxPlayerCount(),
 			"OnlinePlayers" => $info->getPlayerCount(),
 		];
-		$buffer = ServerManager::PACKET_SET_OPTION.chr(strlen("name"))."name".json_encode($value);
+		$buffer = chr(ServerManager::PACKET_SET_OPTION).chr(strlen("name"))."name".json_encode($value);
         $this->thread->pushMainToThreadPacket($buffer);
 	}
 
@@ -108,22 +108,22 @@ class ProtocolInterface implements SourceInterface{
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
 			unset($this->identifiers[$identifier]);
-			$this->thread->pushMainToThreadPacket(ServerManager::PACKET_CLOSE_SESSION . Binary::writeInt($identifier));
+			$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
 		}else{
 			return;
 		}
 	}
 
 	protected function sendPacket($target, Packet $packet){
-		$data = ServerManager::PACKET_SEND_PACKET . Binary::writeInt($target) . $packet->write();
-
+		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
 		$this->thread->pushMainToThreadPacket($data);
+		//echo "pushMainToThreadPacket: ".chr(ServerManager::PACKET_SEND_PACKET)."\n";
 	}
 
 	public function setCompression(DesktopPlayer $player, $threshold){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
-			$data = ServerManager::PACKET_SET_COMPRESSION . Binary::writeInt($target) . Binary::writeInt($threshold);
+			$data = chr(ServerManager::PACKET_SET_COMPRESSION) . Binary::writeInt($target) . Binary::writeInt($threshold);
 			$this->thread->pushMainToThreadPacket($data);
 		}
 	}
@@ -131,7 +131,8 @@ class ProtocolInterface implements SourceInterface{
 	public function enableEncryption(DesktopPlayer $player, $secret){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
-			$data = ServerManager::PACKET_ENABLE_ENCRYPTION . Binary::writeInt($target) . $secret;
+			
+			$data = chr(ServerManager::PACKET_ENABLE_ENCRYPTION) . Binary::writeInt($target) . $secret;
 			$this->thread->pushMainToThreadPacket($data);
 		}
 	}
@@ -139,12 +140,13 @@ class ProtocolInterface implements SourceInterface{
 	public function putRawPacket(DesktopPlayer $player, Packet $packet){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
+			//echo "sendPacket\n";
 			$this->sendPacket($target, $packet);
 		}
 	}
 
 	public function putPacket(Player $player, DataPacket $packet, $needACK = false, $immediate = true){
-		$id = 0;
+		$id = 1;
 		if($needACK){
 			$id = $this->identifier++;
 			$this->identifiers[$id] = $player;
@@ -267,6 +269,7 @@ class ProtocolInterface implements SourceInterface{
 					return;
 			}
 
+			//echo "Receive\n";
 			$pk->read($payload, $offset);
 			$this->receivePacket($player, $pk);
 		}elseif($status === 0){
@@ -294,8 +297,10 @@ class ProtocolInterface implements SourceInterface{
 		while(strlen($buffer = $this->thread->readThreadToMainPacket()) > 0){
 			$offset = 1;
 			$pid = ord($buffer{0});
+			//echo "pid: ".$pid."\n";
 
 			if($pid === ServerManager::PACKET_SEND_PACKET){
+				//echo "PACKET_SEND_PACKET\n";
 				$id = Binary::readInt(substr($buffer, $offset, 4));
 				$offset += 4;
 				if(isset($this->sessionsPlayers[$id])){
@@ -304,13 +309,13 @@ class ProtocolInterface implements SourceInterface{
 						$this->handlePacket($this->sessionsPlayers[$id], $payload);
 
 					}catch(\Exception $e){
-						//if(\pocketmine\DEBUG > 1){
+						if(\pocketmine\DEBUG > 1){
 							$logger = $this->server->getLogger();
 							if($logger instanceof MainLogger){
 								$logger->debug("DesktopPacket 0x" . bin2hex($payload));
 								$logger->logException($e);
 							}
-						//}
+						}
 					}
 				}
 			}elseif($pid === ServerManager::PACKET_OPEN_SESSION){
@@ -330,6 +335,7 @@ class ProtocolInterface implements SourceInterface{
 				$this->sessions->attach($player, $id);
 				$this->sessionsPlayers[$id] = $player;
 				$this->plugin->getServer()->addPlayer($identifier, $player);
+				//echo "PACKET_OPEN_SESSION\n";
 			}elseif($pid === ServerManager::PACKET_CLOSE_SESSION){
 				$id = Binary::readInt(substr($buffer, $offset, 4));
 				$offset += 4;

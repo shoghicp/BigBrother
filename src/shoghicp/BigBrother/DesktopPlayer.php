@@ -61,22 +61,27 @@ class DesktopPlayer extends Player{
 	}
 
 	public function bigBrother_getStatus(){
+		//echo "bigBrother_getStatus: ".$this->bigBrother_status."\n";
 		return $this->bigBrother_status;
 	}
 
 	public function bigBrother_getPeroperties(){
+		//echo "bigBrother_getPeroperties"."\n";
 		return $this->bigBrother_properties;
 	}
 
 	public function bigBrother_getUniqueId(){
+		//echo "bigBrother_getUniqueId"."\n";
 		return $this->bigBrother_uuid;
 	}
 
 	public function getSettings(){
+		//echo "getSettings"."\n";
 		return $this->Settings;
 	}
 
 	public function getSetting($settingname = null){
+		//echo "getSetting"."\n";
 		if(isset($this->Settings[$settingname])){
 			return $this->Settings[$settingname];
 		}
@@ -84,20 +89,30 @@ class DesktopPlayer extends Player{
 	}
 
 	public function setSetting($settings){
+		//echo "setSetting";
 		$this->Settings = array_merge($this->Settings, $settings);
 	}
 
 	public function removeSetting($settingname){
+		//echo "removeSetting";
 		if(isset($this->Settings[$settingname])){
 			unset($this->Settings[$settingname]);
 		}
 	}
 
 	public function cleanSetting($settingname){
+		//echo "cleanSetting";
 		unset($this->Settings[$settingname]);
 	}
 
+	/*public function sendChunk($x, $z, $payload, $ordering = FullChunkDataPacket::ORDER_COLUMNS){
+		//echo "sendChunk";
+		bigBrother_sendChunk($x, $z, $payload);
+	}*/
+
 	public function bigBrother_sendChunk($x, $z, $payload){
+
+		//echo "bigBrother_sendChunk";
 		if($this->connected === false){
 			return;
 		}
@@ -133,6 +148,7 @@ class DesktopPlayer extends Player{
 	}
 
 	protected function sendNextChunk(){
+		//echo "sendNextChunk";
 		if($this->connected === false){
 			return;
 		}
@@ -177,6 +193,7 @@ class DesktopPlayer extends Player{
 	}
 
 	public function bigBrother_authenticate($uuid, $onlineModeData = null){
+		//echo "bigBrother_authenticate";
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
 			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toString();
@@ -252,6 +269,7 @@ class DesktopPlayer extends Player{
 	}
 
 	public function bigBrother_processAuthentication(BigBrother $plugin, EncryptionResponsePacket $packet){
+		//echo "bigBrother_processAuthentication";
 		$this->bigBrother_secret = $plugin->decryptBinary($packet->sharedSecret);
 		$token = $plugin->decryptBinary($packet->verifyToken);
 		$this->interface->enableEncryption($this, $this->bigBrother_secret);
@@ -263,6 +281,7 @@ class DesktopPlayer extends Player{
 	}
 
 	public function bigBrother_handleAuthentication($plugin, $username, $onlineMode = false){
+		//echo "bigBrother_handleAuthentication"."\n";
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_username = $username;
 			if($onlineMode === true){
@@ -270,6 +289,7 @@ class DesktopPlayer extends Player{
 				$pk->serverID = "";
 				$pk->publicKey = $plugin->getASN1PublicKey();
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
+				//echo "EncryptionRequestPacket\n";
 				$this->putRawPacket($pk);
 			}else{
 				$info = $this->getProfile($username);
