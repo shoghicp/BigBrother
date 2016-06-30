@@ -595,7 +595,7 @@ class TranslatorProtocol implements Translator{
 			/*case Info::ADD_ENTITY_PACKET:
 				return null;*/
 
-			case Info::REMOVE_PLAYER_PACKET:
+			/*case Info::REMOVE_PLAYER_PACKET:
 				$pk = new PlayerListPacket();
 				$pk->actionID = PlayerListPacket::TYPE_REMOVE;
 
@@ -608,7 +608,7 @@ class TranslatorProtocol implements Translator{
 				$pk->ids[] = $packet->eid;
 				$packets[] = $pk;
 
-				return $packets;
+				return $packets;*/
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();

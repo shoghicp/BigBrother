@@ -193,7 +193,7 @@ class DesktopPlayer extends Player{
 	}
 
 	public function bigBrother_authenticate($uuid, $onlineModeData = null){
-		//echo "bigBrother_authenticate";
+		//echo "bigBrother_authenticate\n";
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
 			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toString();
@@ -265,6 +265,7 @@ class DesktopPlayer extends Player{
 			$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
 			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
 			$this->putRawPacket($pk);
+			//echo "Done\n";
 		}
 	}
 
@@ -292,6 +293,7 @@ class DesktopPlayer extends Player{
 				//echo "EncryptionRequestPacket\n";
 				$this->putRawPacket($pk);
 			}else{
+				//echo "Getting profile...\n";
 				$info = $this->getProfile($username);
 				if(is_array($info)){
 					$this->bigBrother_authenticate($info["id"], $info["properties"]);

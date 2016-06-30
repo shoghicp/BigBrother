@@ -10,7 +10,7 @@ network-compression-threshold: 256
 motd: "§bPocketMine-MP server using §6§lBigBrother§r§b plugin\n§aConnect to Minecraft: PE servers from PC clients"
 
 #Use Mojang services to authenticate players
-online-mode: true
+online-mode: false
 
 #Automatically authenticate players on SimpleAuth that were authenticated via Mojang servers
 online-mode-simpleauth: false
@@ -22,3 +22,10 @@ online-mode-simpleauth: false
 #kicknew: kicks the player that is connecting
 #none: do nothing, leave it up to PocketMine-MP and other plugins
 action-on-conflict: none
+
+#This is Skin Settings
+skin-yml: "steve.yml"
+skin-slim: false
+
+#This is ResourcePackURL Settings
+resourcepackurl: "false"
