@@ -458,19 +458,6 @@ class DesktopPlayer extends Player{
 
 	}
 
-	public function close($message = "", $reason = "generic reason",$notify = true){
-		if($this->bigBrother_status === 0){
-			$pk = new LoginDisconnectPacket();
-			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
-			$this->putRawPacket($pk);
-		}else{
-			$pk = new PlayDisconnectPacket();
-			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
-			$this->putRawPacket($pk);
-		}
-		parent::close($message, $reason);
-	}
-
 	public function bigBrother_setCompression($threshold){
 		$this->interface->setCompression($this, $threshold);
 	}
