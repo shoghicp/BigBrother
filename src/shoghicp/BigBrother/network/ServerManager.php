@@ -17,6 +17,7 @@
 
 namespace shoghicp\BigBrother\network;
 
+use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\utils\Binary;
 
 class ServerManager{
@@ -64,8 +65,6 @@ class ServerManager{
 	 */
 	const PACKET_SET_COMPRESSION = 0x05;
 
-	const PACKET_SET_OPTION = 0x06;
-
 	/*
 	 * no payload
 	 */
@@ -88,14 +87,12 @@ class ServerManager{
 	protected $logger;
 	protected $shutdown = false;
 
+	public $players = 0;
+	public $maxPlayers = 20;
 	/** @var string[] */
 	public $sample = [];
 	public $description;
 	public $favicon;
-	public $serverdata = [
-		"MaxPlayers" => 20,
-		"OnlinePlayers" => 0,
-	];
 
 	public function __construct(ServerThread $thread, $port, $interface, $description = "", $favicon = null){
 		$this->thread = $thread;
@@ -126,16 +123,6 @@ class ServerManager{
 		$this->process();
 	}
 
-	public function getServerData(){
-		return $this->serverdata;
-	}
-
-	public function shutdown(){
-		$this->thread->shutdown();
-		usleep(50000); //Sleep for 1 tick
-       	//$this->thread->quit();
-	}
-
 	protected function processPacket(){
 		@fread($this->fp, 1);
 		if(strlen($packet = $this->thread->readMainToThreadPacket()) > 0){
@@ -148,7 +135,7 @@ class ServerManager{
 				$data = substr($buffer, 4);
 
 				if(!isset($this->sessions[$id])){
-					$this->closeSession($id, 0);
+					$this->closeSession($id);
 					return true;
 				}
 				$this->sessions[$id]->writeRaw($data);
@@ -157,7 +144,7 @@ class ServerManager{
 				$secret = substr($buffer, 4);
 
 				if(!isset($this->sessions[$id])){
-					$this->closeSession($id, 0);
+					$this->closeSession($id);
 					return true;
 				}
 				$this->sessions[$id]->enableEncryption($secret);
@@ -166,36 +153,20 @@ class ServerManager{
 				$threshold = Binary::readInt(substr($buffer, 4, 4));
 
 				if(!isset($this->sessions[$id])){
-					$this->closeSession($id, 0);
+					$this->closeSession($id);
 					return true;
 				}
 				$this->sessions[$id]->setCompression($threshold);
-			}elseif($pid === self::PACKET_SET_OPTION){
-				$offset = 1;
-				$len = ord($packet{$offset++});
-                $name = substr($packet, $offset, $len);
-                $offset += $len;
-                $value = substr($packet, $offset);
-                switch($name){
-                	case "name":
-                		$this->serverdata = json_decode($value, true);
-                	break;
-                }
 			}elseif($pid === self::PACKET_CLOSE_SESSION){
 				$id = Binary::readInt(substr($buffer, 0, 4));
 				if(isset($this->sessions[$id])){
 					$this->close($this->sessions[$id]);
-				}else{
-					$this->closeSession($id, 1);
 				}
 			}elseif($pid === self::PACKET_SHUTDOWN){
+				$this->shutdown = true;
 				foreach($this->sessions as $session){
 					$session->close();
 				}
-
-				$this->shutdown();
-				stream_socket_shutdown($this->socket, STREAM_SHUT_RDWR);
-				$this->shutdown = true;
 			}elseif($pid === self::PACKET_EMERGENCY_SHUTDOWN){
 				$this->shutdown = true;
 			}
@@ -215,8 +186,8 @@ class ServerManager{
 		$this->thread->pushThreadToMainPacket($data);
 	}
 
-	protected function closeSession($id, $flag){
-		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id).Binary::writeInt($flag));
+	protected function closeSession($id){
+		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id));
 	}
 
 	private function process(){
@@ -266,7 +237,6 @@ class ServerManager{
 		fclose($this->sockets[$identifier]);
 		unset($this->sockets[$identifier]);
 		unset($this->sessions[$identifier]);
-		$this->closeSession($identifier, 0);
+		$this->closeSession($identifier);
 	}
-
 }

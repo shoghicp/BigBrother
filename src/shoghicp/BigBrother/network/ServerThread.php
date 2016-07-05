@@ -52,9 +52,7 @@ class ServerThread extends Thread{
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
-		$this->externalQueue = new \Threaded;
-		$this->internalQueue = new \Threaded;
+	public function __construct(\Threaded $externalQueue, \Threaded $internalQueue, \ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
 		$this->port = (int) $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
@@ -82,6 +80,9 @@ class ServerThread extends Thread{
 		$this->externalSocket = $sockets[1];
 		stream_set_blocking($this->externalSocket, 0);
 
+		$this->externalQueue = $externalQueue;
+		$this->internalQueue = $internalQueue;
+
 		$this->start();
 	}
 
@@ -104,13 +105,10 @@ class ServerThread extends Thread{
 	}
 
 	public function shutdown(){
+		$this->lock();
 		$this->shutdown = true;
-	}
-
-	public function shutdownHandler(){
-		if($this->shutdown !== true){
-			$this->getLogger()->emergency("[ServerThread #". \Thread::getCurrentThreadId() ."] ServerThread crashed!");
-		}
+		socket_close($this->internalSocket);
+		$this->unlock();
 	}
 
 	public function getPort(){
@@ -152,8 +150,7 @@ class ServerThread extends Thread{
 	}
 
 	public function readMainToThreadPacket(){
-		$var = $this->internalQueue->shift();
-		return $var;
+		return $this->internalQueue->shift();
 	}
 
 	public function pushThreadToMainPacket($str){
@@ -172,9 +169,6 @@ class ServerThread extends Thread{
 			}
 		}
 		$this->loader->register();
-
-		register_shutdown_function([$this, "shutdownHandler"]);
-
 		$data = unserialize($this->data);
 		$manager = new ServerManager($this, $this->port, $this->interface, $data["motd"], $data["icon"]);
 	}

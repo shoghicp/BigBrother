@@ -17,136 +17,62 @@
 
 namespace shoghicp\BigBrother\network;
 
-use pocketmine\item\Item;
+use pocketmine\utils\BinaryStream;
+use pocketmine\utils\Utils;
 use shoghicp\BigBrother\utils\Binary;
 
-abstract class Packet extends \stdClass{
+abstract class Packet extends BinaryStream{
 
-	protected $buffer;
-	protected $offset = 0;
+	const NETWORK_ID = 0;
 
-	protected function get($len){
-		if($len < 0){
-			$this->offset = strlen($this->buffer) - 1;
+	public $isEncoded = false;
+	private $channel = 0;
 
-			return "";
-		}elseif($len === true){
-			return substr($this->buffer, $this->offset);
-		}
-
-		$buffer = "";
-		for(; $len > 0; --$len, ++$this->offset){
-			$buffer .= @$this->buffer{$this->offset};
-		}
-
-		return $buffer;
+	public function pid(){
+		return $this::NETWORK_ID;
 	}
 
-	protected function getLong(){
-		return Binary::readLong($this->get(8));
-	}
+	abstract public function encode();
 
-	protected function getInt(){
-		return Binary::readInt($this->get(4));
-	}
+	abstract public function decode();
 
-	protected function getPosition(&$x, &$y, &$z){
-		$int1 = $this->getInt();
-		$int2 = $this->getInt();
-
-		$x = $int1 >> 6;
-		$y = ((($int1 & 0x3F) << 2) | ($int2 & 0xFCFFFFFF) >> 26);
-		$z = $int2 & 0x3FFFFFF;
-
-		if(PHP_INT_MAX > 0x7FFFFFFF){
-			$x = $x << 38 >> 38;
-			$y = $y << 58 >> 58;
-			$z = $z << 38 >> 38;
-		}else{
-			$x = $x << 6 >> 6;
-			$y = $y << 26 >> 26;
-			$z = $z << 6 >> 6;
-		}
-	}
-
-	protected function getFloat(){
-		return Binary::readFloat($this->get(4));
-	}
-
-	protected function getDouble(){
-		return Binary::readDouble($this->get(8));
+	public function reset(){
+		$this->buffer = chr($this::NETWORK_ID);
+		$this->offset = 0;
 	}
 
 	/**
-	 * @return Item
+	 * @deprecated This adds extra overhead on the network, so its usage is now discouraged. It was a test for the viability of this.
 	 */
-	protected function getSlot(){
-		$itemId = $this->getShort();
-		if($itemId === 65535){ //Empty
-			return Item::get(Item::AIR, 0, 0);
-		}else{
-			$count = $this->getByte();
-			$damage = $this->getShort();
-			$len = $this->getByte();
-			$nbt = "";
-			if($len > 0){
-				$nbt = $this->get($len);
+	public function setChannel($channel){
+		$this->channel = (int) $channel;
+		return $this;
+	}
+
+	public function getChannel(){
+		return $this->channel;
+	}
+
+	public function clean(){
+		$this->buffer = null;
+		$this->isEncoded = false;
+		$this->offset = 0;
+		return $this;
+	}
+
+	public function __debugInfo(){
+		$data = [];
+		foreach($this as $k => $v){
+			if($k === "buffer"){
+				$data[$k] = bin2hex($v);
+			}elseif(is_string($v) or (is_object($v) and method_exists($v, "__toString"))){
+				$data[$k] = Utils::printable((string) $v);
+			}else{
+				$data[$k] = $v;
 			}
-			return Item::get($itemId, $damage, $count, $nbt);
 		}
-	}
 
-	protected function putSlot(Item $item){
-		if($item->getID() === 0){
-			$this->putShort(-1);
-		}else{
-			$this->putShort($item->getID());
-			$this->putByte($item->getCount());
-			$this->putShort($item->getDamage());
-			$nbt = $item->getCompoundTag();
-			$this->putByte(strlen($nbt));
-			$this->put($nbt);
-		}
-	}
-
-	protected function getShort(){
-		return Binary::readShort($this->get(2));
-	}
-
-	protected function getTriad(){
-		return Binary::readTriad($this->get(3));
-	}
-
-	protected function getLTriad(){
-		return Binary::readTriad(strrev($this->get(3)));
-	}
-
-	protected function getByte(){
-		return ord($this->buffer{$this->offset++});
-	}
-
-	protected function getString(){
-		return $this->get($this->getVarInt());
-	}
-
-	protected function getVarInt(){
-		return Binary::readVarInt($this->buffer, $this->offset);
-	}
-
-	protected function feof(){
-		return !isset($this->buffer{$this->offset});
-	}
-
-	protected function put($str){
-		$this->buffer .= $str;
-	}
-
-	protected function putLong($v){
-		$this->buffer .= Binary::writeLong($v);
-	}
-
-	protected function putInt($v){
-		$this->buffer .= Binary::writeInt($v);
+		return $data;
 	}
 
 	protected function putPosition($x, $y, $z){
@@ -157,56 +83,23 @@ abstract class Packet extends \stdClass{
 		$this->buffer .= Binary::writeInt($int1) . Binary::writeInt($int2);
 	}
 
-	protected function putFloat($v){
-		$this->buffer .= Binary::writeFloat($v);
-	}
-
 	protected function putDouble($v){
 		$this->buffer .= Binary::writeDouble($v);
-	}
-
-	protected function putShort($v){
-		$this->buffer .= Binary::writeShort($v);
-	}
-
-	protected function putTriad($v){
-		$this->buffer .= Binary::writeTriad($v);
-	}
-
-	protected function putLTriad($v){
-		$this->buffer .= strrev(Binary::writeTriad($v));
-	}
-
-	protected function putByte($v){
-		$this->buffer .= chr($v);
-	}
-
-	protected function putString($v){
-		$this->putVarInt(strlen($v));
-		$this->put($v);
 	}
 
 	protected function putVarInt($v){
 		$this->buffer .= Binary::writeVarInt($v);
 	}
 
-	public abstract function pid();
-
-	protected abstract function encode();
-
-	protected abstract function decode();
-
 	public function write(){
-		$this->buffer = "";
-		$this->offset = 0;
+		$this->reset();
 		$this->encode();
 		return Binary::writeVarInt($this->pid()) . $this->buffer;
 	}
-
 	public function read($buffer, $offset = 0){
 		$this->buffer = $buffer;
 		$this->offset = $offset;
 		$this->decode();
 	}
-
+	
 }

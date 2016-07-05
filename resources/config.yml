@@ -22,10 +22,3 @@ online-mode-simpleauth: false
 #kicknew: kicks the player that is connecting
 #none: do nothing, leave it up to PocketMine-MP and other plugins
 action-on-conflict: none
-
-#This is Skin Settings
-skin-yml: "steve.yml"
-skin-slim: false
-
-#This is ResourcePackURL Settings
-resourcepackurl: "false"

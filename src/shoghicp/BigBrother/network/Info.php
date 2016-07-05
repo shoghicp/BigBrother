@@ -18,12 +18,6 @@
 namespace shoghicp\BigBrother\network;
 
 abstract class Info{
-
-	/**
-	 * Actual Minecraft protocol version
-	 */
-
-	const VERSION = "1.10.2";
-	const PROTOCOL = 210;
-
+	const VERSION = "1.8";
+	const PROTOCOL = 47;
 }
