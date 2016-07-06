@@ -17,6 +17,7 @@
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\event\Timings;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\level\format\anvil\Chunk as AnvilChunk;
@@ -149,130 +150,73 @@ class DesktopPlayer extends Player{
 		return $this->bigBrother_status;
 	}
 
-	public function bigBrother_sendChunk($x, $z, $payload){
-		$pk = new ChunkDataPacket();
-		$pk->chunkX = $x;
-		$pk->chunkZ = $z;
-		$pk->groundUp = true;
-
-		$pk->payload = $payload;
-		$pk->primaryBitmap = 0xff;
-		$this->putRawPacket($pk);
-	}
-
 	public function sendChunk($x, $z, $payload,$ordering = FullChunkDataPacket::ORDER_COLUMNS){
 
 	}
 
+		public function bigBrother_sendChunk($x, $z, $payload){
+		if($this->connected === false){
+			return;
+		}
+		$this->usedChunks[Level::chunkHash($x, $z)] = true;
+		$this->chunkLoadCount++;
+		$pk = new ChunkDataPacket();
+		$pk->chunkX = $x;
+		$pk->chunkZ = $z;
+		$pk->groundUp = true;
+		$pk->payload = $payload;
+		$pk->primaryBitmap = 0xff;
+		$this->putRawPacket($pk);
+		foreach($this->level->getChunkTiles($x, $z) as $tile){
+			if($tile instanceof Sign){
+				$tile->spawnTo($this);
+			}
+		}
+		if($this->spawned){
+			foreach($this->level->getChunkPlayers($x, $z) as $player){
+				$player->spawnTo($this);
+			}
+			/*foreach($this->level->getChunkEntities($x, $z) as $entity){
+				if($entity !== $this and !$entity->closed and $entity->isAlive()){
+					$entity->spawnTo($this);
+				}
+			}*/
+		}
+	}
 	protected function sendNextChunk(){
 		if($this->connected === false){
 			return;
 		}
-
+		Timings::$playerChunkSendTimer->startTiming();
 		$count = 0;
 		foreach($this->loadQueue as $index => $distance){
 			if($count >= $this->chunksPerTick){
 				break;
 			}
-
+			$X = null;
+			$Z = null;
 			Level::getXZ($index, $X, $Z);
-			if(!$this->level->isChunkPopulated($X, $Z)){
-				$this->level->generateChunk($X, $Z);
-				if($this->spawned){
+			++$count;
+			$this->usedChunks[$index] = false;
+			$this->level->registerChunkLoader($this, $X, $Z, false);
+			if(!$this->level->populateChunk($X, $Z)){
+				if($this->spawned and $this->teleportPosition === null){
 					continue;
 				}else{
 					break;
 				}
 			}
-
-			++$count;
-
 			unset($this->loadQueue[$index]);
-			$this->usedChunks[$index] = true;
-
-			$this->level->useChunk($X, $Z, $this);
-			$chunk = $this->level->getChunk($X, $Z);
-			if($chunk instanceof AnvilChunk){
-				$this->kick("Playing on Anvil worlds is not yet implemented");
-				//TODO!
-				/*$pk = new ChunkDataPacket();
-				$pk->chunkX = $X;
-				$pk->chunkZ = $Z;
-				$pk->groundUp = true;
-				$ids = "";
-				$meta = "";
-				$blockLight = "";
-				$skyLight = "";
-				$biomeIds = $chunk->getBiomeIdArray();
-				$bitmap = 0;
-				for($s = 0; $s < 8; ++$s){
-					$section = $chunk->getSection($s);
-					if(!($section instanceof EmptyChunkSection)){
-						$bitmap |= 1 << $s;
-					}else{
-						continue;
-					}
-					$ids .= $section->getIdArray();
-					$meta .= $section->getDataArray();
-					$blockLight .= $section->getLightArray();
-					$skyLight .= $section->getSkyLightArray();
-				}
-
-				$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
-				$pk->primaryBitmap = $bitmap;
-				$this->putRawPacket($pk);*/
-			}elseif($chunk instanceof McRegionChunk){
-				$task = new McRegionToAnvil($this, $chunk);
-				$this->server->getScheduler()->scheduleAsyncTask($task);
-			}elseif($chunk instanceof LevelDBChunk){
-				$task = new LevelDBToAnvil($this, $chunk);
-				$this->server->getScheduler()->scheduleAsyncTask($task);
-			}
-
-			foreach($chunk->getEntities() as $entity){
-				if($entity !== $this){
-					$entity->spawnTo($this);
-				}
-			}
-			foreach($chunk->getTiles() as $tile){
-				if($tile instanceof Spawnable){
-					$tile->spawnTo($this);
-				}
-			}
+			$chunk = new DesktopChunk($this, $X, $Z);
+			$this->bigBrother_sendChunk($X, $Z, $chunk->getData());
+			$chunk = null;
 		}
-
-		if(count($this->usedChunks) >= 4 and $this->spawned === false){
-
-			$this->bigBrother_setTitleBar(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.", 0);
-
-			$this->spawned = true;
-
-			$pk = new SetTimePacket();
-			$pk->time = $this->level->getTime();
-			$pk->started = $this->level->stopTime == false;
-			$this->dataPacket($pk);
-
-			$pos = $this->level->getSafeSpawn($this);
-
-			$this->server->getPluginManager()->callEvent($ev = new PlayerRespawnEvent($this, $pos));
-
-			$this->teleport($ev->getRespawnPosition());
-
-			$this->sendSettings();
+		if($this->chunkLoadCount >= 4 and $this->spawned === false and $this->teleportPosition === null){
+			$this->doFirstSpawn();
 			$this->inventory->sendContents($this);
 			$this->inventory->sendArmorContents($this);
-
-			$this->server->getPluginManager()->callEvent($ev = new PlayerJoinEvent($this, TextFormat::YELLOW . $this->getName() . " joined the game"));
-			if(strlen(trim($ev->getJoinMessage())) > 0){
-				$this->server->broadcastMessage($ev->getJoinMessage());
-			}
-
-			$this->spawnToAll();
-
-			if($this->server->getUpdater()->hasUpdate() and $this->hasPermission(Server::BROADCAST_CHANNEL_ADMINISTRATIVE)){
-				$this->server->getUpdater()->showPlayerUpdate($this);
-			}
 		}
+		Timings::$playerChunkSendTimer->stopTiming();
 	}
 
 	public function spawnTo(Player $player){
