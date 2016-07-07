@@ -199,7 +199,8 @@ class ProtocolInterface implements SourceInterface{
 			if($pid === 0x00){
 				//$pk = new LoginStartPacket();
 				//$pk->read($payload, $offset);
-				$player->bigBrother_handleAuthentication($this->plugin, $payload, $this->plugin->isOnlineMode());
+				
+				$player->bigBrother_handleAuthentication($this->plugin, preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $payload), $this->plugin->isOnlineMode());
 			}elseif($pid === 0x01 and $this->plugin->isOnlineMode()){
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);

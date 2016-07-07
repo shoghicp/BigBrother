@@ -299,7 +299,7 @@ class DesktopPlayer extends Player{
 
 	public function bigBrother_authenticationCallback($username){
 		$pk = new LoginPacket();
-		$pk->username = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $username);
+		$pk->username = $username;
 		$pk->clientId = crc32($this->clientID);
 		$pk->protocol = Info::CURRENT_PROTOCOL;
 		$pk->clientUUID = UUID::fromString($this->bigBrother_uuid);
