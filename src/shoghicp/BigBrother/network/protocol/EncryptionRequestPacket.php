@@ -31,13 +31,13 @@ class EncryptionRequestPacket extends Packet{
 
 	public function encode(){
 		$this->putString($this->serverID);
-		$this->putVarInt(strlen($this->publicKey));
-		$this->put($this->publicKey);
-		$this->putVarInt(strlen($this->verifyToken));
-		$this->put($this->verifyToken);
+		$this->putString($this->publicKey);
+		$this->putString($this->verifyToken);
 	}
 
 	public function decode(){
-
+		$this->serverID = $this->getString();
+		$this->publicKey = $this->get($this->getVarInt());
+		$this->verifyToken = $this->get($this->getVarInt());
 	}
 }

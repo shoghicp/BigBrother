@@ -144,7 +144,6 @@ class DesktopPlayer extends Player{
 		$pk = new KeepAlivePacket();
 		$pk->id = mt_rand();
 		$this->putRawPacket($pk);
-		echo "KeepAlive\n";
 	}
 
 	public function bigBrother_getStatus(){
@@ -155,7 +154,7 @@ class DesktopPlayer extends Player{
 
 	}
 
-		public function bigBrother_sendChunk($x, $z, $payload){
+	public function bigBrother_sendChunk($x, $z, $payload){
 		if($this->connected === false){
 			return;
 		}
@@ -274,7 +273,7 @@ class DesktopPlayer extends Player{
 
 			$pk = new LoginSuccessPacket();
 			$pk->uuid = $this->bigBrother_formatedUUID;
-			$pk->name = "hello";
+			$pk->name = $username;
 			$this->putRawPacket($pk);
 			$this->bigBrother_status = 1;
 			if($onlineModeData !== null and is_array($onlineModeData)){
@@ -282,7 +281,7 @@ class DesktopPlayer extends Player{
 			}
 
 			$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
-			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], ["hello"]), 2);
+			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 2);
 		}
 	}
 
@@ -300,28 +299,37 @@ class DesktopPlayer extends Player{
 
 	public function bigBrother_authenticationCallback($username){
 		$pk = new LoginPacket();
-		echo "User: ".$username."\n";
-		$pk->username = $username;
+		$pk->username = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $username);
 		$pk->clientId = crc32($this->clientID);
 		$pk->protocol = Info::CURRENT_PROTOCOL;
 		$pk->clientUUID = UUID::fromString($this->bigBrother_uuid);
 		$pk->serverAddress = "127.0.0.1:25565";
 		$pk->clientSecret = "BigBrother";
 		
-		foreach($this->bigBrother_properties as $property){
+		/*foreach($this->bigBrother_properties as $property){
 			if($property["name"] === "textures"){
 				$skindata = json_decode(base64_decode($property["value"]), true);
 				if(isset($skindata["textures"]["SKIN"]["url"])){
 					$skin = $this->getSkinImage($skindata["textures"]["SKIN"]["url"]);
 				}
 			}
-		}
-		if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
-			$pk->skinId = "Standard_Custom";
+		}*/
+		
+		if(!isset($skin)){
+			if($this->plugin->getConfig()->get("skin-slim")){
+				$pk->skinId = "Standard_Custom";
+			}else{
+				$pk->skinId = "Standard_CustomSlim";
+			}
+			$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
 		}else{
-			$pk->skinId = "Standard_CustomSlim";
+			if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
+				$pk->skinId = "Standard_Custom";
+			}else{
+				$pk->skinId = "Standard_CustomSlim";
+			}
+			$pk->skin = $skin;
 		}
-		$pk->skin = $skin;
 
 		$this->handleDataPacket($pk);
 	}
@@ -385,20 +393,11 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
 				$this->putRawPacket($pk);
 			}else{
-				/*$task = new OnlineProfile($this->clientID, $this->bigBrother_username, $this);
-				$this->server->getScheduler()->scheduleAsyncTask($task);*/
-
-				$profile = json_decode('{"id":"c96792ac7aea4f16975e535a20a2791a","name":"Hello"}',true);//json_decode(Utils::getURL("https://api.mojang.com/users/profiles/minecraft/".$username), true);
+				/*$profile = json_decode(Utils::getURL("https://api.mojang.com/users/profiles/minecraft/".$username), true);
 				if(!is_array($profile)){
 					return false;
-				}
-
-				$uuid = $profile["id"];
-				$info = json_decode('{"id":"c96792ac7aea4f16975e535a20a2791a","name":"Hello","properties":[{"name":"textures","value":"eyJ0aW1lc3RhbXAiOjE0Njc1OTk2OTkyODQsInByb2ZpbGVJZCI6ImM5Njc5MmFjN2FlYTRmMTY5NzVlNTM1YTIwYTI3OTFhIiwicHJvZmlsZU5hbWUiOiJIZWxsbyIsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9lYzNmMDc2MTliNmFjMzczMGZkYzMxZmExZWMxY2JkMmE4ZjhkZmJkOTdkYzhhYWE4ZTI0NWJhODVhZTlmNzYifX19"}]}', true);
-				if(!is_array($info)){
-					return false;
-				}
-				$this->bigBrother_authenticate($this->bigBrother_username, $info["id"], $info["properties"]);
+				}*/
+				$this->bigBrother_authenticate($this->bigBrother_username, /*$profile["id"]*/"c96792ac7aea4f16975e535a20a2791a", null);
 			}
 		}
 

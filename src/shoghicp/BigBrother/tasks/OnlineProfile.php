@@ -77,6 +77,7 @@ class OnlineProfile extends AsyncTask{
 	public function onCompletion(Server $server){
 		//foreach($server->getOnlinePlayers() as $clientID => $player){
 			//if($player instanceof DesktopPlayer and $clientID === $this->clientID){
+		echo "Cool\n";
 				$result = $this->getResult();
 
 				if(is_array($result) and isset($result["id"])){
