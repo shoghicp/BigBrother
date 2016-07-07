@@ -144,6 +144,7 @@ class DesktopPlayer extends Player{
 		$pk = new KeepAlivePacket();
 		$pk->id = mt_rand();
 		$this->putRawPacket($pk);
+		echo "KeepAlive\n";
 	}
 
 	public function bigBrother_getStatus(){
@@ -269,11 +270,11 @@ class DesktopPlayer extends Player{
 	public function bigBrother_authenticate($username, $uuid, $onlineModeData = null){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
-			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toBinary();
+			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toString();
 
 			$pk = new LoginSuccessPacket();
 			$pk->uuid = $this->bigBrother_formatedUUID;
-			$pk->name = $this->username;
+			$pk->name = "hello";
 			$this->putRawPacket($pk);
 			$this->bigBrother_status = 1;
 			if($onlineModeData !== null and is_array($onlineModeData)){
@@ -281,7 +282,7 @@ class DesktopPlayer extends Player{
 			}
 
 			$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
-			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 1);
+			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], ["hello"]), 2);
 		}
 	}
 
@@ -299,6 +300,7 @@ class DesktopPlayer extends Player{
 
 	public function bigBrother_authenticationCallback($username){
 		$pk = new LoginPacket();
+		echo "User: ".$username."\n";
 		$pk->username = $username;
 		$pk->clientId = crc32($this->clientID);
 		$pk->protocol = Info::CURRENT_PROTOCOL;

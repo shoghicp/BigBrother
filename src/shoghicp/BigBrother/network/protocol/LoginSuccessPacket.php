@@ -29,7 +29,7 @@ class LoginSuccessPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->put($this->uuid);
+		$this->putString($this->uuid);
 		$this->putString($this->name);
 	}
 
