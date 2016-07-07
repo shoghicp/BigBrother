@@ -57,6 +57,7 @@ class TranslatorProtocol implements Translator{
 
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
+		echo "[Receive] 0x".$packet->pid()."\n";
 		switch($packet->pid()){
 			// TODO: move to Info
 
@@ -149,9 +150,144 @@ class TranslatorProtocol implements Translator{
 	}
 
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
+		echo "[Send] 0x".$packet->pid()."\n";
 		switch($packet->pid()){
+			case Info::START_GAME_PACKET: 
+				echo "START_GAME_PACKET\n";
+				$packets = [];
 
-			case Info::UPDATE_BLOCK_PACKET:
+				$pk = new JoinGamePacket();
+				$pk->eid = $packet->eid;
+				$pk->gamemode = $player->getGamemode();
+				$pk->dimension = 0;
+				$pk->difficulty = $player->getServer()->getDifficulty();
+				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
+				$pk->levelType = "default";
+				$packets[] = $pk;
+
+				$pk = new PlayerAbilitiesPacket();
+				$pk->flyingSpeed = 0.05;
+				$pk->walkingSpeed = 0.1;
+				$pk->canFly = ($player->getGamemode() & 0x01) > 0;
+				$pk->damageDisabled = ($player->getGamemode() & 0x01) > 0;
+				$pk->isFlying = false;
+				$pk->isCreative = ($player->getGamemode() & 0x01) > 0;
+				if($player->spawned === true){
+					$packets = [$pk];
+
+					$pk = new ChangeGameStatePacket();
+					$pk->reason = 3;
+					$pk->value = $player->getGamemode();
+					$packets[] = $pk;
+					return $packets;
+				}else{
+					$packets[] = $pk;
+				}
+
+				$pk = new SpawnPositionPacket();
+				$pk->spawnX = $packet->spawnX;
+				$pk->spawnY = $packet->spawnY;
+				$pk->spawnZ = $packet->spawnZ;
+				$packets[] = $pk;
+
+				$pk = new PositionAndLookPacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->yaw = $player->yaw;
+				$pk->pitch = $player->pitch;
+				$pk->onGround = $player->isOnGround();
+				$packets[] = $pk;
+				return $packets;
+
+			case Info::SET_TIME_PACKET:
+				$pk = new TimeUpdatePacket();
+				$pk->age = $packet->time;
+				$pk->time = $packet->time; //TODO: calculate offset from MCPE
+				return $pk;
+
+			case Info::SET_SPAWN_POSITION_PACKET:
+				$pk = new SpawnPositionPacket();
+				$pk->spawnX = $packet->x;
+				$pk->spawnY = $packet->y;
+				$pk->spawnZ = $packet->z;
+				return $pk;
+
+			case Info::SET_HEALTH_PACKET:
+				$pk = new UpdateHealthPacket();
+				$pk->health = $packet->health;
+				$pk->food = 20;
+				$pk->saturation = 5;
+				return $pk;
+
+			case Info::LOGIN_PACKET: echo "LOGIN_PACKET\n";break;
+			case Info::PLAY_STATUS_PACKET: echo "PLAY_STATUS_PACKET\n";break;
+			case Info::SERVER_TO_CLIENT_HANDSHAKE_PACKET: echo "SERVER_TO_CLIENT_HANDSHAKE_PACKET\n";break;
+			case Info::CLIENT_TO_SERVER_HANDSHAKE_PACKET: echo "CLIENT_TO_SERVER_HANDSHAKE_PACKET\n";break;
+			case Info::DISCONNECT_PACKET: echo "DISCONNECT_PACKET\n";break;
+			case Info::BATCH_PACKET: echo "BATCH_PACKET\n";break;
+			case Info::TEXT_PACKET: echo "TEXT_PACKET\n";break;
+			case Info::SET_TIME_PACKET: echo "SET_TIME_PACKET\n";break;
+			case Info::ADD_PLAYER_PACKET: echo "ADD_PLAYER_PACKET\n";break;
+			case Info::ADD_ENTITY_PACKET: echo "ADD_ENTITY_PACKET\n";break;
+			case Info::REMOVE_ENTITY_PACKET: echo "REMOVE_ENTITY_PACKET\n";break;
+			case Info::ADD_ITEM_ENTITY_PACKET: echo "ADD_ITEM_ENTITY_PACKET\n";break;
+			case Info::TAKE_ITEM_ENTITY_PACKET: echo "TAKE_ITEM_ENTITY_PACKET\n";break;
+			case Info::MOVE_ENTITY_PACKET: echo "MOVE_ENTITY_PACKET\n";break;
+			case Info::MOVE_PLAYER_PACKET: echo "MOVE_PLAYER_PACKET\n";break;
+			case Info::RIDER_JUMP_PACKET: echo "RIDER_JUMP_PACKET\n";break;
+			case Info::REMOVE_BLOCK_PACKET: echo "REMOVE_BLOCK_PACKET\n";break;
+			case Info::UPDATE_BLOCK_PACKET: echo "UPDATE_BLOCK_PACKET\n";break;
+			case Info::ADD_PAINTING_PACKET: echo "ADD_PAINTING_PACKET\n";break;
+			case Info::EXPLODE_PACKET: echo "EXPLODE_PACKET\n";break;
+			case Info::LEVEL_EVENT_PACKET: echo "LEVEL_EVENT_PACKET\n";break;
+			case Info::BLOCK_EVENT_PACKET: echo "BLOCK_EVENT_PACKET\n";break;
+			case Info::ENTITY_EVENT_PACKET: echo "ENTITY_EVENT_PACKET\n";break;
+			case Info::MOB_EFFECT_PACKET: echo "MOB_EFFECT_PACKET\n";break;
+			case Info::UPDATE_ATTRIBUTES_PACKET: echo "UPDATE_ATTRIBUTES_PACKET\n";break;
+			case Info::MOB_EQUIPMENT_PACKET: echo "MOB_EQUIPMENT_PACKET\n";break;
+			case Info::MOB_ARMOR_EQUIPMENT_PACKET: echo "MOB_ARMOR_EQUIPMENT_PACKET\n";break;
+			case Info::INTERACT_PACKET: echo "INTERACT_PACKET\n";break;
+			case Info::USE_ITEM_PACKET: echo "USE_ITEM_PACKET\n";break;
+			case Info::PLAYER_ACTION_PACKET: echo "PLAYER_ACTION_PACKET\n";break;
+			case Info::HURT_ARMOR_PACKET: echo "HURT_ARMOR_PACKET\n";break;
+			case Info::SET_ENTITY_DATA_PACKET: echo "SET_ENTITY_DATA_PACKET\n";break;
+			case Info::SET_ENTITY_MOTION_PACKET: echo "SET_ENTITY_MOTION_PACKET\n";break;
+			case Info::SET_ENTITY_LINK_PACKET: echo "SET_ENTITY_LINK_PACKET\n";break;
+			case Info::SET_HEALTH_PACKET: echo "SET_HEALTH_PACKET\n";break;
+			case Info::SET_SPAWN_POSITION_PACKET: echo "SET_SPAWN_POSITION_PACKET\n";break;
+			case Info::ANIMATE_PACKET: echo "ANIMATE_PACKET\n";break;
+			case Info::RESPAWN_PACKET: echo "RESPAWN_PACKET\n";break;
+			case Info::DROP_ITEM_PACKET: echo "DROP_ITEM_PACKET\n";break;
+			case Info::CONTAINER_OPEN_PACKET: echo "CONTAINER_OPEN_PACKET\n";break;
+			case Info::CONTAINER_CLOSE_PACKET: echo "CONTAINER_CLOSE_PACKET\n";break;
+			case Info::CONTAINER_SET_SLOT_PACKET: echo "CONTAINER_SET_SLOT_PACKET\n";break;
+			case Info::CONTAINER_SET_DATA_PACKET: echo "CONTAINER_SET_DATA_PACKET\n";break;
+			case Info::CONTAINER_SET_CONTENT_PACKET: echo "CONTAINER_SET_CONTENT_PACKET\n";break;
+			case Info::CRAFTING_DATA_PACKET: echo "CRAFTING_DATA_PACKET\n";break;
+			case Info::CRAFTING_EVENT_PACKET: echo "CRAFTING_EVENT_PACKET\n";break;
+			case Info::ADVENTURE_SETTINGS_PACKET: echo "ADVENTURE_SETTINGS_PACKET\n";break;
+			case Info::BLOCK_ENTITY_DATA_PACKET: echo "BLOCK_ENTITY_DATA_PACKET\n";break;
+			case Info::PLAYER_INPUT_PACKET: echo "PLAYER_INPUT_PACKET\n";break;
+			case Info::FULL_CHUNK_DATA_PACKET: echo "FULL_CHUNK_DATA_PACKET\n";break;
+			case Info::SET_DIFFICULTY_PACKET: echo "SET_DIFFICULTY_PACKET\n";break;
+			case Info::CHANGE_DIMENSION_PACKET: echo "CHANGE_DIMENSION_PACKET\n";break;
+			case Info::SET_PLAYER_GAMETYPE_PACKET: echo "SET_PLAYER_GAMETYPE_PACKET\n";break;
+			case Info::PLAYER_LIST_PACKET: echo "PLAYER_LIST_PACKET\n";break;
+			case Info::TELEMETRY_EVENT_PACKET: echo "TELEMETRY_EVENT_PACKET\n";break;
+			case Info::SPAWN_EXPERIENCE_ORB_PACKET: echo "SPAWN_EXPERIENCE_ORB_PACKET\n";break;
+			case Info::CLIENTBOUND_MAP_ITEM_DATA_PACKET: echo "CLIENTBOUND_MAP_ITEM_DATA_PACKET\n";break;
+			case Info::MAP_INFO_REQUEST_PACKET: echo "MAP_INFO_REQUEST_PACKET\n";break;
+			case Info::REQUEST_CHUNK_RADIUS_PACKET: echo "REQUEST_CHUNK_RADIUS_PACKET\n";break;
+			case Info::CHUNK_RADIUS_UPDATED_PACKET: echo "CHUNK_RADIUS_UPDATED_PACKET\n";break;
+			case Info::ITEM_FRAME_DROP_ITEM_PACKET: echo "ITEM_FRAME_DROP_ITEM_PACKET\n";break;
+			case Info::REPLACE_SELECTED_ITEM_PACKET: echo "REPLACE_SELECTED_ITEM_PACKET\n";break;
+			case Info::ADD_ITEM_PACKET: echo "ADD_ITEM_PACKET\n";break;
+				//return null;
+
+
+
+			/*case Info::UPDATE_BLOCK_PACKET:
 				$pk = new BlockChangePacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
@@ -298,57 +434,6 @@ class TranslatorProtocol implements Translator{
 				}
 				return $packets;
 
-			/*
-			case Info::CONTAINER_CLOSE_PACKET:
-				$pk = new STCCloseWindowPacket();
-				$pk->windowID = $packet->windowid;
-				return $pk;
-
-			case Info::CONTAINER_OPEN_PACKET:
-				$pk = new OpenWindowPacket();
-				$pk->windowID = $packet->windowid;
-				$pk->inventoryType = $packet->type;
-				$pk->windowTitle = "";
-				$pk->slots = $packet->slots;
-				return $pk;
-
-			case Info::CONTAINER_SET_SLOT_PACKET:
-				$pk = new SetSlotPacket();
-				$pk->windowID = $packet->windowid;
-				if($pk->windowID === 0){
-					$pk->slot = $packet->slot + 9;
-				}elseif($pk->windowID === 0x78){
-					$pk->windowID = 0;
-					$pk->slot = $packet->slot + 5;
-				}else{
-					$pk->slot = $packet->slot;
-				}
-				$pk->item = $packet->item;
-				return $pk;
-
-			case Info::CONTAINER_SET_CONTENT_PACKET:
-				$pk = new WindowItemsPacket();
-				$pk->windowID = $packet->windowid;
-				if($pk->windowID === 0 or $pk->windowID === 0x78){
-					$pk->windowID = 0;
-					for($i = 0; $i < 5; ++$i){
-						$pk->items[] = Item::get(Item::AIR, 0, 0);
-					}
-					$pk->items[] = $player->getInventory()->getHelmet();
-					$pk->items[] = $player->getInventory()->getChestplate();
-					$pk->items[] = $player->getInventory()->getLeggings();
-					$pk->items[] = $player->getInventory()->getBoots();
-					$slots = $player->getInventory()->getSize();
-					for($i = 0; $i < $slots; ++$i){
-						$pk->items[] = $player->getInventory()->getItem($i);
-					}
-				}else{
-					$pk->items = $packet->slots;
-				}
-
-				return $pk;
-			*/
-
 			case Info::ADD_ITEM_ENTITY_PACKET:
 				$packets = [];
 				$pk = new SpawnObjectPacket();
@@ -395,7 +480,7 @@ class TranslatorProtocol implements Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
-				return $packets;
+				return $packets;*/
 
 			default:
 				return null;
