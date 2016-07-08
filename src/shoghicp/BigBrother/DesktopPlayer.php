@@ -79,67 +79,6 @@ class DesktopPlayer extends Player{
 		$this->setRemoveFormat(false);
 	}
 
-	public function bigBrother_updateTitleBar(){
-		if($this->bigBrother_titleBarID === null){
-			$this->bigBrother_titleBarID = 2147483647;
-
-			$pk = new SpawnMobPacket();
-			$pk->eid = $this->bigBrother_titleBarID;
-			$pk->type = 63;
-			$pk->x = $this->x;
-			$pk->y = 250;
-			$pk->z = $this->z;
-			$pk->pitch = 0;
-			$pk->yaw = 0;
-			$pk->headPitch = 0;
-			$pk->velocityX = 0;
-			$pk->velocityY = 0;
-			$pk->velocityZ = 0;
-			$pk->metadata = [
-				0 => ["type" => 0, "value" => 0x20],
-				6 => ["type" => 3, "value" => 200 * ($this->bigBrother_titleBarLevel / 100)],
-				7 => ["type" => 2, "value" => 0],
-				10 => ["type" => 4, "value" => $this->bigBrother_titleBarText],
-				11 => ["type" => 0, "value" => 1]
-			];
-			$this->putRawPacket($pk);
-			$this->tasks[] = $this->getServer()->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_updateTitleBar"]), 5, 20);
-		}else{
-			$pk = new EntityTeleportPacket();
-			$pk->eid = $this->bigBrother_titleBarID;
-			$pk->x = $this->x;
-			$pk->y = 250;
-			$pk->z = $this->z;
-			$pk->yaw = 0;
-			$pk->pitch = 0;
-			$this->putRawPacket($pk);
-
-			$pk = new EntityMetadataPacket();
-			$pk->eid = $this->bigBrother_titleBarID;
-			$pk->metadata = [
-				0 => ["type" => 0, "value" => 0x20],
-				6 => ["type" => 3, "value" => 200 * ($this->bigBrother_titleBarLevel / 100)],
-				7 => ["type" => 2, "value" => 0],
-				10 => ["type" => 4, "value" => $this->bigBrother_titleBarText],
-				11 => ["type" => 0, "value" => 1]
-			];
-			$this->putRawPacket($pk);
-
-		}
-	}
-
-	public function bigBrother_setTitleBar($text, $level = 100){
-		if($level > 100){
-			$level = 100;
-		}elseif($level < 0){
-			$level = 0;
-		}
-
-		$this->bigBrother_titleBarText = $text;
-		$this->bigBrother_titleBarLevel = $level;
-		$this->bigBrother_updateTitleBar();
-	}
-
 	public function bigBrother_sendKeepAlive(){
 		$pk = new KeepAlivePacket();
 		$pk->id = mt_rand();
