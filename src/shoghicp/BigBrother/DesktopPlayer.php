@@ -151,11 +151,87 @@ class DesktopPlayer extends Player{
 			$chunk = null;
 		}
 		if($this->chunkLoadCount >= 4 and $this->spawned === false and $this->teleportPosition === null){
-			$this->doFirstSpawn();
+			/*$this->doFirstSpawn();
+			$this->inventory->sendContents($this);
+			$this->inventory->sendArmorContents($this);*/
+			//$this->bigBrother_setTitleBar(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.", 0);
+			$this->spawned = true;
+			$pk = new SetTimePacket();
+			$pk->time = $this->level->getTime();
+			$pk->started = $this->level->stopTime == false;
+			$this->dataPacket($pk);
+			$pos = $this->level->getSafeSpawn($this);
+			$this->server->getPluginManager()->callEvent($ev = new PlayerRespawnEvent($this, $pos));
+			$this->teleport($ev->getRespawnPosition());
+			$this->sendSettings();
 			$this->inventory->sendContents($this);
 			$this->inventory->sendArmorContents($this);
+			$this->server->getPluginManager()->callEvent($ev = new PlayerJoinEvent($this, TextFormat::YELLOW . $this->getName() . " joined the game"));
+			if(strlen(trim($ev->getJoinMessage())) > 0){
+				$this->server->broadcastMessage($ev->getJoinMessage());
+			}
+			$this->spawnToAll();
+			if($this->server->getUpdater()->hasUpdate() and $this->hasPermission(Server::BROADCAST_CHANNEL_ADMINISTRATIVE)){
+				$this->server->getUpdater()->showPlayerUpdate($this);
+			}
 		}
 		Timings::$playerChunkSendTimer->stopTiming();
+	}
+
+	public function bigBrother_updateTitleBar(){
+		if($this->bigBrother_titleBarID === null){
+			$this->bigBrother_titleBarID = 2147483647;
+			$pk = new SpawnMobPacket();
+			$pk->eid = $this->bigBrother_titleBarID;
+			$pk->type = 63;
+			$pk->x = $this->x;
+			$pk->y = 250;
+			$pk->z = $this->z;
+			$pk->pitch = 0;
+			$pk->yaw = 0;
+			$pk->headPitch = 0;
+			$pk->velocityX = 0;
+			$pk->velocityY = 0;
+			$pk->velocityZ = 0;
+			$pk->metadata = [
+				0 => ["type" => 0, "value" => 0x20],
+				6 => ["type" => 3, "value" => 200 * ($this->bigBrother_titleBarLevel / 100)],
+				7 => ["type" => 2, "value" => 0],
+				10 => ["type" => 4, "value" => $this->bigBrother_titleBarText],
+				11 => ["type" => 0, "value" => 1]
+			];
+			$this->putRawPacket($pk);
+			$this->tasks[] = $this->getServer()->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_updateTitleBar"]), 5, 20);
+		}else{
+			$pk = new EntityTeleportPacket();
+			$pk->eid = $this->bigBrother_titleBarID;
+			$pk->x = $this->x;
+			$pk->y = 250;
+			$pk->z = $this->z;
+			$pk->yaw = 0;
+			$pk->pitch = 0;
+			$this->putRawPacket($pk);
+			$pk = new EntityMetadataPacket();
+			$pk->eid = $this->bigBrother_titleBarID;
+			$pk->metadata = [
+				0 => ["type" => 0, "value" => 0x20],
+				6 => ["type" => 3, "value" => 200 * ($this->bigBrother_titleBarLevel / 100)],
+				7 => ["type" => 2, "value" => 0],
+				10 => ["type" => 4, "value" => $this->bigBrother_titleBarText],
+				11 => ["type" => 0, "value" => 1]
+			];
+			$this->putRawPacket($pk);
+		}
+	}
+	public function bigBrother_setTitleBar($text, $level = 100){
+		if($level > 100){
+			$level = 100;
+		}elseif($level < 0){
+			$level = 0;
+		}
+		$this->bigBrother_titleBarText = $text;
+		$this->bigBrother_titleBarLevel = $level;
+		$this->bigBrother_updateTitleBar();
 	}
 
 	public function spawnTo(Player $player){
@@ -332,12 +408,9 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
 				$this->putRawPacket($pk);
 			}else{
-				/*$profile = json_decode(Utils::getURL("https://api.mojang.com/users/profiles/minecraft/".$username), true);
-				if(!is_array($profile)){
-					return false;
-				}*/
-				$this->bigBrother_authenticate($this->bigBrother_username, /*$profile["id"]*/"c96792ac7aea4f16975e535a20a2791a", null);
+				$this->bigBrother_authenticate($this->bigBrother_username, UUID::fromRandom()->toString(), null);
 			}
+			
 		}
 
 	}

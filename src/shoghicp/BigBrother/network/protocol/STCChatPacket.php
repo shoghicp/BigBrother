@@ -29,12 +29,12 @@ class STCChatPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putString($this->message);
 		$this->putByte($this->position);
+		$this->putString($this->message);
 	}
 
 	public function decode(){
-		$this->message = $this->getString();
 		$this->position = $this->getByte();
+		$this->message = $this->getString();
 	}
 }

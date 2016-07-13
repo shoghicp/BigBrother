@@ -34,7 +34,6 @@ class Binary extends \pocketmine\utils\Binary{
 
 	public static function writeMetadata(array $data){
 		$m = "";
-		print_r($data);
 		foreach($data as $bottom => $d){
 			$m .= chr(($d[0] << 5) | ($bottom & 0x1F));
 			switch($d[0]){

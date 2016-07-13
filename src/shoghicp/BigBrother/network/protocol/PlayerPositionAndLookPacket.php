@@ -27,21 +27,23 @@ class PlayerPositionAndLookPacket extends Packet{
 	public $yaw;
 	public $pitch;
 	public $onGround;
+	public $pid;
 
 	public function pid(){
 		return 0x06;
 	}
 
 	public function encode(){
-
+		
 	}
 
 	public function decode(){
+		//$this->pid = $this->getInt();
 		$this->x = $this->getDouble();
 		$this->y = $this->getDouble();
 		$this->z = $this->getDouble();
 		$this->yaw = $this->getFloat();
 		$this->pitch = $this->getFloat();
-		$this->onGround = ($this->getByte() > 0);
+		$this->onGround = $this->getByte() > 0;
 	}
 }

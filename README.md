@@ -1,6 +1,11 @@
 # BigBrother
 Allows the connection of Minecraft: PC clients to PocketMine-MP servers. Made for PocketMine-MP
 
+##Changelog: Update 6:
+* More Fixes
+* More Packets (mostly from lolcraftboy14)
+* Note: Player from Minecraft PC sometimes lags.
+
 ###Changelog: Update 5:
 * Works Again MCPE 0.15.x and Minecraft PC 1.8.x
 * First Step on Protocols
