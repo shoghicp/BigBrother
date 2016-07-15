@@ -120,6 +120,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function putPacket(Player $player, DataPacket $packet, $needACK = false, $immediate = true){
+		
 		$id = 0;
 		if($needACK){
 			$id = $this->identifier++;

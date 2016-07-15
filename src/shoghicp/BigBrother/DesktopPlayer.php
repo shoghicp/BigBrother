@@ -72,6 +72,7 @@ class DesktopPlayer extends Player{
 	protected $bigBrother_titleBarLevel;
 	/** @var ProtocolInterface */
 	protected $interface;
+	protected $Settings = [];
 
 	public function __construct(SourceInterface $interface, $clientID, $address, $port, BigBrother $plugin){
 		$this->plugin = $plugin;
@@ -290,13 +291,16 @@ class DesktopPlayer extends Player{
 			$pk->uuid = $this->bigBrother_formatedUUID;
 			$pk->name = $username;
 			$this->putRawPacket($pk);
+
 			$this->bigBrother_status = 1;
 			if($onlineModeData !== null and is_array($onlineModeData)){
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
-			$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
-			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 2);
+			//$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
+			sleep(1);
+			$this->bigBrother_authenticationCallback($username);
+			//$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 2);
 		}
 	}
 
@@ -413,6 +417,27 @@ class DesktopPlayer extends Player{
 			
 		}
 
+	}
+
+	public function getSettings(){
+		return $this->Settings;
+	}
+	public function getSetting($settingname = null){
+		if(isset($this->Settings[$settingname])){
+			return $this->Settings[$settingname];
+		}
+		return false;
+	}
+	public function setSetting($settings){
+		$this->Settings = array_merge($this->Settings, $settings);
+	}
+	public function removeSetting($settingname){
+		if(isset($this->Settings[$settingname])){
+			unset($this->Settings[$settingname]);
+		}
+	}
+	public function cleanSetting($settingname){
+		unset($this->Settings[$settingname]);
 	}
 
 	public function bigBrother_setCompression($threshold){

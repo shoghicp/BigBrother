@@ -109,9 +109,8 @@ class BigBrother extends PluginBase implements Listener{
 		$interface = $this->getConfig()->get("interface");
 		$this->getLogger()->info("Starting Minecraft: PC server on ".($interface === "0.0.0.0" ? "*" : $interface).":$port version ".MCInfo::VERSION);
 		$this->thread = new ServerThread($this->externalQueue, $this->internalQueue, $this->getServer()->getLogger(), $this->getServer()->getLoader(), $port, $interface, (string) $this->getConfig()->get("motd"), $this->getDataFolder() . "server-icon.png");
-
 		$this->interface = new ProtocolInterface($this, $this->thread, $this->translator);
-		$this->getServer()->addInterface($this->interface);
+		$this->getServer()->getNetwork()->registerInterface($this->interface);
 	}
 
 	/**
@@ -135,7 +134,7 @@ class BigBrother extends PluginBase implements Listener{
 	public function onDisable(){
 		//TODO: make it fully /reload compatible (remove from server)
 		if($this->interface instanceof ProtocolInterface){
-			$this->getServer()->removeInterface($this->interface);
+			$this->getServer()->getNetwork()->unregisterInterface($this->interface);
 			$this->thread->join();
 		}
 	}
