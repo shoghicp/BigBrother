@@ -25,7 +25,6 @@ use pocketmine\network\protocol\InteractPacket;
 use pocketmine\network\protocol\MessagePacket;
 use pocketmine\network\protocol\MovePlayerPacket;
 use pocketmine\network\protocol\RemoveBlockPacket;
-use pocketmine\network\protocol\RespawnPacket;
 use pocketmine\network\protocol\UseItemPacket;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\DesktopPlayer;
@@ -38,6 +37,7 @@ use shoghicp\BigBrother\network\protocol\EntityMetadataPacket;
 use shoghicp\BigBrother\network\protocol\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\JoinGamePacket;
+use shoghicp\BigBrother\network\protocol\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\PositionAndLookPacket;
@@ -649,7 +649,7 @@ class TranslatorProtocol implements Translator{
 				return null;
 
 			case Info::RESPAWN_PACKET:
-				$pk = new CRespawnPacket();
+				$pk = new RespawnPacket();
 				$pk->dimension = 0;
 				$pk->difficulty = $player->getServer()->getDifficulty();
 				$pk->gamemode = $player->getGamemode();

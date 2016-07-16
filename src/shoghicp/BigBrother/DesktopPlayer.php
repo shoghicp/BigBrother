@@ -298,7 +298,7 @@ class DesktopPlayer extends Player{
 			}
 
 			//$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
-			sleep(1);
+			sleep(2);
 			$this->bigBrother_authenticationCallback($username);
 			//$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 2);
 		}
