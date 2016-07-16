@@ -38,14 +38,16 @@ class SpawnPlayerPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putString($this->uuid);
+		$this->putLong(substr($this->uuid, 0, 16));//UUID
+		$this->putLong(substr($this->uuid, 16, 16));
 		$this->putInt(intval($this->x * 32));
 		$this->putInt(intval($this->y * 32));
 		$this->putInt(intval($this->z * 32));
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
 		$this->putShort($this->item);
-		$this->put(Binary::writeMetadata($this->metadata));
+		$meta = Binary::writeMetadata($this->metadata);
+		$this->put($meta);
 	}
 
 	public function decode(){

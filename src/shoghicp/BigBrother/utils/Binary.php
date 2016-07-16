@@ -35,40 +35,46 @@ class Binary extends \pocketmine\utils\Binary{
 	public static function writeMetadata(array $data){
 		$m = "";
 		foreach($data as $bottom => $d){
-			$m .= chr(($d["type"] << 5) | ($bottom & 0x1F));
-			switch($d["type"]){
+			$m .= chr(($d[0] << 5) | ($bottom & 0x1F));
+			switch($d[0]){
 				case 0:
-					$m .= self::writeByte($d["value"]);
+					$m .= self::writeByte($d[1]);
 					break;
 				case 1:
-					$m .= self::writeShort($d["value"]);
+					$m .= self::writeShort($d[1]);
 					break;
 				case 2:
-					$m .= self::writeInt($d["value"]);
+					$m .= self::writeInt($d[1]);
 					break;
 				case 3:
-					$m .= self::writeFloat($d["value"]);
+					$m .= self::writeFloat($d[1]);
 					break;
 				case 4:
-					$m .= self::writeVarInt(strlen($d["value"])) . $d["value"];
+					$m .= self::writeVarInt(strlen($d[1])) . $d[1];
 					break;
 				case 5:
 					/** @var \pocketmine\item\Item $item */
-					$item = $d["value"];
+					$item = $d[1];
 					if($item->getID() === 0){
 						$m .= self::writeShort(-1);
 					}else{
 						$m .= self::writeShort($item->getID());
 						$m .= self::writeByte($item->getCount());
 						$m .= self::writeShort($item->getDamage());
-						$m .= self::writeShort(-1);
+						$nbt = $item->getCompoundTag();
+						$m .= self::writeByte(strlen($nbt)).$nbt;
 					}
 					break;
 				case 6:
-					$m .= self::writeInt($d["value"][0]);
-					$m .= self::writeInt($d["value"][1]);
-					$m .= self::writeInt($d["value"][2]);
+				case 7:
+					$m .= self::writeInt($d[1][0]);
+					$m .= self::writeInt($d[1][1]);
+					$m .= self::writeInt($d[1][2]);
 					break;
+				case 8:
+					$m .= self::writeLong($d[1]);
+					break;
+
 			}
 		}
 		$m .= "\x7f";

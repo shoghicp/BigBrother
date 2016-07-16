@@ -28,7 +28,7 @@ use pocketmine\plugin\PluginBase;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\ServerThread;
-use shoghicp\BigBrother\network\translation\Translator_20;
+use shoghicp\BigBrother\network\translation\TranslatorProtocol;
 use shoghicp\BigBrother\tasks\GeneratePrivateKey;
 
 class BigBrother extends PluginBase implements Listener{
@@ -66,6 +66,8 @@ class BigBrother extends PluginBase implements Listener{
 
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
+		$this->saveResource("alex.yml", false);
+		$this->saveResource("steve.yml", false);
 		$this->reloadConfig();
 
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
@@ -78,14 +80,7 @@ class BigBrother extends PluginBase implements Listener{
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 		}
 
-		if(Info::CURRENT_PROTOCOL === 20){
-			$this->translator = new Translator_20();
-		}else{
-			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
-			$this->getPluginLoader()->disablePlugin($this);
-			return;
-		}
-
+		$this->translator = new TranslatorProtocol();
 		$this->rsa = new RSA();
 
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -114,9 +109,8 @@ class BigBrother extends PluginBase implements Listener{
 		$interface = $this->getConfig()->get("interface");
 		$this->getLogger()->info("Starting Minecraft: PC server on ".($interface === "0.0.0.0" ? "*" : $interface).":$port version ".MCInfo::VERSION);
 		$this->thread = new ServerThread($this->externalQueue, $this->internalQueue, $this->getServer()->getLogger(), $this->getServer()->getLoader(), $port, $interface, (string) $this->getConfig()->get("motd"), $this->getDataFolder() . "server-icon.png");
-
 		$this->interface = new ProtocolInterface($this, $this->thread, $this->translator);
-		$this->getServer()->addInterface($this->interface);
+		$this->getServer()->getNetwork()->registerInterface($this->interface);
 	}
 
 	/**
@@ -140,7 +134,7 @@ class BigBrother extends PluginBase implements Listener{
 	public function onDisable(){
 		//TODO: make it fully /reload compatible (remove from server)
 		if($this->interface instanceof ProtocolInterface){
-			$this->getServer()->removeInterface($this->interface);
+			$this->getServer()->getNetwork()->unregisterInterface($this->interface);
 			$this->thread->join();
 		}
 	}

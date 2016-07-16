@@ -26,9 +26,9 @@ class ServerThread extends Thread{
 	/** @var \ThreadedLogger */
 	protected $logger;
 	protected $loader;
-	protected $data = [];
+	protected $data;
 
-	public $loadPaths = [];
+	public $loadPaths;
 
 	protected $shutdown;
 

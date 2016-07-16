@@ -26,14 +26,16 @@ class OnlineProfile extends AsyncTask{
 
 	protected $clientID;
 	protected $username;
+	protected $player;
 
-	public function __construct($clientID, $username){
+	public function __construct($clientID, $username, $player){
 		$this->clientID = $clientID;
 		$this->username = $username;
+		$this->player = $player;
 	}
 
 	public function onRun(){
-		$ch = curl_init("https://api.mojang.com/profiles/minecraft");
+		/*$ch = curl_init("https://api.mojang.com/profiles/minecraft");
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
@@ -58,22 +60,33 @@ class OnlineProfile extends AsyncTask{
 
 		if(!is_array($info)){
 			return;
+		}*/
+		$profile = json_decode('{"id":"c96792ac7aea4f16975e535a20a2791a","name":"Hello"}',true);//json_decode(Utils::getURL("https://api.mojang.com/users/profiles/minecraft/".$username), true);
+		if(!is_array($profile)){
+			return false;
 		}
 
+		$uuid = $profile["id"];
+		$info = json_decode('{"id":"c96792ac7aea4f16975e535a20a2791a","name":"Hello","properties":[{"name":"textures","value":"eyJ0aW1lc3RhbXAiOjE0Njc1OTk2OTkyODQsInByb2ZpbGVJZCI6ImM5Njc5MmFjN2FlYTRmMTY5NzVlNTM1YTIwYTI3OTFhIiwicHJvZmlsZU5hbWUiOiJIZWxsbyIsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9lYzNmMDc2MTliNmFjMzczMGZkYzMxZmExZWMxY2JkMmE4ZjhkZmJkOTdkYzhhYWE4ZTI0NWJhODVhZTlmNzYifX19"}]}', true);
+		if(!is_array($info)){
+			return false;
+		}
 		$this->setResult($info);
 	}
 
 	public function onCompletion(Server $server){
-		foreach($server->getOnlinePlayers() as $clientID => $player){
-			if($player instanceof DesktopPlayer and $clientID === $this->clientID){
+		//foreach($server->getOnlinePlayers() as $clientID => $player){
+			//if($player instanceof DesktopPlayer and $clientID === $this->clientID){
+		echo "Cool\n";
 				$result = $this->getResult();
+
 				if(is_array($result) and isset($result["id"])){
-					$player->bigBrother_authenticate($this->username, $result["id"], $result["properties"]);
+					$this->player->bigBrother_authenticate($this->username, $result["id"], $result["properties"]);
 				}else{
-					$player->bigBrother_authenticate($this->username, "00000000000040008000000000000000", null);
+					$this->player->bigBrother_authenticate($this->username, "00000000000040008000000000000000", null);
 				}
-				break;
-			}
-		}
+				//break;
+			//}
+		//}
 	}
 }

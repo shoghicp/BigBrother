@@ -17,6 +17,7 @@
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\event\Timings;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\level\format\anvil\Chunk as AnvilChunk;
@@ -36,6 +37,7 @@ use pocketmine\Server;
 use pocketmine\tile\Spawnable;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
+use pocketmine\utils\UUID;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\EncryptionRequestPacket;
@@ -70,16 +72,116 @@ class DesktopPlayer extends Player{
 	protected $bigBrother_titleBarLevel;
 	/** @var ProtocolInterface */
 	protected $interface;
+	protected $Settings = [];
 
-	public function __construct(SourceInterface $interface, $clientID, $address, $port){
+	public function __construct(SourceInterface $interface, $clientID, $address, $port, BigBrother $plugin){
+		$this->plugin = $plugin;
 		parent::__construct($interface, $clientID, $address, $port);
 		$this->setRemoveFormat(false);
+	}
+
+	public function bigBrother_sendKeepAlive(){
+		$pk = new KeepAlivePacket();
+		$pk->id = mt_rand();
+		$this->putRawPacket($pk);
+	}
+
+	public function bigBrother_getStatus(){
+		return $this->bigBrother_status;
+	}
+
+	public function sendChunk($x, $z, $payload,$ordering = FullChunkDataPacket::ORDER_COLUMNS){
+
+	}
+
+	public function bigBrother_sendChunk($x, $z, $payload){
+		if($this->connected === false){
+			return;
+		}
+		$this->usedChunks[Level::chunkHash($x, $z)] = true;
+		$this->chunkLoadCount++;
+		$pk = new ChunkDataPacket();
+		$pk->chunkX = $x;
+		$pk->chunkZ = $z;
+		$pk->groundUp = true;
+		$pk->payload = $payload;
+		$pk->primaryBitmap = 0xff;
+		$this->putRawPacket($pk);
+		foreach($this->level->getChunkTiles($x, $z) as $tile){
+			if($tile instanceof Sign){
+				$tile->spawnTo($this);
+			}
+		}
+		if($this->spawned){
+			foreach($this->level->getChunkPlayers($x, $z) as $player){
+				$player->spawnTo($this);
+			}
+			/*foreach($this->level->getChunkEntities($x, $z) as $entity){
+				if($entity !== $this and !$entity->closed and $entity->isAlive()){
+					$entity->spawnTo($this);
+				}
+			}*/
+		}
+	}
+	protected function sendNextChunk(){
+		if($this->connected === false){
+			return;
+		}
+		Timings::$playerChunkSendTimer->startTiming();
+		$count = 0;
+		foreach($this->loadQueue as $index => $distance){
+			if($count >= $this->chunksPerTick){
+				break;
+			}
+			$X = null;
+			$Z = null;
+			Level::getXZ($index, $X, $Z);
+			++$count;
+			$this->usedChunks[$index] = false;
+			$this->level->registerChunkLoader($this, $X, $Z, false);
+			if(!$this->level->populateChunk($X, $Z)){
+				if($this->spawned and $this->teleportPosition === null){
+					continue;
+				}else{
+					break;
+				}
+			}
+			unset($this->loadQueue[$index]);
+			$chunk = new DesktopChunk($this, $X, $Z);
+			$this->bigBrother_sendChunk($X, $Z, $chunk->getData());
+			$chunk = null;
+		}
+		if($this->chunkLoadCount >= 4 and $this->spawned === false and $this->teleportPosition === null){
+			/*$this->doFirstSpawn();
+			$this->inventory->sendContents($this);
+			$this->inventory->sendArmorContents($this);*/
+			//$this->bigBrother_setTitleBar(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.", 0);
+			$this->spawned = true;
+			$pk = new SetTimePacket();
+			$pk->time = $this->level->getTime();
+			$pk->started = $this->level->stopTime == false;
+			$this->dataPacket($pk);
+			$pos = $this->level->getSafeSpawn($this);
+			$this->server->getPluginManager()->callEvent($ev = new PlayerRespawnEvent($this, $pos));
+			$this->teleport($ev->getRespawnPosition());
+			$this->sendSettings();
+			$this->inventory->sendContents($this);
+			$this->inventory->sendArmorContents($this);
+			$this->server->getPluginManager()->callEvent($ev = new PlayerJoinEvent($this, TextFormat::YELLOW . $this->getName() . " joined the game"));
+			if(strlen(trim($ev->getJoinMessage())) > 0){
+				$this->server->broadcastMessage($ev->getJoinMessage());
+			}
+			$this->spawnToAll();
+			if($this->server->getUpdater()->hasUpdate() and $this->hasPermission(Server::BROADCAST_CHANNEL_ADMINISTRATIVE)){
+				$this->server->getUpdater()->showPlayerUpdate($this);
+			}
+		}
+		Timings::$playerChunkSendTimer->stopTiming();
 	}
 
 	public function bigBrother_updateTitleBar(){
 		if($this->bigBrother_titleBarID === null){
 			$this->bigBrother_titleBarID = 2147483647;
-
 			$pk = new SpawnMobPacket();
 			$pk->eid = $this->bigBrother_titleBarID;
 			$pk->type = 63;
@@ -110,7 +212,6 @@ class DesktopPlayer extends Player{
 			$pk->yaw = 0;
 			$pk->pitch = 0;
 			$this->putRawPacket($pk);
-
 			$pk = new EntityMetadataPacket();
 			$pk->eid = $this->bigBrother_titleBarID;
 			$pk->metadata = [
@@ -121,156 +222,17 @@ class DesktopPlayer extends Player{
 				11 => ["type" => 0, "value" => 1]
 			];
 			$this->putRawPacket($pk);
-
 		}
 	}
-
 	public function bigBrother_setTitleBar($text, $level = 100){
 		if($level > 100){
 			$level = 100;
 		}elseif($level < 0){
 			$level = 0;
 		}
-
 		$this->bigBrother_titleBarText = $text;
 		$this->bigBrother_titleBarLevel = $level;
 		$this->bigBrother_updateTitleBar();
-	}
-
-	public function bigBrother_sendKeepAlive(){
-		$pk = new KeepAlivePacket();
-		$pk->id = mt_rand();
-		$this->putRawPacket($pk);
-	}
-
-	public function bigBrother_getStatus(){
-		return $this->bigBrother_status;
-	}
-
-	public function bigBrother_sendChunk($x, $z, $payload){
-		$pk = new ChunkDataPacket();
-		$pk->chunkX = $x;
-		$pk->chunkZ = $z;
-		$pk->groundUp = true;
-
-		$pk->payload = $payload;
-		$pk->primaryBitmap = 0xff;
-		$this->putRawPacket($pk);
-	}
-
-	public function sendChunk($x, $z, $payload){
-
-	}
-
-	protected function sendNextChunk(){
-		if($this->connected === false){
-			return;
-		}
-
-		$count = 0;
-		foreach($this->loadQueue as $index => $distance){
-			if($count >= $this->chunksPerTick){
-				break;
-			}
-
-			Level::getXZ($index, $X, $Z);
-			if(!$this->level->isChunkPopulated($X, $Z)){
-				$this->level->generateChunk($X, $Z);
-				if($this->spawned){
-					continue;
-				}else{
-					break;
-				}
-			}
-
-			++$count;
-
-			unset($this->loadQueue[$index]);
-			$this->usedChunks[$index] = true;
-
-			$this->level->useChunk($X, $Z, $this);
-			$chunk = $this->level->getChunk($X, $Z);
-			if($chunk instanceof AnvilChunk){
-				$this->kick("Playing on Anvil worlds is not yet implemented");
-				//TODO!
-				/*$pk = new ChunkDataPacket();
-				$pk->chunkX = $X;
-				$pk->chunkZ = $Z;
-				$pk->groundUp = true;
-				$ids = "";
-				$meta = "";
-				$blockLight = "";
-				$skyLight = "";
-				$biomeIds = $chunk->getBiomeIdArray();
-				$bitmap = 0;
-				for($s = 0; $s < 8; ++$s){
-					$section = $chunk->getSection($s);
-					if(!($section instanceof EmptyChunkSection)){
-						$bitmap |= 1 << $s;
-					}else{
-						continue;
-					}
-					$ids .= $section->getIdArray();
-					$meta .= $section->getDataArray();
-					$blockLight .= $section->getLightArray();
-					$skyLight .= $section->getSkyLightArray();
-				}
-
-				$pk->payload = zlib_encode($ids . $meta . $blockLight . $skyLight . $biomeIds, ZLIB_ENCODING_DEFLATE, Level::$COMPRESSION_LEVEL);
-				$pk->primaryBitmap = $bitmap;
-				$this->putRawPacket($pk);*/
-			}elseif($chunk instanceof McRegionChunk){
-				$task = new McRegionToAnvil($this, $chunk);
-				$this->server->getScheduler()->scheduleAsyncTask($task);
-			}elseif($chunk instanceof LevelDBChunk){
-				$task = new LevelDBToAnvil($this, $chunk);
-				$this->server->getScheduler()->scheduleAsyncTask($task);
-			}
-
-			foreach($chunk->getEntities() as $entity){
-				if($entity !== $this){
-					$entity->spawnTo($this);
-				}
-			}
-			foreach($chunk->getTiles() as $tile){
-				if($tile instanceof Spawnable){
-					$tile->spawnTo($this);
-				}
-			}
-		}
-
-		if(count($this->usedChunks) >= 4 and $this->spawned === false){
-
-			$this->bigBrother_setTitleBar(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.", 0);
-
-			$this->spawned = true;
-
-			$pk = new SetTimePacket();
-			$pk->time = $this->level->getTime();
-			$pk->started = $this->level->stopTime == false;
-			$this->dataPacket($pk);
-
-			$pos = $this->level->getSafeSpawn($this);
-
-			$this->server->getPluginManager()->callEvent($ev = new PlayerRespawnEvent($this, $pos));
-
-			$this->teleport($ev->getRespawnPosition());
-
-			$this->sendSettings();
-			$this->inventory->sendContents($this);
-			$this->inventory->sendArmorContents($this);
-
-			$this->server->getPluginManager()->callEvent($ev = new PlayerJoinEvent($this, TextFormat::YELLOW . $this->getName() . " joined the game"));
-			if(strlen(trim($ev->getJoinMessage())) > 0){
-				$this->server->broadcastMessage($ev->getJoinMessage());
-			}
-
-			$this->spawnToAll();
-
-			if($this->server->getUpdater()->hasUpdate() and $this->hasPermission(Server::BROADCAST_CHANNEL_ADMINISTRATIVE)){
-				$this->server->getUpdater()->showPlayerUpdate($this);
-			}
-		}
 	}
 
 	public function spawnTo(Player $player){
@@ -323,19 +285,22 @@ class DesktopPlayer extends Player{
 	public function bigBrother_authenticate($username, $uuid, $onlineModeData = null){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
-			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
+			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toString();
 
 			$pk = new LoginSuccessPacket();
 			$pk->uuid = $this->bigBrother_formatedUUID;
-			$pk->name = $this->username;
+			$pk->name = $username;
 			$this->putRawPacket($pk);
+
 			$this->bigBrother_status = 1;
 			if($onlineModeData !== null and is_array($onlineModeData)){
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
-			$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
-			$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 1);
+			//$this->tasks[] = $this->server->getScheduler()->scheduleDelayedRepeatingTask(new CallbackTask([$this, "bigBrother_sendKeepAlive"]), 180, 2);
+			sleep(2);
+			$this->bigBrother_authenticationCallback($username);
+			//$this->server->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bigBrother_authenticationCallback"], [$username]), 2);
 		}
 	}
 
@@ -344,7 +309,7 @@ class DesktopPlayer extends Player{
 		$token = $plugin->decryptBinary($packet->verifyToken);
 		$this->interface->enableEncryption($this, $this->bigBrother_secret);
 		if($token !== $this->bigBrother_checkToken){
-			$this->close("", "Invalid check token");
+			$this->kick("Invalid check token",false);
 		}else{
 			$task = new AuthenticateOnline($this->clientID, $this->bigBrother_username, Binary::sha1("" . $this->bigBrother_secret . $plugin->getASN1PublicKey()));
 			$this->server->getScheduler()->scheduleAsyncTask($task);
@@ -355,10 +320,86 @@ class DesktopPlayer extends Player{
 		$pk = new LoginPacket();
 		$pk->username = $username;
 		$pk->clientId = crc32($this->clientID);
-		$pk->protocol1 = Info::CURRENT_PROTOCOL;
-		$pk->protocol2 = Info::CURRENT_PROTOCOL;
-		$pk->loginData = "";
+		$pk->protocol = Info::CURRENT_PROTOCOL;
+		$pk->clientUUID = UUID::fromString($this->bigBrother_uuid);
+		$pk->serverAddress = "127.0.0.1:25565";
+		$pk->clientSecret = "BigBrother";
+		
+		/*foreach($this->bigBrother_properties as $property){
+			if($property["name"] === "textures"){
+				$skindata = json_decode(base64_decode($property["value"]), true);
+				if(isset($skindata["textures"]["SKIN"]["url"])){
+					$skin = $this->getSkinImage($skindata["textures"]["SKIN"]["url"]);
+				}
+			}
+		}*/
+		
+		if(!isset($skin)){
+			if($this->plugin->getConfig()->get("skin-slim")){
+				$pk->skinId = "Standard_Custom";
+			}else{
+				$pk->skinId = "Standard_CustomSlim";
+			}
+			$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
+		}else{
+			if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
+				$pk->skinId = "Standard_Custom";
+			}else{
+				$pk->skinId = "Standard_CustomSlim";
+			}
+			$pk->skin = $skin;
+		}
+
 		$this->handleDataPacket($pk);
+	}
+	public function getSkinImage($url){
+		if(extension_loaded("gd")){
+			$image = imagecreatefrompng($url);
+			if($image !== false){
+				$width = imagesx($image);
+				$height = imagesy($image);
+				$colors = [];
+				for($y = 0; $y < $height; $y++){
+					$y_array = [];
+					for($x = 0; $x < $width; $x++){
+						$rgb = imagecolorat($image, $x, $y);
+						$r = ($rgb >> 16) & 0xFF;
+						$g = ($rgb >> 8) & 0xFF;
+						$b = $rgb & 0xFF;
+						$alpha = imagecolorsforindex($image, $rgb)["alpha"];
+						$x_array = [$r, $g, $b, $alpha];
+						$y_array[] = $x_array;
+					}
+					$colors[] = $y_array;
+				}
+				$skin = null;
+				foreach($colors as $width){
+					foreach($width as $height){
+						$alpha = 0;
+						if($height[0] === 255 and $height[1] === 255 and $height[2] === 255){
+							$height[0] = 0;
+							$height[1] = 0;
+							$height[2] = 0;
+							if($height[3] === 127){
+								$alpha = 255;
+							}else{
+								$alpha = 0;
+							}
+						}else{
+							if($height[3] === 127){
+								$alpha = 0;
+							}else{
+								$alpha = 255;
+							}
+						}
+						$skin = $skin.chr($height[0]).chr($height[1]).chr($height[2]).chr($alpha);
+					}
+				}
+				imagedestroy($image);
+				return $skin;
+			}
+		}
+		return false;
 	}
 
 	public function bigBrother_handleAuthentication(BigBrother $plugin, $username, $onlineMode){
@@ -371,24 +412,32 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
 				$this->putRawPacket($pk);
 			}else{
-				$task = new OnlineProfile($this->clientID, $this->bigBrother_username);
-				$this->server->getScheduler()->scheduleAsyncTask($task);
+				$this->bigBrother_authenticate($this->bigBrother_username, UUID::fromRandom()->toString(), null);
 			}
+			
 		}
 
 	}
 
-	public function close($message = "", $reason = "generic reason"){
-		if($this->bigBrother_status === 0){
-			$pk = new LoginDisconnectPacket();
-			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
-			$this->putRawPacket($pk);
-		}else{
-			$pk = new PlayDisconnectPacket();
-			$pk->reason = TextFormat::toJSON($reason === "" ? "You have been disconnected." : $reason);
-			$this->putRawPacket($pk);
+	public function getSettings(){
+		return $this->Settings;
+	}
+	public function getSetting($settingname = null){
+		if(isset($this->Settings[$settingname])){
+			return $this->Settings[$settingname];
 		}
-		parent::close($message, $reason);
+		return false;
+	}
+	public function setSetting($settings){
+		$this->Settings = array_merge($this->Settings, $settings);
+	}
+	public function removeSetting($settingname){
+		if(isset($this->Settings[$settingname])){
+			unset($this->Settings[$settingname]);
+		}
+	}
+	public function cleanSetting($settingname){
+		unset($this->Settings[$settingname]);
 	}
 
 	public function bigBrother_setCompression($threshold){

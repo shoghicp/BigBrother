@@ -120,6 +120,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function putPacket(Player $player, DataPacket $packet, $needACK = false, $immediate = true){
+		
 		$id = 0;
 		if($needACK){
 			$id = $this->identifier++;
@@ -158,14 +159,20 @@ class ProtocolInterface implements SourceInterface{
 		$offset = 1;
 
 		$status = $player->bigBrother_getStatus();
-
 		if($status === 1){
+
 			switch($pid){
+				case 0x00:
+					$pk = new KeepAlivePacket();
+					break;
 				case 0x01:
 					$pk = new CTSChatPacket();
 					break;
 				case 0x02:
 					$pk = new UseEntityPacket();
+					break;
+				case 0x03:
+					$pk = new PlayerPacket();
 					break;
 				case 0x04:
 					$pk = new PlayerPositionPacket();
@@ -182,24 +189,69 @@ class ProtocolInterface implements SourceInterface{
 				case 0x08:
 					$pk = new PlayerBlockPlacementPacket();
 					break;
+				case 0x09:
+					$pk = new HeldItemChangePacket();
+					break;
+				case 0x0a:
+					$pk = new PlayerArmSwingPacket();
+					break;
+				case 0x0b:
+					$pk = new AnimatePacket();
+					break;
+				/*case 0x0c:
+					//
+					break;*/
 				case 0x0d:
 					$pk = new CTSCloseWindowPacket();
+					break;
+				/*case 0x0e:
+					break;
+				case 0x0f:
+
+					break;*/
+				case 0x10:
+					$pk = new CreativeInventoryActionPacket();
+				break;
+				/*case 0x11:
+
+					break;
+				case 0x12:
+
+					break;*/
+				case 0x13:
+					$pk = new CPlayerAbilitiesPacket();
+					break;
+				case 0x14:
+					$pk = new CTabCompletePacket();
+					break;
+				case 0x15:
+					$pk = new ClientSettingsPacket();
 					break;
 				case 0x16:
 					$pk = new ClientStatusPacket();
 					break;
+				case 0x17:
+					$pk = new PluginMessagePacket();
+					break;
+				/*case 0x18:
+					//
+					break;*/
+				case 0x19:
+					$pk = new ResourcePackStatusPacket();
+					break;
 				default:
+					//echo "[Receive] 0x".bin2hex(chr($pid))."\n";
 					return;
 			}
 
-
 			$pk->read($payload, $offset);
 			$this->receivePacket($player, $pk);
+			
 		}elseif($status === 0){
 			if($pid === 0x00){
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
-				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
+				$player->bigBrother_handleAuthentication($this->plugin, /*preg_replace('/[\x00-\x1F\x80-\xFF]/', '', )*/$pk->name, $this->plugin->isOnlineMode());
 			}elseif($pid === 0x01 and $this->plugin->isOnlineMode()){
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);
@@ -245,7 +297,7 @@ class ProtocolInterface implements SourceInterface{
 
 				$identifier = "$id:$address:$port";
 
-				$player = new DesktopPlayer($this, $identifier, $address, $port);
+				$player = new DesktopPlayer($this, $identifier, $address, $port, $this->plugin);
 				$this->sessions->attach($player, $id);
 				$this->sessionsPlayers[$id] = $player;
 				$this->plugin->getServer()->addPlayer($identifier, $player);
