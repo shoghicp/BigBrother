@@ -25,7 +25,7 @@ use pocketmine\network\protocol\PlayerActionPacket;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_39;
+use shoghicp\BigBrother\network\translation\Translator_84;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackSendPacket;
 
@@ -74,49 +74,42 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		switch(Info::CURRENT_PROTOCOL){
-			case 39:
-				$this->translator = new Translator_39();
-			break;
-			default:
-				$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
-				$this->getPluginLoader()->disablePlugin($this);
-				return;
-			break;
-		}
+		if(Info::CURRENT_PROTOCOL === 84){
+			$this->translator = new Translator_84();
 
-		$this->rsa = new RSA();
+			$this->rsa = new RSA();
 
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+			$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
-		Achievement::add("openInventory","Taking Inventory"); //this for DesktopPlayer
+			Achievement::add("openInventory","Taking Inventory"); //this for DesktopPlayer
 
-		if($this->onlineMode){
-			$this->getLogger()->info("Server is being started in the background");
-			$this->getLogger()->info("Generating keypair");
-			$this->rsa->setPrivateKeyFormat(CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
-			$this->rsa->setPublicKeyFormat(CRYPT_RSA_PUBLIC_FORMAT_PKCS1);
-			$keys = $this->rsa->createKey(1024);
-			$this->privateKey = $keys["privatekey"];
-			$this->publicKey = $keys["publickey"];
-			$this->rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
-			$this->rsa->loadKey($this->privateKey);
-		}
-		$this->enableServer();
-	}
-
-	protected function enableServer(){
-		$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".MCInfo::VERSION);
-
-		$disable = true;
-		foreach($this->getServer()->getInterfaces() as $interface){
-			if($interface instanceof ProtocolInterface){
-				$disable = false;
+			if($this->onlineMode){
+				$this->getLogger()->info("Server is being started in the background");
+				$this->getLogger()->info("Generating keypair");
+				$this->rsa->setPrivateKeyFormat(CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
+				$this->rsa->setPublicKeyFormat(CRYPT_RSA_PUBLIC_FORMAT_PKCS1);
+				$keys = $this->rsa->createKey(1024);
+				$this->privateKey = $keys["privatekey"];
+				$this->publicKey = $keys["publickey"];
+				$this->rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+				$this->rsa->loadKey($this->privateKey);
 			}
-		}
-		if($disable){
-			$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator);
-			$this->getServer()->addInterface($this->interface);
+			
+			$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".MCInfo::VERSION);
+
+			$disable = true;
+			foreach($this->getServer()->getNetwork()->getInterfaces() as $interface){
+				if($interface instanceof ProtocolInterface){
+					$disable = false;
+				}
+			}
+			if($disable){
+				$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator);
+				$this->getServer()->getNetwork()->registerInterface($this->interface);
+			}
+		}else{
+			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
+			$this->getPluginLoader()->disablePlugin($this);
 		}
 	}
 

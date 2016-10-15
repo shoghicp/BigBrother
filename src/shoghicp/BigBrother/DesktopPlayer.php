@@ -203,24 +203,23 @@ class DesktopPlayer extends Player{
 
 			$pk = new LoginPacket();
 			$pk->username = $this->bigBrother_username;
-			$pk->clientId = crc32($this->bigbrother_clientId);
-			$pk->protocol1 = Info::CURRENT_PROTOCOL;
-			$pk->protocol2 = Info::CURRENT_PROTOCOL;
+			$pk->protocol = Info::CURRENT_PROTOCOL;
 			$pk->clientUUID = UUID::fromString($uuid);
+			$pk->clientId = crc32($this->bigbrother_clientId);
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->clientSecret = "BigBrother";
 			if($skin === null or $skin === false){
 				if($this->plugin->getConfig()->get("skin-slim")){
-					$pk->skinname = "Standard_Custom";
+					$pk->skinName = "Standard_Custom";
 				}else{
-					$pk->skinname = "Standard_CustomSlim";
+					$pk->skinName = "Standard_CustomSlim";
 				}
 				$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
 			}else{
 				if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
-					$pk->skinname = "Standard_Custom";
+					$pk->skinName = "Standard_Custom";
 				}else{
-					$pk->skinname = "Standard_CustomSlim";
+					$pk->skinName = "Standard_CustomSlim";
 				}
 				$pk->skin = $skin;
 			}

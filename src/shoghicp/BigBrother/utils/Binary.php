@@ -62,7 +62,7 @@ class Binary extends \pocketmine\utils\Binary{
 							$m .= self::writeByte(strlen($nbt)).$nbt;
 						}
 						break;
-					case Entity::DATA_TYPE_ROTATION://7
+					case Entity::DATA_TYPE_POS://7
 						$m .= self::writeFloat($d[1][0]);
 						$m .= self::writeFloat($d[1][1]);
 						$m .= self::writeFloat($d[1][2]);

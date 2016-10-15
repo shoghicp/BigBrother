@@ -17,18 +17,16 @@
 
 namespace shoghicp\BigBrother\network;
 
-use pocketmine\Thread;
-
-class ServerThread extends Thread{
+class ServerThread extends \Thread{
 
 	protected $port;
 	protected $interface;
 	/** @var \ThreadedLogger */
 	protected $logger;
 	protected $loader;
-	protected $data = [];
+	protected $data;
 
-	public $loadPaths = [];
+	public $loadPaths;
 
 	protected $shutdown;
 
@@ -53,8 +51,6 @@ class ServerThread extends Thread{
 	 * @throws \Exception
 	 */
 	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
-		$this->externalQueue = \ThreadedFactory::create();
-		$this->internalQueue = \ThreadedFactory::create();
 		$this->port = (int) $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
@@ -63,15 +59,20 @@ class ServerThread extends Thread{
 		$this->interface = $interface;
 		$this->logger = $logger;
 		$this->loader = $loader;
+
 		$this->data = serialize([
 			"motd" => $motd,
 			"icon" => $icon
 		]);
+
 		$loadPaths = [];
 		$this->addDependency($loadPaths, new \ReflectionClass($logger));
 		$this->addDependency($loadPaths, new \ReflectionClass($loader));
 		$this->loadPaths = array_reverse($loadPaths);
 		$this->shutdown = false;
+
+		$this->externalQueue = new \Threaded;
+		$this->internalQueue = new \Threaded;
 
 		if(($sockets = stream_socket_pair((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? STREAM_PF_INET : STREAM_PF_UNIX), STREAM_SOCK_STREAM, STREAM_IPPROTO_IP)) === false){
 			throw new \Exception("Could not create IPC streams. Reason: ".socket_strerror(socket_last_error()));

@@ -351,8 +351,11 @@ class BigInteger
 
         // '0' counts as empty() but when the base is 256 '0' is equal to ord('0') or 48
         // '0' is the only value like this per http://php.net/empty
-        if (empty($x) && (abs($base) != 256 || $x !== '0')) {
-            return;
+
+        if(!is_object($x)){
+            if (empty($x) && (abs($base) != 256 || $x !== '0')) {
+                return;
+            }
         }
 
         switch ($base) {

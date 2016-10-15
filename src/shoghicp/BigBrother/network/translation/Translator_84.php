@@ -108,7 +108,7 @@ use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class Translator_39 implements Translator{
+class Translator_84 implements Translator{
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		if($packet->pid() !== 0x00 and $packet->pid() !== 0x03 and $packet->pid() !== 0x04 and $packet->pid() !== 0x05 and $packet->pid() !== 0x06){
@@ -461,6 +461,7 @@ class Translator_39 implements Translator{
 	}
 
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
+		echo "[Send] 0x".bin2hex(chr($packet->pid()))."\n";
 		switch($packet->pid()){
 			case Info::DISCONNECT_PACKET:
 				if($player->bigBrother_getStatus() === 0){
@@ -486,7 +487,7 @@ class Translator_39 implements Translator{
 					return null;
 				}else{
 					$pk = new STCChatPacket();
-					$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
+					$pk->message = TextFormat::toJSON($packet->message, $packet->type, $packet->parameters);
 				}*/
 
 				//return $pk;
@@ -582,7 +583,7 @@ class Translator_39 implements Translator{
 			/*case Info::ADD_ENTITY_PACKET:
 				return null;*/
 
-			case Info::REMOVE_PLAYER_PACKET:
+			/*case Info::REMOVE_PLAYER_PACKET:
 				$pk = new PlayerListPacket();
 				$pk->actionID = PlayerListPacket::TYPE_REMOVE;
 
@@ -595,7 +596,7 @@ class Translator_39 implements Translator{
 				$pk->ids[] = $packet->eid;
 				$packets[] = $pk;
 
-				return $packets;
+				return $packets;*/
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
@@ -676,12 +677,11 @@ class Translator_39 implements Translator{
 
 			case Info::UPDATE_BLOCK_PACKET://TODO
 				$pk = new BlockChangePacket();
-				$count = count($packet->records) - 1;
-				$pk->x = $packet->records[$count][0];
-				$pk->y = $packet->records[$count][2];
-				$pk->z = $packet->records[$count][1];
-				$pk->blockId = $packet->records[$count][3];
-				$pk->blockMeta = $packet->records[$count][4];
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->blockId = $packet->blockId;
+				$pk->blockMeta = $packet->blockData;
 				return $pk;
 
 			case Info::MOB_EQUIPMENT_PACKET:
@@ -731,16 +731,12 @@ class Translator_39 implements Translator{
 				return $pk;
 
 			case Info::SET_ENTITY_MOTION_PACKET:
-				$packets = [];
-				foreach($packet->entities as $d){
-					$pk = new EntityVelocityPacket();
-					$pk->eid = $d[0];
-					$pk->velocityX = $d[1];
-					$pk->velocityY = $d[2];
-					$pk->velocityZ = $d[3];
-					$packets[] = $pk;
-				}
-				return $packets;
+				$pk = new EntityVelocityPacket();
+				$pk->eid = $packet->eid;
+				$pk->velocityX = $packet->motionX;
+				$pk->velocityY = $packet->motionY;
+				$pk->velocityZ = $packet->motionZ;
+				return $pk;
 
 			case Info::SET_HEALTH_PACKET:
 				$pk = new UpdateHealthPacket();
@@ -858,10 +854,10 @@ class Translator_39 implements Translator{
 						$pk->x = $packet->x;
 						$pk->y = $packet->y;
 						$pk->z = $packet->z;
-						$pk->line1 = BigBrother::toJSON($nbt["Text1"]);
-						$pk->line2 = BigBrother::toJSON($nbt["Text2"]);
-						$pk->line3 = BigBrother::toJSON($nbt["Text3"]);
-						$pk->line4 = BigBrother::toJSON($nbt["Text4"]);
+						$pk->line1 = TextFormat::toJSON($nbt["Text1"]);
+						$pk->line2 = TextFormat::toJSON($nbt["Text2"]);
+						$pk->line3 = TextFormat::toJSON($nbt["Text3"]);
+						$pk->line4 = TextFormat::toJSON($nbt["Text4"]);
 						return $pk;
 					}
 				}
