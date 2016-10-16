@@ -29,7 +29,7 @@ class OpenWindowPacket extends Packet{
 	public $entityId;
 
 	public function pid(){
-		return 0x2d;
+		return 0x13;
 	}
 
 	public function encode(){

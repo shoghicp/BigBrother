@@ -36,7 +36,7 @@ class SpawnMobPacket extends Packet{
 	public $metadata;
 
 	public function pid(){
-		return 0x0f;
+		return 0x03;
 	}
 
 	public function encode(){

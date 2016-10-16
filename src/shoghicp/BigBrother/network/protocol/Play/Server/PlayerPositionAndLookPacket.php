@@ -15,23 +15,35 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
-use shoghicp\BigBrother\utils\Binary;
 
-class HeldItemChangePacket extends Packet{
+class PlayerPositionAndLookPacket extends Packet{
 
-	public $selectedSlot;
+	public $x;
+	public $y;
+	public $z;
+	public $yaw;
+	public $pitch;
+	public $flags;
+	public $teleportId;
 
 	public function pid(){
-		return 0x09;
+		return 0x2e;
 	}
 
 	public function encode(){
+		$this->putDouble($this->x);
+		$this->putDouble($this->y);
+		$this->putDouble($this->z);
+		$this->putFloat($this->yaw);
+		$this->putFloat($this->pitch);
+		$this->putByte($this->flags);
+		$this->putVarInt($this->teleportId);
 	}
 
 	public function decode(){
-		$this->selectedSlot = $this->getShort();
+		
 	}
 }

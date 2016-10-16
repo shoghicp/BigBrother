@@ -15,25 +15,26 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
 
-class EntityHeadLookPacket extends Packet{
+class ChatPacket extends Packet{
 
-	public $eid;
-	public $yaw;
+	public $message;
+	public $position = 0; //0 = chat, 1 = system message, 2 = action bar
 
 	public function pid(){
-		return 0x34;
+		return 0x0f;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte((int) ($this->yaw * (256 / 360)));
+		$this->putString($this->message);
+		$this->putByte($this->position);
 	}
 
 	public function decode(){
-
+		$this->message = $this->getString();
+		$this->position = $this->getByte();
 	}
 }

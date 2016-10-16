@@ -33,7 +33,7 @@ class SpawnPlayerPacket extends Packet{
 	public $metadata;
 
 	public function pid(){
-		return 0x0c;
+		return 0x05;
 	}
 
 	public function encode(){

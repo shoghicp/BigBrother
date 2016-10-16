@@ -28,7 +28,7 @@ class ChunkDataPacket extends Packet{
 	public $payload;
 
 	public function pid(){
-		return 0x21;
+		return 0x20;
 	}
 
 	public function encode(){

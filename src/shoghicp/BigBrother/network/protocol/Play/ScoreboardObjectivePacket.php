@@ -27,7 +27,7 @@ class ScoreboardObjectivePacket extends Packet{
 	public $Type;
 
 	public function pid(){
-		return 0x3b;
+		return 0x3f;
 	}
 
 	public function encode(){

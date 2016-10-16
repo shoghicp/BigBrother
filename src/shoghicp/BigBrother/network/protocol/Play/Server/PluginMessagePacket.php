@@ -15,23 +15,22 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
 
-class STabCompletePacket extends Packet{
+class PluginMessagePacket extends Packet{
 
-	public $matches = [];
+	public $channel;
+	public $data = [];
 
 	public function pid(){
-		return 0x3a;
+		return 0x18;
 	}
 
 	public function encode(){
-		$this->putVarInt(count($this->matches));
-		foreach($this->matches as $match){
-			$this->putString($match);
-		}
+		$this->putString($this->channel);
+		//TODO
 	}
 
 	public function decode(){

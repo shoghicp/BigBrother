@@ -15,25 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class EntityHeadLookPacket extends Packet{
+class CloseWindowPacket extends Packet{
 
-	public $eid;
-	public $yaw;
+	public $windowID;
 
 	public function pid(){
-		return 0x34;
+		return 0x08;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte((int) ($this->yaw * (256 / 360)));
+
 	}
 
 	public function decode(){
-
+		$this->windowID = $this->getByte();
 	}
 }

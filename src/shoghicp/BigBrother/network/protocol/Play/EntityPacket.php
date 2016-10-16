@@ -24,7 +24,7 @@ class EntityPacket extends Packet{
 	public $eid;
 
 	public function pid(){
-		return 0x14;
+		return 0x28;
 	}
 
 	public function encode(){

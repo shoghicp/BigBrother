@@ -26,7 +26,7 @@ class SpawnPositionPacket extends Packet{
 	public $spawnZ;
 
 	public function pid(){
-		return 0x05;
+		return 0x43;
 	}
 
 	public function encode(){

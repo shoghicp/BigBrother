@@ -24,7 +24,7 @@ class ServerDifficultyPacket extends Packet{
 	public $difficulty;
 
 	public function pid(){
-		return 0x41;
+		return 0x0d;
 	}
 
 	public function encode(){

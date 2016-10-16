@@ -19,18 +19,37 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 
-class EntityHeadLookPacket extends Packet{
+class PlayerAbilitiesPacket extends Packet{
 
-	public $eid;
-	public $yaw;
+	public $damageDisabled;
+	public $canFly;
+	public $isFlying = false;
+	public $isCreative;
+
+	public $flyingSpeed;
+	public $walkingSpeed;
 
 	public function pid(){
-		return 0x34;
+		return 0x2b;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte((int) ($this->yaw * (256 / 360)));
+		$flags = 0;
+		if($this->isCreative){
+			$flags |= 0b1;
+		}
+		if($this->isFlying){
+			$flags |= 0b10;
+		}
+		if($this->canFly){
+			$flags |= 0b100;
+		}
+		if($this->damageDisabled){
+			$flags |= 0b1000;
+		}
+		$this->putByte($flags);
+		$this->putFloat($this->flyingSpeed);
+		$this->putFloat($this->walkingSpeed);
 	}
 
 	public function decode(){

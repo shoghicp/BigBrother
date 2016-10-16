@@ -26,7 +26,11 @@ use shoghicp\BigBrother\network\Info; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
-use shoghicp\BigBrother\network\protocol\Play\AnimatePacket;
+
+use shoghicp\BigBrother\network\protocol\Play\TeleportConfirmPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\KeepAlivePacket;
+
+/*use shoghicp\BigBrother\network\protocol\Play\AnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientSettingsPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientStatusPacket;
 use shoghicp\BigBrother\network\protocol\Play\CreativeInventoryActionPacket;
@@ -45,7 +49,7 @@ use shoghicp\BigBrother\network\protocol\Play\PlayerPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\PluginMessagePacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackStatusPacket;
 use shoghicp\BigBrother\network\protocol\Play\CTabCompletePacket;
-use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
+use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;*/
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\utils\Binary;
 
@@ -115,6 +119,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function sendPacket($target, Packet $packet){
+		echo "[Send:Interface] 0x".bin2hex(chr($packet->pid()))."\n";
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
 		$this->thread->pushMainToThreadPacket($data);
 	}
@@ -177,6 +182,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
+		echo "[Receive:Interface] 0x".bin2hex(chr($payload))."\n";
 		$pid = ord($payload{0});
 		$offset = 1;
 
@@ -185,6 +191,9 @@ class ProtocolInterface implements SourceInterface{
 		if($status === 1){
 			switch($pid){
 				case 0x00:
+					$pk = new TeleportConfirmPacket();
+					break;
+				/*case 0x00:
 					$pk = new KeepAlivePacket();
 					break;
 				case 0x01:
@@ -220,29 +229,24 @@ class ProtocolInterface implements SourceInterface{
 				case 0x0b:
 					$pk = new AnimatePacket();
 					break;
-				/*case 0x0c:
-					//
-					break;*/
 				case 0x0d:
 					$pk = new CTSCloseWindowPacket();
 					break;
-				/*case 0x0e:
+				case 0x0e:
 					break;
 				case 0x0f:
 
-					break;*/
+					break;
 				case 0x10:
 					$pk = new CreativeInventoryActionPacket();
 				break;
-				/*case 0x11:
+				case 0x11:
 
 					break;
 				case 0x12:
-
-					break;*/
-				case 0x13:
 					$pk = new CPlayerAbilitiesPacket();
 					break;
+
 				case 0x14:
 					$pk = new CTabCompletePacket();
 					break;
@@ -255,12 +259,12 @@ class ProtocolInterface implements SourceInterface{
 				case 0x17:
 					$pk = new PluginMessagePacket();
 					break;
-				/*case 0x18:
-					//
-					break;*/
+				case 0x18:
+					
+					break;
 				case 0x19:
 					$pk = new ResourcePackStatusPacket();
-					break;
+					break;*/
 				default:
 					echo "[Receive] 0x".bin2hex(chr($pid))."\n"; //Debug
 					return;
@@ -275,6 +279,7 @@ class ProtocolInterface implements SourceInterface{
 				$pk->read($payload, $offset);
 				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
 			}elseif($pid === 0x01 and $this->plugin->isOnlineMode()){
+				echo "EncryptionResponse\n";
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_processAuthentication($this->plugin, $pk);

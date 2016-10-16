@@ -33,7 +33,7 @@ class PositionAndLookPacket extends Packet{
 	public $isRelativePitch;
 
 	public function pid(){
-		return 0x08;
+		return 0x2e;
 	}
 
 	public function encode(){

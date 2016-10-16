@@ -56,7 +56,6 @@ use pocketmine\network\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\protocol\MobEquipmentPacket;
 use pocketmine\network\protocol\RemoveBlockPacket;
 use pocketmine\network\protocol\RemoveEntityPacket;
-use pocketmine\network\protocol\RemovePlayerPacket;
 use pocketmine\network\protocol\RespawnPacket;
 use pocketmine\network\protocol\SetDifficultyPacket;
 use pocketmine\network\protocol\SetEntityDataPacket;
@@ -111,11 +110,15 @@ use shoghicp\BigBrother\utils\Binary;
 class Translator_84 implements Translator{
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
-		if($packet->pid() !== 0x00 and $packet->pid() !== 0x03 and $packet->pid() !== 0x04 and $packet->pid() !== 0x05 and $packet->pid() !== 0x06){
+		//if($packet->pid() !== 0x00 and $packet->pid() !== 0x03 and $packet->pid() !== 0x04 and $packet->pid() !== 0x05 and $packet->pid() !== 0x06){
 			echo "[Receive] 0x".bin2hex(chr($packet->pid()))."\n"; //Debug
-		}
+		//}
 		switch($packet->pid()){
-			case 0x00: //KeepAlivePacket
+			case 0x00: //TeleportConfirmPacket
+
+
+
+			/*case 0x00: //KeepAlivePacket
 				$pk->id = mt_rand();
 				$player->putRawPacket($pk);
 				return null;
@@ -334,7 +337,7 @@ class Translator_84 implements Translator{
 					break;
 					/*case 6:
 
-					break;*/
+					break;*//*
 					default:
 						echo "[AnimatePacket] ".$packet->actionID."\n";//Debug Code
 					break;
@@ -363,7 +366,7 @@ class Translator_84 implements Translator{
 					$pk->slot = $packet->slot;
 					$pk->item = $packet->item;
 					return $pk;
-				}*/
+				}*//*
 
 				return null;
 
@@ -388,7 +391,7 @@ class Translator_84 implements Translator{
 
 				//echo $packet->text."\n";
 
-				return $pk;*/
+				return $pk;*//*
 				return null;
 
 			case 0x15: //ClientSettingsPacket
@@ -452,7 +455,7 @@ class Translator_84 implements Translator{
 
 			case 0x19: //ResourcePackStatusPacket
 				$player->setSetting(["ResourceStatus" => $packet->status, "ResourceHash" => $packet->hash]);
-				return null;
+				return null;*/
 
 			default:
 				echo "[Receive] 0x".bin2hex(chr($packet->pid()))."\n";
@@ -461,7 +464,6 @@ class Translator_84 implements Translator{
 	}
 
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
-		echo "[Send] 0x".bin2hex(chr($packet->pid()))."\n";
 		switch($packet->pid()){
 			case Info::DISCONNECT_PACKET:
 				if($player->bigBrother_getStatus() === 0){

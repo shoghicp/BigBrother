@@ -15,23 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class CTSChatPacket extends Packet{
+class AnimatePacket extends Packet{
 
-	public $message;
+	public $status;
 
 	public function pid(){
-		return 0x01;
+		return 0x1a;
 	}
 
 	public function encode(){
-		$this->putString($this->message);
+
 	}
 
 	public function decode(){
-		$this->message = $this->getString();
+		$this->status = $this->getVarInt();
 	}
 }

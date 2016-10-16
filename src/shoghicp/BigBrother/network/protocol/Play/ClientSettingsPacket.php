@@ -28,7 +28,7 @@ class ClientSettingsPacket extends Packet{
 	public $skinsetting;
 
 	public function pid(){
-		return 0x15;
+		return 0x04;
 	}
 
 	public function encode(){
@@ -41,5 +41,6 @@ class ClientSettingsPacket extends Packet{
 		$this->chatmode = $this->getByte();
 		$this->chatcolor = (bool) $this->getByte();
 		$this->skinsetting = base_convert($this->getByte(), 10, 2);
+		$this->mainhand = $this->getVarInt();
 	}
 }

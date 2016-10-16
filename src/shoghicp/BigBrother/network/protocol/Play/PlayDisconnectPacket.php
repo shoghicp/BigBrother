@@ -24,7 +24,7 @@ class PlayDisconnectPacket extends Packet{
 	public $reason;
 
 	public function pid(){
-		return 0x40;
+		return 0x1a;
 	}
 
 	public function encode(){

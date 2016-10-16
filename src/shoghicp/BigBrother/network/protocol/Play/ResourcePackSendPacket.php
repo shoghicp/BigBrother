@@ -24,7 +24,7 @@ class ResourcePackSendPacket extends Packet{
 	public $url;
 
 	public function pid(){
-		return 0x48;
+		return 0x32;
 	}
 
 	public function encode(){

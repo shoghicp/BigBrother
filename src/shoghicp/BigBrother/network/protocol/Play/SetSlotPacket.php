@@ -27,7 +27,7 @@ class SetSlotPacket extends Packet{
 	public $item;
 
 	public function pid(){
-		return 0x2f;
+		return 0x16;
 	}
 
 	public function encode(){

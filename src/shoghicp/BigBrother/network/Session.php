@@ -23,8 +23,6 @@ use shoghicp\BigBrother\network\protocol\Login\PingPacket;
 use shoghicp\BigBrother\utils\AES;
 use shoghicp\BigBrother\utils\Binary;
 
-use shoghicp\BigBrother\BigBrother;
-
 class Session{
 	/** @var ServerManager */
 	private $manager;

@@ -226,7 +226,7 @@ class DesktopPlayer extends Player{
 
 			$this->handleDataPacket($pk);
 
-			$pk = new PlayerListPacket();
+			/*$pk = new PlayerListPacket();
 			$pk->actionID = PlayerListPacket::TYPE_ADD;
 			$pk->players[] = [
 				$this->bigBrother_uuid,
@@ -246,7 +246,7 @@ class DesktopPlayer extends Player{
 			$pk = new TitlePacket();
 			$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
 			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
-			$this->putRawPacket($pk);
+			$this->putRawPacket($pk);*/
 		}
 	}
 

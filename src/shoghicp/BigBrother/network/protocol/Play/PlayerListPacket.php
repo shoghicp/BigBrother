@@ -1,4 +1,4 @@
-<?php
+	<?php
 
 /*
  * BigBrother plugin for PocketMine-MP
@@ -29,7 +29,7 @@ class PlayerListPacket extends Packet{
 	public $players = [];
 
 	public function pid(){
-		return 0x38;
+		return 0x2d;
 	}
 
 	public function clean(){

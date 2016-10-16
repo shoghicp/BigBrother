@@ -15,22 +15,22 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
 
-class EntityHeadLookPacket extends Packet{
+class AnimatePacket extends Packet{
 
 	public $eid;
-	public $yaw;
+	public $action;
 
 	public function pid(){
-		return 0x34;
+		return 0x06;
 	}
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putByte((int) ($this->yaw * (256 / 360)));
+		$this->putByte($this->action);
 	}
 
 	public function decode(){

@@ -15,11 +15,11 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class CPlayerAbilitiesPacket extends Packet{
+class PlayerAbilitiesPacket extends Packet{
 
 	public $damageDisabled;
 	public $canFly;
@@ -30,7 +30,7 @@ class CPlayerAbilitiesPacket extends Packet{
 	public $walkingSpeed;
 
 	public function pid(){
-		return 0x13;
+		return 0x12;
 	}
 
 	public function encode(){

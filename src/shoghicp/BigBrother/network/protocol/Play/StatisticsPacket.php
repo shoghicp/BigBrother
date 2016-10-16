@@ -25,7 +25,7 @@ class StatisticsPacket extends Packet{
 	public $statistic = [];
 
 	public function pid(){
-		return 0x37;
+		return 0x07;
 	}
 
 	public function encode(){

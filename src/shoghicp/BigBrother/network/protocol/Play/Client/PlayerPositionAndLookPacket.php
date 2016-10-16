@@ -15,29 +15,33 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class CTabCompletePacket extends Packet{
+class PlayerPositionAndLookPacket extends Packet{
 
-	public $text;
 	public $x;
 	public $y;
 	public $z;
+	public $yaw;
+	public $pitch;
+	public $onGround;
 
 	public function pid(){
-		return 0x14;
+		return 0x0d;
 	}
 
 	public function encode(){
+
 	}
 
 	public function decode(){
-		$this->text = $this->getString();
-		$flag = (bool) $this->getByte();
-		if($flag){
-			$this->getPosition($this->x, $this->y, $this->z);
-		}
+		$this->x = $this->getDouble();
+		$this->y = $this->getDouble();
+		$this->z = $this->getDouble();
+		$this->yaw = $this->getFloat();
+		$this->pitch = $this->getFloat();
+		$this->onGround = ($this->getByte() > 0);
 	}
 }

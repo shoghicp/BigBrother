@@ -27,7 +27,7 @@ class UseBedPacket extends Packet{
 	public $bedZ;
 
 	public function pid(){
-		return 0x0a;
+		return 0x33;
 	}
 
 	public function encode(){

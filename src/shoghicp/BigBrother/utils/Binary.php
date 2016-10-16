@@ -97,7 +97,6 @@ class Binary extends \pocketmine\utils\Binary{
 		$number = 0;
 		$shift = 0;
 
-
 		while(true){
 			$b = $session->read(1);
 			$c = ord($b);

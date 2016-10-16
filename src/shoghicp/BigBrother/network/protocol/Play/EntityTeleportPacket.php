@@ -30,7 +30,7 @@ class EntityTeleportPacket extends Packet{
 	public $onGround = true;
 
 	public function pid(){
-		return 0x18;
+		return 0x49;
 	}
 
 	public function encode(){

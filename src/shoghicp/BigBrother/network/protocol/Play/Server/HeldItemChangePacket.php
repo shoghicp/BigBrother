@@ -15,25 +15,24 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-class EntityHeadLookPacket extends Packet{
+class HeldItemChangePacket extends Packet{
 
-	public $eid;
-	public $yaw;
+	public $selectedSlot;
 
 	public function pid(){
-		return 0x34;
+		return 0x37;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte((int) ($this->yaw * (256 / 360)));
+		$this->putByte($this->selectedSlot);
 	}
 
 	public function decode(){
-
+		
 	}
 }

@@ -27,7 +27,7 @@ class RespawnPacket extends Packet{
 	public $levelType;
 
 	public function pid(){
-		return 0x07;
+		return 0x33;
 	}
 
 	public function encode(){

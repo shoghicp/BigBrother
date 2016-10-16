@@ -15,23 +15,44 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class CTSCloseWindowPacket extends Packet{
+class PluginMessagePacket extends Packet{
 
-	public $windowID;
+	public $channel;
+	public $data = [];
 
 	public function pid(){
-		return 0x0d;
+		return 0x09;
 	}
 
 	public function encode(){
-
 	}
 
 	public function decode(){
-		$this->windowID = $this->getByte();
+		$this->channel = $this->getString();
+		switch($this->channel){
+			case "REGISTER":
+				$channels = bin2hex($this->getString());
+				$channels = str_split($channels, 2);
+				$string = "";
+				foreach($channels as $num => $str){
+					if($str === "00"){
+						$this->data[] = hex2bin($string);
+						$string = "";
+					}else{
+						$string .= $str;
+						if(count($channels) -1 === $num){
+							$this->data[] = hex2bin($string);
+						}
+					}
+				}
+			break;
+			case "MC|Brand":
+				$this->data = $this->getString();
+			break;
+		}
 	}
 }

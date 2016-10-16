@@ -15,26 +15,33 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class STCChatPacket extends Packet{
+class TabCompletePacket extends Packet{
 
-	public $message;
-	public $position = 0; //0 = chat, 1 = system message, 2 = action bar
+	public $text
+	public $assumeCommand;
+	public $hasPosition;
+	public $x;
+	public $y;
+	public $z;
 
 	public function pid(){
-		return 0x02;
+		return 0x01;
 	}
 
 	public function encode(){
-		$this->putString($this->message);
-		$this->putByte($this->position);
+
 	}
 
 	public function decode(){
-		$this->message = $this->getString();
-		$this->position = $this->getByte();
+		$this->text = $this->getString();
+		$this->assumeCommand = (bool) $this->getByte();
+		$this->hasPosition = (bool) $this->getByte();
+		if($this->hasPosition){
+			$this->getPosition($this->x, $this->y, $this->z);
+		}
 	}
 }

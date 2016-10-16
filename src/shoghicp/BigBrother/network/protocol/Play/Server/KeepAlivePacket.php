@@ -15,20 +15,20 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
 
-class STCCloseWindowPacket extends Packet{
+class KeepAlivePacket extends Packet{
 
-	public $windowID;
+	public $id;
 
 	public function pid(){
-		return 0x2e;
+		return 0x1f;
 	}
 
 	public function encode(){
-		$this->putByte($this->windowID);
+		$this->putVarInt($this->id);
 	}
 
 	public function decode(){

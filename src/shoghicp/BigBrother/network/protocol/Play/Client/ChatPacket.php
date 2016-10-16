@@ -15,30 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
 
-class AnimatePacket extends Packet{
+class ChatPacket extends Packet{
 
-	
-
-	public $eid;
-	public $action;
-	public $jump;
+	public $message;
 
 	public function pid(){
-		return 0x0b;
+		return 0x02;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->eid);
-		$this->putByte($this->actionID);
+		$this->putString($this->message);
 	}
 
 	public function decode(){
-		$this->eid = $this->getVarInt();
-		$this->actionID = $this->getVarInt();
-		$this->jump = $this->getVarInt();
+		$this->message = $this->getString();
 	}
 }

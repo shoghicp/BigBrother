@@ -30,7 +30,7 @@ class JoinGamePacket extends Packet{
 	public $reducedDebugInfo = false;
 
 	public function pid(){
-		return 0x01;
+		return 0x23;
 	}
 
 	public function encode(){

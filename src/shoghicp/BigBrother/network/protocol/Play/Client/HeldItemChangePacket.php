@@ -15,23 +15,23 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
-class KeepAlivePacket extends Packet{
+class HeldItemChangePacket extends Packet{
 
-	public $id;
+	public $selectedSlot;
 
 	public function pid(){
-		return 0x00;
+		return 0x17;
 	}
 
 	public function encode(){
-		$this->putVarInt($this->id);
 	}
 
 	public function decode(){
-		$this->id = $this->getVarInt();
+		$this->selectedSlot = $this->getShort();
 	}
 }

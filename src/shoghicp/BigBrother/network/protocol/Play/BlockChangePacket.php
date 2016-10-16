@@ -28,7 +28,7 @@ class BlockChangePacket extends Packet{
 	public $blockMeta;
 
 	public function pid(){
-		return 0x23;
+		return 0x0b;
 	}
 
 	public function encode(){
