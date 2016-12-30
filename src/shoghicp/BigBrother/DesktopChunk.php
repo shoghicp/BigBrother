@@ -4,6 +4,7 @@ namespace shoghicp\BigBrother;
 
 use pocketmine\Player;
 use pocketmine\level\Level;
+use shoghicp\BigBrother\utils\Binary;
 
 class DesktopChunk{
 	private $player, $chunkX, $chunkZ, $provider;
@@ -18,14 +19,31 @@ class DesktopChunk{
 
 	public function generateChunk(){
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
-		$chunkblockIds = $chunk->getBlockIdArray();
+		/*$chunkblockIds = $chunk->getBlockIdArray();
 		$chunkblockData = $chunk->getBlockDataArray();
 		$chunkblockSkyLight = $chunk->getBlockSkyLightArray();
 		$chunkblockLight = $chunk->getBlockLightArray();
 
 		$chunkbiomeIds = $chunk->getBiomeIdArray();
 
-		$compressionLevel = Level::$COMPRESSION_LEVEL;
+		$payload = 0x00.Binary::writeVarInt(0).Binary::writeVarInt(strlen($chunkblockData)).$chunkblockData.$chunkblockLight;*/
+
+
+		$payload = "";
+
+
+
+		$subChunkCount = $chunk->getSubChunkSendCount();
+		foreach($chunk->getSubChunks() as $num => $subChunk){
+			$chunkblockData = $subChunk->getBlockIdArray();
+			$payload .= 0x00.Binary::writeVarInt(0).Binary::writeVarInt(strlen($chunkblockData)).$chunkblockData.$subChunk->getBlockLightArray();
+		}
+		/*for($y = 0; $y < $subChunkCount; ++$y){
+			getSubChunks();
+			//$result .= $this->subChunks[$y]->networkSerialize();
+		}
+
+		/*$compressionLevel = Level::$COMPRESSION_LEVEL;
 
 		$ids = ["", "", "", "", "", "", "", ""];
 		$blockLight = $skyLight = [[], [], [], [], [], [], [], []];
@@ -77,9 +95,10 @@ class DesktopChunk{
 		}
 		*/
 
-		$skyLight = [$half = str_repeat("\xff", 4096), $half, $half, $half, $half, $half, $half, $half];
+		//$skyLight = [$half = str_repeat("\xff", 4096), $half, $half, $half, $half, $half, $half, $half];
 
-		$payload = implode($ids) . implode($blockLight) . implode($skyLight) . $chunkbiomeIds;
+		//$payload = implode($ids) . implode($blockLight) . implode($skyLight) . $chunkbiomeIds;
+		//$payload = implode($ids) . implode($blockLight) . implode($skyLight);
 
 		return $payload;
 	}

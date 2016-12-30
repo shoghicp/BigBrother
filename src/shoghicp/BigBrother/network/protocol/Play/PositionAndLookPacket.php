@@ -31,6 +31,7 @@ class PositionAndLookPacket extends Packet{
 	public $isRelativeZ;
 	public $isRelativeYaw;
 	public $isRelativePitch;
+	public $teleportId;
 
 	public function pid(){
 		return 0x2e;
@@ -59,6 +60,7 @@ class PositionAndLookPacket extends Packet{
 			$flags |= 0x10;
 		}
 		$this->putByte($flags);
+		$this->putVarInt($this->teleportId);
 	}
 
 	public function decode(){

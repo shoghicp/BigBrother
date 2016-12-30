@@ -27,7 +27,7 @@ class PlayerPositionPacket extends Packet{
 	public $onGround;
 
 	public function pid(){
-		return 0x04;
+		return 0x0c;
 	}
 
 	public function encode(){

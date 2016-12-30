@@ -35,9 +35,11 @@ class ChunkDataPacket extends Packet{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
 		$this->putByte($this->groundUp ? 1 : 0);
-		$this->putShort($this->primaryBitmap);
+		$this->putVarInt($this->primaryBitmap);
 		$this->putVarInt(strlen($this->payload));
 		$this->put($this->payload);
+		//$this->put(str_repeat(0x00, 256));
+		$this->putVarInt(0);//TODO
 	}
 
 	public function decode(){

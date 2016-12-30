@@ -41,7 +41,6 @@ use shoghicp\BigBrother\utils\Binary;
 class DesktopPlayer extends Player{
 
 	private $bigBrother_status = 0; //0 = log in, 1 = playing
-	public $threshold = false;
 	protected $bigBrother_uuid;
 	protected $bigBrother_formatedUUID;
 	protected $bigBrother_properties = [];
@@ -180,6 +179,8 @@ class DesktopPlayer extends Player{
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
 			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toString();
+
+			$this->interface->setCompression($this);
 
 			$pk = new LoginSuccessPacket();
 			$pk->uuid = $this->bigBrother_formatedUUID;
@@ -351,11 +352,6 @@ class DesktopPlayer extends Player{
 			}
 		}
 		return false;
-	}
-
-	public function bigBrother_setCompression($threshold){
-		$this->threshold = $threshold;
-		$this->interface->setCompression($this, $threshold);
 	}
 
 	public function putRawPacket(Packet $packet){

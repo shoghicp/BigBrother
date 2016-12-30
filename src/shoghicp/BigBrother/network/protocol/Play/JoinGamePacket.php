@@ -36,7 +36,7 @@ class JoinGamePacket extends Packet{
 	public function encode(){
 		$this->putInt($this->eid);
 		$this->putByte($this->gamemode);
-		$this->putByte($this->dimension);
+		$this->putInt($this->dimension);
 		$this->putByte($this->difficulty);
 		$this->putByte($this->maxPlayers);
 		$this->putString($this->levelType);

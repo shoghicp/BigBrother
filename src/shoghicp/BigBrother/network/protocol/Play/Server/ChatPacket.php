@@ -34,7 +34,6 @@ class ChatPacket extends Packet{
 	}
 
 	public function decode(){
-		$this->message = $this->getString();
-		$this->position = $this->getByte();
+
 	}
 }

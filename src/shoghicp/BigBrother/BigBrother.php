@@ -25,7 +25,7 @@ use pocketmine\network\protocol\PlayerActionPacket;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_84;
+use shoghicp\BigBrother\network\translation\Translator_100;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackSendPacket;
 
@@ -35,9 +35,7 @@ use pocketmine\tile\Sign;
 use pocketmine\Achievement;
 
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
-use pocketmine\event\player\PlayerInteractEvent;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -74,8 +72,8 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		if(Info::CURRENT_PROTOCOL === 84){
-			$this->translator = new Translator_84();
+		if(Info::CURRENT_PROTOCOL === 100){
+			$this->translator = new Translator_100();
 
 			$this->rsa = new RSA();
 
@@ -104,7 +102,7 @@ class BigBrother extends PluginBase implements Listener{
 				}
 			}
 			if($disable){
-				$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator);
+				$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, $this->getConfig()->get("network-compression-threshold"));
 				$this->getServer()->getNetwork()->registerInterface($this->interface);
 			}
 		}else{
@@ -148,23 +146,6 @@ class BigBrother extends PluginBase implements Listener{
 	}
 
 	/**
-	 * @param PlayerPreLoginEvent $event
-	 *
-	 * @priority NORMAL
-	 */
-	public function onPreLogin(PlayerPreLoginEvent $event){
-		$player = $event->getPlayer();
-		if($player instanceof DesktopPlayer){
-			$threshold = $this->getConfig()->get("network-compression-threshold");
-			if($threshold === false){
-				$threshold = -1;
-			}
-			$player->bigBrother_setCompression($threshold);
-			echo "PreLogin\n";
-		}
-	}
-
-	/**
 	 * @param PlayerRespawnEvent $event
 	 *
 	 * @priority NORMAL
@@ -178,27 +159,6 @@ class BigBrother extends PluginBase implements Listener{
 			$pk->gamemode = $player->getGamemode();
 			$pk->levelType = "default";
 			$player->putRawPacket($pk);
-		}
-	}
-
-	public function onTouch(PlayerInteractEvent $event){
-		$player = $event->getPlayer();
-		if($player instanceof DesktopPlayer){
-			$block = $event->getBlock();
-			switch($block->getID()){
-				case Block::SIGN_POST:
-				case Block::WALL_SIGN:
-					$tile = $player->getLevel()->getTile(new Vector3($block->getX(), $block->getY(), $block->getZ()));
-					if($tile instanceof Sign){
-						$text = $tile->getText();
-						if($text[0] === "ResourcePack" and $text[1] === "Download" and $this->getResourcePackURL() !== "false"){
-							$pk = new ResourcePackSendPacket();
-							$pk->url = $this->getResourcePackURL();
-							$player->putRawPacket($pk);
-						}
-					}
-				break;
-			}
 		}
 	}
 

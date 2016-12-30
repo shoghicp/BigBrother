@@ -28,7 +28,7 @@ class ChatPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->putString($this->message);
+		
 	}
 
 	public function decode(){

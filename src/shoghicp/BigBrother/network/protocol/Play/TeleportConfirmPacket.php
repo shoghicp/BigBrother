@@ -21,7 +21,7 @@ use shoghicp\BigBrother\network\Packet;
 
 class TeleportConfirmPacket extends Packet{
 
-	public $id;
+	public $teleportId;
 
 	public function pid(){
 		return 0x00;
@@ -32,6 +32,6 @@ class TeleportConfirmPacket extends Packet{
 	}
 
 	public function decode(){
-		$this->id = $this->getVarInt();
+		$this->teleportId = $this->getVarInt();
 	}
 }
