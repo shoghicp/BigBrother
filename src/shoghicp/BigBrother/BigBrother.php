@@ -28,7 +28,7 @@ use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\network\translation\Translator_100;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackSendPacket;
-
+use pocketmine\utils\TextFormat;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
 use pocketmine\tile\Sign;
@@ -162,4 +162,19 @@ class BigBrother extends PluginBase implements Listener{
 		}
 	}
 
+	public static function toJSON($message, $type = 1, $parameters = null){
+		$result = TextFormat::toJSON($message);
+		if($type === 2 and is_array($parameters)){
+			$result = json_decode($result, true);
+			var_dump($parameters);
+			unset($result["text"]);
+			$result["translate"] = TextFormat::clean(/*str_replace("%", "", */$message/*)*/);
+			foreach($parameters as $num => $parameter){
+				$parameters[$num] = TextFormat::clean(/*str_replace("%", "", */$parameter/*)*/);//TODO
+			}
+			$result["with"] = $parameters;
+			$result = json_encode($result, JSON_UNESCAPED_SLASHES);
+		}
+		return $result;
+	}
 }

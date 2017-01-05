@@ -206,11 +206,12 @@ class Session{
 					$this->status = -1;
 					if($protocol < Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reson = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
+						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
 						$this->writePacket($packet);
+						echo "write\n";
 					}elseif($protocol > Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reson = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
+						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
 						$this->writePacket($packet);
 					}else{
 						$this->manager->openSession($this);

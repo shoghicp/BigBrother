@@ -35,6 +35,18 @@ class Binary extends \pocketmine\utils\Binary{
 			if($d[0] !== 6){//6 not use
 				$m .= chr(($d[0] << 5) | ($bottom & 0x1F));
 				switch($d[0]){
+					/*case 0://Byte
+						$m .= self::writeByte($d[1]);
+						break;
+					case 1://VarInt
+						$m .= self::writeVarInt($d[1]);
+						break;
+					case 2://Float
+						$m .= self::writeFloat($d[1]);
+						break;
+					case 3:
+
+					break;*/
 					case Entity::DATA_TYPE_BYTE://0
 						$m .= self::writeByte($d[1]);
 						break;

@@ -59,6 +59,21 @@ class DesktopPlayer extends Player{
 		$this->setRemoveFormat(false);// Color Code
 	}
 
+	public function bigBrother_getDimension(){
+		switch($this->level->getDimension()){
+			case 0://Overworld
+				$dimension = 0;
+			break;
+			case 1://Nether
+				$dimension = -1;
+			break;
+			case 2://The End
+				$dimension = 1;
+			break;
+		}
+		return $dimension;
+	}
+
 	public function bigBrother_getStatus(){
 		return $this->bigBrother_status;
 	}
@@ -96,7 +111,7 @@ class DesktopPlayer extends Player{
 		unset($this->Settings[$settingname]);
 	}
 
-	public function bigBrother_sendChunk($x, $z, $payload){
+	public function bigBrother_sendChunk($x, $z){
 		if($this->connected === false){
 			return;
 		}
@@ -104,13 +119,16 @@ class DesktopPlayer extends Player{
 		$this->usedChunks[Level::chunkHash($x, $z)] = true;
 		$this->chunkLoadCount++;
 
+		$chunk = new DesktopChunk($this, $x, $z);
+
 		$pk = new ChunkDataPacket();
 		$pk->chunkX = $x;
 		$pk->chunkZ = $z;
 		$pk->groundUp = true;
-
-		$pk->payload = $payload;
-		$pk->primaryBitmap = 0xff;
+		$pk->primaryBitmap = $chunk->getBitMapData();
+		$pk->payload = $chunk->getChunkData();
+		$pk->biomes = $chunk->getBiomesData();
+		$pk->blockEntities = [];//TODO
 		$this->putRawPacket($pk);
 
 		foreach($this->level->getChunkTiles($x, $z) as $tile){
@@ -161,9 +179,7 @@ class DesktopPlayer extends Player{
 			}
 
 			unset($this->loadQueue[$index]);
-			$chunk = new DesktopChunk($this, $X, $Z);
-			$this->bigBrother_sendChunk($X, $Z, $chunk->getData());
-			$chunk = null;
+			$this->bigBrother_sendChunk($X, $Z);
 		}
 
 		if($this->chunkLoadCount >= 4 and $this->spawned === false and $this->teleportPosition === null){
@@ -208,19 +224,18 @@ class DesktopPlayer extends Player{
 			$pk->clientUUID = UUID::fromString($uuid);
 			$pk->clientId = crc32($this->bigbrother_clientId);
 			$pk->serverAddress = "127.0.0.1:25565";
-			$pk->clientSecret = "BigBrother";
 			if($skin === null or $skin === false){
 				if($this->plugin->getConfig()->get("skin-slim")){
-					$pk->skinName = "Standard_Custom";
+					$pk->skinId = "Standard_Custom";
 				}else{
-					$pk->skinName = "Standard_CustomSlim";
+					$pk->skinId = "Standard_CustomSlim";
 				}
 				$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
 			}else{
 				if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
-					$pk->skinName = "Standard_Custom";
+					$pk->skinId = "Standard_Custom";
 				}else{
-					$pk->skinName = "Standard_CustomSlim";
+					$pk->skinId = "Standard_CustomSlim";
 				}
 				$pk->skin = $skin;
 			}

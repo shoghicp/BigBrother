@@ -65,10 +65,8 @@ use pocketmine\network\protocol\TakeItemEntityPacket;
 use pocketmine\network\protocol\TileEventPacket;
 use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\network\protocol\UseItemPacket;
-use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
 use pocketmine\tile\Tile;
-use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
@@ -478,10 +476,10 @@ class Translator_100 implements Translator{
 			case Info::DISCONNECT_PACKET:
 				if($player->bigBrother_getStatus() === 0){
 					$pk = new LoginDisconnectPacket();
-					$pk->reason = TextFormat::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
+					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
 				}else{
 					$pk = new PlayDisconnectPacket();
-					$pk->reason = TextFormat::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
+					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
 				}
 				return $pk;
 
@@ -499,7 +497,7 @@ class Translator_100 implements Translator{
 					return null;
 				}else{
 					$pk = new ChatPacket();
-					$pk->message = TextFormat::toJSON($packet->message, $packet->type, $packet->parameters);
+					$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
 					$pk->position = 0;
 				}
 
@@ -517,7 +515,7 @@ class Translator_100 implements Translator{
 				$pk = new JoinGamePacket();
 				$pk->eid = $packet->entityUniqueId;
 				$pk->gamemode = $packet->gamemode;
-				$pk->dimension = 0;
+				$pk->dimension = $player->bigBrother_getDimension();
 				$pk->difficulty = $player->getServer()->getDifficulty();
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
 				$pk->levelType = "default";
@@ -866,10 +864,10 @@ class Translator_100 implements Translator{
 						$pk->x = $packet->x;
 						$pk->y = $packet->y;
 						$pk->z = $packet->z;
-						$pk->line1 = TextFormat::toJSON($nbt["Text1"]);
-						$pk->line2 = TextFormat::toJSON($nbt["Text2"]);
-						$pk->line3 = TextFormat::toJSON($nbt["Text3"]);
-						$pk->line4 = TextFormat::toJSON($nbt["Text4"]);
+						$pk->line1 = BigBrother::toJSON($nbt["Text1"]);
+						$pk->line2 = BigBrother::toJSON($nbt["Text2"]);
+						$pk->line3 = BigBrother::toJSON($nbt["Text3"]);
+						$pk->line4 = BigBrother::toJSON($nbt["Text4"]);
 						return $pk;
 					}
 				}

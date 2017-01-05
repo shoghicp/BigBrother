@@ -1,4 +1,4 @@
-	<?php
+<?php
 
 /*
  * BigBrother plugin for PocketMine-MP

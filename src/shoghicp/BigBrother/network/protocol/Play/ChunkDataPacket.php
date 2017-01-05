@@ -18,6 +18,7 @@
 namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\utils\Binary;
 
 class ChunkDataPacket extends Packet{
 
@@ -26,6 +27,8 @@ class ChunkDataPacket extends Packet{
 	public $groundUp;
 	public $primaryBitmap;
 	public $payload;
+	public $biomes;
+	public $blockEntities = [];
 
 	public function pid(){
 		return 0x20;
@@ -36,10 +39,18 @@ class ChunkDataPacket extends Packet{
 		$this->putInt($this->chunkZ);
 		$this->putByte($this->groundUp ? 1 : 0);
 		$this->putVarInt($this->primaryBitmap);
-		$this->putVarInt(strlen($this->payload));
-		$this->put($this->payload);
-		//$this->put(str_repeat(0x00, 256));
-		$this->putVarInt(0);//TODO
+		if($this->groundUp){
+			$this->putVarInt(strlen($this->payload.$this->biomes));
+			$this->put($this->payload);
+			$this->put($this->biomes);
+		}else{
+			$this->putVarInt(strlen($this->payload));
+			$this->put($this->payload);
+		}
+		$this->putVarInt(count($this->blockEntities));
+		foreach($this->blockEntities as $blockEntity){
+			$this->put($blockEntity);
+		}
 	}
 
 	public function decode(){
