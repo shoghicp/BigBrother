@@ -26,7 +26,6 @@ class DesktopChunk{
 
 		$payload = "";
 
-		$subChunkCount = $chunk->getSubChunkSendCount();
 		foreach($chunk->getSubChunks() as $num => $subChunk){
 			if($subChunk->isEmpty()){
 				continue;
@@ -38,6 +37,7 @@ class DesktopChunk{
 			$bitsperblock = 8;//TODO
 
 			$chunkdata = "";
+			
 
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
