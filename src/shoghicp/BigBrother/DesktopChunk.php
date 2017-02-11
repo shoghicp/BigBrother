@@ -87,8 +87,6 @@ class DesktopChunk{
 			}
 		}
 
-		file_put_contents("test.dat", $payload);
-
 		return $payload;
 	}
 
