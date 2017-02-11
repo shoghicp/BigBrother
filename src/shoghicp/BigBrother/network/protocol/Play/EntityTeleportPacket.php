@@ -38,8 +38,8 @@ class EntityTeleportPacket extends Packet{
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);
-		$this->putByte((int) ($this->yaw * (256 / 360)));
-		$this->putByte((int) ($this->pitch * (256 / 360)));
+		$this->putByte($this->yaw);
+		$this->putByte($this->pitch);
 		$this->putByte($this->onGround ? 1 : 0);
 	}
 

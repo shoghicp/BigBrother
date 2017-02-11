@@ -34,6 +34,32 @@ class DesktopChunk{
 
 			$this->bitmap |= 0x01 << $num;
 
+			$palette = [];
+			$bitsperblock = 8;//TODO
+
+			$chunkdata = "";
+
+			for($y = 0; $y < 16; ++$y){
+				for($z = 0; $z < 16; ++$z){
+					for($x = 0; $x < 16; ++$x){
+						$blockid = $subChunk->getBlockId($x, $y, $z);
+						$blockdata = $subChunk->getBlockData($x, $y, $z);
+
+
+						$block = ($blockid << 4) | $blockdata;
+
+						if(($key = array_search($block, $palette)) !== false){
+							$chunkdata .= chr($key);
+						}else{
+							$key = count($palette);
+							$palette[$key] = $block;
+
+							$chunkdata .= chr($key);
+							//var_dump(chr($key));
+						}
+					}
+				}
+			}
 
 
 
@@ -42,45 +68,17 @@ class DesktopChunk{
 
 
 
-			/*$chunkdata = "";
-			$chunkblockData = $subChunk->getBlockIdArray();
 
 			/*				Bits Per Block		 Palette Length*/
-			$payload .= Binary::writeByte(12).Binary::writeVarInt(0);
+			$payload .= Binary::writeByte($bitsperblock).Binary::writeVarInt(count($palette));
 
-			/*$chunkblockIds = $chunk->getBlockIdArray();
-			$chunkblockData = $subChunk->getBlockDataArray();
-			$shift = false;
-			$dataoffset = 0;
-			for($i = 0; $i < 4096; $i++){
-				$chunkdata .= $chunkblockIds{$i};
-				if($shift){
-					//$chunkdata .= $chunkblockData{$dataoffset} >> 4;
-					$test = $chunkblockData{$dataoffset} >> 4;
-					/*echo base_convert($chunkblockData{$dataoffset}, 10, 2)."\n";
-					echo base_convert($test, 10, 2)."\n";*//*
-					$chunkdata .= $test;
-
-					$shift = false;
-					$dataoffset++;
-				}else{
-					$chunkdata .= $chunkblockData{$dataoffset} << 4;
-					$shift = true;
-				}
-				//echo "chunkblockData: ".$dataoffset."\n";
-				//$p
+			foreach($palette as $num => $value){
+				$payload .= Binary::writeVarInt($value);
 			}
 
 			$payload .= Binary::writeVarInt(strlen($chunkdata) / 8);
 
-			echo "chunkData: ".strlen($chunkdata)."\n";
-
-			$payload .= $chunkdata;*/
-
-			$payload .= Binary::writeVarInt(512);
-
-			$payload .= str_repeat("\x01", 4092);
-			
+			$payload .= $chunkdata;
 
 			$payload .= $subChunk->getBlockLightArray();
 
@@ -88,6 +86,8 @@ class DesktopChunk{
 				$payload .= $subChunk->getSkyLightArray();
 			}
 		}
+
+		file_put_contents("test.dat", $payload);
 
 		return $payload;
 	}

@@ -63,6 +63,8 @@ class PlayerListPacket extends Packet{
 				if($player[5] === true){
 					$this->putString($player[6]); //Display name
 				}
+
+				var_dump($player);
 			}else{
 				$this->putLong(substr($player[0], 0, 16));//UUID
 				$this->putLong(substr($player[0], 16, 16));

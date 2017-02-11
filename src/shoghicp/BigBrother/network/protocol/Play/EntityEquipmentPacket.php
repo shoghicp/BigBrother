@@ -31,7 +31,7 @@ class EntityEquipmentPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putShort($this->slot);
+		$this->putVarInt($this->slot);
 		$this->putSlot($this->item);
 	}
 

@@ -194,7 +194,7 @@ class DesktopPlayer extends Player{
 	public function bigBrother_authenticate($uuid, $onlineModeData = null){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
-			$this->bigBrother_formatedUUID = UUID::fromString($uuid)->toString();
+			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
 
 			$this->interface->setCompression($this);
 
@@ -221,7 +221,7 @@ class DesktopPlayer extends Player{
 			$pk = new LoginPacket();
 			$pk->username = $this->bigBrother_username;
 			$pk->protocol = Info::CURRENT_PROTOCOL;
-			$pk->clientUUID = UUID::fromString($uuid);
+			$pk->clientUUID = UUID::fromString($this->bigBrother_formatedUUID);
 			$pk->clientId = crc32($this->bigbrother_clientId);
 			$pk->serverAddress = "127.0.0.1:25565";
 			if($skin === null or $skin === false){
@@ -242,7 +242,7 @@ class DesktopPlayer extends Player{
 
 			$this->handleDataPacket($pk);
 
-			/*$pk = new PlayerListPacket();
+			$pk = new PlayerListPacket();
 			$pk->actionID = PlayerListPacket::TYPE_ADD;
 			$pk->players[] = [
 				$this->bigBrother_uuid,
@@ -262,7 +262,7 @@ class DesktopPlayer extends Player{
 			$pk = new TitlePacket();
 			$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
 			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
-			$this->putRawPacket($pk);*/
+			$this->putRawPacket($pk);
 		}
 	}
 

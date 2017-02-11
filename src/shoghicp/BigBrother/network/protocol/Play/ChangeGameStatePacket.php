@@ -25,7 +25,7 @@ class ChangeGameStatePacket extends Packet{
 	public $value;
 
 	public function pid(){
-		return 0x2b;
+		return 0x1e;
 	}
 
 	public function encode(){

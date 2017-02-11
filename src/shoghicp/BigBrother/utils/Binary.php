@@ -29,6 +29,10 @@ class Binary extends \pocketmine\utils\Binary{
 		return ($zero->compare($number) <= 0 ? "":"-") . ltrim($number->toHex(), "0");
 	}
 
+	public static function UUIDtoString($uuid){
+		return substr($uuid, 0, 8) ."-". substr($uuid, 8, 4) ."-". substr($uuid, 12, 4) ."-". substr($uuid, 16, 4) ."-". substr($uuid, 20);
+	}
+
 	public static function writeMetadata(array $data){
 		$m = "";
 		foreach($data as $bottom => $d){

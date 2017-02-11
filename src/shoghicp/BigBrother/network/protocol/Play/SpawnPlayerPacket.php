@@ -29,7 +29,6 @@ class SpawnPlayerPacket extends Packet{
 	public $z;
 	public $yaw;
 	public $pitch;
-	public $item;
 	public $metadata;
 
 	public function pid(){
@@ -40,14 +39,13 @@ class SpawnPlayerPacket extends Packet{
 		$this->putVarInt($this->eid);
 		$this->putLong(substr($this->uuid, 0, 16));//UUID
 		$this->putLong(substr($this->uuid, 16, 16));
-		$this->putInt(intval($this->x * 32));
-		$this->putInt(intval($this->y * 32));
-		$this->putInt(intval($this->z * 32));
+		$this->putDouble($this->x);
+		$this->putDouble($this->y);
+		$this->putDouble($this->z);
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
-		$this->putShort($this->item);
 		$meta = Binary::writeMetadata($this->metadata);
-		$this->put($meta);
+		//$this->put($meta);
 	}
 
 	public function decode(){

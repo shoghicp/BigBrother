@@ -105,7 +105,7 @@ use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class Translator_100 implements Translator{
+class Translator_101 implements Translator{
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
@@ -555,7 +555,7 @@ class Translator_100 implements Translator{
 				$pk->actionID = PlayerListPacket::TYPE_ADD;
 
 				$pk->players[] = [
-					$packetplayer->getUniqueId()->toBinary(),
+					str_replace("-", "", $packetplayer->getUniqueId()->toString()),
 					$packetplayer->getName(),
 					[],
 					$packetplayer->getGamemode(),
@@ -576,7 +576,6 @@ class Translator_100 implements Translator{
 				$pk->y = $packet->y;
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
-				$pk->item = $packetplayer->getInventory()->getItemInHand()->getId();
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
@@ -595,11 +594,13 @@ class Translator_100 implements Translator{
 				return null;*/
 
 			/*case Info::REMOVE_PLAYER_PACKET:
+				$packetplayer = $player->getServer()->getPlayerExact($packet->username);
+
 				$pk = new PlayerListPacket();
 				$pk->actionID = PlayerListPacket::TYPE_REMOVE;
 
 				$pk->players[] = [
-					$packet->clientId->toBinary()
+					str_replace("-", "", $packetplayer->getUniqueId()->toString()),
 				];
 				$packets[] = $pk;
 

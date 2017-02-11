@@ -25,7 +25,7 @@ use pocketmine\network\protocol\PlayerActionPacket;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_100;
+use shoghicp\BigBrother\network\translation\Translator_101;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\ResourcePackSendPacket;
 use pocketmine\utils\TextFormat;
@@ -72,14 +72,14 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		if(Info::CURRENT_PROTOCOL === 100){
-			$this->translator = new Translator_100();
+		if(Info::CURRENT_PROTOCOL === 101){
+			$this->translator = new Translator_101();
 
 			$this->rsa = new RSA();
 
 			$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
-			Achievement::add("openInventory","Taking Inventory"); //this for DesktopPlayer
+			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
 
 			if($this->onlineMode){
 				$this->getLogger()->info("Server is being started in the background");
