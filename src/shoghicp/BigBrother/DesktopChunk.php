@@ -78,13 +78,13 @@ class DesktopChunk{
 			$payload .= $chunkdata;
 
 			/* Block Light*/
-			//$payload .= $subChunk->getBlockLightArray();
-			$payload .= str_repeat("\xff", 4096);
+			$payload .= $subChunk->getBlockLightArray();
+			//$payload .= str_repeat("\xff", 4096); //Need to check this.
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
-				$payload .= str_repeat("\xff", 4096);
-				//$payload .= $subChunk->getSkyLightArray();
+				//$payload .= str_repeat("\xff", 4096); //Need to check this.
+				$payload .= $subChunk->getSkyLightArray();
 			}
 		}
 
