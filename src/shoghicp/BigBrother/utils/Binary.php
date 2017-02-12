@@ -33,15 +33,6 @@ class Binary extends \pocketmine\utils\Binary{
 		return substr($uuid, 0, 8) ."-". substr($uuid, 8, 4) ."-". substr($uuid, 12, 4) ."-". substr($uuid, 16, 4) ."-". substr($uuid, 20);
 	}
 
-	public static function UUIDtoBinary($uuid){
-		$uuid = str_replace("-", "", trim($uuid));
-
-		$mostbits = "";
-		$leastbits = "";
-
-		return [$mostbits, $leastbits];
-	}
-
 	public static function writeMetadata(array $data){
 		$m = "";
 		//TODO
