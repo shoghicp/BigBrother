@@ -166,11 +166,10 @@ class BigBrother extends PluginBase implements Listener{
 		$result = TextFormat::toJSON($message);
 		if($type === 2 and is_array($parameters)){
 			$result = json_decode($result, true);
-			var_dump($parameters);
 			unset($result["text"]);
-			$result["translate"] = TextFormat::clean(/*str_replace("%", "", */$message/*)*/);
+			$result["translate"] = TextFormat::clean($message);
 			foreach($parameters as $num => $parameter){
-				$parameters[$num] = TextFormat::clean(/*str_replace("%", "", */$parameter/*)*/);//TODO
+				$parameters[$num] = TextFormat::clean($parameter);//TODO
 			}
 			$result["with"] = $parameters;
 			$result = json_encode($result, JSON_UNESCAPED_SLASHES);

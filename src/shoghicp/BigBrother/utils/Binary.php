@@ -33,43 +33,86 @@ class Binary extends \pocketmine\utils\Binary{
 		return substr($uuid, 0, 8) ."-". substr($uuid, 8, 4) ."-". substr($uuid, 12, 4) ."-". substr($uuid, 16, 4) ."-". substr($uuid, 20);
 	}
 
-	public static function writeMetadata(array $data){
-		$m = "";
-		//TODO
-		/*foreach($data as $bottom => $d){
-			$m .= self::writeByte($bottom); //data key
+	public static function convertPEToPCMetadata(array $olddata){
+		$newdata = [];
 
-			echo "key: ".$bottom."\n";
+		foreach($olddata as $bottom => $d){
+			switch($bottom){
+				case 0:
+					$flags = 0;
+
+					if(((int) $d[1] & (1 << Entity::DATA_FLAG_ONFIRE)) > 0){
+						$flags |= 0x01;
+					}
+
+					if(((int) $d[1] & (1 << Entity::DATA_FLAG_SNEAKING)) > 0){
+						$flags |= 0x02;
+					}
+
+					if(((int) $d[1] & (1 << Entity::DATA_FLAG_SPRINTING)) > 0){
+						$flags |= 0x08;
+					}
+
+					if(((int) $d[1] & (1 <<  Entity::DATA_FLAG_INVISIBLE)) > 0){
+						$flags |= 0x20;
+					}
+
+					if(((int) $d[1] & (1 <<  Entity::DATA_FLAG_SILENT)) > 0){
+						$newdata[4] = [6, true];
+					}
+
+					if(((int) $d[1] & (1 <<  Entity::DATA_FLAG_IMMOBILE)) > 0){
+						//$newdata[11] = [0, true];
+					}
+
+					$newdata[0] = [0, $flags];
+				break;
+				case 7:
+					$newdata[1] = [1, $d[1]];
+				break;
+				case 4:
+					$newdata[2] = [3, $d[1]];
+				break;
+				//TODO: add data type
+			}
+		}
+
+		$newdata["convert"] = true;
+
+		return $newdata;
+	}
+
+	public static function writeMetadata(array $data){
+		if(!isset($data["convert"])){
+			$data = self::convertPEToPCMetadata($data);
+		}
+
+
+		$m = "";
+
+		foreach($data as $bottom => $d){
+			if($bottom === "convert"){
+				continue;
+			}
+
+			$m .= self::writeByte($bottom);
+			$m .= self::writeByte($d[0]);
 
 			switch($d[0]){
-				case Entity::DATA_TYPE_BYTE://0
-					$m .= self::writeByte(0); //data type
-					echo "type: 0\n";
+				case 0://Byte
 					$m .= self::writeByte($d[1]);
-					break;
-				case Entity::DATA_TYPE_SHORT://1
-					$m .= self::writeByte(2); //data type
-					echo "type: 2\n";
-					$m .= self::writeFloat($d[1]);
-					break;
-				case Entity::DATA_TYPE_INT://2
-					$m .= self::writeByte(1); //data type
-					echo "type: 1\n";
+				break;
+				case 1://VarInt
 					$m .= self::writeVarInt($d[1]);
-					break;
-				case Entity::DATA_TYPE_FLOAT://3
-					$m .= self::writeByte(2); //data type
-					echo "type: 2\n";
+				break;
+				case 2://Float
 					$m .= self::writeFloat($d[1]);
-					break;
-				case Entity::DATA_TYPE_STRING://4
-					$m .= self::writeByte(3); //data type
-					echo "type: 3\n";
+				break;
+				case 3://String
+				case 4://Chat
 					$m .= self::writeVarInt(strlen($d[1])) . $d[1];
-					break;
-				case Entity::DATA_TYPE_SLOT://5
-					$m .= self::writeByte(5); //data type
-					echo "type: 5\n";
+				break;
+				case 5://Slot
 					$item = $d[1];
 					if($item->getID() === 0){
 						$m .= self::writeShort(-1);
@@ -80,26 +123,26 @@ class Binary extends \pocketmine\utils\Binary{
 						$nbt = $item->getCompoundTag();
 						$m .= self::writeByte(strlen($nbt)).$nbt;
 					}
-					break;
-				case Entity::DATA_TYPE_POS://6
-					$m .= self::writeByte(8); //data type
-					echo "type: 8\n";
+				break;
+				case 6://Boolean
+					$m .= self::writeByte($d[1]);
+				break;
+				case 7://Rotation
 					$m .= self::writeFloat($d[1][0]);
 					$m .= self::writeFloat($d[1][1]);
 					$m .= self::writeFloat($d[1][2]);
-					break;
-				case Entity::DATA_TYPE_LONG://7
-					$m .= self::writeByte(1); //data type
-					echo "type: 1\n";
-					$m .= self::writeVarInt($d[1]);
-					//$m .= self::writeLong($d[1]);
-					break;
-				default:
-					echo "NBTKey: ".$bottom."\n";
-					echo "NBTType: ".$d[0]."\n";
-					break;
+				break;
+				case 8://Position
+					$int2 = ($d[1][2] & 0x3FFFFFF); //26 bits
+					$int2 |= ($d[1][1] & 0x3F) << 26; //6 bits
+					$int1 = ($d[1][1] & 0xFC0) >> 6; //6 bits
+					$int1 |= ($d[1][0] & 0x3FFFFFF) << 6; //26 bits
+					$this->buffer .= self::writeInt($int1) . self::writeInt($int2);
+				break;
+				//TODO: add data type
 			}
-		}*/
+		}
+
 		$m .= "\xff";
 
 		return $m;

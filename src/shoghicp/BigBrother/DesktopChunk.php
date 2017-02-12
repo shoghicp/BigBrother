@@ -63,12 +63,6 @@ class DesktopChunk{
 			}
 
 
-
-
-
-
-
-
 			/* Bits Per Block & Palette Length */
 			$payload .= Binary::writeByte($bitsperblock).Binary::writeVarInt(count($palette));
 
@@ -84,11 +78,13 @@ class DesktopChunk{
 			$payload .= $chunkdata;
 
 			/* Block Light*/
-			$payload .= $subChunk->getBlockLightArray();
+			//$payload .= $subChunk->getBlockLightArray();
+			$payload .= str_repeat("\xff", 4096);
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
-				$payload .= $subChunk->getSkyLightArray();
+				$payload .= str_repeat("\xff", 4096);
+				//$payload .= $subChunk->getSkyLightArray();
 			}
 		}
 

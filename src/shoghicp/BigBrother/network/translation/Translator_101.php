@@ -552,8 +552,6 @@ class Translator_101 implements Translator{
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
-				echo "SpawnPlayerPacket\n";
-
 				$pk = new EntityTeleportPacket();
 				$pk->eid = $packet->eid;
 				$pk->x = $packet->x;
@@ -562,8 +560,6 @@ class Translator_101 implements Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
-
-				echo "EntityTeleportPacket\n";
 
 				return $packets;
 
@@ -621,29 +617,23 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
-				echo "EntityTeleportPacket\n";
-
 				$pk = new EntityHeadLookPacket();
 				$pk->eid = $packet->eid;
 				$pk->yaw = $packet->yaw;
 				$packets[] = $pk;
 
-				echo "EntityHeadLookPacket\n";
-
-
 				return $packets;
 
 			case Info::MOVE_PLAYER_PACKET:
-				if($packet->eid === 0 or $packet->eid === $player->getId()){
-					/*$pk = new PositionAndLookPacket();
+				if($packet->eid === 0){
+					$pk = new PositionAndLookPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y - $player->getEyeHeight();
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
 					$pk->onGround = $player->isOnGround();
-					return $pk;*/
-					return null;
+					return $pk;
 				}else{
 					$packets = [];
 					$pk = new EntityTeleportPacket();
@@ -655,14 +645,10 @@ class Translator_101 implements Translator{
 					$pk->pitch = $packet->pitch;
 					$packets[] = $pk;
 
-					echo "EntityTeleportPacket\n";
-
 					$pk = new EntityHeadLookPacket();
 					$pk->eid = $packet->eid;
 					$pk->yaw = $packet->yaw;
 					$packets[] = $pk;
-
-					echo "EntityHeadLookPacket\n";
 
 					return $packets;
 				}
@@ -701,7 +687,7 @@ class Translator_101 implements Translator{
 
 				return $packets;
 
-			/*case Info::SET_ENTITY_DATA_PACKET:
+			case Info::SET_ENTITY_DATA_PACKET:
 				/*if(isset($packet->metadata[16])){
 					if($packet->metadata[16][1] === 2){
 						$pk = new UseBedPacket(); //Bug
@@ -719,7 +705,7 @@ class Translator_101 implements Translator{
 					return $pk;
 				}elseif(isset($packet->metadata[17])){
 					$player->setSetting(["BedXYZ" => $packet->metadata[17][1]]);
-				}*//*
+				}*/
 
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->eid;
