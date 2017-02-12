@@ -33,63 +33,83 @@ class Binary extends \pocketmine\utils\Binary{
 		return substr($uuid, 0, 8) ."-". substr($uuid, 8, 4) ."-". substr($uuid, 12, 4) ."-". substr($uuid, 16, 4) ."-". substr($uuid, 20);
 	}
 
+	public static function UUIDtoBinary($uuid){
+		$uuid = str_replace("-", "", trim($uuid));
+
+		$mostbits = "";
+		$leastbits = "";
+
+		return [$mostbits, $leastbits];
+	}
+
 	public static function writeMetadata(array $data){
 		$m = "";
-		foreach($data as $bottom => $d){
-			if($d[0] !== 6){//6 not use
-				$m .= chr(($d[0] << 5) | ($bottom & 0x1F));
-				switch($d[0]){
-					/*case 0://Byte
-						$m .= self::writeByte($d[1]);
-						break;
-					case 1://VarInt
-						$m .= self::writeVarInt($d[1]);
-						break;
-					case 2://Float
-						$m .= self::writeFloat($d[1]);
-						break;
-					case 3:
+		//TODO
+		/*foreach($data as $bottom => $d){
+			$m .= self::writeByte($bottom); //data key
 
-					break;*/
-					case Entity::DATA_TYPE_BYTE://0
-						$m .= self::writeByte($d[1]);
-						break;
-					case Entity::DATA_TYPE_SHORT://1
-						$m .= self::writeShort($d[1]);
-						break;
-					case Entity::DATA_TYPE_INT://2
-						$m .= self::writeInt($d[1]);
-						break;
-					case Entity::DATA_TYPE_FLOAT://3
-						$m .= self::writeFloat($d[1]);
-						break;
-					case Entity::DATA_TYPE_STRING://4
-						$m .= self::writeVarInt(strlen($d[1])) . $d[1];
-						break;
-					case Entity::DATA_TYPE_SLOT://5
-						$item = $d[1];
-						if($item->getID() === 0){
-							$m .= self::writeShort(-1);
-						}else{
-							$m .= self::writeShort($item->getID());
-							$m .= self::writeByte($item->getCount());
-							$m .= self::writeShort($item->getDamage());
-							$nbt = $item->getCompoundTag();
-							$m .= self::writeByte(strlen($nbt)).$nbt;
-						}
-						break;
-					case Entity::DATA_TYPE_POS://7
-						$m .= self::writeFloat($d[1][0]);
-						$m .= self::writeFloat($d[1][1]);
-						$m .= self::writeFloat($d[1][2]);
+			echo "key: ".$bottom."\n";
+
+			switch($d[0]){
+				case Entity::DATA_TYPE_BYTE://0
+					$m .= self::writeByte(0); //data type
+					echo "type: 0\n";
+					$m .= self::writeByte($d[1]);
 					break;
-					case Entity::DATA_TYPE_LONG://8
-						$m .= self::writeLong($d[1]);
-						break;
-				}
+				case Entity::DATA_TYPE_SHORT://1
+					$m .= self::writeByte(2); //data type
+					echo "type: 2\n";
+					$m .= self::writeFloat($d[1]);
+					break;
+				case Entity::DATA_TYPE_INT://2
+					$m .= self::writeByte(1); //data type
+					echo "type: 1\n";
+					$m .= self::writeVarInt($d[1]);
+					break;
+				case Entity::DATA_TYPE_FLOAT://3
+					$m .= self::writeByte(2); //data type
+					echo "type: 2\n";
+					$m .= self::writeFloat($d[1]);
+					break;
+				case Entity::DATA_TYPE_STRING://4
+					$m .= self::writeByte(3); //data type
+					echo "type: 3\n";
+					$m .= self::writeVarInt(strlen($d[1])) . $d[1];
+					break;
+				case Entity::DATA_TYPE_SLOT://5
+					$m .= self::writeByte(5); //data type
+					echo "type: 5\n";
+					$item = $d[1];
+					if($item->getID() === 0){
+						$m .= self::writeShort(-1);
+					}else{
+						$m .= self::writeShort($item->getID());
+						$m .= self::writeByte($item->getCount());
+						$m .= self::writeShort($item->getDamage());
+						$nbt = $item->getCompoundTag();
+						$m .= self::writeByte(strlen($nbt)).$nbt;
+					}
+					break;
+				case Entity::DATA_TYPE_POS://6
+					$m .= self::writeByte(8); //data type
+					echo "type: 8\n";
+					$m .= self::writeFloat($d[1][0]);
+					$m .= self::writeFloat($d[1][1]);
+					$m .= self::writeFloat($d[1][2]);
+					break;
+				case Entity::DATA_TYPE_LONG://7
+					$m .= self::writeByte(1); //data type
+					echo "type: 1\n";
+					$m .= self::writeVarInt($d[1]);
+					//$m .= self::writeLong($d[1]);
+					break;
+				default:
+					echo "NBTKey: ".$bottom."\n";
+					echo "NBTType: ".$d[0]."\n";
+					break;
 			}
-		}
-		$m .= "\x7f";
+		}*/
+		$m .= "\xff";
 
 		return $m;
 	}

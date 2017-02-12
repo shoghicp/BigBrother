@@ -42,8 +42,7 @@ class PlayerListPacket extends Packet{
 		$this->putVarInt(count($this->players));
 		foreach($this->players as $player){
 			if($this->actionID === self::TYPE_ADD){//add Player
-				$this->putLong(substr($player[0], 0, 16));//UUID
-				$this->putLong(substr($player[0], 16, 16));
+				$this->put($player[0]);//UUID
 				$this->putString($player[1]); //PlayerName
 				$this->putVarInt(count($player[2])); //Count Peropetry
 
@@ -57,17 +56,15 @@ class PlayerListPacket extends Packet{
 						$this->putByte(0); //Is Signed
 					}
 				}
+
 				$this->putVarInt($player[3]); //Gamemode
 				$this->putVarInt($player[4]); //Ping
 				$this->putByte($player[5] ? 1 : 0); //has Display name
 				if($player[5] === true){
 					$this->putString($player[6]); //Display name
 				}
-
-				var_dump($player);
 			}else{
-				$this->putLong(substr($player[0], 0, 16));//UUID
-				$this->putLong(substr($player[0], 16, 16));
+				$this->put($player[0]);//UUID
 			}
 		}
 	}

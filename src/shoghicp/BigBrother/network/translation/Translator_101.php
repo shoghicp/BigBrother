@@ -484,17 +484,8 @@ class Translator_101 implements Translator{
 				return $pk;
 
 			case Info::TEXT_PACKET:
-
-				//echo $player->getSetting("Lang")."\n";
-
 				if($packet->message === "chat.type.achievement"){
-					/*$pk = new ScoreboardObjectivePacket();
-					$pk->ObjectiveName = $packet->parameters[0];
-					$pk->Mode = 0;
-					$pk->ObjectiveValue = 3;
-					return $pk;*/
-					/*echo "TextPacket: achievement\n";*/
-					return null;
+					return null;//TODO
 				}else{
 					$pk = new ChatPacket();
 					$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
@@ -549,28 +540,10 @@ class Translator_101 implements Translator{
 
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
-				$packetplayer = $player->getServer()->getPlayerExact($packet->username);
-
-				$pk = new PlayerListPacket();
-				$pk->actionID = PlayerListPacket::TYPE_ADD;
-
-				$pk->players[] = [
-					str_replace("-", "", $packetplayer->getUniqueId()->toString()),
-					$packetplayer->getName(),
-					[],
-					$packetplayer->getGamemode(),
-					0,
-					false,
-				];
-
-				if($packetplayer instanceof DesktopPlayer){
-					$pk->players[0][2] = $packetplayer->bigBrother_getPeroperties();
-				}
-				$packets[] = $pk;
 
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
-				$pk->uuid = $packetplayer->getUniqueId()->toBinary();
+				$pk->uuid = $packet->uuid->toBinary();
 				$pk->x = $packet->x;
 				$pk->z = $packet->z;
 				$pk->y = $packet->y;
@@ -578,6 +551,8 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
+
+				echo "SpawnPlayerPacket\n";
 
 				$pk = new EntityTeleportPacket();
 				$pk->eid = $packet->eid;
@@ -588,6 +563,8 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
+				echo "EntityTeleportPacket\n";
+
 				return $packets;
 
 			/*case Info::ADD_ENTITY_PACKET:
@@ -596,19 +573,11 @@ class Translator_101 implements Translator{
 			/*case Info::REMOVE_PLAYER_PACKET:
 				$packetplayer = $player->getServer()->getPlayerExact($packet->username);
 
-				$pk = new PlayerListPacket();
-				$pk->actionID = PlayerListPacket::TYPE_REMOVE;
-
-				$pk->players[] = [
-					str_replace("-", "", $packetplayer->getUniqueId()->toString()),
-				];
-				$packets[] = $pk;
 
 				$pk = new DestroyEntitiesPacket();
 				$pk->ids[] = $packet->eid;
-				$packets[] = $pk;
 
-				return $packets;*/
+				return $pk;*/
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
@@ -652,22 +621,29 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
+				echo "EntityTeleportPacket\n";
+
 				$pk = new EntityHeadLookPacket();
 				$pk->eid = $packet->eid;
 				$pk->yaw = $packet->yaw;
 				$packets[] = $pk;
+
+				echo "EntityHeadLookPacket\n";
+
+
 				return $packets;
 
 			case Info::MOVE_PLAYER_PACKET:
-				if($packet->eid === 0){
-					$pk = new PositionAndLookPacket();
+				if($packet->eid === 0 or $packet->eid === $player->getId()){
+					/*$pk = new PositionAndLookPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y - $player->getEyeHeight();
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
 					$pk->onGround = $player->isOnGround();
-					return $pk;
+					return $pk;*/
+					return null;
 				}else{
 					$packets = [];
 					$pk = new EntityTeleportPacket();
@@ -679,10 +655,15 @@ class Translator_101 implements Translator{
 					$pk->pitch = $packet->pitch;
 					$packets[] = $pk;
 
+					echo "EntityTeleportPacket\n";
+
 					$pk = new EntityHeadLookPacket();
 					$pk->eid = $packet->eid;
 					$pk->yaw = $packet->yaw;
 					$packets[] = $pk;
+
+					echo "EntityHeadLookPacket\n";
+
 					return $packets;
 				}
 
@@ -701,15 +682,19 @@ class Translator_101 implements Translator{
 				$pk->slot = $packet->slot;
 				$pk->item = $packet->item;
 
+				echo "MobEquipmentPacket\n";
+
 				return $pk;
 
 			case Info::MOB_ARMOR_EQUIPMENT_PACKET:
 				$packets = [];
 
+				echo "MobArmorEquipmentPacket\n";
+
 				foreach($packet->slots as $num => $item){
 					$pk = new EntityEquipmentPacket();
 					$pk->eid = $packet->eid;
-					$pk->slot = $num + 1;
+					$pk->slot = $num + 2;
 					$pk->item = $item;
 					$packets[] = $pk;
 				}
@@ -899,11 +884,52 @@ class Translator_101 implements Translator{
 
 				return $packets;
 
-			case Info::PLAY_STATUS_PACKET:
 			case Info::PLAYER_LIST_PACKET:
+				$pk = new PlayerListPacket();
+
+				switch($packet->type){
+					case 0://Add
+						$pk->actionID = PlayerListPacket::TYPE_ADD;
+						foreach($packet->entries as $entry){
+							$packetplayer = $player->getServer()->getPlayerExact($entry[2]);
+
+							$pk->players[] = [
+								$packetplayer->getUniqueId()->toBinary(),
+								$packetplayer->getName(),
+								[],
+								$packetplayer->getGamemode(),
+								0,
+								false,
+							];
+
+							if($packetplayer instanceof DesktopPlayer){
+								$pk->players[count($pk->players) - 1][2] = $packetplayer->bigBrother_getPeroperties();
+							}
+						}
+					break;
+					case 1://Remove
+						$pk->actionID = PlayerListPacket::TYPE_REMOVE;
+
+						foreach($packet->entries as $entry){
+							$pk->players[] = [
+								$entry[0]->toBinary(),
+							];
+						}
+					break;
+				}
+
+				
+				echo "PlayerListPacket\n";
+
+				return $pk;
+
+			case Info::BATCH_PACKET://For PlayerList
+
+				return null;
+
+			case Info::PLAY_STATUS_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
 			case Info::FULL_CHUNK_DATA_PACKET:
-			case Info::BATCH_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
 				return null;
 

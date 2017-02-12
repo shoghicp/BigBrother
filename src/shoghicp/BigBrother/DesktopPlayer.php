@@ -245,7 +245,7 @@ class DesktopPlayer extends Player{
 			$pk = new PlayerListPacket();
 			$pk->actionID = PlayerListPacket::TYPE_ADD;
 			$pk->players[] = [
-				$this->bigBrother_uuid,
+				UUID::fromString($this->bigBrother_formatedUUID)->toBinary(),
 				$this->bigBrother_username,
 				$this->bigBrother_properties,
 				$this->getGamemode(),
@@ -303,7 +303,7 @@ class DesktopPlayer extends Player{
 
 		$uuid = $profile["id"];
 		$info = json_decode(Utils::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid."", 3), true);
-		if(!is_array($info)){
+		if(!isset($info["id"])){
 			return false;
 		}
 		return $info;

@@ -37,7 +37,6 @@ class DesktopChunk{
 			$bitsperblock = 8;//TODO
 
 			$chunkdata = "";
-			
 
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
@@ -48,13 +47,15 @@ class DesktopChunk{
 
 						$block = ($blockid << 4) | $blockdata;
 
+						//var_dump($block);
+
 						if(($key = array_search($block, $palette)) !== false){
-							$chunkdata .= chr($key);
+							$chunkdata .= chr($key);//bit
 						}else{
 							$key = count($palette);
 							$palette[$key] = $block;
 
-							$chunkdata .= chr($key);
+							$chunkdata .= chr($key);//bit
 							//var_dump(chr($key));
 						}
 					}
@@ -68,20 +69,24 @@ class DesktopChunk{
 
 
 
-
-			/*				Bits Per Block		 Palette Length*/
+			/* Bits Per Block & Palette Length */
 			$payload .= Binary::writeByte($bitsperblock).Binary::writeVarInt(count($palette));
 
+			/* Palette */
 			foreach($palette as $num => $value){
 				$payload .= Binary::writeVarInt($value);
 			}
 
+			/* Data Array Length */
 			$payload .= Binary::writeVarInt(strlen($chunkdata) / 8);
 
+			/* Data Array */
 			$payload .= $chunkdata;
 
+			/* Block Light*/
 			$payload .= $subChunk->getBlockLightArray();
 
+			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
 				$payload .= $subChunk->getSkyLightArray();
 			}
