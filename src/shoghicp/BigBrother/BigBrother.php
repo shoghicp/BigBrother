@@ -123,10 +123,6 @@ class BigBrother extends PluginBase implements Listener{
 		return (string) $this->getConfig()->get("motd");
 	}
 
-	public function getResourcePackURL(){
-		return (string) $this->getConfig()->get("resourcepackurl");
-	}
-
 	/**
 	 * @return bool
 	 */

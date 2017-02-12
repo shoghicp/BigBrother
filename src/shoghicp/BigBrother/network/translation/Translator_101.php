@@ -86,11 +86,12 @@ use shoghicp\BigBrother\network\protocol\Play\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
-use shoghicp\BigBrother\network\protocol\Play\PositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\STabComletePacket;
 use shoghicp\BigBrother\network\protocol\Play\ScoreboardObjectivePacket;
 use shoghicp\BigBrother\network\protocol\Play\ServerDifficultyPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetSlotPacket;
+use shoghicp\BigBrother\network\protocol\Play\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPositionPacket;
@@ -179,6 +180,12 @@ class Translator_101 implements Translator{
 				}
 				return null;
 
+			case 0x0a: //UseEntityPacket
+				$pk = new InteractPacket();
+				$pk->target = $packet->target;
+				$pk->action = $packet->type;
+				return $pk;
+
 			case 0x0b: //KeepAlivePacket
 				$pk->id = mt_rand();
 				$player->putRawPacket($pk);
@@ -215,27 +222,80 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				return $pk;
 
-			
-			case 0x12: //PlayerAbilitiesPacket
-				$player->setSetting(["isFlying" => $packet->isFlying]);
-				return null;
-			
-
-			/*case 0x02: //UseEntityPacket
-				$pk = new InteractPacket();
-				$pk->target = $packet->target;
-				$pk->action = $packet->type;
-				return $pk;
-
-			case 0x03: //PlayerPacket
+			case 0x0f: //PlayerPacket
 				$player->setSetting(["onGround" => $packet->onGround]);
 				return null;
 
 			
+			case 0x12: //PlayerAbilitiesPacket
+				$player->setSetting(["isFlying" => $packet->isFlying]);
+				return null;
+
+			case 0x17: //HeldItemChangePacket
+				$item = $player->getInventory()->getItem($packet->selectedSlot);
+				$olditem = $player->getInventory()->getItem($player->getInventory()->getHeldItemIndex());
+
+				$pk = new MobEquipmentPacket();
+				$pk->eid = 0;
+				$pk->item = $item;
+				if($item->getId() === 0){
+					$pk->slot = 255;
+				}else{
+					$pk->slot = Item::getCreativeItemIndex($item) + 9;
+				}
+				$pk->selectedSlot = $packet->selectedSlot;
+				return $pk;
+
+			case 0x1a: //AnimatePacket
+				$pk = new AnimatePacket();
+				$pk->action = 1;
+				$pk->eid = $player->getId();
+				return $pk;
+
+			case 0x1c; //PlayerBlockPlacementPacket
+				if($packet->direction !== 255){
+					$pk = new UseItemPacket();
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->blockId = $player->getInventory()->getItemInHand()->getId();
+					$pk->face = $packet->direction;
+					$pk->item = $player->getInventory()->getItemInHand();
+					$pk->fx = $packet->cursorX / 16;
+					$pk->fy = $packet->cursorY / 16;
+					$pk->fz = $packet->cursorZ / 16;
+					$pk->posX = $player->getX();
+					$pk->posY = $player->getY();
+					$pk->posZ = $player->getZ();
+					$pk->slot = $player->getInventory()->getHeldItemSlot();
+					//var_dump($pk);
+					return $pk;
+				}else{
+					echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
+				}
+
+				return null;
+
+			/*case 0x1d://UseItemPacket
+				$pk = new UseItemPacket();
+				$pk->x = 0;
+				$pk->y = 0;
+				$pk->z = 0;
+				$pk->blockId = $player->getInventory()->getItemInHand()->getId();
+				$pk->face = -1;
+				$pk->item = $player->getInventory()->getItemInHand();
+				$pk->fx = 0;
+				$pk->fy = 0;
+				$pk->fz = 0;
+				$pk->posX = $player->getX();
+				$pk->posY = $player->getY();
+				$pk->posZ = $player->getZ();
+				$pk->slot = $player->getInventory()->getHeldItemSlot();
+				return $pk;*/
 
 			
 
-			
+			/*
 
 			case 0x07: //PlayerDiggingPacket
 				switch($packet->status){
@@ -298,118 +358,11 @@ class Translator_101 implements Translator{
 
 				return null;
 
-			case 0x08; //PlayerBlockPlacementPacket
-				echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
+			
 
-				if($packet->direction !== 255){
-					$pk = new UseItemPacket();
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
-					$pk->face = $packet->direction;
-					$pk->item = $packet->heldItem;
-					$pk->fx = $packet->cursorX / 16;
-					$pk->fy = $packet->cursorY / 16;
-					$pk->fz = $packet->cursorZ / 16;
-					$pk->posX = $player->getX();
-					$pk->posY = $player->getY();
-					$pk->posZ = $player->getZ();
-					return $pk;
-				}else{
+			
 
-				}
-
-				return null;
-
-			case 0x09: //HeldItemChangePacket
-				$item = $player->getInventory()->getItem($packet->selectedSlot);
-				$olditem = $player->getInventory()->getItem($player->getInventory()->getHeldItemIndex());
-
-				if($item->getId() !== 0 or $item->getId() === 0 and $olditem->getId() !== 0){
-					$pk = new MobEquipmentPacket();
-					$pk->eid = 0;
-					$pk->item = $item;
-					if($item->getId() === 0){
-						$pk->slot = 255;
-					}else{
-						$pk->slot = Item::getCreativeItemIndex($item) + 9;
-					}
-					$pk->selectedSlot = $packet->selectedSlot;
-					return $pk;
-				}
-
-				return null;
-
-			case 0x0a: //PlayerArmSwingPacket
-				$pk = new AnimatePacket();
-				$pk->action = 1;
-				$pk->eid = 0;
-				return $pk;
-
-			case 0x0b: //AnimatePacket
-				switch($packet->actionID){
-					case 0:
-						if(!$player->getSetting("isFlying")){
-							$pk = new PlayerActionPacket();
-							$pk->eid = $packet->eid;
-							$pk->action = PlayerActionPacket::ACTION_START_SNEAK;
-							$pk->x = $player->getX();
-							$pk->y = $player->getY();
-							$pk->z = $player->getZ();
-							$pk->face = 0;
-							return $pk;
-						}
-					break;
-					case 1:
-						if(!$player->getSetting("isFlying")){
-							$pk = new PlayerActionPacket();
-							$pk->eid = $packet->eid;
-							$pk->action = PlayerActionPacket::ACTION_STOP_SNEAK;
-							$pk->x = $player->getX();
-							$pk->y = $player->getY();
-							$pk->z = $player->getZ();
-							$pk->face = 0;
-							return $pk;
-						}
-					break;
-					case 2:
-						$pk = new PlayerActionPacket();
-						$pk->eid = $packet->eid;
-						$pk->action = PlayerActionPacket::ACTION_STOP_SLEEPING;
-						$pk->x = $player->getX();
-						$pk->y = $player->getY();
-						$pk->z = $player->getZ();
-						$pk->face = 0;
-						return $pk;
-					break;
-					case 3:
-						$pk = new PlayerActionPacket();
-						$pk->eid = $packet->eid;
-						$pk->action = PlayerActionPacket::ACTION_START_SPRINT;
-						$pk->x = $player->getX();
-						$pk->y = $player->getY();
-						$pk->z = $player->getZ();
-						$pk->face = 0;
-						return $pk;
-					break;
-					case 4:
-						$pk = new PlayerActionPacket();
-						$pk->eid = $packet->eid;
-						$pk->action = PlayerActionPacket::ACTION_STOP_SPRINT;
-						$pk->x = $player->getX();
-						$pk->y = $player->getY();
-						$pk->z = $player->getZ();
-						$pk->face = 0;
-						return $pk;
-					break;
-					/*case 6:
-
-					break;*//*
-					default:
-						echo "[AnimatePacket] ".$packet->actionID."\n";//Debug Code
-					break;
-				}
-				return null;
+			
 
 			case 0x0d: //CTSCloseWindowPacket
 				if($packet->windowID !== 0x00){
@@ -527,7 +480,7 @@ class Translator_101 implements Translator{
 				$pk->isCreative = ($player->getGamemode() & 0x01) > 0;
 				$packets[] = $pk;
 
-				$pk = new PositionAndLookPacket();
+				$pk = new PlayerPositionAndLookPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
@@ -541,7 +494,19 @@ class Translator_101 implements Translator{
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
 
-				$pk = new SpawnPlayerPacket();
+				$pk = new SpawnMobPacket();//Temporary
+				$pk->eid = $packet->eid;
+				$pk->type = 6;//Stray
+				$pk->uuid = $packet->uuid->toBinary();
+				$pk->x = $packet->x;
+				$pk->z = $packet->z;
+				$pk->y = $packet->y;
+				$pk->yaw = $packet->yaw;
+				$pk->pitch = $packet->pitch;
+				$pk->metadata = $packet->metadata;
+				$packets[] = $pk;
+
+				/*$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = $packet->uuid->toBinary();
 				$pk->x = $packet->x;
@@ -552,28 +517,19 @@ class Translator_101 implements Translator{
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
-				$pk = new EntityTeleportPacket();
+				/*$pk = new EntityTeleportPacket();
 				$pk->eid = $packet->eid;
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
-				$packets[] = $pk;
+				$packets[] = $pk;*/
 
 				return $packets;
 
 			/*case Info::ADD_ENTITY_PACKET:
 				return null;*/
-
-			/*case Info::REMOVE_PLAYER_PACKET:
-				$packetplayer = $player->getServer()->getPlayerExact($packet->username);
-
-
-				$pk = new DestroyEntitiesPacket();
-				$pk->ids[] = $packet->eid;
-
-				return $pk;*/
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
@@ -626,7 +582,7 @@ class Translator_101 implements Translator{
 
 			case Info::MOVE_PLAYER_PACKET:
 				if($packet->eid === 0){
-					$pk = new PositionAndLookPacket();
+					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y - $player->getEyeHeight();
 					$pk->z = $packet->z;
@@ -665,17 +621,13 @@ class Translator_101 implements Translator{
 			case Info::MOB_EQUIPMENT_PACKET:
 				$pk = new EntityEquipmentPacket();
 				$pk->eid = $packet->eid;
-				$pk->slot = $packet->slot;
+				$pk->slot = 0;//main hand
 				$pk->item = $packet->item;
-
-				echo "MobEquipmentPacket\n";
 
 				return $pk;
 
 			case Info::MOB_ARMOR_EQUIPMENT_PACKET:
 				$packets = [];
-
-				echo "MobArmorEquipmentPacket\n";
 
 				foreach($packet->slots as $num => $item){
 					$pk = new EntityEquipmentPacket();
@@ -712,13 +664,13 @@ class Translator_101 implements Translator{
 				$pk->metadata = $packet->metadata;
 				return $pk;
 
-			/*case Info::SET_ENTITY_MOTION_PACKET:
+			case Info::SET_ENTITY_MOTION_PACKET:
 				$pk = new EntityVelocityPacket();
 				$pk->eid = $packet->eid;
 				$pk->velocityX = $packet->motionX;
 				$pk->velocityY = $packet->motionY;
 				$pk->velocityZ = $packet->motionZ;
-				return $pk;*/
+				return $pk;
 
 			case Info::SET_HEALTH_PACKET:
 				$pk = new UpdateHealthPacket();
@@ -788,9 +740,9 @@ class Translator_101 implements Translator{
 					$pk->slot = $packet->slot;
 				}
 				$pk->item = $packet->item;
-				return $pk;
+				return $pk;*/
 
-			case Info::CONTAINER_SET_CONTENT_PACKET://Bug
+			/*case Info::CONTAINER_SET_CONTENT_PACKET://Bug
 				echo "ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
 				if($packet->windowid !== 0x79 and $packet->windowid !== 0x78){
 					$pk = new WindowItemsPacket();

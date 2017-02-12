@@ -26,31 +26,27 @@ use shoghicp\BigBrother\network\Info; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
-
 use shoghicp\BigBrother\network\protocol\Play\TeleportConfirmPacket;
-
-
-
-//use shoghicp\BigBrother\network\protocol\Play\AnimatePacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\AnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientSettingsPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientStatusPacket;
 //use shoghicp\BigBrother\network\protocol\Play\CreativeInventoryActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ChatPacket;
 //use shoghicp\BigBrother\network\protocol\Play\CTSCloseWindowPacket;
-//use shoghicp\BigBrother\network\protocol\Play\HeldItemChangePacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\KeepAlivePacket;
-//use shoghicp\BigBrother\network\protocol\Play\PlayerArmSwingPacket;
-//use shoghicp\BigBrother\network\protocol\Play\PlayerBlockPlacementPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerBlockPlacementPacket;
 //use shoghicp\BigBrother\network\protocol\Play\PlayerDiggingPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerLookPacket;
-//use shoghicp\BigBrother\network\protocol\Play\PlayerPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerPositionPacket;
-//use shoghicp\BigBrother\network\protocol\Play\PluginMessagePacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PluginMessagePacket;
 //use shoghicp\BigBrother\network\protocol\Play\ResourcePackStatusPacket;
 //use shoghicp\BigBrother\network\protocol\Play\CTabCompletePacket;
-//use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
+use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
+use shoghicp\BigBrother\network\protocol\Play\UseItemPacket;
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\utils\Binary;
 
@@ -211,7 +207,9 @@ class ProtocolInterface implements SourceInterface{
 				case 0x09:
 					$pk = new PluginMessagePacket();
 					break;
-
+				case 0x0a:
+					$pk = new UseEntityPacket();
+					break;
 				case 0x0b:
 					$pk = new KeepAlivePacket();
 					break;
@@ -224,50 +222,44 @@ class ProtocolInterface implements SourceInterface{
 				case 0x0e:
 					$pk = new PlayerLookPacket();
 					break;
+				case 0x0f:
+					$pk = new PlayerPacket();
+					break;
 
 				case 0x12:
 					$pk = new PlayerAbilitiesPacket();
 					break;
 
+				case 0x17:
+					$pk = new HeldItemChangePacket();
+					break;
+
+				case 0x1a:
+					$pk = new AnimatePacket();
+					break;
+
+				case 0x1c:
+					$pk = new PlayerBlockPlacementPacket();
+					break;
+				case 0x1d:
+					$pk = new UseItemPacket();
+					break;
+
+				//case 
+
 
 				
 				/*
-				case 0x02:
-					$pk = new UseEntityPacket();
-					break;
-				case 0x03:
-					$pk = new PlayerPacket();
-					break;
-				case 0x04:
-					
-					break;
-				case 0x05:
-					
-					break;
-				case 0x06:
+				
+				
+
 					
 				case 0x07:
 					$pk = new PlayerDiggingPacket();
 					break;
-				case 0x08:
-					$pk = new PlayerBlockPlacementPacket();
-					break;
-				case 0x09:
-					$pk = new HeldItemChangePacket();
-					break;
-				case 0x0a:
-					$pk = new PlayerArmSwingPacket();
-					break;
-				case 0x0b:
-					$pk = new AnimatePacket();
-					break;
+				
 				case 0x0d:
 					$pk = new CTSCloseWindowPacket();
-					break;
-				case 0x0e:
-					break;
-				case 0x0f:
-
 					break;
 				case 0x10:
 					$pk = new CreativeInventoryActionPacket();

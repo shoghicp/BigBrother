@@ -21,7 +21,7 @@ use shoghicp\BigBrother\network\Packet;
 
 class AnimatePacket extends Packet{
 
-	public $status;
+	public $hand;
 
 	public function pid(){
 		return 0x1a;
@@ -32,6 +32,6 @@ class AnimatePacket extends Packet{
 	}
 
 	public function decode(){
-		$this->status = $this->getVarInt();
+		$this->hand = $this->getVarInt();
 	}
 }

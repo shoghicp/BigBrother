@@ -25,14 +25,13 @@ class PlayerBlockPlacementPacket extends Packet{
 	public $y;
 	public $z;
 	public $direction;
-	/** @var \pocketmine\item\Item */
-	public $heldItem;
+	public $hand;
 	public $cursorX;
 	public $cursorY;
 	public $cursorZ;
 
 	public function pid(){
-		return 0x08;
+		return 0x1c;
 	}
 
 	public function encode(){
@@ -41,10 +40,10 @@ class PlayerBlockPlacementPacket extends Packet{
 
 	public function decode(){
 		$this->getPosition($this->x, $this->y, $this->z);
-		$this->direction = $this->getByte();
-		$this->heldItem = $this->getSlot();
-		$this->cursorX = $this->getByte();
-		$this->cursorY = $this->getByte();
-		$this->cursorZ = $this->getByte();
+		$this->direction = $this->getVarInt();
+		$this->hand = $this->getVarInt();
+		$this->cursorX = $this->getFloat();
+		$this->cursorY = $this->getFloat();
+		$this->cursorZ = $this->getFloat();
 	}
 }

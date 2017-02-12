@@ -19,48 +19,16 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 
-class PositionAndLookPacket extends Packet{
+class UseItemPacket extends Packet{
 
-	public $x;
-	public $y;
-	public $z;
-	public $yaw;
-	public $pitch;
-	public $isRelativeX;
-	public $isRelativeY;
-	public $isRelativeZ;
-	public $isRelativeYaw;
-	public $isRelativePitch;
-	public $teleportId;
+	public $hand;
 
 	public function pid(){
-		return 0x2e;
+		return 0x1d;
 	}
 
 	public function encode(){
-		$this->putDouble($this->x);
-		$this->putDouble($this->y);
-		$this->putDouble($this->z);
-		$this->putFloat($this->yaw);
-		$this->putFloat($this->pitch);
-		$flags = 0;
-		if($this->isRelativeX){
-			$flags |= 0x01;
-		}
-		if($this->isRelativeY){
-			$flags |= 0x02;
-		}
-		if($this->isRelativeZ){
-			$flags |= 0x04;
-		}
-		if($this->isRelativePitch){
-			$flags |= 0x08;
-		}
-		if($this->isRelativeYaw){
-			$flags |= 0x10;
-		}
-		$this->putByte($flags);
-		$this->putVarInt($this->teleportId);
+		$this->hand = $this->getVarInt();
 	}
 
 	public function decode(){

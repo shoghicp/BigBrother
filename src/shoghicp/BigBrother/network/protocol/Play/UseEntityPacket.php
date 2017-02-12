@@ -26,7 +26,7 @@ class UseEntityPacket extends Packet{
 	public $type;
 
 	public function pid(){
-		return 0x02;
+		return 0x0a;
 	}
 
 	public function encode(){
@@ -40,6 +40,9 @@ class UseEntityPacket extends Packet{
 			$this->targetX = $this->getFloat();
 			$this->targetY = $this->getFloat();
 			$this->targetZ = $this->getFloat();
+		}
+		if($this->type !== 1){
+			$this->hand = $this->getVarInt();
 		}
 	}
 }

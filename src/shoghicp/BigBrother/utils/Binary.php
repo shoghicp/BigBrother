@@ -38,7 +38,7 @@ class Binary extends \pocketmine\utils\Binary{
 
 		foreach($olddata as $bottom => $d){
 			switch($bottom){
-				case 0:
+				case 0://Flags
 					$flags = 0;
 
 					if(((int) $d[1] & (1 << Entity::DATA_FLAG_ONFIRE)) > 0){
@@ -67,11 +67,12 @@ class Binary extends \pocketmine\utils\Binary{
 
 					$newdata[0] = [0, $flags];
 				break;
-				case 7:
+				case 7://Air
 					$newdata[1] = [1, $d[1]];
 				break;
-				case 4:
+				case 4://Custom name
 					$newdata[2] = [3, $d[1]];
+					$newdata[3] = [6, true];
 				break;
 				//TODO: add data type
 			}

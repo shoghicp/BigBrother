@@ -23,6 +23,7 @@ use shoghicp\BigBrother\utils\Binary;
 class SpawnMobPacket extends Packet{
 
 	public $eid;
+	public $uuid;
 	public $type;
 	public $x;
 	public $y;
@@ -41,10 +42,11 @@ class SpawnMobPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putByte($this->type);
-		$this->putInt(intval($this->x * 32));
-		$this->putInt(intval($this->y * 32));
-		$this->putInt(intval($this->z * 32));
+		$this->put($this->uuid);
+		$this->putVarInt($this->type);
+		$this->putDouble($this->x);
+		$this->putDouble($this->y);
+		$this->putDouble($this->z);
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
 		$this->putByte(($this->headPitch / 360) << 8);
