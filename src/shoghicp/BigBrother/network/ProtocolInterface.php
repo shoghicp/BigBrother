@@ -20,6 +20,7 @@ namespace shoghicp\BigBrother\network;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
+use pocketmine\utils\MainLogger;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Info; //Computer Edition
@@ -182,7 +183,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
-		//echo "[Receive:Interface] 0x".bin2hex(chr($payload{0}))."\n";
+		echo "[Receive:Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
 		$pid = ord($payload{0});
 		$offset = 1;
 
