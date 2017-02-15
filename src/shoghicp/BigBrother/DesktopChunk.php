@@ -63,11 +63,11 @@ class DesktopChunk{
 							//var_dump(chr($key));
 						}
 
-						$unk = array_keys($palette, $block, true);
+						/*$unk = array_keys($palette, $block, true);
 						if(count($unk) !== 1){
 							var_dump($block);
 							var_dump($unk);
-						}
+						}*/
 					}
 				}
 			}
