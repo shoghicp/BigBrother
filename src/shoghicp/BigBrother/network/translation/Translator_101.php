@@ -65,6 +65,7 @@ use pocketmine\network\protocol\TakeItemEntityPacket;
 use pocketmine\network\protocol\TileEventPacket;
 use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\network\protocol\UseItemPacket;
+use pocketmine\utils\BinaryStream;
 use pocketmine\nbt\NBT;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
@@ -492,21 +493,9 @@ class Translator_101 implements Translator{
 				return $packets;
 
 			case Info::ADD_PLAYER_PACKET:
-				$packets = [];
+				//TODO: EntityTeleportPacket?
 
-				$pk = new SpawnMobPacket();//Temporary
-				$pk->eid = $packet->eid;
-				$pk->type = 6;//Stray
-				$pk->uuid = $packet->uuid->toBinary();
-				$pk->x = $packet->x;
-				$pk->z = $packet->z;
-				$pk->y = $packet->y;
-				$pk->yaw = $packet->yaw;
-				$pk->pitch = $packet->pitch;
-				$pk->metadata = $packet->metadata;
-				$packets[] = $pk;
-
-				/*$pk = new SpawnPlayerPacket();
+				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = $packet->uuid->toBinary();
 				$pk->x = $packet->x;
@@ -515,21 +504,20 @@ class Translator_101 implements Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$pk->metadata = $packet->metadata;
-				$packets[] = $pk;
-
-				/*$pk = new EntityTeleportPacket();
-				$pk->eid = $packet->eid;
-				$pk->x = $packet->x;
-				$pk->y = $packet->y;
-				$pk->z = $packet->z;
-				$pk->yaw = $packet->yaw;
-				$pk->pitch = $packet->pitch;
-				$packets[] = $pk;*/
-
-				return $packets;
+				return $pk;
 
 			/*case Info::ADD_ENTITY_PACKET:
-				return null;*/
+				$pk = new SpawnMobPacket();
+				$pk->eid = $packet->eid;
+				$pk->type = $pk->type;
+				$pk->uuid = str_repeat("\x00", 16);//Temporary
+				$pk->x = $packet->x;
+				$pk->z = $packet->z;
+				$pk->y = $packet->y;
+				$pk->yaw = $packet->yaw;
+				$pk->pitch = $packet->pitch;
+				$pk->metadata = $packet->metadata;
+				return $pk;*/
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
@@ -557,9 +545,6 @@ class Translator_101 implements Translator{
 				$packets[] = $pk;
 
 				return $packets;
-
-			/*case Info::REMOVE_ITEM_ENTITY_PACKET:
-				return null;*/
 
 			case Info::MOVE_ENTITY_PACKET:
 				$packets = [];
@@ -831,17 +816,41 @@ class Translator_101 implements Translator{
 						foreach($packet->entries as $entry){
 							$packetplayer = $player->getServer()->getPlayerExact($entry[2]);
 
-							$pk->players[] = [
-								$packetplayer->getUniqueId()->toBinary(),
-								$packetplayer->getName(),
-								[],
-								$packetplayer->getGamemode(),
-								0,
-								false,
-							];
-
+							
 							if($packetplayer instanceof DesktopPlayer){
-								$pk->players[count($pk->players) - 1][2] = $packetplayer->bigBrother_getPeroperties();
+								$peroperties = $packetplayer->bigBrother_getPeroperties();
+							}else{
+								//TODO: Skin Problem
+
+								$value = [ //Dummy Data
+									"timestamp" => 0,
+									"profileId" => str_replace("-", "", $packetplayer->getUniqueId()->toString()),
+									"profileName" => $entry[2],
+									"textures" => [
+										"SKIN" => [
+											"metadata" => [
+												"model" => "slim"
+											],
+											"url" => "http://textures.minecraft.net/texture/9277a1b17ccf7b51fa4fa3eafd97fbbd4738f166e0aad75bdee046383951b39e"
+										] 
+									]
+								];
+
+								$peroperties = [
+									[
+										"name" => "textures",
+										"value" => base64_encode(json_encode($value)),
+									]
+								];
+
+								$pk->players[] = [
+									$packetplayer->getUniqueId()->toBinary(),
+									$packetplayer->getName(),
+									$peroperties,
+									$packetplayer->getGamemode(),
+									0,
+									false,
+								];
 							}
 						}
 					break;
@@ -856,14 +865,56 @@ class Translator_101 implements Translator{
 					break;
 				}
 
-				
-				echo "PlayerListPacket\n";
-
 				return $pk;
 
 			case Info::BATCH_PACKET://For PlayerList
+				$packets = [];
 
-				return null;
+				$str = zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
+				$len = strlen($str);
+
+				if($len === 0){
+					throw new \InvalidStateException("Decoded BatchPacket payload is empty");
+				}
+
+				$stream = new BinaryStream($str);
+
+				while($stream->offset < $len){
+					$buf = $stream->getString();
+					if(($pk = $player->getServer()->getNetwork()->getPacket(ord($buf{0}))) !== null){
+						if($pk::NETWORK_ID === Info::BATCH_PACKET){
+							throw new \InvalidStateException("Invalid BatchPacket inside BatchPacket");
+						}
+
+						$pk->setBuffer($buf, 1);
+
+						$pk->decode();
+						if($pk::NETWORK_ID === Info::PLAYER_LIST_PACKET){
+							$pk->type = $pk->getByte();
+							$entries = $pk->getUnsignedVarInt();
+							for($i = 0; $i < $entries; $i++){
+								if($pk->type === 0){
+									$pk->entries[] = [
+										$pk->getUUID(),
+										$pk->getEntityId(),
+										$pk->getString(),
+										$pk->getString(),
+										$pk->getString(),
+									];
+								}else{
+									$pk->entry[] = [
+										$pk->getUUID(),
+									];
+								}
+							}
+						}
+						if(($desktop = $this->serverToInterface($player, $pk)) !== null){
+							$packets[] = $desktop;
+						}
+					}
+				}
+				
+				return $packets;
 
 			case Info::PLAY_STATUS_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:

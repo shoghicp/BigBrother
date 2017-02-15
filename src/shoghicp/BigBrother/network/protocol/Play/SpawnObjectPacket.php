@@ -23,6 +23,7 @@ use shoghicp\BigBrother\utils\Binary;
 class SpawnObjectPacket extends Packet{
 
 	public $eid;
+	public $uuid;
 	public $type;
 	public $x;
 	public $y;
@@ -37,10 +38,11 @@ class SpawnObjectPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
+		$this->put($this->uuid);
 		$this->putByte($this->type);
-		$this->putInt(intval($this->x * 32));
-		$this->putInt(intval($this->y * 32));
-		$this->putInt(intval($this->z * 32));
+		$this->putDouble($this->x * 32);
+		$this->putDouble($this->y * 32);
+		$this->putDouble($this->z * 32);
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
 		$this->putInt(0); //TODO: extra data

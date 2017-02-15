@@ -37,6 +37,8 @@ class DesktopChunk{
 			$bitsperblock = 8;//TODO
 
 			$chunkdata = "";
+			$blocklight = "";
+			$skylight = "";
 
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
@@ -44,12 +46,14 @@ class DesktopChunk{
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
 
+						//$blocklight .= $subChunk->getBlockLight($x, $y, $z);
+						//$skylight .= $subChunk->getBlockSkyLight($x, $y, $z);
 
-						$block = ($blockid << 4) | $blockdata;
+						$block = (int) ($blockid << 4) | $blockdata;
 
 						//var_dump($block);
 
-						if(($key = array_search($block, $palette)) !== false){
+						if(($key = array_search($block, $palette, true)) !== false){
 							$chunkdata .= chr($key);//bit
 						}else{
 							$key = count($palette);
@@ -57,6 +61,12 @@ class DesktopChunk{
 
 							$chunkdata .= chr($key);//bit
 							//var_dump(chr($key));
+						}
+
+						$unk = array_keys($palette, $block, true);
+						if(count($unk) !== 1){
+							var_dump($block);
+							var_dump($unk);
 						}
 					}
 				}
@@ -80,11 +90,13 @@ class DesktopChunk{
 			/* Block Light*/
 			$payload .= $subChunk->getBlockLightArray();
 			//$payload .= str_repeat("\xff", 4096); //Need to check this.
+			//$payload .= $blocklight;
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
 				//$payload .= str_repeat("\xff", 4096); //Need to check this.
 				$payload .= $subChunk->getSkyLightArray();
+				//$payload .= $skylight;
 			}
 		}
 

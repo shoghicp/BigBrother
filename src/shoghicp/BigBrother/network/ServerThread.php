@@ -108,12 +108,6 @@ class ServerThread extends \Thread{
 		$this->shutdown = true;
 	}
 
-	public function shutdownHandler(){
-		if($this->shutdown !== true){
-			$this->getLogger()->emergency("[ServerThread #". \Thread::getCurrentThreadId() ."] ServerThread crashed!");
-		}
-	}
-
 	public function getPort(){
 		return $this->port;
 	}
@@ -162,6 +156,12 @@ class ServerThread extends \Thread{
 
 	public function readThreadToMainPacket(){
 		return $this->externalQueue->shift();
+	}
+
+	public function shutdownHandler(){
+		if($this->shutdown !== true){
+			$this->getLogger()->emergency("[ServerThread #". \Thread::getCurrentThreadId() ."] ServerThread crashed!");
+		}
 	}
 
 	public function run(){
