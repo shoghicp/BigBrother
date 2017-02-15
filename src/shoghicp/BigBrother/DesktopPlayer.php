@@ -138,9 +138,6 @@ class DesktopPlayer extends Player{
 		}
 
 		if($this->spawned){
-			foreach($this->level->getChunkPlayers($x, $z) as $player){
-				$player->spawnTo($this);
-			}
 			/*foreach($this->level->getChunkEntities($x, $z) as $entity){
 				if($entity !== $this and !$entity->closed and $entity->isAlive()){
 					$entity->spawnTo($this);
@@ -183,6 +180,8 @@ class DesktopPlayer extends Player{
 		}
 
 		if($this->chunkLoadCount >= 4 and $this->spawned === false and $this->teleportPosition === null){
+			$this->plugin->getServer()->sendFullPlayerListData($this);//PlayerList
+
 			$this->doFirstSpawn();
 			$this->inventory->sendContents($this);
 			$this->inventory->sendArmorContents($this);

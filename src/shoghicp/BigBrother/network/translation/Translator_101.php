@@ -231,6 +231,66 @@ class Translator_101 implements Translator{
 			case 0x12: //PlayerAbilitiesPacket
 				$player->setSetting(["isFlying" => $packet->isFlying]);
 				return null;
+			case 0x13: //PlayerDiggingPacket
+				switch($packet->status){
+					case 0:
+						if($player->getGamemode() === 1){
+							$pk = new RemoveBlockPacket();
+							$pk->eid = 0;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							return $pk;
+						}else{
+							$pk = new PlayerActionPacket();
+							$pk->eid = 0;
+							$pk->action = PlayerActionPacket::ACTION_START_BREAK;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$pk->face = $packet->face;
+							return $pk;
+						}
+					break;
+					case 1:
+						$pk = new PlayerActionPacket();
+						$pk->eid = 0;
+						$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
+						$pk->x = $packet->x;
+						$pk->y = $packet->y;
+						$pk->z = $packet->z;
+						$pk->face = $packet->face;
+						return $pk;
+					break;
+					case 2:
+						if($player->getGamemode() !== 1){
+							$packets = [];
+							$pk = new PlayerActionPacket();
+							$pk->eid = 0;
+							$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$pk->face = $packet->face;
+							$packets[] = $pk;
+
+							$pk = new RemoveBlockPacket();
+							$pk->eid = 0;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$packets[] = $pk;
+							return $packets;
+						}else{
+							echo "PlayerDiggingPacket: ".$packet->status."\n";
+						}
+					break;
+					default:
+						echo "PlayerDiggingPacket: ".$packet->status."\n";
+					break;
+				}
+
+				return null;
 
 			case 0x17: //HeldItemChangePacket
 				$item = $player->getInventory()->getItem($packet->selectedSlot);
@@ -298,66 +358,7 @@ class Translator_101 implements Translator{
 
 			/*
 
-			case 0x07: //PlayerDiggingPacket
-				switch($packet->status){
-					case 0:
-						if($player->getGamemode() === 1){
-							$pk = new RemoveBlockPacket();
-							$pk->eid = 0;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							return $pk;
-						}else{
-							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
-							$pk->action = PlayerActionPacket::ACTION_START_BREAK;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$pk->face = $packet->face;
-							return $pk;
-						}
-					break;
-					case 1:
-						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
-						$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
-						$pk->x = $packet->x;
-						$pk->y = $packet->y;
-						$pk->z = $packet->z;
-						$pk->face = $packet->face;
-						return $pk;
-					break;
-					case 2:
-						if($player->getGamemode() !== 1){
-							$packets = [];
-							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
-							$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$pk->face = $packet->face;
-							$packets[] = $pk;
-
-							$pk = new RemoveBlockPacket();
-							$pk->eid = 0;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$packets[] = $pk;
-							return $packets;
-						}else{
-							echo "PlayerDiggingPacket: ".$packet->status."\n";
-						}
-					break;
-					default:
-						echo "PlayerDiggingPacket: ".$packet->status."\n";
-					break;
-				}
-
-				return null;
+			
 
 			
 
@@ -411,12 +412,6 @@ class Translator_101 implements Translator{
 				//echo $packet->text."\n";
 
 				return $pk;*//*
-				return null;
-
-			
-
-			case 0x19: //ResourcePackStatusPacket
-				$player->setSetting(["ResourceStatus" => $packet->status, "ResourceHash" => $packet->hash]);
 				return null;*/
 
 			default:
@@ -493,7 +488,14 @@ class Translator_101 implements Translator{
 				return $packets;
 
 			case Info::ADD_PLAYER_PACKET:
-				//TODO: EntityTeleportPacket?
+				$packets = [];
+				echo "AddPlayerPacket\n";
+
+				$debug = debug_backtrace();
+
+				foreach($debug as $key => $value){
+					echo $value["class"]." : ".$value["function"]."\n";
+				}
 
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
@@ -504,9 +506,22 @@ class Translator_101 implements Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$pk->metadata = $packet->metadata;
-				return $pk;
+				$packets[] = $pk;
+
+				$pk = new EntityTeleportPacket();
+				$pk->eid = $packet->eid;
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->yaw = $packet->yaw;
+				$pk->pitch = $packet->pitch;
+				$packets[] = $pk;
+				
+				return $packets;
 
 			/*case Info::ADD_ENTITY_PACKET:
+				$packets = [];
+
 				$pk = new SpawnMobPacket();
 				$pk->eid = $packet->eid;
 				$pk->type = $pk->type;
@@ -517,7 +532,18 @@ class Translator_101 implements Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$pk->metadata = $packet->metadata;
-				return $pk;*/
+				$packets[] = $pk;
+
+				$pk = new EntityTeleportPacket();
+				$pk->eid = $packet->eid;
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->yaw = $packet->yaw;
+				$pk->pitch = $packet->pitch;
+				$packets[] = $pk;
+				
+				return $packets;*/
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
@@ -809,6 +835,8 @@ class Translator_101 implements Translator{
 
 			case Info::PLAYER_LIST_PACKET:
 				$pk = new PlayerListPacket();
+
+				echo "PlayerListPacket\n";
 
 				switch($packet->type){
 					case 0://Add

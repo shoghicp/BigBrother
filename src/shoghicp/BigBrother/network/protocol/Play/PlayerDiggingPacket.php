@@ -28,7 +28,7 @@ class PlayerDiggingPacket extends Packet{
 	public $face;
 
 	public function pid(){
-		return 0x07;
+		return 0x13;
 	}
 
 	public function encode(){
@@ -36,7 +36,7 @@ class PlayerDiggingPacket extends Packet{
 	}
 
 	public function decode(){
-		$this->status = $this->getByte();
+		$this->status = $this->getVarInt();
 		$this->getPosition($this->x, $this->y, $this->z);
 		$this->face = $this->getByte();
 	}

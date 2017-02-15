@@ -38,13 +38,12 @@ use shoghicp\BigBrother\network\protocol\Play\Client\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerBlockPlacementPacket;
-//use shoghicp\BigBrother\network\protocol\Play\PlayerDiggingPacket;
+use shoghicp\BigBrother\network\protocol\Play\PlayerDiggingPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PluginMessagePacket;
-//use shoghicp\BigBrother\network\protocol\Play\ResourcePackStatusPacket;
 //use shoghicp\BigBrother\network\protocol\Play\CTabCompletePacket;
 use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseItemPacket;
@@ -230,6 +229,9 @@ class ProtocolInterface implements SourceInterface{
 				case 0x12:
 					$pk = new PlayerAbilitiesPacket();
 					break;
+				case 0x13:
+					$pk = new PlayerDiggingPacket();
+					break;
 
 				case 0x17:
 					$pk = new HeldItemChangePacket();
@@ -255,9 +257,7 @@ class ProtocolInterface implements SourceInterface{
 				
 
 					
-				case 0x07:
-					$pk = new PlayerDiggingPacket();
-					break;
+				
 				
 				case 0x0d:
 					$pk = new CTSCloseWindowPacket();
@@ -268,10 +268,6 @@ class ProtocolInterface implements SourceInterface{
 				
 				case 0x14:
 					$pk = new CTabCompletePacket();
-					break;
-				
-				case 0x19:
-					$pk = new ResourcePackStatusPacket();
 					break;*/
 				default:
 					echo "[Interface][Receive] 0x".bin2hex(chr($pid))."\n"; //Debug
