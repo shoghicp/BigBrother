@@ -489,13 +489,6 @@ class Translator_101 implements Translator{
 
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
-				echo "AddPlayerPacket\n";
-
-				$debug = debug_backtrace();
-
-				foreach($debug as $key => $value){
-					echo $value["class"]." : ".$value["function"]."\n";
-				}
 
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
@@ -835,8 +828,6 @@ class Translator_101 implements Translator{
 
 			case Info::PLAYER_LIST_PACKET:
 				$pk = new PlayerListPacket();
-
-				echo "PlayerListPacket\n";
 
 				switch($packet->type){
 					case 0://Add
