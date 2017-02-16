@@ -86,10 +86,6 @@ class DesktopPlayer extends Player{
 		return $this->bigBrother_uuid;
 	}
 
-	public function bigBrother_getSecret(){
-		return $this->bigBrother_secret;
-	}
-
 	public function getSettings(){
 		return $this->Settings;
 	}

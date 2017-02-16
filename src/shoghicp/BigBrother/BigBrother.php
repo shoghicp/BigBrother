@@ -34,10 +34,7 @@ use pocketmine\math\Vector3;
 use pocketmine\tile\Sign;
 use pocketmine\Achievement;
 
-use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerRespawnEvent;
-
-class BigBrother extends PluginBase implements Listener{
+class BigBrother extends PluginBase{
 
 	/** @var ProtocolInterface */
 	private $interface;
@@ -74,10 +71,7 @@ class BigBrother extends PluginBase implements Listener{
 
 		if(Info::CURRENT_PROTOCOL === 101){
 			$this->translator = new Translator_101();
-
 			$this->rsa = new RSA();
-
-			$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
 			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
 
