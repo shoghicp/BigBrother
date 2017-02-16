@@ -29,12 +29,14 @@ use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
 use shoghicp\BigBrother\network\protocol\Play\TeleportConfirmPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\AnimatePacket;
+use shoghicp\BigBrother\network\protocol\ClickWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientSettingsPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientStatusPacket;
-//use shoghicp\BigBrother\network\protocol\Play\CreativeInventoryActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\CreativeInventoryActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\EntityActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ChatPacket;
-//use shoghicp\BigBrother\network\protocol\Play\CTSCloseWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerBlockPlacementPacket;
@@ -44,7 +46,7 @@ use shoghicp\BigBrother\network\protocol\Play\PlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PluginMessagePacket;
-//use shoghicp\BigBrother\network\protocol\Play\CTabCompletePacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\TabCompletePacket;
 use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseItemPacket;
 use shoghicp\BigBrother\network\translation\Translator;
@@ -119,7 +121,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function sendPacket($target, Packet $packet){
-		echo "[Send:Interface] 0x".bin2hex(chr($packet->pid()))."\n";
+		echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
 		$this->thread->pushMainToThreadPacket($data);
 	}
@@ -182,7 +184,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
-		echo "[Receive:Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+		//echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
 		$pid = ord($payload{0});
 		$offset = 1;
 
@@ -193,7 +195,9 @@ class ProtocolInterface implements SourceInterface{
 				case 0x00:
 					$pk = new TeleportConfirmPacket();
 					break;
-
+				case 0x01:
+					$pk = new CTabCompletePacket();
+					break;
 				case 0x02:
 					$pk = new ChatPacket();
 					break;
@@ -204,6 +208,12 @@ class ProtocolInterface implements SourceInterface{
 					$pk = new ClientSettingsPacket();
 					break;
 
+				case 0x07:
+					$pk = new ClickWindowPacket();
+					break;
+				case 0x08:
+					$pk = new CloseWindowPacket();
+					break;
 				case 0x09:
 					$pk = new PluginMessagePacket();
 					break;
@@ -232,45 +242,28 @@ class ProtocolInterface implements SourceInterface{
 				case 0x13:
 					$pk = new PlayerDiggingPacket();
 					break;
+				case 0x14:
+					$pk = new EntityActionPacket();
+					break;
 
 				case 0x17:
 					$pk = new HeldItemChangePacket();
 					break;
-
+				case 0x18:
+					$pk = new CreativeInventoryActionPacket();
+					break;
 				case 0x1a:
 					$pk = new AnimatePacket();
 					break;
-
+				//0x1b: Spectate
 				case 0x1c:
 					$pk = new PlayerBlockPlacementPacket();
 					break;
 				case 0x1d:
 					$pk = new UseItemPacket();
 					break;
-
-				//case 
-
-
-				
-				/*
-				
-				
-
-					
-				
-				
-				case 0x0d:
-					$pk = new CTSCloseWindowPacket();
-					break;
-				case 0x10:
-					$pk = new CreativeInventoryActionPacket();
-				break;
-				
-				case 0x14:
-					$pk = new CTabCompletePacket();
-					break;*/
 				default:
-					echo "[Interface][Receive] 0x".bin2hex(chr($pid))."\n"; //Debug
+					echo "[Receive][Interface] 0x".bin2hex(chr($pid))."\n"; //Debug
 					return;
 			}
 

@@ -141,23 +141,6 @@ class BigBrother extends PluginBase implements Listener{
 		return $this->rsa->decrypt($secret);
 	}
 
-	/**
-	 * @param PlayerRespawnEvent $event
-	 *
-	 * @priority NORMAL
-	 */
-	public function onRespawn(PlayerRespawnEvent $event){
-		$player = $event->getPlayer();
-		if($player instanceof DesktopPlayer){
-			$pk = new RespawnPacket();
-			$pk->dimension = 0;
-			$pk->difficulty = $player->getServer()->getDifficulty();
-			$pk->gamemode = $player->getGamemode();
-			$pk->levelType = "default";
-			$player->putRawPacket($pk);
-		}
-	}
-
 	public static function toJSON($message, $type = 1, $parameters = null){
 		$result = TextFormat::toJSON($message);
 		if($type === 2 and is_array($parameters)){
@@ -172,4 +155,5 @@ class BigBrother extends PluginBase implements Listener{
 		}
 		return $result;
 	}
+
 }

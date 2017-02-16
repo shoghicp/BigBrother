@@ -15,33 +15,30 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play\Client;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 
-class TabCompletePacket extends Packet{
+class EntityPropertiesPacket extends Packet{
 
-	public $text;
-	public $assumeCommand;
-	public $hasPosition;
-	public $x;
-	public $y;
-	public $z;
+	public $eid;
+	public $entries = [];
 
 	public function pid(){
-		return 0x01;
+		return 0x4a;
 	}
 
 	public function encode(){
-
+		$this->putVarInt($this->eid);
+		$this->putInt(count($this->entries));
+		foreach($this->entries as $entry){
+			$this->putString($entry[0]);
+			$this->putDouble($entry[1]);
+			$this->putVarInt(0);//TODO: Modifiers
+		}
 	}
 
 	public function decode(){
-		$this->text = $this->getString();
-		$this->assumeCommand = (bool) $this->getByte();
-		$this->hasPosition = (bool) $this->getByte();
-		if($this->hasPosition){
-			$this->getPosition($this->x, $this->y, $this->z);
-		}
+
 	}
 }

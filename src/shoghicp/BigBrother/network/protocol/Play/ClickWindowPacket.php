@@ -29,7 +29,7 @@ class ClickWindowPacket extends Packet{
 	public $clickedItem;
 
 	public function pid(){
-		return 0x0e;
+		return 0x07;
 	}
 
 	public function encode(){
@@ -41,7 +41,7 @@ class ClickWindowPacket extends Packet{
 		$this->slot = $this->getShort();
 		$this->button = $this->getByte();
 		$this->actionID = $this->getShort();
-		$this->mode = $this->getByte();
+		$this->mode = $this->getVarInt();
 		$this->clickedItem = $this->getSlot();
 	}
 }
