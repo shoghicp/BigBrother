@@ -30,7 +30,10 @@ class SpawnObjectPacket extends Packet{
 	public $z;
 	public $yaw;
 	public $pitch;
-	public $data = "";
+	public $data = 0;
+	public $velocityX;
+	public $velocityY;
+	public $velocityZ;
 
 	public function pid(){
 		return 0x00;
@@ -45,7 +48,12 @@ class SpawnObjectPacket extends Packet{
 		$this->putDouble($this->z * 32);
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
-		$this->putInt(0); //TODO: extra data
+		$this->putInt($this->data);
+		if($this->data > 0){
+			$this->putShort($this->velocityX);
+			$this->putShort($this->velocityY);
+			$this->putShort($this->velocityZ);
+		}
 	}
 
 	public function decode(){

@@ -74,6 +74,9 @@ class Binary extends \pocketmine\utils\Binary{
 					$newdata[2] = [3, $d[1]];
 					$newdata[3] = [6, true];
 				break;
+				default:
+					echo "key: ".$bottom." Not implemented\n";
+				break;
 				//TODO: add data type
 			}
 		}
@@ -87,7 +90,6 @@ class Binary extends \pocketmine\utils\Binary{
 		if(!isset($data["convert"])){
 			$data = self::convertPEToPCMetadata($data);
 		}
-
 
 		$m = "";
 

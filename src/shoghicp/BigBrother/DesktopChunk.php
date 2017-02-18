@@ -20,6 +20,40 @@ class DesktopChunk{
 		$this->data = $this->generateChunk();
 	}
 
+	public function convertPEToPCBlockData(&$blockid, &$blockdata){
+		$blockidlist = [
+			[
+				[243, 0], [3, 2]
+			],
+			[
+				[198, 0], [208, 0]
+			],
+			[
+				[247, 0], [19, 0]//Nether Reactor Core is Sponge
+			],
+			[
+				[247, 1], [19, 0]//Nether Reactor Core is Sponge
+			],
+			[
+				[247, 2], [19, 0]//Nether Reactor Core is Sponge
+			],
+			/*
+			[
+				[PE], [PC]
+			],
+			*/
+		];
+
+		foreach($blockidlist as $convertblockdata){
+			if($convertblockdata[0][0] === $blockid and $convertblockdata[0][1] === $blockdata){
+				$blockid = $convertblockdata[1][0];
+				$blockdata = $convertblockdata[1][1];
+				break;
+			}
+		}
+		
+	}
+
 	public function generateChunk(){
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
@@ -43,15 +77,20 @@ class DesktopChunk{
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
 					for($x = 0; $x < 16; ++$x){
+						//echo $x." : ".$y." : ".$z."\n";
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
+
+						$offset = ($x << 8) | ($z << 4) | $y;
+
+						//echo $offset."\n";
 
 						//$blocklight .= $subChunk->getBlockLight($x, $y, $z);
 						//$skylight .= $subChunk->getBlockSkyLight($x, $y, $z);
 
-						$block = (int) ($blockid << 4) | $blockdata;
+						$this->convertPEToPCBlockData($blockid, $blockdata);
 
-						//var_dump($block);
+						$block = (int) ($blockid << 4) | $blockdata;
 
 						if(($key = array_search($block, $palette, true)) !== false){
 							$chunkdata .= chr($key);//bit
@@ -60,17 +99,44 @@ class DesktopChunk{
 							$palette[$key] = $block;
 
 							$chunkdata .= chr($key);//bit
-							//var_dump(chr($key));
 						}
-
-						/*$unk = array_keys($palette, $block, true);
-						if(count($unk) !== 1){
-							var_dump($block);
-							var_dump($unk);
-						}*/
 					}
 				}
 			}
+
+			/*
+			//Test Code (Don't use!)
+			$chunkblockIds = $subChunk->getBlockIdArray();
+			$chunkblockData = $subChunk->getBlockDataArray();
+			$shift = false;
+			$dataoffset = 0;
+			for($i = 0; $i < 4096; $i++){
+				if($shift){
+					$blockdata = ord($chunkblockData{$dataoffset}) >> 4;
+
+					$shift = false;
+					$dataoffset++;
+				}else{
+					$blockdata = $chunkblockData{$dataoffset} & 0x0f;
+
+					$shift = true;
+				}
+
+				$blockid = ord($chunkblockIds{$i});
+
+				$this->convertPEToPCBlockData($blockid, $blockdata);
+
+				$block = (int) ($blockid << 4) | $blockdata;
+
+				if(($key = array_search($block, $palette, true)) !== false){
+					$chunkdata .= chr($key);//bit
+				}else{
+					$key = count($palette);
+					$palette[$key] = $block;
+
+					$chunkdata .= chr($key);//bit
+				}
+			}*/
 
 
 			/* Bits Per Block & Palette Length */

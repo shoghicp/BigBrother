@@ -66,6 +66,8 @@ use pocketmine\network\protocol\TileEventPacket;
 use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\network\protocol\UseItemPacket;
 use pocketmine\utils\BinaryStream;
+use pocketmine\utils\TextFormat;
+use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
@@ -559,7 +561,7 @@ class Translator_101 implements Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
-				
+
 				return $packets;
 
 			/*case Info::ADD_ENTITY_PACKET:
@@ -595,23 +597,45 @@ class Translator_101 implements Translator{
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
 				$packets = [];
-				$pk = new SpawnObjectPacket();
+				/*$pk = new SpawnObjectPacket();
 				$pk->eid = $packet->eid;
+				$pk->uuid = str_repeat("\x00", 16);//Temporary
 				$pk->type = 2;
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
-				$pk->yaw = $player->yaw;
-				$pk->pitch = $player->pitch;
-				$packets[] = $pk;
+				$pk->yaw = 0;
+				$pk->pitch = 0;
+				$pk->data = 1;
+				$pk->velocityX = 0.25;
+				$pk->velocityY = 0.25;
+				$pk->velocityZ = 0.25;
+				$packets[] = $pk;*/
 
-				$pk = new EntityMetadataPacket();
+				$pk = new SpawnMobPacket();
 				$pk->eid = $packet->eid;
+				$pk->type = 1;
+				$pk->uuid = UUID::fromRandom()->toBinary();//Temporary
+				$pk->x = $packet->x;
+				$pk->z = $packet->z;
+				$pk->y = $packet->y;
+				$pk->yaw = 0;
+				$pk->pitch = 0;
 				$pk->metadata = [
-					0 => [0 => 0, 1 => 0],
-					10 => [0 => 5, 1 => $packet->item],
+					//0 => [0, 0],
+					6 => [5, $packet->item],
+					"convert" => true,
 				];
 				$packets[] = $pk;
+
+				/*$pk = new EntityMetadataPacket();
+				$pk->eid = $packet->eid;
+				$pk->metadata = [
+					//0 => [0, 0],
+					6 => [5, $packet->item],
+					"convert" => true,
+				];
+				$packets[] = $pk;*/
 
 				return $packets;
 
@@ -688,17 +712,22 @@ class Translator_101 implements Translator{
 					//echo "UpdateAtteributesPacket: ".$entry->getName()."\n";
 					switch($entry->getName()){
 						case "minecraft:health":
-							$pk = new UpdateHealthPacket();
-							$pk->health = $entry->getValue();
-							$pk->food = 20;//TODO
-							$pk->saturation = 5;//TODO
-							$packets[] = $pk; 
+							if($packet->entityId === 0){
+								$pk = new UpdateHealthPacket();
+								$pk->health = $entry->getValue();
+								$pk->food = 20;//TODO
+								$pk->saturation = 5;//TODO
+								$packets[] = $pk;
+							}
 						break;
 						/*case "minecraft:player.saturation":
 							$saturation = $entry->getValue();
 						break;
 						case "minecraft:player.hunger":
 							$food = $entry->getValue();
+						break;*/
+						/*case "minecraft:player.experience":
+
 						break;*/
 						default:
 							echo "UpdateAtteributesPacket: ".$entry->getName()."\n";
@@ -946,8 +975,7 @@ class Translator_101 implements Translator{
 					case 0://Add
 						$pk->actionID = PlayerListPacket::TYPE_ADD;
 						foreach($packet->entries as $entry){
-							$packetplayer = $player->getServer()->getPlayerExact($entry[2]);
-
+							$packetplayer = $player->getServer()->getPlayerExact(TextFormat::clean($entry[2]));
 							
 							if($packetplayer instanceof DesktopPlayer){
 								$peroperties = $packetplayer->bigBrother_getPeroperties();
