@@ -58,6 +58,12 @@ class BigBrother extends PluginBase{
 		$this->saveResource("alex.yml", false);
 		$this->reloadConfig();
 
+		if($this->getServer()->getName() !== "Tesseract"){
+			$this->getLogger()->warning("Please use Tesseract.");
+			$this->getPluginLoader()->disablePlugin($this);
+			return;
+		}
+
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
 		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
 			$this->onlineMode = false;
@@ -137,7 +143,8 @@ class BigBrother extends PluginBase{
 
 	public static function toJSON($message, $type = 1, $parameters = null){
 		$result = TextFormat::toJSON($message);
-		if($type === 2 and is_array($parameters)){
+		var_dump($result);
+		if(is_array($parameters)){
 			$result = json_decode($result, true);
 			unset($result["text"]);
 			$result["translate"] = TextFormat::clean($message);
@@ -145,6 +152,7 @@ class BigBrother extends PluginBase{
 				$parameters[$num] = TextFormat::clean($parameter);//TODO
 			}
 			$result["with"] = $parameters;
+			var_dump($result);
 			$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		}
 		return $result;

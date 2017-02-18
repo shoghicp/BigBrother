@@ -283,7 +283,7 @@ class DesktopPlayer extends Player{
 				$pk = new EncryptionRequestPacket();
 				$pk->serverID = "";
 				$pk->publicKey = $plugin->getASN1PublicKey();
-				$pk->verifyToken = $this->bigBrother_checkToken = Utils::getRandomBytes(4, false, true, $pk->publicKey);
+				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);//Random Bytes :(
 				$this->putRawPacket($pk);
 			}else{
 				$info = $this->getProfile($username);
