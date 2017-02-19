@@ -19,7 +19,7 @@ namespace shoghicp\BigBrother\utils;
 
 use phpseclib\Math\BigInteger;
 use shoghicp\BigBrother\network\Session;
-use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
 
 class Binary extends \pocketmine\utils\Binary{
 
@@ -38,41 +38,47 @@ class Binary extends \pocketmine\utils\Binary{
 
 		foreach($olddata as $bottom => $d){
 			switch($bottom){
-				case 0://Flags
+				case Human::DATA_FLAGS://Flags
 					$flags = 0;
 
-					if(((int) $d[1] & (1 << Entity::DATA_FLAG_ONFIRE)) > 0){
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_ONFIRE)) > 0){
 						$flags |= 0x01;
 					}
 
-					if(((int) $d[1] & (1 << Entity::DATA_FLAG_SNEAKING)) > 0){
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_SNEAKING)) > 0){
 						$flags |= 0x02;
 					}
 
-					if(((int) $d[1] & (1 << Entity::DATA_FLAG_SPRINTING)) > 0){
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_SPRINTING)) > 0){
 						$flags |= 0x08;
 					}
 
-					if(((int) $d[1] & (1 <<  Entity::DATA_FLAG_INVISIBLE)) > 0){
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_INVISIBLE)) > 0){
 						$flags |= 0x20;
 					}
 
-					if(((int) $d[1] & (1 <<  Entity::DATA_FLAG_SILENT)) > 0){
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_SILENT)) > 0){
 						$newdata[4] = [6, true];
 					}
 
-					if(((int) $d[1] & (1 <<  Entity::DATA_FLAG_IMMOBILE)) > 0){
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_IMMOBILE)) > 0){
 						//$newdata[11] = [0, true];
 					}
 
 					$newdata[0] = [0, $flags];
 				break;
-				case 7://Air
+				case Human::DATA_AIR://Air
 					$newdata[1] = [1, $d[1]];
 				break;
-				case 4://Custom name
+				case Human::DATA_NAMETAG://Custom name
 					$newdata[2] = [3, $d[1]];
 					$newdata[3] = [6, true];
+				break;
+				case Human::DATA_PLAYER_FLAGS:
+				case Human::DATA_PLAYER_BED_POSITION:
+				case Human::DATA_LEAD_HOLDER_EID:
+				case Human::DATA_MAX_AIR:
+					//Unused
 				break;
 				default:
 					echo "key: ".$bottom." Not implemented\n";

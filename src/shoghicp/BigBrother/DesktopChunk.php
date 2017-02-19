@@ -60,6 +60,16 @@ class DesktopChunk{
 
 		$payload = "";
 
+		//var_dump([532 >> 4, -107 >> 4]);
+
+
+		//if($this->chunkX !== 33 or $this->chunkZ !== -7){
+			//if(7){
+			//	return "";
+			//}
+			//return "";
+		//}
+		
 		foreach($chunk->getSubChunks() as $num => $subChunk){
 			if($subChunk->isEmpty()){
 				continue;
@@ -77,6 +87,7 @@ class DesktopChunk{
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
 					for($x = 0; $x < 16; ++$x){
+						//for($x = 15; $x >= 0; --$x){
 						//echo $x." : ".$y." : ".$z."\n";
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
@@ -107,10 +118,13 @@ class DesktopChunk{
 			/*
 			//Test Code (Don't use!)
 			$chunkblockIds = $subChunk->getBlockIdArray();
+			var_dump(strlen($chunkblockIds));
 			$chunkblockData = $subChunk->getBlockDataArray();
 			$shift = false;
 			$dataoffset = 0;
+			$blocknum = 0;//Remove it
 			for($i = 0; $i < 4096; $i++){
+				$blocknum++;
 				if($shift){
 					$blockdata = ord($chunkblockData{$dataoffset}) >> 4;
 
@@ -137,7 +151,6 @@ class DesktopChunk{
 					$chunkdata .= chr($key);//bit
 				}
 			}*/
-
 
 			/* Bits Per Block & Palette Length */
 			$payload .= Binary::writeByte($bitsperblock).Binary::writeVarInt(count($palette));

@@ -48,6 +48,7 @@ class DesktopPlayer extends Player{
 	private $bigBrother_secret;
 	private $bigBrother_username;
 	private $bigbrother_clientId;
+	private $bigBrother_dimension;
 	protected $Settings = [];
 	/** @var ProtocolInterface */
 	protected $interface;
@@ -60,7 +61,11 @@ class DesktopPlayer extends Player{
 	}
 
 	public function bigBrother_getDimension(){
-		switch($this->level->getDimension()){
+		return $this->bigBrother_dimension;
+	}
+
+	public function bigBrother_getDimensionPEToPC($level_dimension){
+		switch($level_dimension){
 			case 0://Overworld
 				$dimension = 0;
 			break;
@@ -71,6 +76,7 @@ class DesktopPlayer extends Player{
 				$dimension = 1;
 			break;
 		}
+		$this->bigBrother_dimension = $dimension;
 		return $dimension;
 	}
 

@@ -58,12 +58,6 @@ class BigBrother extends PluginBase{
 		$this->saveResource("alex.yml", false);
 		$this->reloadConfig();
 
-		if($this->getServer()->getName() !== "Tesseract"){
-			$this->getLogger()->warning("Please use Tesseract.");
-			$this->getPluginLoader()->disablePlugin($this);
-			return;
-		}
-
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
 		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
 			$this->onlineMode = false;

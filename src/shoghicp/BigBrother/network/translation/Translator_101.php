@@ -507,7 +507,7 @@ class Translator_101 implements Translator{
 				$pk = new JoinGamePacket();
 				$pk->eid = $packet->entityUniqueId;
 				$pk->gamemode = $packet->gamemode;
-				$pk->dimension = $player->bigBrother_getDimension();
+				$pk->dimension = $player->bigBrother_getDimensionPEToPC($pk->dimension);
 				$pk->difficulty = $player->getServer()->getDifficulty();
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
 				$pk->levelType = "default";
