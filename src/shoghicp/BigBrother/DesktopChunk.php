@@ -59,16 +59,6 @@ class DesktopChunk{
 		$this->biomes = $chunk->getBiomeIdArray();
 
 		$payload = "";
-
-		//var_dump([532 >> 4, -107 >> 4]);
-
-
-		//if($this->chunkX !== 33 or $this->chunkZ !== -7){
-			//if(7){
-			//	return "";
-			//}
-			//return "";
-		//}
 		
 		foreach($chunk->getSubChunks() as $num => $subChunk){
 			if($subChunk->isEmpty()){

@@ -77,6 +77,7 @@ class Binary extends \pocketmine\utils\Binary{
 				case Human::DATA_PLAYER_FLAGS:
 				case Human::DATA_PLAYER_BED_POSITION:
 				case Human::DATA_LEAD_HOLDER_EID:
+				case Human::DATA_SCALE:
 				case Human::DATA_MAX_AIR:
 					//Unused
 				break;

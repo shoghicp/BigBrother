@@ -137,16 +137,30 @@ class BigBrother extends PluginBase{
 
 	public static function toJSON($message, $type = 1, $parameters = null){
 		$result = TextFormat::toJSON($message);
-		var_dump($result);
 		if(is_array($parameters)){
 			$result = json_decode($result, true);
 			unset($result["text"]);
-			$result["translate"] = TextFormat::clean($message);
-			foreach($parameters as $num => $parameter){
-				$parameters[$num] = TextFormat::clean($parameter);//TODO
+
+			$message = TextFormat::clean($message);
+			$result["translate"] = str_replace("%", "", $message);
+
+			//Patch :(
+			if(str_replace("%", "", $message) === "commands.gamemode.success.self"){
+				$parameters = [$parameters[2]];
+			}elseif(str_replace("%", "", $message) === "commands.gamemode.success.other"){
+				$parameters = [$parameters[2], $parameters[3]];
 			}
-			$result["with"] = $parameters;
-			var_dump($result);
+
+			foreach($parameters as $num => $parameter){
+				$result["with"][$num] = [];
+
+				$parameter = TextFormat::clean($parameter);
+				if(strpos($parameter, "%") !== false){
+					$result["with"][$num]["translate"] = str_replace("%", "", $parameter);
+				}else{
+					$result["with"][$num]["text"] = $parameter;
+				}
+			}
 			$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		}
 		return $result;

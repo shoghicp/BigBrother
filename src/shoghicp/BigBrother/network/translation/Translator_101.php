@@ -714,7 +714,7 @@ class Translator_101 implements Translator{
 						case "minecraft:health":
 							if($packet->entityId === 0){
 								$pk = new UpdateHealthPacket();
-								$pk->health = $entry->getValue();
+								$pk->health = $entry->getValue();//Defalut Value
 								$pk->food = 20;//TODO
 								$pk->saturation = 5;//TODO
 								$packets[] = $pk;
