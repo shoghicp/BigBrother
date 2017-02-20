@@ -20,7 +20,7 @@ class DesktopChunk{
 		$this->data = $this->generateChunk();
 	}
 
-	public function convertPEToPCBlockData(&$blockid, &$blockdata){
+	public function convertPEToPCBlockData(&$blockid, &$blockdata){//TODO: Move to Class or rewrite easy
 		$blockidlist = [
 			[
 				[243, 0], [3, 2]
@@ -29,13 +29,13 @@ class DesktopChunk{
 				[198, 0], [208, 0]
 			],
 			[
-				[247, 0], [19, 0]//Nether Reactor Core is Sponge
+				[247, -1], [19, 0]//Nether Reactor Core is Sponge
 			],
 			[
-				[247, 1], [19, 0]//Nether Reactor Core is Sponge
+				[157, -1], [125, -1]
 			],
 			[
-				[247, 2], [19, 0]//Nether Reactor Core is Sponge
+				[158, -1], [126, -1]
 			],
 			/*
 			[
@@ -45,10 +45,18 @@ class DesktopChunk{
 		];
 
 		foreach($blockidlist as $convertblockdata){
-			if($convertblockdata[0][0] === $blockid and $convertblockdata[0][1] === $blockdata){
-				$blockid = $convertblockdata[1][0];
-				$blockdata = $convertblockdata[1][1];
-				break;
+			if($convertblockdata[0][0] === $blockid){
+				if($convertblockdata[0][1] === -1){
+					$blockid = $convertblockdata[1][0];
+					if($convertblockdata[1][1] !== -1){
+						$blockdata = $convertblockdata[1][1];
+					}
+					break;
+				}elseif($convertblockdata[0][1] === $blockdata){
+					$blockid = $convertblockdata[1][0];
+					$blockdata = $convertblockdata[1][1];
+					break;
+				}
 			}
 		}
 		
@@ -81,10 +89,6 @@ class DesktopChunk{
 						//echo $x." : ".$y." : ".$z."\n";
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
-
-						$offset = ($x << 8) | ($z << 4) | $y;
-
-						//echo $offset."\n";
 
 						//$blocklight .= $subChunk->getBlockLight($x, $y, $z);
 						//$skylight .= $subChunk->getBlockSkyLight($x, $y, $z);

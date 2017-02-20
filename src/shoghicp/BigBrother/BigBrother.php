@@ -137,6 +137,7 @@ class BigBrother extends PluginBase{
 
 	public static function toJSON($message, $type = 1, $parameters = null){
 		$result = TextFormat::toJSON($message);
+		var_dump(json_decode($result, true));
 		if(is_array($parameters)){
 			$result = json_decode($result, true);
 			unset($result["text"]);

@@ -490,7 +490,7 @@ class Translator_101 implements Translator{
 				}else{
 					$pk = new ChatPacket();
 					$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
-					$pk->position = 0;
+					$pk->position = 0;//TODO
 				}
 
 				return $pk;
@@ -718,6 +718,8 @@ class Translator_101 implements Translator{
 								$pk->food = 20;//TODO
 								$pk->saturation = 5;//TODO
 								$packets[] = $pk;
+
+								
 							}
 						break;
 						/*case "minecraft:player.saturation":
