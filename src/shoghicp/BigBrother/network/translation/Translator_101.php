@@ -751,12 +751,14 @@ class Translator_101 implements Translator{
 							//move to minecraft:health
 						break;
 						case "minecraft:player.experience":
-							$pk = new SetExperiencePacket();
-							$pk->experience = $player->getXpProgress();
-							$pk->level = $player->getXpLevel();
-							$pk->totalexperience = $player->getTotalXp();
+							if($packet->entityId === 0){
+								$pk = new SetExperiencePacket();
+								$pk->experience = $player->getXpProgress();
+								$pk->level = $player->getXpLevel();
+								$pk->totalexperience = $player->getTotalXp();
 
-							$packets[] = $pk;
+								$packets[] = $pk;
+							}
 						break;
 						case "minecraft:player.level":
 							//move to minecraft:player.experience
