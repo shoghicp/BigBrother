@@ -135,7 +135,16 @@ class BigBrother extends PluginBase{
 		return $this->rsa->decrypt($secret);
 	}
 
-	public static function toJSON($message, $type = 1, $parameters = null){
+	public static function toJSON($message, $source = "", $type = 1, $parameters = null){
+		if($source === null){
+			$source = "";
+		}
+
+		if($message === null){
+			$message = "";
+		}
+
+		$message = $source.$message;
 		$result = TextFormat::toJSON($message);
 		var_dump(json_decode($result, true));
 		if(is_array($parameters)){

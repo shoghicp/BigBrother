@@ -491,8 +491,22 @@ class Translator_101 implements Translator{
 					return null;//TODO
 				}else{
 					$pk = new ChatPacket();
-					$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
-					$pk->position = 0;//TODO
+					$pk->message = BigBrother::toJSON($packet->message, $packet->source, $packet->type, $packet->parameters);
+					switch($packet->type){
+						case TextPacket::TYPE_CHAT:
+						case TextPacket::TYPE_TRANSLATION:
+						case TextPacket::TYPE_WHISPER:
+						case TextPacket::TYPE_RAW:
+							$pk->position = 0;
+							break;
+						case TextPacket::TYPE_SYSTEM:
+							$pk->position = 1;
+							break;
+						case TextPacket::TYPE_POPUP:
+						case TextPacket::TYPE_TIP:
+							$pk->position = 2;
+							break;
+					}
 				}
 
 				return $pk;
@@ -614,7 +628,7 @@ class Translator_101 implements Translator{
 				$pk->velocityZ = 0.25;
 				$packets[] = $pk;*/
 
-				$pk = new SpawnMobPacket();
+				/*$pk = new SpawnMobPacket();
 				$pk->eid = $packet->eid;
 				$pk->type = 2;
 				$pk->uuid = UUID::fromRandom()->toBinary();//Temporary
@@ -623,12 +637,12 @@ class Translator_101 implements Translator{
 				$pk->y = $packet->y;
 				$pk->yaw = 0;
 				$pk->pitch = 0;
-				/*$pk->metadata = [
+				$pk->metadata = [
 					//0 => [0, 0],
 					6 => [5, $packet->item],
 					"convert" => true,
-				];*/
-				$packets[] = $pk;
+				];
+				$packets[] = $pk;*/
 
 				/*$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->eid;
@@ -751,6 +765,7 @@ class Translator_101 implements Translator{
 							//move to minecraft:health
 						break;
 						case "minecraft:player.experience":
+
 							if($packet->entityId === 0){
 								$pk = new SetExperiencePacket();
 								$pk->experience = $player->getXpProgress();
