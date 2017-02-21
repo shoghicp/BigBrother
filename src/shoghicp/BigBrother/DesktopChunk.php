@@ -112,13 +112,10 @@ class DesktopChunk{
 			/*
 			//Test Code (Don't use!)
 			$chunkblockIds = $subChunk->getBlockIdArray();
-			var_dump(strlen($chunkblockIds));
 			$chunkblockData = $subChunk->getBlockDataArray();
 			$shift = false;
 			$dataoffset = 0;
-			$blocknum = 0;//Remove it
 			for($i = 0; $i < 4096; $i++){
-				$blocknum++;
 				if($shift){
 					$blockdata = ord($chunkblockData{$dataoffset}) >> 4;
 
@@ -162,12 +159,10 @@ class DesktopChunk{
 
 			/* Block Light*/
 			$payload .= $subChunk->getBlockLightArray();
-			//$payload .= str_repeat("\xff", 4096); //Need to check this.
 			//$payload .= $blocklight;
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
-				//$payload .= str_repeat("\xff", 4096); //Need to check this.
 				$payload .= $subChunk->getSkyLightArray();
 				//$payload .= $skylight;
 			}

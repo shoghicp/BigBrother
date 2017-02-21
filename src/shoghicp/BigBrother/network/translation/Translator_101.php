@@ -77,8 +77,10 @@ use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as SAnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
+use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\ChangeGameStatePacket;
 use shoghicp\BigBrother\network\protocol\Play\DestroyEntitiesPacket;
+use shoghicp\BigBrother\network\protocol\Play\EffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityEquipmentPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityMetadataPacket;
@@ -100,6 +102,7 @@ use shoghicp\BigBrother\network\protocol\Play\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\StatisticsPacket;
+use shoghicp\BigBrother\network\protocol\Play\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket as CRespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\STCCloseWindowPacket;
@@ -149,7 +152,7 @@ class Translator_101 implements Translator{
 					/*case 0:
 						$pk = new PlayerActionPacket();
 						$pk->eid = 0;
-						$pk->action = PlayerActionPacket::ACTION_RESPAWN;
+						$pk->action = PlayerActionPacket::ACTION_RESPAWN;//ACTION_SPAWN_SAME_DIMENSION
 						$pk->x = 0;
 						$pk->y = 0;
 						$pk->z = 0;
@@ -403,7 +406,6 @@ class Translator_101 implements Translator{
 					$pk->posY = $player->getY();
 					$pk->posZ = $player->getZ();
 					$pk->slot = $player->getInventory()->getHeldItemSlot();
-					//var_dump($pk);
 					return $pk;
 				}else{
 					echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
@@ -564,7 +566,7 @@ class Translator_101 implements Translator{
 
 				return $packets;
 
-			/*case Info::ADD_ENTITY_PACKET:
+			case Info::ADD_ENTITY_PACKET:
 				$packets = [];
 
 				$pk = new SpawnMobPacket();
@@ -588,7 +590,7 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 				
-				return $packets;*/
+				return $packets;
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
@@ -614,18 +616,18 @@ class Translator_101 implements Translator{
 
 				$pk = new SpawnMobPacket();
 				$pk->eid = $packet->eid;
-				$pk->type = 1;
+				$pk->type = 2;
 				$pk->uuid = UUID::fromRandom()->toBinary();//Temporary
 				$pk->x = $packet->x;
 				$pk->z = $packet->z;
 				$pk->y = $packet->y;
 				$pk->yaw = 0;
 				$pk->pitch = 0;
-				$pk->metadata = [
+				/*$pk->metadata = [
 					//0 => [0, 0],
 					6 => [5, $packet->item],
 					"convert" => true,
-				];
+				];*/
 				$packets[] = $pk;
 
 				/*$pk = new EntityMetadataPacket();
@@ -696,6 +698,17 @@ class Translator_101 implements Translator{
 				$pk->blockMeta = $packet->blockData;
 				return $pk;
 
+			case Info::LEVEL_EVENT_PACKET:
+				$pk = new EffectPacket();
+				$pk->effectId = $packet->evid;
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->data = $packet->data;
+				$pk->disableRelativeVolume = false;
+
+				return $pk;
+
 			/*case Info::ENTITY_EVENT_PACKET:
 
 
@@ -705,32 +718,52 @@ class Translator_101 implements Translator{
 				$packets = [];
 				$entries = [];
 
-				/*$food = 20;
-				$saturation = 5;*/
-
 				foreach($packet->entries as $entry){
 					//echo "UpdateAtteributesPacket: ".$entry->getName()."\n";
 					switch($entry->getName()){
 						case "minecraft:health":
 							if($packet->entityId === 0){
 								$pk = new UpdateHealthPacket();
-								$pk->health = $entry->getValue();//Defalut Value
-								$pk->food = 20;//TODO
-								$pk->saturation = 5;//TODO
-								$packets[] = $pk;
+								$pk->health = $entry->getValue();//TODO: Defalut Value
+								$pk->food = $player->getFood();//TODO: Default Value
+								$pk->saturation = $player->getSaturation();//TODO: Default Value
 
-								
+								//var_dump($pk);
+							}elseif($packet->entityId === $player->getSetting("BossBar")){
+								$pk = new BossBarPacket();
+								$pk->uuid = str_repeat("\x00", 16);//Temporary
+								$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
+								//$pk->health = $entry->getValue();//
+								$pk->health = 1;
+							}else{
+								$pk = new EntityMetadataPacket();
+								$pk->eid = $packet->eid;
+								$pk->metadata = [
+									7 => [2, $entry->getValue()],
+									"convert" => true,
+								];
 							}
-						break;
-						/*case "minecraft:player.saturation":
-							$saturation = $entry->getValue();
-						break;
-						case "minecraft:player.hunger":
-							$food = $entry->getValue();
-						break;*/
-						/*case "minecraft:player.experience":
 
-						break;*/
+							$packets[] = $pk;
+						break;
+						case "minecraft:player.saturation":
+						case "minecraft:player.hunger":
+							//move to minecraft:health
+						break;
+						case "minecraft:player.experience":
+							$pk = new SetExperiencePacket();
+							$pk->experience = $player->getXpProgress();
+							$pk->level = $player->getXpLevel();
+							$pk->totalexperience = $player->getTotalXp();
+
+							$packets[] = $pk;
+						break;
+						case "minecraft:player.level":
+							//move to minecraft:player.experience
+						break;
+						//case "minecraft:movement":
+							//generic.movementSpeed
+						//break;
 						default:
 							echo "UpdateAtteributesPacket: ".$entry->getName()."\n";
 						break;
@@ -768,6 +801,24 @@ class Translator_101 implements Translator{
 				return $packets;
 
 			case Info::SET_ENTITY_DATA_PACKET:
+				$packets = [];
+
+				if($packet->eid === $player->getSetting("BossBar")){
+					if(isset($packet->metadata[Entity::DATA_NAMETAG])){
+						$title = $packet->metadata[Entity::DATA_NAMETAG][1];
+					}else{
+						$title = "Test";
+					}
+
+
+					$pk = new BossBarPacket();
+					$pk->uuid = str_repeat("\x00", 16);//Temporary
+					$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
+					$pk->title = BigBrother::toJSON($title);
+
+					$packets[] = $pk;
+				}
+
 				/*if(isset($packet->metadata[16])){
 					if($packet->metadata[16][1] === 2){
 						$pk = new UseBedPacket(); //Bug
@@ -790,7 +841,9 @@ class Translator_101 implements Translator{
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->eid;
 				$pk->metadata = $packet->metadata;
-				return $pk;
+				$packets[] = $pk;
+
+				return $packets;
 
 			case Info::SET_ENTITY_MOTION_PACKET:
 				$pk = new EntityVelocityPacket();
@@ -802,9 +855,9 @@ class Translator_101 implements Translator{
 
 			case Info::SET_HEALTH_PACKET:
 				$pk = new UpdateHealthPacket();
-				$pk->health = $packet->health;
-				$pk->food = 20;//TODO
-				$pk->saturation = 5;//TODO
+				$pk->health = $packet->health;//TODO: Default Value
+				$pk->food = $player->getFood();//TODO: Default Value
+				$pk->saturation = $player->getSaturation();//TODO: Default Value
 				return $pk;
 
 			case Info::SET_SPAWN_POSITION_PACKET:
@@ -834,22 +887,10 @@ class Translator_101 implements Translator{
 				}	
 				return null;
 
-			/*case Info::RESPAWN_PACKET:
+			case Info::RESPAWN_PACKET:
 				$packets = [];
 
-				$pk = new CRespawnPacket();
-				$pk->dimension = 1;
-				$pk->difficulty = $player->getServer()->getDifficulty();
-				$pk->gamemode = $player->getGamemode();
-				$pk->levelType = "default";
-				$packets[] = $pk;
-
-				$pk = new CRespawnPacket();
-				$pk->dimension = $player->bigBrother_getDimension();
-				$pk->difficulty = $player->getServer()->getDifficulty();
-				$pk->gamemode = $player->getGamemode();
-				$pk->levelType = "default";
-				$packets[] = $pk;
+				echo "RespawnPacket\n";
 
 				$pk = new PlayerPositionAndLookPacket();
 				$pk->x = $packet->x;
@@ -859,6 +900,22 @@ class Translator_101 implements Translator{
 				$pk->pitch = 0;
 				$pk->onGround = $player->isOnGround();
 				$packets[] = $pk;
+
+				$pk = new CRespawnPacket();
+				$pk->dimension = $player->bigBrother_getDimension();
+				$pk->difficulty = $player->getServer()->getDifficulty();
+				$pk->gamemode = $player->getGamemode();
+				$pk->levelType = "default";
+				$packets[] = $pk;
+
+				/*$pk = new PlayerPositionAndLookPacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y - $player->getEyeHeight();
+				$pk->z = $packet->z;
+				$pk->yaw = 0;
+				$pk->pitch = 0;
+				$pk->onGround = $player->isOnGround();
+				$packets[] = $pk;*/
 
 				return $packets;
 
@@ -981,39 +1038,43 @@ class Translator_101 implements Translator{
 							
 							if($packetplayer instanceof DesktopPlayer){
 								$peroperties = $packetplayer->bigBrother_getPeroperties();
-							}else{
-								//TODO: Skin Problem
-
-								$value = [ //Dummy Data
-									"timestamp" => 0,
-									"profileId" => str_replace("-", "", $packetplayer->getUniqueId()->toString()),
-									"profileName" => $entry[2],
-									"textures" => [
-										"SKIN" => [
-											"metadata" => [
-												"model" => "slim"
-											],
-											"url" => "http://textures.minecraft.net/texture/9277a1b17ccf7b51fa4fa3eafd97fbbd4738f166e0aad75bdee046383951b39e"
-										] 
-									]
-								];
-
-								$peroperties = [
-									[
-										"name" => "textures",
-										"value" => base64_encode(json_encode($value)),
-									]
-								];
-
-								$pk->players[] = [
-									$packetplayer->getUniqueId()->toBinary(),
-									$packetplayer->getName(),
-									$peroperties,
-									$packetplayer->getGamemode(),
-									0,
-									false,
-								];
 							}
+
+							if(!$packetplayer instanceof Player){
+								continue;
+							}
+
+							//TODO: Skin Problem
+
+							$value = [ //Dummy Data
+								"timestamp" => 0,
+								"profileId" => str_replace("-", "", $packetplayer->getUniqueId()->toString()),
+								"profileName" => $entry[2],
+								"textures" => [
+									"SKIN" => [
+										"metadata" => [
+											"model" => "slim"
+										],
+										"url" => "http://textures.minecraft.net/texture/9277a1b17ccf7b51fa4fa3eafd97fbbd4738f166e0aad75bdee046383951b39e"
+									] 
+								]
+							];
+
+							$peroperties = [
+								[
+									"name" => "textures",
+									"value" => base64_encode(json_encode($value)),
+								]
+							];
+
+							$pk->players[] = [
+								$packetplayer->getUniqueId()->toBinary(),
+								$packetplayer->getName(),
+								$peroperties,
+								$packetplayer->getGamemode(),
+								0,
+								false,
+							];
 						}
 					break;
 					case 1://Remove
@@ -1077,6 +1138,43 @@ class Translator_101 implements Translator{
 				}
 				
 				return $packets;
+
+			case Info::BOSS_EVENT_PACKET:
+				$pk = new BossBarPacket();
+
+				switch($packet->type){
+					case 0:
+						if(($entity = $player->getLevel()->getEntity($packet->eid)) instanceof Entity){
+							$title = $entity->getNameTag();
+							$health = 1;//TODO
+						}else{
+							$title = "Test";
+							$health = 1;
+						}
+
+						$flags = 0;
+						$flags |= 0x01;
+						$flags |= 0x02;
+
+
+						$pk->actionID = BossBarPacket::TYPE_ADD;
+						$pk->uuid = str_repeat("\x00", 16);//Temporary
+						$pk->title = BigBrother::toJSON($title);
+						$pk->health = $health;
+						$pk->color = 0;
+						$pk->division = 0;
+						$pk->flags = 0;
+
+						$player->setSetting(["BossBar" => $packet->eid]);
+					break;
+					case 1:
+						$player->removeSetting("BossBar");
+					break;
+					default:
+						echo "BossEventPacket: ".$packet->type."\n";
+					break;
+				}
+				return null;
 
 			case Info::PLAY_STATUS_PACKET:
 			case Info::RESOURCE_PACKS_INFO_PACKET:
