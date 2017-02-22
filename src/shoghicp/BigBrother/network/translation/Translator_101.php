@@ -76,6 +76,7 @@ use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as SAnimatePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\ChangeGameStatePacket;
@@ -216,8 +217,9 @@ class Translator_101 implements Translator{
 				return $pk;
 
 			case 0x0b: //KeepAlivePacket
-				$packet->id = mt_rand();
-				$player->putRawPacket($packet);
+				$pk = new KeepAlivePacket();
+				$pk->id = mt_rand();
+				$player->putRawPacket($pk);
 
 				return null;
 

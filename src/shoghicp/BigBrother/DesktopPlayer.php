@@ -32,6 +32,7 @@ use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginSuccessPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\TitlePacket;
@@ -246,6 +247,10 @@ class DesktopPlayer extends Player{
 			}
 
 			$this->handleDataPacket($pk);
+
+			$pk = new KeepAlivePacket();
+			$pk->id = mt_rand();
+			$this->putRawPacket($pk);
 
 			$pk = new PlayerListPacket();
 			$pk->actionID = PlayerListPacket::TYPE_ADD;
