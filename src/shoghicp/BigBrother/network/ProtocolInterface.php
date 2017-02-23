@@ -184,7 +184,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
-		//echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+		echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
 		$pid = ord($payload{0});
 		$offset = 1;
 

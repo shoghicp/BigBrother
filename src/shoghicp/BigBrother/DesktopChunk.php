@@ -82,20 +82,24 @@ class DesktopChunk{
 			$blocklight = "";
 			$skylight = "";
 
-			//TODO: rewrite code blocklight and skylight
+			//TODO: blocklight and skylight
+			$blocklight = $subChunk->getBlockLightArray();
+			$skylight = $subChunk->getSkyLightArray();
 
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
 					$data = "";
-					for($x = 0; $x < 8; ++$x){
+					$chunklight = "";
+					$chunkskylight = "";
+					$shift = false;
+
+					for($x = 0; $x < 16; ++$x){
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
-
-						//$blocklight .= $subChunk->getBlockLight($x, $y, $z);
-						//$skylight .= $subChunk->getBlockSkyLight($x, $y, $z);
+						//$lightdata = $subChunk->getBlockLight($x, $y, $z);
+						//$skylightdata = $subChunk->getBlockSkyLight($x, $y, $z);
 
 						$this->convertPEToPCBlockData($blockid, $blockdata);
-
 						$block = (int) ($blockid << 4) | $blockdata;
 
 						if(($key = array_search($block, $palette, true)) !== false){
@@ -106,31 +110,26 @@ class DesktopChunk{
 
 							$data .= chr($key);//bit
 						}
-					}
-					$chunkdata .= strrev($data);
 
-					$data = "";
-					for($x = 8; $x < 16; ++$x){
-						$blockid = $subChunk->getBlockId($x, $y, $z);
-						$blockdata = $subChunk->getBlockData($x, $y, $z);
-
-						//$blocklight .= $subChunk->getBlockLight($x, $y, $z);
-						//$skylight .= $subChunk->getBlockSkyLight($x, $y, $z);
-
-						$this->convertPEToPCBlockData($blockid, $blockdata);
-
-						$block = (int) ($blockid << 4) | $blockdata;
-
-						if(($key = array_search($block, $palette, true)) !== false){
-							$data .= chr($key);//bit
+						/*if(!$shift){
+							$bak_light = $lightdata;
+							$bak_skylight = $skylightdata;
+							$shift = true;
 						}else{
-							$key = count($palette);
-							$palette[$key] = $block;
+							$chunklight .= (chr($bak_light << 4) | $lightdata);
+							$chunkskylight .= chr(($bak_skylight << 4) | $skylightdata);
+							$shift = false;
+						}*/
 
-							$data .= chr($key);//bit
+						if($x === 7 or $x === 15){//Reset ChunkData
+							$chunkdata .= strrev($data);
+							/*$blocklight .= strrev($chunklight);
+							$skylight .= strrev($chunkskylight);*/
+							$data = "";
+							/*$chunklight = "";
+							$chunkskylight = "";*/
 						}
 					}
-					$chunkdata .= strrev($data);
 				}
 			}
 
@@ -149,13 +148,11 @@ class DesktopChunk{
 			$payload .= $chunkdata;
 
 			/* Block Light*/
-			$payload .= $subChunk->getBlockLightArray();
-			//$payload .= $blocklight;
+			$payload .= $blocklight;
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
-				$payload .= $subChunk->getSkyLightArray();
-				//$payload .= $skylight;
+				$payload .= $skylight;
 			}
 		}
 
