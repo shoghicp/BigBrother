@@ -23,20 +23,35 @@ class DesktopChunk{
 	public function convertPEToPCBlockData(&$blockid, &$blockdata){//TODO: Move to Class or rewrite easy
 		$blockidlist = [
 			[
-				[243, 0], [3, 2]
+				[243, 0], [3, 2] //Podzol
 			],
 			[
-				[198, 0], [208, 0]
+				[198, -1], [208, -1] //Grass Path
 			],
 			[
-				[247, -1], [19, 0]//Nether Reactor Core is Sponge
+				[247, -1], [19, 0] //Nether Reactor Core is Sponge
 			],
 			[
-				[157, -1], [125, -1]
+				[157, -1], [125, -1] //Double slab
 			],
 			[
-				[158, -1], [126, -1]
+				[158, -1], [126, -1] //Stairs
 			],
+			[
+				[208, 0], [198, 0] //End Rod
+			],
+			[
+				[241, -1], [95, -1] //Stained Glass
+			],
+			[
+				[182, 1], [205, 0] //Purpur Slab
+			],
+			[
+				[181, 1], [204, 0] //Double Purpur Slab
+			],
+			[
+				[95, 0], [166, 0] //Double Purpur Slab
+			]
 			/*
 			[
 				[PE], [PC]
