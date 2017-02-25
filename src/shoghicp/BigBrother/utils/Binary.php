@@ -54,7 +54,7 @@ class Binary extends \pocketmine\utils\Binary{
 					}
 
 					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_INVISIBLE)) > 0){
-						$flags |= 0x20;
+						//$flags |= 0x20;
 					}
 
 					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_SILENT)) > 0){
@@ -71,7 +71,8 @@ class Binary extends \pocketmine\utils\Binary{
 					$newdata[1] = [1, $d[1]];
 				break;
 				case Human::DATA_NAMETAG://Custom name
-					$newdata[2] = [3, $d[1]];
+					//var_dump(bin2hex($d[1]));
+					$newdata[2] = [3, str_replace("\n", "\r\n", $d[1])];
 					$newdata[3] = [6, true];
 				break;
 				case Human::DATA_PLAYER_FLAGS:

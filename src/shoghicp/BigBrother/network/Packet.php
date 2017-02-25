@@ -18,6 +18,7 @@
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\item\Item;
+use pocketmine\nbt\NBT;
 use shoghicp\BigBrother\utils\Binary;
 
 abstract class Packet extends \stdClass{
@@ -103,9 +104,16 @@ abstract class Packet extends \stdClass{
 			$this->putShort($item->getID());
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
-			$nbt = $item->getCompoundTag();
-			$this->putByte(strlen($nbt));//Short?
-			$this->put($nbt);
+
+			/*$oldnbt = new NBT(NBT::LITTLE_ENDIAN);
+			$oldnbt->read($item->getCompoundTag());
+			$newnbt = new NBT(NBT::BIG_ENDIAN);
+			$newnbt->setData($oldnbt->getData());
+
+			$nbt = $newnbt->write();
+			$this->putByte(strlen($nbt));
+			$this->put($nbt);*/
+			$this->putByte(0);//TODO
 		}
 	}
 

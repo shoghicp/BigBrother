@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play\Client;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
 

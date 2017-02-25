@@ -158,7 +158,11 @@ class BigBrother extends PluginBase{
 			if(str_replace("%", "", $message) === "commands.gamemode.success.self"){
 				$parameters = [$parameters[2]];
 			}elseif(str_replace("%", "", $message) === "commands.gamemode.success.other"){
-				$parameters = [$parameters[2], $parameters[3]];
+				if(count($parameters) === 2){
+					$parameters = [$parameters[0], $parameters[1]];
+				}else{
+					$parameters = [$parameters[1], $parameters[2]];
+				}
 			}
 
 			foreach($parameters as $num => $parameter){
@@ -173,6 +177,15 @@ class BigBrother extends PluginBase{
 			}
 			$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		}
+
+		$result = json_decode($result, true);
+		if(isset($result["extra"])){
+			if(count($result["extra"]) === 0){
+				unset($result["extra"]);
+			}
+		}
+		$result = json_encode($result, JSON_UNESCAPED_SLASHES);
+
 		return $result;
 	}
 

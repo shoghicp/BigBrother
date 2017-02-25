@@ -260,9 +260,14 @@ class DesktopPlayer extends Player{
 				$this->bigBrother_properties,
 				$this->getGamemode(),
 				0,
-				false,
+				true,
+				BigBrother::toJSON($this->bigBrother_username)
 			];
 			$this->putRawPacket($pk);
+
+			$playerlist = [];
+			$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = true;
+			$this->setSetting(["PlayerList" => $playerlist]);
 
 			$pk = new TitlePacket(); //Set SubTitle for this
 			$pk->actionID = TitlePacket::TYPE_SET_TITLE;

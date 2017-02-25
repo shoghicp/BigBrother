@@ -23,6 +23,7 @@ use shoghicp\BigBrother\utils\Binary;
 class PlayerListPacket extends Packet{
 
 	const TYPE_ADD = 0;
+	const TYPE_UPDATE_NAME = 3;
 	const TYPE_REMOVE = 4;
 
 	public $actionID;
@@ -41,30 +42,41 @@ class PlayerListPacket extends Packet{
 		$this->putVarInt($this->actionID);
 		$this->putVarInt(count($this->players));
 		foreach($this->players as $player){
-			if($this->actionID === self::TYPE_ADD){//add Player
-				$this->put($player[0]);//UUID
-				$this->putString($player[1]); //PlayerName
-				$this->putVarInt(count($player[2])); //Count Peropetry
+			switch($this->actionID){
+				case self::TYPE_ADD:
+					$this->put($player[0]);//UUID
+					$this->putString($player[1]); //PlayerName
+					$this->putVarInt(count($player[2])); //Count Peropetry
 
-				foreach($player[2] as $peropetrydata){
-					$this->putString($peropetrydata["name"]); //Name
-					$this->putString($peropetrydata["value"]); //Value
-					if(isset($peropetrydata["signature"])){
-						$this->putByte(1); //Is Signed
-						$this->putString($peropetrydata["signature"]); //Peropetry
-					}else{
-						$this->putByte(0); //Is Signed
+					foreach($player[2] as $peropetrydata){
+						$this->putString($peropetrydata["name"]); //Name
+						$this->putString($peropetrydata["value"]); //Value
+						if(isset($peropetrydata["signature"])){
+							$this->putByte(1); //Is Signed
+							$this->putString($peropetrydata["signature"]); //Peropetry
+						}else{
+							$this->putByte(0); //Is Signed
+						}
 					}
-				}
 
-				$this->putVarInt($player[3]); //Gamemode
-				$this->putVarInt($player[4]); //Ping
-				$this->putByte($player[5] ? 1 : 0); //has Display name
-				if($player[5] === true){
-					$this->putString($player[6]); //Display name
-				}
-			}else{
-				$this->put($player[0]);//UUID
+					$this->putVarInt($player[3]); //Gamemode
+					$this->putVarInt($player[4]); //Ping
+					$this->putByte($player[5] ? 1 : 0); //has Display name
+					if($player[5] === true){
+						$this->putString($player[6]); //Display name
+					}
+					break;
+				case self::TYPE_UPDATE_NAME:
+					$this->put($player[0]);//UUID
+					$this->putByte($player[1] ? 1 : 0); //has Display name
+					$this->putString($player[2]);//Display name
+					break;
+				case self::TYPE_REMOVE:
+					$this->put($player[0]);//UUID
+					break;
+				default:
+					echo "PlayerListPacket: ".$this->actionID."\n";
+					break;
 			}
 		}
 	}
