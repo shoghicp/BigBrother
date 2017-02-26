@@ -83,6 +83,7 @@ use shoghicp\BigBrother\network\protocol\Play\ChangeGameStatePacket;
 use shoghicp\BigBrother\network\protocol\Play\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\EffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityEquipmentPacket;
+use shoghicp\BigBrother\network\protocol\Play\EntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityMetadataPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityTeleportPacket;
@@ -399,7 +400,7 @@ class Translator_101 implements Translator{
 					$pk->item = $packet->item;
 					return $pk;
 				}else{
-					$pk = new ContainerSetSlotPacket();
+					/*$pk = new ContainerSetSlotPacket();
 					$pk->windowid = 0;
 					if($player->getGamemode() === 1){
 						$pk->slot = $packet->slot - 36;
@@ -409,7 +410,8 @@ class Translator_101 implements Translator{
 					$pk->slot = $packet->slot;
 					$pk->hotbarSlot = 0;
 					$pk->item = $packet->item;
-					return $pk;
+					return $pk;*/
+					return null;
 				}
 
 			case 0x1a: //AnimatePacket
@@ -728,6 +730,21 @@ class Translator_101 implements Translator{
 
 			*/
 
+			/*case Info::MOB_EFFECT_PACKET:
+				$flags = 0;
+
+				if($packet->particles){
+					$flags |= 0x02;
+				}
+
+				$pk = new EntityEffectPacket();
+				$pk->eid = $pacet->eid;
+				$pk->effectId = $packet->effectId;
+				$pk->amplifier = $packet->amplifier;
+				$pk->duration = $packet->duration;
+				$pk->flags = $flags;
+				return $pk;*/
+
 			case Info::UPDATE_ATTRIBUTES_PACKET:
 				$packets = [];
 				$entries = [];
@@ -772,7 +789,6 @@ class Translator_101 implements Translator{
 						break;
 						case "minecraft:player.experience":
 							if($packet->entityId === 0){
-								echo "SetExperiencePacket\n";
 								$pk = new SetExperiencePacket();
 								$pk->experience = $entry->getValue();//TODO: Default Value
 								$pk->level = $player->getXpLevel();//TODO: Default Value
@@ -841,7 +857,10 @@ class Translator_101 implements Translator{
 				}
 
 				/*if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
+					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION];
+					if(){
 
+					}
 				}*/
 
 				/*if(isset($packet->metadata[16])){
@@ -994,7 +1013,11 @@ class Translator_101 implements Translator{
 						$pk->items[] = $player->getInventory()->getBoots();
 
 						$hotbar = [];
-						$hotbardata = $player->getInventory()->getHotbar();
+						$hotbardata = [];
+						for($i = 0; $i < 9; $i++){ 
+							$hotbardata[] = $player->getInventory()->getHotbarSlotIndex($i);
+						}
+
 						foreach($hotbardata as $hotbarslot){
 							$hotbar[$hotbarslot] = $player->getInventory()->getItem($hotbarslot);
 						}
@@ -1032,7 +1055,7 @@ class Translator_101 implements Translator{
 				$player->setSetting(["Recipes" => $packet->entries, "cleanRecipes" => $packet->cleanRecipes]);
 				return null;
 
-			case Info::BLOCK_ENTITY_DATA_PACKET:
+			/*case Info::BLOCK_ENTITY_DATA_PACKET:
 				$nbt = new NBT(NBT::LITTLE_ENDIAN);
 				$nbt->read($packet->namedtag);
 				$nbt = $nbt->getData();
@@ -1053,7 +1076,7 @@ class Translator_101 implements Translator{
 					}
 				}
 				
-				return null;
+				return null;*/
 
 			case Info::SET_DIFFICULTY_PACKET:
 				$pk = new ServerDifficultyPacket();

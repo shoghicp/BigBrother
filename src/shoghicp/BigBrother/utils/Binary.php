@@ -72,7 +72,7 @@ class Binary extends \pocketmine\utils\Binary{
 				break;
 				case Human::DATA_NAMETAG://Custom name
 					//var_dump(bin2hex($d[1]));
-					$newdata[2] = [3, str_replace("\n", "\r\n", $d[1])];
+					$newdata[2] = [3, str_replace("\n", "", $d[1])];//TODO
 					$newdata[3] = [6, true];
 				break;
 				case Human::DATA_PLAYER_FLAGS:
@@ -150,7 +150,6 @@ class Binary extends \pocketmine\utils\Binary{
 					$int1 |= ($d[1][0] & 0x3FFFFFF) << 6; //26 bits
 					$this->buffer .= self::writeInt($int1) . self::writeInt($int2);
 				break;
-				//TODO: add data type
 			}
 		}
 

@@ -18,30 +18,22 @@
 namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
-use shoghicp\BigBrother\utils\Binary;
 
-class UpdateSignPacket extends Packet{
+class RemoveEntityEffectPacket extends Packet{
 
-	public $x;
-	public $y;
-	public $z;
-	public $line1;
-	public $line2;
-	public $line3;
-	public $line4;
+	public $eid;
+	public $effectId;
 
 	public function pid(){
-		return 0x19;
+		return 0x31;
 	}
 
 	public function encode(){
+		$this->putVarInt($this->eid);
+		$this->putVarInt($this->effectId);
 	}
 
 	public function decode(){
-		$this->getPosition($this->x, $this->y, $this->z);
-		$this->line1 = $this->getString();
-		$this->line2 = $this->getString();
-		$this->line3 = $this->getString();
-		$this->line4 = $this->getString();
+
 	}
 }

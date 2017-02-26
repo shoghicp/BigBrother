@@ -20,28 +20,24 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\utils\Binary;
 
-class UpdateSignPacket extends Packet{
+class UpdateBlockEntityPacket extends Packet{
 
 	public $x;
 	public $y;
 	public $z;
-	public $line1;
-	public $line2;
-	public $line3;
-	public $line4;
+	public $actionID;
+	public $namedtag;
 
 	public function pid(){
-		return 0x19;
+		return 0x09;
 	}
 
 	public function encode(){
+		$this->putPosition($this->x, $this->y, $this->z);
+		$this->putByte($this->actionID);
+		//namedtag
 	}
 
 	public function decode(){
-		$this->getPosition($this->x, $this->y, $this->z);
-		$this->line1 = $this->getString();
-		$this->line2 = $this->getString();
-		$this->line3 = $this->getString();
-		$this->line4 = $this->getString();
 	}
 }
