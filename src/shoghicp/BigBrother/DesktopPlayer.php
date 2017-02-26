@@ -126,6 +126,12 @@ class DesktopPlayer extends Player{
 		$this->usedChunks[Level::chunkHash($x, $z)] = true;
 		$this->chunkLoadCount++;
 
+		$blockEntities = [];
+		/*foreach($this->level->getChunkTiles($x, $z) as $tile){
+			$blockEntities[] = $tile->getSpawnCompound()->write(true);
+		}*/
+
+
 		$chunk = new DesktopChunk($this, $x, $z);
 
 		$pk = new ChunkDataPacket();
@@ -135,21 +141,15 @@ class DesktopPlayer extends Player{
 		$pk->primaryBitmap = $chunk->getBitMapData();
 		$pk->payload = $chunk->getChunkData();
 		$pk->biomes = $chunk->getBiomesData();
-		$pk->blockEntities = [];//TODO
+		$pk->blockEntities = $blockEntities;
 		$this->putRawPacket($pk);
 
-		foreach($this->level->getChunkTiles($x, $z) as $tile){
-			if($tile instanceof Sign){
-				$tile->spawnTo($this);
-			}
-		}
-
 		if($this->spawned){
-			/*foreach($this->level->getChunkEntities($x, $z) as $entity){
+			foreach($this->level->getChunkEntities($x, $z) as $entity){
 				if($entity !== $this and !$entity->closed and $entity->isAlive()){
 					$entity->spawnTo($this);
 				}
-			}*/
+			}
 		}
 	}
 

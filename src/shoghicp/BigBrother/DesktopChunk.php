@@ -5,6 +5,7 @@ namespace shoghicp\BigBrother;
 use pocketmine\Player;
 use pocketmine\level\Level;
 use shoghicp\BigBrother\utils\Binary;
+use shoghicp\BigBrother\utils\ConvertUtils;
 
 class DesktopChunk{
 	private $player, $chunkX, $chunkZ, $provider, $groundup, $bitmap, $biomes;
@@ -18,63 +19,6 @@ class DesktopChunk{
 		$this->bitmap = 0;
 		$this->biomes = null;
 		$this->data = $this->generateChunk();
-	}
-
-	public function convertPEToPCBlockData(&$blockid, &$blockdata){//TODO: Move to Class or rewrite easy
-		$blockidlist = [
-			[
-				[243, 0], [3, 2] //Podzol
-			],
-			[
-				[198, -1], [208, -1] //Grass Path
-			],
-			[
-				[247, -1], [19, 0] //Nether Reactor Core is Sponge
-			],
-			[
-				[157, -1], [125, -1] //Double slab
-			],
-			[
-				[158, -1], [126, -1] //Stairs
-			],
-			[
-				[208, 0], [198, 0] //End Rod
-			],
-			[
-				[241, -1], [95, -1] //Stained Glass
-			],
-			[
-				[182, 1], [205, 0] //Purpur Slab
-			],
-			[
-				[181, 1], [204, 0] //Double Purpur Slab
-			],
-			[
-				[95, 0], [166, 0] //Double Purpur Slab
-			]
-			/*
-			[
-				[PE], [PC]
-			],
-			*/
-		];
-
-		foreach($blockidlist as $convertblockdata){
-			if($convertblockdata[0][0] === $blockid){
-				if($convertblockdata[0][1] === -1){
-					$blockid = $convertblockdata[1][0];
-					if($convertblockdata[1][1] !== -1){
-						$blockdata = $convertblockdata[1][1];
-					}
-					break;
-				}elseif($convertblockdata[0][1] === $blockdata){
-					$blockid = $convertblockdata[1][0];
-					$blockdata = $convertblockdata[1][1];
-					break;
-				}
-			}
-		}
-		
 	}
 
 	public function generateChunk(){
@@ -114,7 +58,7 @@ class DesktopChunk{
 						//$lightdata = $subChunk->getBlockLight($x, $y, $z);
 						//$skylightdata = $subChunk->getBlockSkyLight($x, $y, $z);
 
-						$this->convertPEToPCBlockData($blockid, $blockdata);
+						ConvertUtils::convertBlockData(true, $blockid, $blockdata);
 						$block = (int) ($blockid << 4) | $blockdata;
 
 						if(($key = array_search($block, $palette, true)) !== false){

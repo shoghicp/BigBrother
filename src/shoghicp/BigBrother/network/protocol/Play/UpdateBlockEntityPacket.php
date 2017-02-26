@@ -26,7 +26,7 @@ class UpdateBlockEntityPacket extends Packet{
 	public $y;
 	public $z;
 	public $actionID;
-	public $namedtag;
+	public $namedtag = "";
 
 	public function pid(){
 		return 0x09;
@@ -35,7 +35,7 @@ class UpdateBlockEntityPacket extends Packet{
 	public function encode(){
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putByte($this->actionID);
-		//namedtag
+		$this->put($this->namedtag);
 	}
 
 	public function decode(){

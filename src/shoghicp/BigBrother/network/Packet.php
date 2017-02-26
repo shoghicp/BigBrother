@@ -20,6 +20,7 @@ namespace shoghicp\BigBrother\network;
 use pocketmine\item\Item;
 use pocketmine\nbt\NBT;
 use shoghicp\BigBrother\utils\Binary;
+use shoghicp\BigBrother\utils\ConvertUtils;
 
 abstract class Packet extends \stdClass{
 
@@ -93,11 +94,16 @@ abstract class Packet extends \stdClass{
 			if($len > 0){
 				$nbt = $this->get($len);
 			}
+
+			//ConvertUtils::convertItemData(false, $item);
+
 			return Item::get($itemId, $damage, $count, $nbt);
 		}
 	}
 
 	protected function putSlot(Item $item){
+		//ConvertUtils::convertItemData(true, $item);
+
 		if($item->getID() === 0){
 			$this->putShort(-1);
 		}else{

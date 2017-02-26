@@ -391,27 +391,32 @@ class Translator_101 implements Translator{
 				return $pk;
 
 			case 0x18: //CreativeInventoryActionPacket
-				echo "Slot: ".$packet->slot."\n";
-				echo "ItemId: ".$packet->item->getId()." : ".$packet->item->getDamage()."\n";
-
 				if($packet->slot === 65535){
 					$pk = new DropItemPacket();
 					$pk->type = 0;
 					$pk->item = $packet->item;
 					return $pk;
 				}else{
-					/*$pk = new ContainerSetSlotPacket();
-					$pk->windowid = 0;
-					if($player->getGamemode() === 1){
-						$pk->slot = $packet->slot - 36;
-					}else{
-						$pk->slot = $packet->slot ;//TODO
+					$pk = new ContainerSetSlotPacket();
+
+					if($packet->slot > 4 and $packet->slot < 9){//Armor
+						$pk->windowid = ContainerSetContentPacket::SPECIAL_ARMOR;
+
+						$pk->slot = $packet->slot - 5;
+					}else{//Inventory
+						$pk->windowid = 0;
+
+						if($packet->slot > 35 and $packet->slot < 45){//hotbar
+							$pk->slot = $packet->slot - 36;
+						}else{
+							$pk->slot = $packet->slot + 9;
+							//TODO: hotbar slot in inventory slot
+						}
 					}
-					$pk->slot = $packet->slot;
-					$pk->hotbarSlot = 0;
+
+					$pk->hotbarSlot = 0;//unused
 					$pk->item = $packet->item;
-					return $pk;*/
-					return null;
+					return $pk;
 				}
 
 			case 0x1a: //AnimatePacket
@@ -429,13 +434,15 @@ class Translator_101 implements Translator{
 					$pk->blockId = $player->getInventory()->getItemInHand()->getId();
 					$pk->face = $packet->direction;
 					$pk->item = $player->getInventory()->getItemInHand();
-					$pk->fx = $packet->cursorX / 16;
-					$pk->fy = $packet->cursorY / 16;
-					$pk->fz = $packet->cursorZ / 16;
+					$pk->fx = $packet->cursorX;
+					$pk->fy = $packet->cursorY;
+					$pk->fz = $packet->cursorZ;
 					$pk->posX = $player->getX();
 					$pk->posY = $player->getY();
 					$pk->posZ = $player->getZ();
 					$pk->slot = $player->getInventory()->getHeldItemSlot();
+
+					var_dump($packet, $pk);
 					return $pk;
 				}else{
 					echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
@@ -633,25 +640,10 @@ class Translator_101 implements Translator{
 				$pk->eid = $packet->eid;
 				$pk->metadata = [
 					0 => [0, 0],
-					2 => [3, "Test"],
-					3 => [6, true],
-					4 => [6, false],
 					6 => [5, $packet->item],
 					"convert" => true,
 				];
 				$packets[] = $pk;
-
-				/*$pk = new SpawnMobPacket();
-				$pk->eid = $packet->eid;
-				$pk->type = 57;
-				$pk->uuid = UUID::fromRandom()->toBinary();
-				$pk->x = $packet->x;
-				$pk->z = $packet->z;
-				$pk->y = $packet->y;
-				$pk->yaw = 0;
-				$pk->pitch = 0;
-				$pk->metadata = [];
-				$packets[] = $pk;*/
 
 				//var_dump($packets);
 
@@ -706,6 +698,8 @@ class Translator_101 implements Translator{
 				}
 
 			case Info::UPDATE_BLOCK_PACKET:
+				ConvertUtils::convertBlockData(true, $packet->blockId, $packet->blockData);
+
 				$pk = new BlockChangePacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
@@ -738,7 +732,7 @@ class Translator_101 implements Translator{
 				}
 
 				$pk = new EntityEffectPacket();
-				$pk->eid = $pacet->eid;
+				$pk->eid = $packet->eid;
 				$pk->effectId = $packet->effectId;
 				$pk->amplifier = $packet->amplifier;
 				$pk->duration = $packet->duration;
