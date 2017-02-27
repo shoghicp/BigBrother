@@ -73,7 +73,7 @@ class ConvertUtils{
 				[325, 10], [327, 0] //Lava bucket
 			],
 			[
-				[325, 0], [335, 0] //Milk bucket
+				[325, 1], [335, 0] //Milk bucket
 			]
 			/*
 			[
