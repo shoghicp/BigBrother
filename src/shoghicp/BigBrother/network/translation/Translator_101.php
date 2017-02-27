@@ -324,6 +324,7 @@ class Translator_101 implements Translator{
 							echo "PlayerDiggingPacket: ".$packet->status."\n";
 						}
 					break;
+
 					default:
 						echo "PlayerDiggingPacket: ".$packet->status."\n";
 					break;

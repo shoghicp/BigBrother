@@ -17,6 +17,7 @@
 
 namespace shoghicp\BigBrother\utils;
 
+use pocketmine\item\Item;
 use pocketmine\entity\Human;
 
 class ConvertUtils{
@@ -25,10 +26,46 @@ class ConvertUtils{
 	* $iscomputer = true is PE => PC
 	* $iscomputer = false is PC => PE
 	*/
+	public static function convertNBTData($iscomputer, &$nbt){
 
+	}
+
+	/*
+	* $iscomputer = true is PE => PC
+	* $iscomputer = false is PC => PE
+	*/
 	public static function convertItemData($iscomputer, &$item){
 		$itemidlist = [
-			
+			[
+				[243, 0], [3, 2] //Podzol
+			],
+			[
+				[198, -1], [208, -1] //Grass Path
+			],
+			[
+				[247, -1], [19, 0] //Nether Reactor Core is Sponge
+			],
+			[
+				[157, -1], [125, -1] //Double slab
+			],
+			[
+				[158, -1], [126, -1] //Stairs
+			],
+			[
+				[208, 0], [198, 0] //End Rod
+			],
+			[
+				[241, -1], [95, -1] //Stained Glass
+			],
+			[
+				[182, 1], [205, 0] //Purpur Slab
+			],
+			[
+				[181, 1], [204, 0] //Double Purpur Slab
+			],
+			[
+				[95, 0], [166, 0] //Double Purpur Slab
+			]
 			/*
 			[
 				[PE], [PC]
@@ -37,9 +74,55 @@ class ConvertUtils{
 		];
 
 		if($iscomputer){
+			$itemid = $item->getId();
+			$itemdamage = $item->getDamage();
+			$itemcount = $item->getCount();
+			$itemnbt = $item->getCompoundTag();
 
+			foreach($itemidlist as $convertitemdata){
+				if($convertitemdata[0][0] === $item->getId()){
+					if($convertitemdata[0][1] === -1){
+						$itemid = $convertitemdata[1][0];
+						if($convertitemdata[1][1] !== -1){
+							$itemdamage = $convertitemdata[1][1];
+						}else{
+							$itemdamage = $item->getDamage();
+						}
+						break;
+					}elseif($convertitemdata[0][1] === $item->getDamage()){
+						$itemid = $convertitemdata[1][0];
+						$itemdamage = $convertitemdata[1][1];
+						break;
+					}
+				}
+			}
+
+			$item = new ComputerItem($itemid, $itemdamage, $itemcount, $itemnbt);
 		}else{
+			$itemid = $item->getId();
+			$itemdamage = $item->getDamage();
+			$itemcount = $item->getCount();
+			$itemnbt = $item->getCompoundTag();
 
+			foreach($itemidlist as $convertitemdata){
+				if($convertitemdata[1][0] === $item->getId()){
+					if($convertitemdata[1][1] === -1){
+						$itemid = $convertitemdata[0][0];
+						if($convertitemdata[0][1] !== -1){
+							$itemdamage = $convertitemdata[0][1];
+						}else{
+							$itemdamage = $item->getDamage();
+						}
+						break;
+					}elseif($convertitemdata[1][1] === $item->getDamage()){
+						$itemid = $convertitemdata[0][0];
+						$itemdamage = $convertitemdata[0][1];
+						break;
+					}
+				}
+			}
+
+			$item = Item::get($itemid, $itemdamage, $itemcount, $itemnbt);
 		}
 	}
 
@@ -47,7 +130,6 @@ class ConvertUtils{
 	* $iscomputer = true is PE => PC
 	* $iscomputer = false is PC => PE
 	*/
-
 	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
 		$blockidlist = [
 			[

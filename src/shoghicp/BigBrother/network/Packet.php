@@ -21,6 +21,7 @@ use pocketmine\item\Item;
 use pocketmine\nbt\NBT;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use shoghicp\BigBrother\utils\ComputerItem;
 
 abstract class Packet extends \stdClass{
 
@@ -95,14 +96,16 @@ abstract class Packet extends \stdClass{
 				$nbt = $this->get($len);
 			}
 
-			//ConvertUtils::convertItemData(false, $item);
+			$item = new ComputerItem($itemId, $damage, $count, $nbt);
 
-			return Item::get($itemId, $damage, $count, $nbt);
+			ConvertUtils::convertItemData(false, $item);
+
+			return $item;
 		}
 	}
 
 	protected function putSlot(Item $item){
-		//ConvertUtils::convertItemData(true, $item);
+		ConvertUtils::convertItemData(true, $item);
 
 		if($item->getID() === 0){
 			$this->putShort(-1);
