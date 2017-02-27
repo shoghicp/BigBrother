@@ -65,6 +65,15 @@ class ConvertUtils{
 			],
 			[
 				[95, 0], [166, 0] //Double Purpur Slab
+			],
+			[
+				[325, 8], [326, 0] //Water bucket
+			],
+			[
+				[325, 10], [327, 0] //Lava bucket
+			],
+			[
+				[325, 0], [335, 0] //Milk bucket
 			]
 			/*
 			[
