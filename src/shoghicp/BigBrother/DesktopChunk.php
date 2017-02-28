@@ -41,10 +41,6 @@ class DesktopChunk{
 			$blocklight = "";
 			$skylight = "";
 
-			//TODO: blocklight and skylight
-			$blocklight = $subChunk->getBlockLightArray();
-			$skylight = $subChunk->getSkyLightArray();
-
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
 					$data = "";
@@ -55,8 +51,6 @@ class DesktopChunk{
 					for($x = 0; $x < 16; ++$x){
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
-						//$lightdata = $subChunk->getBlockLight($x, $y, $z);
-						//$skylightdata = $subChunk->getBlockSkyLight($x, $y, $z);
 
 						ConvertUtils::convertBlockData(true, $blockid, $blockdata);
 						$block = (int) ($blockid << 4) | $blockdata;
@@ -70,23 +64,11 @@ class DesktopChunk{
 							$data .= chr($key);//bit
 						}
 
-						/*if(!$shift){
-							$bak_light = $lightdata;
-							$bak_skylight = $skylightdata;
-							$shift = true;
-						}else{
-							$chunklight .= (chr($bak_light << 4) | $lightdata);
-							$chunkskylight .= chr(($bak_skylight << 4) | $skylightdata);
-							$shift = false;
-						}*/
-
 						if($x === 7 or $x === 15){//Reset ChunkData
 							$chunkdata .= strrev($data);
-							/*$blocklight .= strrev($chunklight);
-							$skylight .= strrev($chunkskylight);*/
+							$blocklight .= str_repeat("\xff", 4);
+							$skylight .= str_repeat("\xff", 4);
 							$data = "";
-							/*$chunklight = "";
-							$chunkskylight = "";*/
 						}
 					}
 				}

@@ -35,7 +35,7 @@ class ConvertUtils{
 	* $iscomputer = false is PC => PE
 	*/
 	public static function convertItemData($iscomputer, &$item){
-		$itemidlist = [
+		$itemidlist = [//TODO: move to class public
 			[
 				[243, 0], [3, 2] //Podzol
 			],
@@ -140,7 +140,7 @@ class ConvertUtils{
 	* $iscomputer = false is PC => PE
 	*/
 	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
-		$blockidlist = [
+		$blockidlist = [//TODO: move to class public
 			[
 				[243, 0], [3, 2] //Podzol
 			],
@@ -170,7 +170,10 @@ class ConvertUtils{
 			],
 			[
 				[95, 0], [166, 0] //Double Purpur Slab
-			]
+			],
+			[
+				[155, -1], [155, 0] //Block of Quartz TODO: check data
+			],
 			/*
 			[
 				[PE], [PC]
