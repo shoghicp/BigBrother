@@ -86,6 +86,12 @@ class ConvertUtils{
 			],
 			[
 				[44, 7], [44, 6] //Nether Brick Slab
+			],
+			[
+				[44, 14], [44, 15] //Upper Quartz Slab
+			],
+			[
+				[44, 15], [44, 14] //Upper Nether Brick Slab
 			]
 			/*
 			[
@@ -194,6 +200,12 @@ class ConvertUtils{
 			],
 			[
 				[44, 7], [44, 6] //Nether Brick Slab
+			],
+			[
+				[44, 14], [44, 15] //Upper Quartz Slab
+			],
+			[
+				[44, 15], [44, 14] //Upper Nether Brick Slab
 			]
 			/*
 			[
