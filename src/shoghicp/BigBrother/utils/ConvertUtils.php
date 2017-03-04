@@ -43,7 +43,7 @@ class ConvertUtils{
 				[198, -1], [208, -1] //Grass Path
 			],
 			[
-				[247, -1], [19, 0] //Nether Reactor Core is Sponge
+				[247, -1], [49, 0] //Nether Reactor core is now a obsidian
 			],
 			[
 				[157, -1], [125, -1] //Double slab
@@ -64,7 +64,7 @@ class ConvertUtils{
 				[181, 1], [204, 0] //Double Purpur Slab
 			],
 			[
-				[95, 0], [166, 0] //Double Purpur Slab
+				[95, 0], [166, 0] //Extended Piston is now a barrier
 			],
 			[
 				[325, 8], [326, 0] //Water bucket
@@ -92,6 +92,18 @@ class ConvertUtils{
 			],
 			[
 				[44, 15], [44, 14] //Upper Nether Brick Slab
+			],
+			[
+				[168, 1], [168, 2] //Dark Prismarine
+			],
+			[
+				[168, 2], [168, 1] //Prismarine Bricks
+			],
+			[
+				[201, 1], [201, 0] //Unused Purpur Block
+			],
+			[
+				[201, 2], [202, 0] //Pillar Purpur Block
 			]
 			/*
 			[
@@ -166,7 +178,7 @@ class ConvertUtils{
 				[198, -1], [208, -1] //Grass Path
 			],
 			[
-				[247, -1], [19, 0] //Nether Reactor Core is Sponge
+				[247, -1], [49, 0] //Nether Reactor core is now a obsidian
 			],
 			[
 				[157, -1], [125, -1] //Double slab
@@ -187,7 +199,16 @@ class ConvertUtils{
 				[181, 1], [204, 0] //Double Purpur Slab
 			],
 			[
-				[95, 0], [166, 0] //Double Purpur Slab
+				[95, 0], [166, 0] //Extended Piston is now a barrier
+			],
+			[
+				[325, 8], [326, 0] //Water bucket
+			],
+			[
+				[325, 10], [327, 0] //Lava bucket
+			],
+			[
+				[325, 1], [335, 0] //Milk bucket
 			],
 			[
 				[43, 6], [43, 7] //Double Quartz Slab
@@ -206,6 +227,18 @@ class ConvertUtils{
 			],
 			[
 				[44, 15], [44, 14] //Upper Nether Brick Slab
+			],
+			[
+				[168, 1], [168, 2] //Dark Prismarine
+			],
+			[
+				[168, 2], [168, 1] //Prismarine Bricks
+			],
+			[
+				[201, 1], [201, 0] //Unused Purpur Block
+			],
+			[
+				[201, 2], [202, 0] //Pillar Purpur Block
 			]
 			/*
 			[
