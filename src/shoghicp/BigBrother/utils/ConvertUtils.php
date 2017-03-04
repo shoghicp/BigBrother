@@ -104,6 +104,24 @@ class ConvertUtils{
 			],
 			[
 				[201, 2], [202, 0] //Pillar Purpur Block
+			],
+			[
+				[85, 1], [188, 0] //Spruce Fence
+			],
+			[
+				[85, 2], [189, 0] //Birch Fence
+			],
+			[
+				[85, 3], [190, 0] //Jungle Fence
+			],
+			[
+				[85, 4], [192, 0] //Acacia Fence
+			],
+			[
+				[85, 5], [191, 0] //Dark Oak Fence
+			],
+			[
+				[240, 0], [199, 0] //Chorus Plant
 			]
 			/*
 			[
@@ -186,9 +204,26 @@ class ConvertUtils{
 			[
 				[158, -1], [126, -1] //Stairs
 			],
+			//******** End Rod ********//
 			[
-				[208, 0], [198, 0] //End Rod
+				[208, 0], [198, 0]
 			],
+			[
+				[208, 1], [198, 1]
+			],
+			[
+				[208, 2], [198, 3]
+			],
+			[
+				[208, 3], [198, 2]
+			],
+			[
+				[208, 4], [198, 4]
+			],
+			[
+				[208, 5], [198, 5]
+			],
+			//*************************//
 			[
 				[241, -1], [95, -1] //Stained Glass
 			],
@@ -200,6 +235,15 @@ class ConvertUtils{
 			],
 			[
 				[95, 0], [166, 0] //Extended Piston is now a barrier
+			],
+			[
+				[325, 8], [326, 0] //Water bucket
+			],
+			[
+				[325, 10], [327, 0] //Lava bucket
+			],
+			[
+				[325, 1], [335, 0] //Milk bucket
 			],
 			[
 				[43, 6], [43, 7] //Double Quartz Slab
@@ -230,6 +274,27 @@ class ConvertUtils{
 			],
 			[
 				[201, 2], [202, 0] //Pillar Purpur Block
+			],
+			[
+				[85, 1], [188, 0] //Spruce Fence
+			],
+			[
+				[85, 2], [189, 0] //Birch Fence
+			],
+			[
+				[85, 3], [190, 0] //Jungle Fence
+			],
+			[
+				[85, 4], [192, 0] //Acacia Fence
+			],
+			[
+				[85, 5], [191, 0] //Dark Oak Fence
+			],
+			[
+				[240, 0], [199, 0] //Chorus Plant
+			],
+			[
+				[199, -1], [68, 0] //Item Frame is temporaly a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
 			]
 			/*
 			[
