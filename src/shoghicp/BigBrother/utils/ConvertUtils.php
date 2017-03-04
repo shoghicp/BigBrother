@@ -202,15 +202,6 @@ class ConvertUtils{
 				[95, 0], [166, 0] //Extended Piston is now a barrier
 			],
 			[
-				[325, 8], [326, 0] //Water bucket
-			],
-			[
-				[325, 10], [327, 0] //Lava bucket
-			],
-			[
-				[325, 1], [335, 0] //Milk bucket
-			],
-			[
 				[43, 6], [43, 7] //Double Quartz Slab
 			],
 			[
