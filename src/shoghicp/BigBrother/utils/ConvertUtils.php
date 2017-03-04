@@ -76,8 +76,17 @@ class ConvertUtils{
 				[325, 1], [335, 0] //Milk bucket
 			],
 			[
-				[155, -1], [155, 0] //Block of Quartz TODO: check data
+				[43, 6], [43, 7] //Double Quartz Slab
 			],
+			[
+				[43, 7], [43, 6] //Double Nether Brick Slab
+			],
+			[
+				[44, 6], [44, 7] //Quartz Slab
+			],
+			[
+				[44, 7], [44, 6] //Nether Brick Slab
+			]
 			/*
 			[
 				[PE], [PC]
@@ -175,8 +184,17 @@ class ConvertUtils{
 				[95, 0], [166, 0] //Double Purpur Slab
 			],
 			[
-				[155, -1], [155, 0] //Block of Quartz TODO: check data
+				[43, 6], [43, 7] //Double Quartz Slab
 			],
+			[
+				[43, 7], [43, 6] //Double Nether Brick Slab
+			],
+			[
+				[44, 6], [44, 7] //Quartz Slab
+			],
+			[
+				[44, 7], [44, 6] //Nether Brick Slab
+			]
 			/*
 			[
 				[PE], [PC]
