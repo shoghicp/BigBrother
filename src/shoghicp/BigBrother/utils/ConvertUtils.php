@@ -294,7 +294,7 @@ class ConvertUtils{
 				[240, 0], [199, 0] //Chorus Plant
 			],
 			[
-				[199, -1], [68, 0] //Item Frame is temporaly a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
+				[199, -1], [68, -1] //Item Frame is temporaly a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
 			]
 			/*
 			[
