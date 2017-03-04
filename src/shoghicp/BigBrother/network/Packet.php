@@ -54,22 +54,10 @@ abstract class Packet extends \stdClass{
 	}
 
 	protected function getPosition(&$x, &$y, &$z){
-		$int1 = $this->getInt();
-		$int2 = $this->getInt();
-
-		$x = $int1 >> 6;
-		$y = ((($int1 & 0x3F) << 2) | ($int2 & 0xFCFFFFFF) >> 26);
-		$z = $int2 & 0x3FFFFFF;
-
-		if(PHP_INT_MAX > 0x7FFFFFFF){
-			$x = $x << 38 >> 38;
-			$y = $y << 58 >> 58;
-			$z = $z << 38 >> 38;
-		}else{
-			$x = $x << 6 >> 6;
-			$y = $y << 26 >> 26;
-			$z = $z << 6 >> 6;
-		}
+		$long = $this->getLong();
+		$x = $long >> 38;
+		$y = ($long >> 26) & 0xFFF;
+		$z = $long << 38 >> 38;
 	}
 
 	protected function getFloat(){
@@ -167,11 +155,8 @@ abstract class Packet extends \stdClass{
 	}
 
 	protected function putPosition($x, $y, $z){
-		$int2 = ($z & 0x3FFFFFF); //26 bits
-		$int2 |= ($y & 0x3F) << 26; //6 bits
-		$int1 = ($y & 0xFC0) >> 6; //6 bits
-		$int1 |= ($x & 0x3FFFFFF) << 6; //26 bits
-		$this->buffer .= Binary::writeInt($int1) . Binary::writeInt($int2);
+		$long = (($x & 0x3FFFFFF) << 38) | (($y & 0xFFF) << 26) | ($z & 0x3FFFFFF);
+		$this->putLong($long);
 	}
 
 	protected function putFloat($v){

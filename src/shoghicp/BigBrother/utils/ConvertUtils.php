@@ -74,7 +74,10 @@ class ConvertUtils{
 			],
 			[
 				[325, 1], [335, 0] //Milk bucket
-			]
+			],
+			[
+				[155, -1], [155, 0] //Block of Quartz TODO: check data
+			],
 			/*
 			[
 				[PE], [PC]

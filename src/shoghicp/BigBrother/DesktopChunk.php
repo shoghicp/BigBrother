@@ -66,8 +66,8 @@ class DesktopChunk{
 
 						if($x === 7 or $x === 15){//Reset ChunkData
 							$chunkdata .= strrev($data);
-							$blocklight .= str_repeat("\xff", 4);
-							$skylight .= str_repeat("\xff", 4);
+							//$blocklight .= str_repeat("\xff", 4);
+							//$skylight .= str_repeat("\xff", 4);
 							$data = "";
 						}
 					}
@@ -89,11 +89,13 @@ class DesktopChunk{
 			$payload .= $chunkdata;
 
 			/* Block Light*/
-			$payload .= $blocklight;
+			$payload .= $subChunk->getBlockLightArray();
+			//$payload .= $blocklight;
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
-				$payload .= $skylight;
+				$payload .= $subChunk->getSkyLightArray();
+				//$payload .= $skylight;
 			}
 		}
 

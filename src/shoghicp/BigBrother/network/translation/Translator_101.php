@@ -496,7 +496,6 @@ class Translator_101 implements Translator{
 					$pk->posZ = $player->getZ();
 					$pk->slot = $player->getInventory()->getHeldItemSlot();
 
-					var_dump($packet, $pk);
 					return $pk;
 				}else{
 					echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
@@ -610,6 +609,8 @@ class Translator_101 implements Translator{
 
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
+
+				echo "AddPlayerPacket\n";
 
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
@@ -1185,6 +1186,8 @@ class Translator_101 implements Translator{
 							$playerlist = [];
 						}
 
+						echo "PlayerListPacket\n";
+
 						foreach($packet->entries as $entry){
 							if(isset($playerlist[$entry[0]->toString()])){
 								if(!isset($pk2)){
@@ -1210,10 +1213,7 @@ class Translator_101 implements Translator{
 									"profileName" => TextFormat::clean($entry[2]),
 									"textures" => [
 										"SKIN" => [
-											"metadata" => [
-												"model" => "slim"
-											],
-											"url" => "http://textures.minecraft.net/texture/9277a1b17ccf7b51fa4fa3eafd97fbbd4738f166e0aad75bdee046383951b39e"
+											//TODO
 										] 
 									]
 								];
@@ -1266,7 +1266,9 @@ class Translator_101 implements Translator{
 					break;
 				}
 
-				$packets[] = $pk;
+				if(count($pk->players) > 0){
+					$packets[] = $pk;
+				}
 
 				return $packets;
 

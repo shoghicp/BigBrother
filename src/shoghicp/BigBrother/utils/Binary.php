@@ -82,11 +82,8 @@ class Binary extends \pocketmine\utils\Binary{
 					$m .= self::writeFloat($d[1][2]);
 				break;
 				case 8://Position
-					$int2 = ($d[1][2] & 0x3FFFFFF); //26 bits
-					$int2 |= ($d[1][1] & 0x3F) << 26; //6 bits
-					$int1 = ($d[1][1] & 0xFC0) >> 6; //6 bits
-					$int1 |= ($d[1][0] & 0x3FFFFFF) << 6; //26 bits
-					$this->buffer .= self::writeInt($int1) . self::writeInt($int2);
+					$long = (($d[1][0] & 0x3FFFFFF) << 38) | (($d[1][1] & 0xFFF) << 26) | ($d[1][2] & 0x3FFFFFF);
+					$m .= self::writeLong($long);
 				break;
 			}
 		}
