@@ -610,8 +610,6 @@ class Translator_101 implements Translator{
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
 
-				echo "AddPlayerPacket\n";
-
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = $packet->uuid->toBinary();
@@ -1186,8 +1184,6 @@ class Translator_101 implements Translator{
 							$playerlist = [];
 						}
 
-						echo "PlayerListPacket\n";
-
 						foreach($packet->entries as $entry){
 							if(isset($playerlist[$entry[0]->toString()])){
 								if(!isset($pk2)){
@@ -1239,10 +1235,6 @@ class Translator_101 implements Translator{
 							$playerlist[$entry[0]->toString()] = true;
 						}
 
-						if(isset($pk2)){
-							$packets[] = $pk2;
-						}
-
 						$player->setSetting(["PlayerList" => $playerlist]);
 					break;
 					case 1://Remove
@@ -1266,11 +1258,17 @@ class Translator_101 implements Translator{
 					break;
 				}
 
-				if(count($pk->players) > 0){
+				if(isset($pk2) and count($pk->players) > 0){
+					$packets[] = $pk2;
 					$packets[] = $pk;
+					return $packets;
+				}elseif(isset($pk2)){
+					return $pk2;
+				}elseif(count($pk->players) > 0){
+					return $pk;
 				}
 
-				return $packets;
+				return null;
 
 			case Info::BATCH_PACKET:
 				$packets = [];
