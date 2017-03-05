@@ -377,7 +377,6 @@ class ConvertUtils{
 					$newdata[1] = [1, $d[1]];
 				break;
 				case Human::DATA_NAMETAG://Custom name
-					//var_dump(bin2hex($d[1]));
 					$newdata[2] = [3, str_replace("\n", "", $d[1])];//TODO
 					$newdata[3] = [6, true];
 				break;

@@ -35,18 +35,15 @@ class DesktopChunk{
 			$this->bitmap |= 0x01 << $num;
 
 			$palette = [];
-			$bitsperblock = 8;//TODO
+			$bitsperblock = 8;
 
 			$chunkdata = "";
-			$blocklight = "";
-			$skylight = "";
+			$blocklightdata = "";
+			$skylightdata = "";
 
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
 					$data = "";
-					$chunklight = "";
-					$chunkskylight = "";
-					$shift = false;
 
 					for($x = 0; $x < 16; ++$x){
 						$blockid = $subChunk->getBlockId($x, $y, $z);
@@ -66,8 +63,8 @@ class DesktopChunk{
 
 						if($x === 7 or $x === 15){//Reset ChunkData
 							$chunkdata .= strrev($data);
-							//$blocklight .= str_repeat("\xff", 4);
-							//$skylight .= str_repeat("\xff", 4);
+							$blocklightdata .= str_repeat("\xff", 4);
+							$skylightdata .= str_repeat("\xff", 4);
 							$data = "";
 						}
 					}
@@ -89,13 +86,11 @@ class DesktopChunk{
 			$payload .= $chunkdata;
 
 			/* Block Light*/
-			$payload .= $subChunk->getBlockLightArray();
-			//$payload .= $blocklight;
+			$payload .= $blocklightdata;
 
 			/* Sky Light Only overworld */
 			if($this->player->bigBrother_getDimension() === 0){
-				$payload .= $subChunk->getSkyLightArray();
-				//$payload .= $skylight;
+				$payload .= $skylightdata;
 			}
 		}
 

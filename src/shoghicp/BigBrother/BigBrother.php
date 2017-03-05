@@ -18,17 +18,20 @@
 namespace shoghicp\BigBrother;
 
 use pocketmine\plugin\PluginBase;
+use pocketmine\network\protocol\Info;
+use pocketmine\event\player\PlayerRespawnEvent;
+use pocketmine\event\Listener;
+use pocketmine\utils\TextFormat;
+use pocketmine\Achievement;
 
 use phpseclib\Crypt\RSA;
-use pocketmine\network\protocol\Info;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\network\translation\Translator_101;
-use pocketmine\utils\TextFormat;
-use pocketmine\Achievement;
+use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 
-class BigBrother extends PluginBase{
+class BigBrother extends PluginBase implements Listener{
 
 	/** @var ProtocolInterface */
 	private $interface;
@@ -68,6 +71,8 @@ class BigBrother extends PluginBase{
 			$this->rsa = new RSA();
 
 			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
+
+			$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
 			if($this->onlineMode){
 				$this->getLogger()->info("Server is being started in the background");
@@ -127,6 +132,23 @@ class BigBrother extends PluginBase{
 
 	public function decryptBinary($secret){
 		return $this->rsa->decrypt($secret);
+	}
+
+	/**
+	 * @param PlayerRespawnEvent $event
+	 *
+	 * @priority NORMAL
+	 */
+	public function onRespawn(PlayerRespawnEvent $event){
+		$player = $event->getPlayer();
+		if($player instanceof DesktopPlayer and $player->getHealth() === 0){
+			$pk = new RespawnPacket();
+			$pk->dimension = $player->bigBrother_getDimension();
+			$pk->difficulty = $player->getServer()->getDifficulty();
+			$pk->gamemode = $player->getGamemode();
+			$pk->levelType = "default";
+			$player->putRawPacket($pk);
+		}
 	}
 
 	public static function toJSON($message, $source = "", $type = 1, $parameters = null){

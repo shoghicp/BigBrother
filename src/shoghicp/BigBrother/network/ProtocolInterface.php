@@ -121,7 +121,11 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function sendPacket($target, Packet $packet){
-		echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
+		$id = bin2hex(chr($packet->pid()));
+		if($id !== "1f"){
+			echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
+		}
+		
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
 		$this->thread->pushMainToThreadPacket($data);
 	}
@@ -184,7 +188,11 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
-		echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+		$id = bin2hex(chr(ord($payload{0})));
+		if($id !== "0b"){//KeepAlivePacket
+			echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+		}
+
 		$pid = ord($payload{0});
 		$offset = 1;
 

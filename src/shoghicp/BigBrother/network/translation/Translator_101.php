@@ -107,7 +107,6 @@ use shoghicp\BigBrother\network\protocol\Play\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\StatisticsPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetExperiencePacket;
-use shoghicp\BigBrother\network\protocol\Play\RespawnPacket as CRespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\RemoveEntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\STCCloseWindowPacket;
@@ -161,9 +160,16 @@ class Translator_101 implements Translator{
 						$pk->eid = 0;
 
 						$reflect = new \ReflectionClass($pk);
-						if(in_array("ACTION_RESPAWN", $reflect->getConstants(), true)){
-							$pk->action = PlayerActionPacket::ACTION_RESPAWN;
-						}else{
+						$found = false;
+						foreach($reflect->getConstants() as $constantname => $value){
+							if($constantname === "ACTION_RESPAWN"){
+								$pk->action = PlayerActionPacket::ACTION_RESPAWN;
+								$found = true;
+								break;
+							}
+						}
+
+						if(!$found){
 							$pk->action = PlayerActionPacket::ACTION_SPAWN_SAME_DIMENSION;
 						}
 
@@ -255,23 +261,15 @@ class Translator_101 implements Translator{
 				$pk->pitch = $player->pitch;
 				$packets[] = $pk;
 
-				/*$oldblock = $player->getLevel()->getBlock(new Vector3($player->x, $player->y - 2, $player->z));
-				$newblock = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y - 1, $packet->z));
-
-				if($newblock->getId() === Block::AIR){
-					echo "Test\n";
-					var_dump($oldblock->getId());
-					if($oldblock->getId() !== Block::AIR){
-						echo "PlayerActionPacket\n";
-						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
-						$pk->action = PlayerActionPacket::ACTION_JUMP;
-						$pk->x = $packet->x;
-						$pk->y = $packet->y;
-						$pk->z = $packet->z;
-						$pk->face = 0;
-						$packets[] = $pk;
-					}
+				/*if(strpos($packet->y, ".") !== false){//TODO: malfunction fly
+					$pk = new PlayerActionPacket();
+					$pk->eid = 0;
+					$pk->action = PlayerActionPacket::ACTION_JUMP;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->face = 0;
+					$packets[] = $pk;
 				}*/
 
 				return $packets;
@@ -287,20 +285,15 @@ class Translator_101 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
-				/*$oldblock = $player->getLevel()->getBlock(new Vector3($player->x, $player->y, $player->z));
-				$newblock = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
-
-				if($newblock->getId() === Block::AIR){
-					if($oldblock->getId() !== Block::AIR){
-						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
-						$pk->action = PlayerActionPacket::ACTION_JUMP;
-						$pk->x = $packet->x;
-						$pk->y = $packet->y;
-						$pk->z = $packet->z;
-						$pk->face = 0;
-						$packets[] = $pk;
-					}
+				/*if(strpos($packet->y, ".") !== false){//TODO: malfunction fly
+					$pk = new PlayerActionPacket();
+					$pk->eid = 0;
+					$pk->action = PlayerActionPacket::ACTION_JUMP;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->face = 0;
+					$packets[] = $pk;
 				}*/
 
 				return $packets;
@@ -996,38 +989,6 @@ class Translator_101 implements Translator{
 				}	
 				return null;
 
-			/*case Info::RESPAWN_PACKET:
-				$packets = [];
-
-				echo "RespawnPacket\n";
-
-				$pk = new PlayerPositionAndLookPacket();
-				$pk->x = $packet->x;
-				$pk->y = $packet->y - $player->getEyeHeight();
-				$pk->z = $packet->z;
-				$pk->yaw = 0;
-				$pk->pitch = 0;
-				$pk->onGround = $player->isOnGround();
-				$packets[] = $pk;
-
-				$pk = new CRespawnPacket();
-				$pk->dimension = $player->bigBrother_getDimension();
-				$pk->difficulty = $player->getServer()->getDifficulty();
-				$pk->gamemode = $player->getGamemode();
-				$pk->levelType = "default";
-				$packets[] = $pk;
-
-				/*$pk = new PlayerPositionAndLookPacket();
-				$pk->x = $packet->x;
-				$pk->y = $packet->y - $player->getEyeHeight();
-				$pk->z = $packet->z;
-				$pk->yaw = 0;
-				$pk->pitch = 0;
-				$pk->onGround = $player->isOnGround();
-				$packets[] = $pk;
-
-				return $packets;*/
-
 			/*case Info::CONTAINER_OPEN_PACKET:
 				$pk = new OpenWindowPacket();
 				$pk->windowID = $packet->windowid;
@@ -1411,6 +1372,7 @@ class Translator_101 implements Translator{
 
 			case Info::PLAY_STATUS_PACKET:
 			case Info::RESOURCE_PACKS_INFO_PACKET:
+			case Info::RESPAWN_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
 			case Info::FULL_CHUNK_DATA_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
