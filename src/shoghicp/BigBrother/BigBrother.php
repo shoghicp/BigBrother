@@ -28,7 +28,7 @@ use phpseclib\Crypt\RSA;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_101;
+use shoghicp\BigBrother\network\translation\Translator_102;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 
 class BigBrother extends PluginBase implements Listener{
