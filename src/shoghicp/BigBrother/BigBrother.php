@@ -66,8 +66,8 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		if(Info::CURRENT_PROTOCOL === 101){
-			$this->translator = new Translator_101();
+		if(Info::CURRENT_PROTOCOL === 102){
+			$this->translator = new Translator_102();
 			$this->rsa = new RSA();
 
 			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
