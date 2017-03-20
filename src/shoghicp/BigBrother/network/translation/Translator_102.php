@@ -852,8 +852,6 @@ class Translator_102 implements Translator{
 							];
 						break;
 						case "minecraft:player.experience":
-							$eid = $player->getSetting("eid");
-
 							if($packet->entityId === $player->getId()){
 								$pk = new SetExperiencePacket();
 								$pk->experience = $entry->getValue();//TODO: Default Value
