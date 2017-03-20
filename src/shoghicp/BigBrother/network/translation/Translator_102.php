@@ -261,16 +261,20 @@ class Translator_102 implements Translator{
 				$pk->pitch = $player->pitch;
 				$packets[] = $pk;
 
-				/*if(strpos($packet->y, ".") !== false){//TODO: malfunction fly
-					$pk = new PlayerActionPacket();
-					$pk->eid = 0;
-					$pk->action = PlayerActionPacket::ACTION_JUMP;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
-					$pk->face = 0;
-					$packets[] = $pk;
-				}*/
+				if(strpos($player->y, ".") === false){
+					if(strpos($packet->y, ".") !== false){
+						if(floor($player->y) === floor($packet->y)){
+							$pk = new PlayerActionPacket();
+							$pk->eid = 0;
+							$pk->action = PlayerActionPacket::ACTION_JUMP;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$pk->face = 0;
+							$packets[] = $pk;
+						}
+					}
+				}
 
 				return $packets;
 
@@ -285,16 +289,20 @@ class Translator_102 implements Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
-				/*if(strpos($packet->y, ".") !== false){//TODO: malfunction fly
-					$pk = new PlayerActionPacket();
-					$pk->eid = 0;
-					$pk->action = PlayerActionPacket::ACTION_JUMP;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
-					$pk->face = 0;
-					$packets[] = $pk;
-				}*/
+				if(strpos($player->y, ".") === false){
+					if(strpos($packet->y, ".") !== false){
+						if(floor($player->y) === floor($packet->y)){
+							$pk = new PlayerActionPacket();
+							$pk->eid = 0;
+							$pk->action = PlayerActionPacket::ACTION_JUMP;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$pk->face = 0;
+							$packets[] = $pk;
+						}
+					}
+				}
 
 				return $packets;
 
@@ -895,7 +903,6 @@ class Translator_102 implements Translator{
 				return $packets;
 
 			case Info::MOB_EQUIPMENT_PACKET:
-				//TODO
 				$pk = new EntityEquipmentPacket();
 				$pk->eid = $packet->eid;
 				$pk->slot = 0;//main hand
@@ -1096,25 +1103,19 @@ class Translator_102 implements Translator{
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
 
-				/*$nbt = new NBT(NBT::LITTLE_ENDIAN);
-				$nbt->read($packet->namedtag);
+				$nbt = new NBT(NBT::LITTLE_ENDIAN);
+				$nbt->read($packet->namedtag, true, true);
 				$nbt = $nbt->getData();
-				if($nbt["id"] !== Tile::SIGN){
-					return null;
-				}else{
-					$index = Level::chunkHash($packet->x >> 4, $packet->z >> 4);
-					if(isset($player->usedChunks[$index]) and $player->usedChunks[$index]){
-						$pk = new UpdateSignPacket();
-						$pk->x = $packet->x;
-						$pk->y = $packet->y;
-						$pk->z = $packet->z;
-						$pk->line1 = BigBrother::toJSON($nbt["Text1"]);
-						$pk->line2 = BigBrother::toJSON($nbt["Text2"]);
-						$pk->line3 = BigBrother::toJSON($nbt["Text3"]);
-						$pk->line4 = BigBrother::toJSON($nbt["Text4"]);
-						return $pk;
-					}
-				}*/
+
+				switch($nbt["id"]){
+					case Tile::SIGN:
+						$pk->actionID = 9;
+						$pk->namedtag = $packet->namedtag;
+					break;
+					default:
+						echo "BlockEntityDataPacket: ".$nbt["id"]."\n";
+					break;
+				}
 				
 				return null;
 

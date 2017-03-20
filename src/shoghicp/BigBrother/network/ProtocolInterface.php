@@ -263,6 +263,7 @@ class ProtocolInterface implements SourceInterface{
 				case 0x18:
 					$pk = new CreativeInventoryActionPacket();
 					break;
+				//0x19: Update Sign
 				case 0x1a:
 					$pk = new AnimatePacket();
 					break;

@@ -52,7 +52,7 @@ class ChunkDataPacket extends Packet{
 
 		/*foreach($this->blockEntities as $blockEntity){
 			$nbt = new NBT(NBT::BIG_ENDIAN);
-			$nbt->setData($blockEntity);
+			$nbt->read($blockEntity, true);
 			$this->put($nbt->write(true));
 		}*/
 	}
