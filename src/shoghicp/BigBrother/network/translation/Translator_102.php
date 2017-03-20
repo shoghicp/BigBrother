@@ -370,7 +370,6 @@ class Translator_102 implements Translator{
 							echo "PlayerDiggingPacket: ".$packet->status."\n";
 						}
 					break;
-
 					default:
 						echo "PlayerDiggingPacket: ".$packet->status."\n";
 					break;
@@ -400,9 +399,16 @@ class Translator_102 implements Translator{
 						$pk->face = 0;
 						return $pk;
 					break;
-					/*case 2://
-
-					break;*/
+					case 2://leave bed
+						$pk = new PlayerActionPacket();
+						$pk->eid = 0;
+						$pk->action = PlayerActionPacket::ACTION_STOP_SLEEPING;
+						$pk->x = 0;
+						$pk->y = 0;
+						$pk->z = 0;
+						$pk->face = 0;
+						return $pk;
+					break;
 					case 3://Start sprinting
 						$pk = new PlayerActionPacket();
 						$pk->eid = 0;
@@ -422,6 +428,9 @@ class Translator_102 implements Translator{
 						$pk->z = 0;
 						$pk->face = 0;
 						return $pk;
+					break;
+					default:
+						echo "EntityActionPacket: ".$packet->actionID."\n";
 					break;
 				}
 
@@ -628,11 +637,14 @@ class Translator_102 implements Translator{
 			case Info::ADD_ENTITY_PACKET:
 				$packets = [];
 
+				echo "AddEntityPacket\n";
+
 				switch($packet->type){
 					case 64:
 						$packet->type = 57;
 					break;
 					default:
+						$packet->type = 57;
 						echo "AddEntityPacket: ".$packet->eid."\n";
 					break;
 				}
@@ -666,7 +678,10 @@ class Translator_102 implements Translator{
 				return $pk;
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
+				echo "AddEntityPacket\n";
+
 				$packets = [];
+
 				$pk = new SpawnObjectPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = UUID::fromRandom()->toBinary();
@@ -772,7 +787,7 @@ class Translator_102 implements Translator{
 
 			/*case Info::ENTITY_EVENT_PACKET:
 
-
+				return null;
 			*/
 
 			case Info::MOB_EFFECT_PACKET:
@@ -912,7 +927,6 @@ class Translator_102 implements Translator{
 							$title = "Test";
 						}
 
-
 						$pk = new BossBarPacket();
 						$pk->uuid = $player->getSetting("BossBar")[1];
 						$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
@@ -922,33 +936,18 @@ class Translator_102 implements Translator{
 					}
 				}
 
-				
-
-				/*if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
-					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION];
-					if(){
-
-					}
-				}*/
-
-				/*if(isset($packet->metadata[16])){
-					if($packet->metadata[16][1] === 2){
-						$pk = new UseBedPacket(); //Bug
+				if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
+					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION][1];
+					if($bedXYZ[0] !== 0 or $bedXYZ[1] !== 0 or $bedXYZ[2] !== 0){
+						$pk = new UseBedPacket();
 						$pk->eid = $packet->eid;
-						$bedXYZ = $player->getSetting("BedXYZ");
 						$pk->bedX = $bedXYZ[0];
 						$pk->bedY = $bedXYZ[1];
 						$pk->bedZ = $bedXYZ[2];
-						$player->removeSetting("BedXYZ");
-					}else{
-						$pk = new SAnimatePacket();
-						$pk->eid = $packet->eid;
-						$pk->actionID = 2;
+						
+						$packets[] = $pk;
 					}
-					return $pk;
-				}elseif(isset($packet->metadata[17])){
-					$player->setSetting(["BedXYZ" => $packet->metadata[17][1]]);
-				}*/
+				}
 
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->eid;
@@ -994,7 +993,7 @@ class Translator_102 implements Translator{
 						return $pk;
 					break;
 					default:
-						echo "AnimatePacket: ".$packet->action."\n";
+						echo "AnimatePacket: ".$packet->actionID."\n";
 					break;
 				}	
 				return null;

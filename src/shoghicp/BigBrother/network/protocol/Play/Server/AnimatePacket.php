@@ -22,7 +22,7 @@ use shoghicp\BigBrother\network\Packet;
 class AnimatePacket extends Packet{
 
 	public $eid;
-	public $action;
+	public $actionID;
 
 	public function pid(){
 		return 0x06;
@@ -30,7 +30,7 @@ class AnimatePacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putByte($this->action);
+		$this->putByte($this->actionID);
 	}
 
 	public function decode(){
