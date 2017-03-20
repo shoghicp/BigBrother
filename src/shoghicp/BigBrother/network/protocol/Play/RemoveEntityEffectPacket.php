@@ -30,7 +30,7 @@ class RemoveEntityEffectPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putVarInt($this->effectId);
+		$this->putByte($this->effectId);
 	}
 
 	public function decode(){

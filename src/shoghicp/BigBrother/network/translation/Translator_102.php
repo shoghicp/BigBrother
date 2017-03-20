@@ -696,26 +696,30 @@ class Translator_102 implements Translator{
 				return $packets;
 
 			case Info::MOVE_ENTITY_PACKET:
-				$packets = [];
+				if($packet->eid === $player->getId()){//TODO
+					return null;
+				}else{
+					$packets = [];
 
-				$pk = new EntityTeleportPacket();
-				$pk->eid = $packet->eid;
-				$pk->x = $packet->x;
-				$pk->y = $packet->y - $player->getEyeHeight();
-				$pk->z = $packet->z;
-				$pk->yaw = $packet->yaw;
-				$pk->pitch = $packet->pitch;
-				$packets[] = $pk;
+					$pk = new EntityTeleportPacket();
+					$pk->eid = $packet->eid;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y - $player->getEyeHeight();
+					$pk->z = $packet->z;
+					$pk->yaw = $packet->yaw;
+					$pk->pitch = $packet->pitch;
+					$packets[] = $pk;
 
-				$pk = new EntityHeadLookPacket();
-				$pk->eid = $packet->eid;
-				$pk->yaw = $packet->yaw;
-				$packets[] = $pk;
+					$pk = new EntityHeadLookPacket();
+					$pk->eid = $packet->eid;
+					$pk->yaw = $packet->yaw;
+					$packets[] = $pk;
 
-				return $packets;
+					return $packets;
+				}
 
 			case Info::MOVE_PLAYER_PACKET:
-				if($packet->eid === 0){
+				if($packet->eid === $player->getId()){//TODO
 					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y - $player->getEyeHeight();
@@ -726,6 +730,7 @@ class Translator_102 implements Translator{
 					return $pk;
 				}else{
 					$packets = [];
+
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->eid;
 					$pk->x = $packet->x;
@@ -815,19 +820,20 @@ class Translator_102 implements Translator{
 							//move to minecraft:health
 						break;
 						case "minecraft:health":
-							if($packet->entityId === 0){
+							if($packet->entityId === $player->getId()){
 								$pk = new UpdateHealthPacket();
 								$pk->health = $entry->getValue();//TODO: Defalut Value
 								$pk->food = $player->getFood();//TODO: Default Value
 								$pk->saturation = $player->getSaturation();//TODO: Default Value
 
-								//var_dump($pk);
-							}elseif($packet->entityId === $player->getSetting("BossBar")[0]){
-								$pk = new BossBarPacket();
-								$pk->uuid = $player->getSetting("BossBar")[1];//Temporary
-								$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
-								//$pk->health = $entry->getValue();//
-								$pk->health = 1;
+							}elseif($player->getSetting("BossBar") !== false){
+								if($packet->entityId === $player->getSetting("BossBar")[0]){
+									$pk = new BossBarPacket();
+									$pk->uuid = $player->getSetting("BossBar")[1];//Temporary
+									$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
+									//$pk->health = $entry->getValue();//
+									$pk->health = 1;
+								}
 							}else{
 								$pk = new EntityMetadataPacket();
 								$pk->eid = $packet->entityId;
@@ -846,7 +852,9 @@ class Translator_102 implements Translator{
 							];
 						break;
 						case "minecraft:player.experience":
-							if($packet->entityId === 0){
+							$eid = $player->getSetting("eid");
+
+							if($packet->entityId === $player->getId()){
 								$pk = new SetExperiencePacket();
 								$pk->experience = $entry->getValue();//TODO: Default Value
 								$pk->level = $player->getXpLevel();//TODO: Default Value
@@ -898,21 +906,25 @@ class Translator_102 implements Translator{
 			case Info::SET_ENTITY_DATA_PACKET:
 				$packets = [];
 
-				if($packet->eid === $player->getSetting("BossBar")[0]){
-					if(isset($packet->metadata[Entity::DATA_NAMETAG])){
-						$title = str_replace("\n", "", $packet->metadata[Entity::DATA_NAMETAG][1]);
-					}else{
-						$title = "Test";
+				if($player->getSetting("BossBar") !== false){
+					if($packet->eid === $player->getSetting("BossBar")[0]){
+						if(isset($packet->metadata[Entity::DATA_NAMETAG])){
+							$title = str_replace("\n", "", $packet->metadata[Entity::DATA_NAMETAG][1]);
+						}else{
+							$title = "Test";
+						}
+
+
+						$pk = new BossBarPacket();
+						$pk->uuid = $player->getSetting("BossBar")[1];
+						$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
+						$pk->title = BigBrother::toJSON($title);
+
+						$packets[] = $pk;
 					}
-
-
-					$pk = new BossBarPacket();
-					$pk->uuid = $player->getSetting("BossBar")[1];
-					$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
-					$pk->title = BigBrother::toJSON($title);
-
-					$packets[] = $pk;
 				}
+
+				
 
 				/*if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
 					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION];
@@ -1219,7 +1231,7 @@ class Translator_102 implements Translator{
 					break;
 				}
 
-				if(isset($pk2) and count($pk->players) > 0){
+				if(isset($pk2) and count($pk->players) > 0){//php bug
 					$packets[] = $pk2;
 					$packets[] = $pk;
 					return $packets;
@@ -1302,7 +1314,7 @@ class Translator_102 implements Translator{
 								}
 							break;
 							default:
-								echo "PlayerListPacket: ".$pk::NETWORK_ID."\n";
+								echo "BatchPacket: ".$pk::NETWORK_ID."\n";
 							break;
 						}
 						if(($desktop = $this->serverToInterface($player, $pk)) !== null){
