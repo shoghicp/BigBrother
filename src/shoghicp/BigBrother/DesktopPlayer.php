@@ -21,6 +21,7 @@ use pocketmine\event\Timings;
 use pocketmine\level\Level;
 use pocketmine\network\protocol\Info;
 use pocketmine\network\protocol\LoginPacket;
+use pocketmine\network\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -245,6 +246,10 @@ class DesktopPlayer extends Player{
 				$pk->skin = $skin;
 			}
 
+			$this->handleDataPacket($pk);
+
+			$pk = new RequestChunkRadiusPacket();//for PocketMine-MP
+			$pk->radius = 8;
 			$this->handleDataPacket($pk);
 
 			$pk = new KeepAlivePacket();

@@ -1385,6 +1385,7 @@ class Translator_102 implements Translator{
 			case Info::RESPAWN_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
 			case Info::FULL_CHUNK_DATA_PACKET:
+			case Info::CHUNK_RADIUS_UPDATED_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
 				return null;
 
