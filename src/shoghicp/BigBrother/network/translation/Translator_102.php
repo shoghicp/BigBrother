@@ -1112,7 +1112,6 @@ class Translator_102 implements Translator{
 						$pk->namedtag = $nbt;
 					break;
 					case Tile::SIGN:
-						echo "Sign\n";
 						$pk->actionID = 9;
 						$pk->namedtag = $nbt;
 					break;
