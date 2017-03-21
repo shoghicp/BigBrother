@@ -145,14 +145,9 @@ class ConvertUtils{
 	* $iscomputer = true is PE => PC
 	* $iscomputer = false is PC => PE
 	*/
-	public static function convertNBTData($iscomputer, &$oldnbt){
+	public static function convertNBTData($iscomputer, &$nbt){
 		if($iscomputer){
-			$nbt = clone $oldnbt;
-
-			echo "convert\n";
-			var_dump($nbt);
-
-			/*if($nbt->getType() === NBT::TAG_Compound){
+			/*if($nbt->getType() === NBT::TAG_Compound){//Bug Don't enable code!
 				switch($nbt["id"]){
 					case Tile::SIGN://#blame mojang
 						$nbt->Text1->setValue(BigBrother::toJSON($nbt->Text1->getValue()));

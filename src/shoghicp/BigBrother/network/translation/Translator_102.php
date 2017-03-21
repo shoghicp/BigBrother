@@ -462,7 +462,7 @@ class Translator_102 implements Translator{
 			case 0x19: //UpdateSignPacket
 				$tags = new CompoundTag("", [
 					new StringTag("id", Tile::SIGN),
-					new StringTag("Text1",$packet->line1),
+					new StringTag("Text1", $packet->line1),
 					new StringTag("Text2", $packet->line2),
 					new StringTag("Text3", $packet->line3),
 					new StringTag("Text4", $packet->line4),
@@ -1106,12 +1106,15 @@ class Translator_102 implements Translator{
 				$nbt->read($packet->namedtag, true, true);
 				$nbt = $nbt->getData();
 
+				var_dump($nbt);
+
 				switch($nbt["id"]){
 					case Tile::CHEST:
 						$pk->actionID = 7;
 						$pk->namedtag = $nbt;
 					break;
 					case Tile::SIGN:
+						echo "Sign\n";
 						$pk->actionID = 9;
 						$pk->namedtag = $nbt;
 					break;
