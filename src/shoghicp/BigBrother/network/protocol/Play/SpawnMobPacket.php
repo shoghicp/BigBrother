@@ -47,9 +47,9 @@ class SpawnMobPacket extends Packet{
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);
-		$this->putByte(($this->yaw / 360) << 8);
-		$this->putByte(($this->pitch / 360) << 8);
-		$this->putByte(($this->headPitch / 360) << 8);
+		$this->putByte((int) ($this->yaw * (256 / 360)));//TODO
+		$this->putByte((int) ($this->pitch * (256 / 360)));//TODO
+		$this->putByte((int) ($this->headPitch * (256 / 360)));//TODO
 		$this->putShort($this->velocityX * 8000);
 		$this->putShort($this->velocityY * 8000);
 		$this->putShort($this->velocityZ * 8000);

@@ -30,7 +30,7 @@ class EntityHeadLookPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putByte($this->yaw);
+		$this->putByte((int) ($this->yaw * (256 / 360)));//TODO
 	}
 
 	public function decode(){

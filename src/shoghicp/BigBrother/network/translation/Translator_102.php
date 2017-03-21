@@ -708,12 +708,15 @@ class Translator_102 implements Translator{
 				$pk->ids[] = $packet->eid;
 				return $pk;
 
-			case Info::ADD_ITEM_ENTITY_PACKET:
-				$packets = [];
-
+			case Info::ADD_ITEM_ENTITY_PACKET://Bug
 				echo "AddItemEntityPacket\n";
 
-				$pk = new SpawnObjectPacket();//Bug
+				$item = clone $packet->item;
+				ConvertUtils::convertItemData(true, $item);
+
+				$packets = [];
+
+				$pk = new SpawnObjectPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = UUID::fromRandom()->toBinary();
 				$pk->type = 2;
@@ -725,14 +728,14 @@ class Translator_102 implements Translator{
 				$pk->data = 1;
 				$pk->velocityX = $packet->speedX;
 				$pk->velocityY = $packet->speedY;
-				$pk->velocityZ = $packet->speedX;
+				$pk->velocityZ = $packet->speedZ;
 				$packets[] = $pk;
 
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->eid;
 				$pk->metadata = [
 					0 => [0, 0],
-					6 => [5, $packet->item],
+					6 => [5, $item],
 					"convert" => true,
 				];
 				$packets[] = $pk;
