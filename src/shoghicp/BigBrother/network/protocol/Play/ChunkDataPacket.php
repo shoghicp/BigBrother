@@ -19,6 +19,7 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\utils\Binary;
+use shoghicp\BigBrother\utils\ConvertUtils;
 use pocketmine\nbt\NBT;
 
 class ChunkDataPacket extends Packet{
@@ -50,11 +51,10 @@ class ChunkDataPacket extends Packet{
 		}
 		$this->putVarInt(count($this->blockEntities));
 
-		/*foreach($this->blockEntities as $blockEntity){
-			$nbt = new NBT(NBT::BIG_ENDIAN);
-			$nbt->read($blockEntity, true);
-			$this->put($nbt->write(true));
-		}*/
+		foreach($this->blockEntities as $blockEntity){
+			ConvertUtils::convertNBTData(true, $blockEntity);
+			$this->put($blockEntity);
+		}
 	}
 
 	public function decode(){

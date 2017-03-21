@@ -21,63 +21,40 @@ use pocketmine\Achievement;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
-use pocketmine\Block\Block;
 use pocketmine\level\Level;
-use pocketmine\network\protocol\AddEntityPacket;
-use pocketmine\network\protocol\AddItemEntityPacket;
-use pocketmine\network\protocol\AddPaintingPacket;
-use pocketmine\network\protocol\AddPlayerPacket;
-use pocketmine\network\protocol\AdventureSettingsPacket;
 use pocketmine\network\protocol\AnimatePacket;
+use pocketmine\network\protocol\BlockEntityDataPacket;
 use pocketmine\network\protocol\ContainerClosePacket;
 use pocketmine\network\protocol\ContainerOpenPacket;
 use pocketmine\network\protocol\ContainerSetContentPacket;
-use pocketmine\network\protocol\ContainerSetDataPacket;
 use pocketmine\network\protocol\ContainerSetSlotPacket;
-use pocketmine\network\protocol\CraftingDataPacket;
 use pocketmine\network\protocol\CraftingEventPacket;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\protocol\DropItemPacket;
-use pocketmine\network\protocol\FullChunkDataPacket;
 use pocketmine\network\protocol\Info;
-use pocketmine\network\protocol\SetEntityLinkPacket;
-use pocketmine\network\protocol\TileEntityDataPacket;
-use pocketmine\network\protocol\EntityEventPacket;
-use pocketmine\network\protocol\ExplodePacket;
-use pocketmine\network\protocol\HurtArmorPacket;
 use pocketmine\network\protocol\InteractPacket;
-use pocketmine\network\protocol\LevelEventPacket;
-use pocketmine\network\protocol\DisconnectPacket;
 use pocketmine\network\protocol\TextPacket;
-use pocketmine\network\protocol\MoveEntityPacket;
 use pocketmine\network\protocol\MovePlayerPacket;
 use pocketmine\network\protocol\PlayerActionPacket;
 use pocketmine\network\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\protocol\MobEquipmentPacket;
 use pocketmine\network\protocol\MobEffectPacket;
 use pocketmine\network\protocol\RemoveBlockPacket;
-use pocketmine\network\protocol\RemoveEntityPacket;
-use pocketmine\network\protocol\RespawnPacket;
-use pocketmine\network\protocol\SetDifficultyPacket;
-use pocketmine\network\protocol\SetEntityDataPacket;
-use pocketmine\network\protocol\SetEntityMotionPacket;
-use pocketmine\network\protocol\SetSpawnPositionPacket;
-use pocketmine\network\protocol\TakeItemEntityPacket;
-use pocketmine\network\protocol\TileEventPacket;
-use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\network\protocol\UseItemPacket;
-use pocketmine\math\Vector3;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as SAnimatePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
@@ -97,7 +74,7 @@ use shoghicp\BigBrother\network\protocol\Play\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\STabComletePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\TabComletePacket;
 use shoghicp\BigBrother\network\protocol\Play\ScoreboardObjectivePacket;
 use shoghicp\BigBrother\network\protocol\Play\ServerDifficultyPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetSlotPacket;
@@ -109,7 +86,7 @@ use shoghicp\BigBrother\network\protocol\Play\StatisticsPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\RemoveEntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
-use shoghicp\BigBrother\network\protocol\Play\STCCloseWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\TimeUpdatePacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
@@ -127,7 +104,7 @@ class Translator_102 implements Translator{
 				//Confirm
 				return null;
 
-			/*case 0x01: //CTabCompletePacket
+			/*case 0x01: //TabCompletePacket
 				$pk = new STabComletePacket();
 
 				foreach($player->getServer()->getCommandMap()->getCommands() as $command){
@@ -186,8 +163,7 @@ class Translator_102 implements Translator{
 							$statistic[] = ["achievement.".$achievement, $count];
 						}
 
-						//stat
-						//https://gist.github.com/thinkofdeath/a1842c21a0cf2e1fb5e0
+						//TODO: stat https://gist.github.com/thinkofdeath/a1842c21a0cf2e1fb5e0
 
 						$pk = new StatisticsPacket();
 						$pk->count = count($statistic);//TODO stat
@@ -482,6 +458,29 @@ class Translator_102 implements Translator{
 					$pk->item = $packet->item;
 					return $pk;
 				}
+
+			case 0x19: //UpdateSignPacket
+				$tags = new CompoundTag("", [
+					new StringTag("id", Tile::SIGN),
+					new StringTag("Text1",$packet->line1),
+					new StringTag("Text2", $packet->line2),
+					new StringTag("Text3", $packet->line3),
+					new StringTag("Text4", $packet->line4),
+					new IntTag("x", (int) $packet->x),
+					new IntTag("y", (int) $packet->y),
+					new IntTag("z", (int) $packet->z)
+				]);
+
+				$nbt = new NBT(NBT::LITTLE_ENDIAN);
+				$nbt->setData($tags);
+
+				$pk = new BlockEntityDataPacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->namedtag = $nbt->write(true);
+
+				return $pk;
 
 			case 0x1a: //AnimatePacket
 				$pk = new AnimatePacket();
@@ -988,13 +987,13 @@ class Translator_102 implements Translator{
 			case Info::ANIMATE_PACKET:
 				switch($packet->action){
 					case 1:
-						$pk = new SAnimatePacket();
+						$pk = new STCAnimatePacket();
 						$pk->actionID = 0;
 						$pk->eid = $packet->eid;
 						return $pk;
 					break;
-					case 3: //LeaveBed
-						$pk = new SAnimatePacket();
+					case 3: //Leave Bed
+						$pk = new STCAnimatePacket();
 						$pk->actionID = 2;
 						$pk->eid = $packet->eid;
 						return $pk;
@@ -1014,7 +1013,7 @@ class Translator_102 implements Translator{
 				return $pk;
 
 			case Info::CONTAINER_CLOSE_PACKET:
-				$pk = new STCCloseWindowPacket();
+				$pk = new CloseWindowPacket();
 				$pk->windowID = $packet->windowid;
 				return $pk;*/
 
@@ -1108,16 +1107,21 @@ class Translator_102 implements Translator{
 				$nbt = $nbt->getData();
 
 				switch($nbt["id"]){
+					case Tile::CHEST:
+						$pk->actionID = 7;
+						$pk->namedtag = $nbt;
+					break;
 					case Tile::SIGN:
 						$pk->actionID = 9;
-						$pk->namedtag = $packet->namedtag;
+						$pk->namedtag = $nbt;
 					break;
 					default:
 						echo "BlockEntityDataPacket: ".$nbt["id"]."\n";
+						return null;
 					break;
 				}
 				
-				return null;
+				return $pk;
 
 			case Info::SET_DIFFICULTY_PACKET:
 				$pk = new ServerDifficultyPacket();

@@ -128,9 +128,9 @@ class DesktopPlayer extends Player{
 		$this->chunkLoadCount++;
 
 		$blockEntities = [];
-		/*foreach($this->level->getChunkTiles($x, $z) as $tile){
+		foreach($this->level->getChunkTiles($x, $z) as $tile){
 			$blockEntities[] = $tile->getSpawnCompound();
-		}*/
+		}
 
 		$chunk = new DesktopChunk($this, $x, $z);
 

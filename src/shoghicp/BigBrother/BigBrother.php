@@ -19,7 +19,9 @@ namespace shoghicp\BigBrother;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\network\protocol\Info;
+use pocketmine\block\Block;
 use pocketmine\event\player\PlayerRespawnEvent;
+use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat;
 use pocketmine\Achievement;
@@ -30,6 +32,7 @@ use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\network\translation\Translator_102;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
+use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -151,6 +154,25 @@ class BigBrother extends PluginBase implements Listener{
 		}
 	}
 
+	/**
+	 * @param BlockPlaceEvent $event
+	 *
+	 * @priority NORMAL
+	 */
+	public function onPlace(BlockPlaceEvent $event){
+		$player = $event->getPlayer();
+		$block = $event->getBlock();
+		if($player instanceof DesktopPlayer){
+			if($block->getId() === Block::SIGN_POST or $block->getId() === Block::WALL_SIGN){
+				$pk = new OpenSignEditorPacket();
+				$pk->x = $block->x;
+				$pk->y = $block->y;
+				$pk->z = $block->z;
+				$player->putRawPacket($pk);
+			}
+		}
+	}
+
 	public static function toJSON($message, $source = "", $type = 1, $parameters = null){
 		if($source === null){
 			$source = "";
@@ -162,7 +184,7 @@ class BigBrother extends PluginBase implements Listener{
 
 		$message = $source.$message;
 		$result = TextFormat::toJSON($message);
-		var_dump(json_decode($result, true));
+		//var_dump(json_decode($result, true));
 		if(is_array($parameters)){
 			$result = json_decode($result, true);
 			unset($result["text"]);

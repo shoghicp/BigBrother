@@ -102,15 +102,18 @@ abstract class Packet extends \stdClass{
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
 
-			/*$oldnbt = new NBT(NBT::LITTLE_ENDIAN);
-			$oldnbt->read($item->getCompoundTag());
-			$newnbt = new NBT(NBT::BIG_ENDIAN);
-			$newnbt->setData($oldnbt->getData());
+			$nbt = new NBT(NBT::LITTLE_ENDIAN);
+			$nbt->read($item->getCompoundTag());
+			$nbt = $nbt->getData();
 
-			$nbt = $newnbt->write();
-			$this->putByte(strlen($nbt));
-			$this->put($nbt);*/
-			$this->putByte(0);//TODO
+			if($nbt->getType() !== NBT::TAG_End){
+				ConvertUtils::convertNBTData(true, $nbt);
+
+				$this->putByte(strlen($nbt));
+				$this->put($nbt);
+			}else{
+				$this->putByte(0);
+			}
 		}
 	}
 

@@ -19,6 +19,7 @@ namespace shoghicp\BigBrother\utils;
 
 use phpseclib\Math\BigInteger;
 use shoghicp\BigBrother\network\Session;
+use pocketmine\nbt\NBT;
 
 class Binary extends \pocketmine\utils\Binary{
 
@@ -69,8 +70,18 @@ class Binary extends \pocketmine\utils\Binary{
 						$m .= self::writeShort($item->getID());
 						$m .= self::writeByte($item->getCount());
 						$m .= self::writeShort($item->getDamage());
-						$nbt = $item->getCompoundTag();
-						$m .= self::writeByte(strlen($nbt)).$nbt;
+
+						$nbt = new NBT(NBT::LITTLE_ENDIAN);
+						$nbt->read($item->getCompoundTag());
+						$nbt = $nbt->getData();
+
+						if($nbt->getType() !== NBT::TAG_End){
+							ConvertUtils::convertNBTData(true, $nbt);
+
+							$m .= self::writeByte(strlen($nbt)).$nbt;
+						}else{
+							$m .= self::writeByte(0);
+						}
 					}
 				break;
 				case 6://Boolean

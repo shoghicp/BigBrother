@@ -19,27 +19,22 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\utils\Binary;
-use shoghicp\BigBrother\utils\ConvertUtils;
 
-class UpdateBlockEntityPacket extends Packet{
+class OpenSignEditorPacket extends Packet{
 
 	public $x;
 	public $y;
 	public $z;
-	public $actionID;
-	public $namedtag = "";
 
 	public function pid(){
-		return 0x09;
+		return 0x2a;
 	}
 
 	public function encode(){
 		$this->putPosition($this->x, $this->y, $this->z);
-		$this->putByte($this->actionID);
-		ConvertUtils::convertNBTData(true, $this->namedtag);
-		$this->put($this->namedtag);
 	}
 
 	public function decode(){
+		
 	}
 }

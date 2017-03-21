@@ -19,6 +19,11 @@ namespace shoghicp\BigBrother\utils;
 
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
+use pocketmine\nbt\NBT;
+use pocketmine\nbt\tag\Tag;
+use pocketmine\utils\BinaryStream;
+use pocketmine\tile\Tile;
+use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{
 	public static $idlist = [
@@ -142,7 +147,97 @@ class ConvertUtils{
 	*/
 	public static function convertNBTData($iscomputer, &$nbt){
 		if($iscomputer){
+			if($nbt->getType() === NBT::TAG_Compound){
+				switch($nbt["id"]){
+					case Tile::SIGN://#blame mojang
+						$nbt->Text1->setValue(BigBrother::toJSON($nbt->Text1->getValue()));
+						$nbt->Text2->setValue(BigBrother::toJSON($nbt->Text2->getValue()));
+						$nbt->Text3->setValue(BigBrother::toJSON($nbt->Text3->getValue()));
+						$nbt->Text4->setValue(BigBrother::toJSON($nbt->Text4->getValue()));
+					break;
+				}
+			}
 
+			$stream = new BinaryStream();
+			$stream->putByte($nbt->getType());
+
+			if($nbt->getType() !== NBT::TAG_End){
+				$stream->putShort(strlen($nbt->getName()));
+				$stream->put($nbt->getName());
+			}
+
+			if($nbt->getType() === NBT::TAG_Compound){
+				foreach($nbt as $tag){
+					self::convertNBTData(true, $tag);
+					$stream->buffer .= $tag;
+				}
+
+				$stream->putByte(0);
+			}else{
+				switch($nbt->getType()){
+					case NBT::TAG_End: //No named tag
+					break;
+					case NBT::TAG_Byte:
+						$stream->putByte($nbt->getValue());
+					break;
+					case NBT::TAG_Short:
+						$stream->putShort($nbt->getValue());
+					break;
+					case NBT::TAG_Int:
+						$stream->putInt($nbt->getValue());
+					break;
+					case NBT::TAG_Long:
+						$stream->putLong($nbt->getValue());
+					break;
+					case NBT::TAG_Float:
+						$stream->putFloat($nbt->getValue());
+					break;
+					case NBT::TAG_Double:
+						$stream->putDouble($nbt->getValue());
+					break;
+					case NBT::TAG_ByteArray:
+						$stream->putInt(strlen($nbt->getValue()));
+						$stream->put($nbt->getValue());
+					break;
+					case NBT::TAG_String:
+						$stream->putShort(strlen($nbt->getValue()));
+						$stream->put($nbt->getValue());
+					break;
+					case NBT::TAG_List:
+						$id = null;
+						foreach($this as $tag){
+							if($tag instanceof Tag){
+								if(!isset($id)){
+									$id = $tag->getType();
+								}elseif($id !== $tag->getType()){
+									return false;
+								}
+							}
+						}
+
+						$nbt->putByte($id);
+
+						$tags = [];
+						foreach($this as $tag){
+							if($tag instanceof Tag){
+								$tags[] = $tag;
+							}
+						}
+						$nbt->putInt(count($tags));
+
+						foreach($tags as $tag){
+							self::convertNBTData(true, $tag);
+							$stream->buffer .= $tag;
+						}
+					break;
+					case NBT::TAG_IntArray:
+						$stream->putInt(count($nbt->getValue()));
+						$stream->put(pack("N*", ...$nbt->getValue()));
+					break;
+				}
+			}
+
+			$nbt = $stream->getBuffer();
 		}else{
 			
 		}
