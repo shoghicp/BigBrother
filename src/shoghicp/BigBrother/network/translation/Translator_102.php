@@ -427,7 +427,10 @@ class Translator_102 implements Translator{
 				$pk->eid = 0;
 				$pk->item = $player->getInventory()->getItem($slot);
 				$pk->slot = $slot + 9;
+				$pk->inventorySlot = $pk->slot;//for PocketMine-MP
 				$pk->selectedSlot = $packet->selectedSlot;
+				$pk->hotbarSlot = $pk->selectedSlot;//for PocketMine-MP
+
 				return $pk;
 
 			case 0x18: //CreativeInventoryActionPacket
