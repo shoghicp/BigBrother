@@ -145,9 +145,14 @@ class ConvertUtils{
 	* $iscomputer = true is PE => PC
 	* $iscomputer = false is PC => PE
 	*/
-	public static function convertNBTData($iscomputer, &$nbt){
+	public static function convertNBTData($iscomputer, &$oldnbt){
 		if($iscomputer){
-			if($nbt->getType() === NBT::TAG_Compound){
+			$nbt = clone $oldnbt;
+
+			echo "convert\n";
+			var_dump($nbt);
+
+			/*if($nbt->getType() === NBT::TAG_Compound){
 				switch($nbt["id"]){
 					case Tile::SIGN://#blame mojang
 						$nbt->Text1->setValue(BigBrother::toJSON($nbt->Text1->getValue()));
@@ -156,7 +161,7 @@ class ConvertUtils{
 						$nbt->Text4->setValue(BigBrother::toJSON($nbt->Text4->getValue()));
 					break;
 				}
-			}
+			}*/
 
 			$stream = new BinaryStream();
 			$stream->putByte($nbt->getType());
@@ -239,7 +244,7 @@ class ConvertUtils{
 
 			$nbt = $stream->getBuffer();
 		}else{
-			
+			//TODO
 		}
 	}
 

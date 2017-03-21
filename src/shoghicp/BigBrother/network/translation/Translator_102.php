@@ -1129,7 +1129,7 @@ class Translator_102 implements Translator{
 				return $pk;
 
 			case Info::SET_PLAYER_GAME_TYPE_PACKET:
-				$packets  = [];
+				$packets = [];
 
 				$pk = new PlayerAbilitiesPacket();
 				$pk->flyingSpeed = 0.05;
