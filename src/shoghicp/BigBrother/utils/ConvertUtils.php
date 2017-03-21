@@ -145,19 +145,8 @@ class ConvertUtils{
 	* $iscomputer = true is PE => PC
 	* $iscomputer = false is PC => PE
 	*/
-	public static function convertNBTData($iscomputer, &$nbt){
+	public static function convertNBTData($iscomputer, &$nbt, $convert = false){
 		if($iscomputer){
-			/*if($nbt->getType() === NBT::TAG_Compound){//Bug Don't enable code!
-				switch($nbt["id"]){
-					case Tile::SIGN://#blame mojang
-						$nbt->Text1->setValue(BigBrother::toJSON($nbt->Text1->getValue()));
-						$nbt->Text2->setValue(BigBrother::toJSON($nbt->Text2->getValue()));
-						$nbt->Text3->setValue(BigBrother::toJSON($nbt->Text3->getValue()));
-						$nbt->Text4->setValue(BigBrother::toJSON($nbt->Text4->getValue()));
-					break;
-				}
-			}*/
-
 			$stream = new BinaryStream();
 			$stream->putByte($nbt->getType());
 
@@ -168,7 +157,16 @@ class ConvertUtils{
 
 			if($nbt->getType() === NBT::TAG_Compound){
 				foreach($nbt as $tag){
-					self::convertNBTData(true, $tag);
+					if($nbt["id"] === Tile::SIGN){
+						if($tag->getType() === NBT::TAG_String){
+							$convert = true;
+						}else{
+							$convert = false;
+						}
+					}else{
+						$convert = false;
+					}
+					self::convertNBTData(true, $tag, $convert);
 					$stream->buffer .= $tag;
 				}
 
@@ -200,8 +198,14 @@ class ConvertUtils{
 						$stream->put($nbt->getValue());
 					break;
 					case NBT::TAG_String:
-						$stream->putShort(strlen($nbt->getValue()));
-						$stream->put($nbt->getValue());
+						if($convert){
+							$value = BigBrother::toJSON($nbt->getValue());
+							$stream->putShort(strlen($value));
+							$stream->put($value);
+						}else{
+							$stream->putShort(strlen($nbt->getValue()));
+							$stream->put($nbt->getValue());
+						}
 					break;
 					case NBT::TAG_List:
 						$id = null;

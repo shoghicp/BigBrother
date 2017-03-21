@@ -1106,8 +1106,6 @@ class Translator_102 implements Translator{
 				$nbt->read($packet->namedtag, true, true);
 				$nbt = $nbt->getData();
 
-				var_dump($nbt);
-
 				switch($nbt["id"]){
 					case Tile::CHEST:
 						$pk->actionID = 7;
