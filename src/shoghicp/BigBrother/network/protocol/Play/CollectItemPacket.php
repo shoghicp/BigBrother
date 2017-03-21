@@ -19,18 +19,20 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 
-class EntityHeadLookPacket extends Packet{
+class CollectItemPacket extends Packet{
 
 	public $eid;
-	public $yaw;
+	public $target;
+	public $itemCount;
 
 	public function pid(){
-		return 0x34;
+		return 0x48;
 	}
 
 	public function encode(){
+		$this->putVarInt($this->target);
 		$this->putVarInt($this->eid);
-		$this->putByte($this->yaw);
+		$this->putVarInt($this->itemCount);
 	}
 
 	public function decode(){

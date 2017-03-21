@@ -59,6 +59,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\ChangeGameStatePacket;
+use shoghicp\BigBrother\network\protocol\Play\CollectItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\EffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityEquipmentPacket;
@@ -189,6 +190,28 @@ class Translator_102 implements Translator{
 					"SkinSettings" => $packet->skinsetting,
 				]);
 
+				return null;
+
+			case 0x09: //ClickWindowPacket
+				/*$pk = new ContainerSetSlotPacket();
+
+				if($packet->slot > 4 and $packet->slot < 9){//Armor
+					$pk->windowid = ContainerSetContentPacket::SPECIAL_ARMOR;
+
+					$pk->slot = $packet->slot - 5;
+				}else{//Inventory
+					$pk->windowid = 0;
+
+					if($packet->slot > 35 and $packet->slot < 45){//hotbar
+						$pk->slot = $packet->slot - 36;
+					}else{
+						$pk->slot = $packet->slot + 9;
+						//TODO: hotbar slot in inventory slot
+					}
+				}
+
+				$pk->hotbarSlot = 0;//unused
+				$pk->item = $packet->item;*/
 				return null;
 
 			case 0x08: //CloseWindowPacket
@@ -647,8 +670,6 @@ class Translator_102 implements Translator{
 			case Info::ADD_ENTITY_PACKET:
 				$packets = [];
 
-				echo "AddEntityPacket\n";
-
 				switch($packet->type){
 					case 64:
 						$packet->type = 57;
@@ -688,11 +709,11 @@ class Translator_102 implements Translator{
 				return $pk;
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
-				echo "AddEntityPacket\n";
-
 				$packets = [];
 
-				$pk = new SpawnObjectPacket();
+				echo "AddItemEntityPacket\n";
+
+				$pk = new SpawnObjectPacket();//Bug
 				$pk->eid = $packet->eid;
 				$pk->uuid = UUID::fromRandom()->toBinary();
 				$pk->type = 2;
@@ -702,9 +723,9 @@ class Translator_102 implements Translator{
 				$pk->yaw = 0;
 				$pk->pitch = 0;
 				$pk->data = 1;
-				$pk->velocityX = 0;
-				$pk->velocityY = 0;
-				$pk->velocityZ = 0;
+				$pk->velocityX = $packet->speedX;
+				$pk->velocityY = $packet->speedY;
+				$pk->velocityZ = $packet->speedX;
 				$packets[] = $pk;
 
 				$pk = new EntityMetadataPacket();
@@ -716,9 +737,21 @@ class Translator_102 implements Translator{
 				];
 				$packets[] = $pk;
 
-				//var_dump($packets);
-
 				return $packets;
+
+			case Info::TAKE_ITEM_ENTITY_PACKET:
+				if(($entity = $player->getLevel()->getEntity($packet->target))){
+					$itemCount = $entity->getItem()->getCount();
+				}else{
+					$itemCount = 1;
+				}
+
+				$pk = new CollectItemPacket();
+				$pk->eid = $packet->eid;
+				$pk->target = $packet->target;
+				$pk->itemCount = $itemCount;
+
+				return $pk;
 
 			case Info::MOVE_ENTITY_PACKET:
 				if($packet->eid === $player->getId()){//TODO
@@ -1007,18 +1040,41 @@ class Translator_102 implements Translator{
 				}	
 				return null;
 
-			/*case Info::CONTAINER_OPEN_PACKET:
+			case Info::CONTAINER_OPEN_PACKET:
+				$type = "";
+				switch($packet->type){
+					case 0:
+						$type = "minecraft:chest";
+						$title = "Chest Inventory";
+					break;
+					case 1:
+						$type = "minecraft:crafting_table";
+						$title = "CraftingTable Inventory";
+					break;
+					case 2:
+						$type = "minecraft:furnace";
+						$title = "Furnace Inventory";
+					break;
+					default:
+						echo "ContainerOpenPacket: ".$packet->type."\n";
+						//TODO: http://wiki.vg/Inventory#Windows
+					break;
+				}
+
 				$pk = new OpenWindowPacket();
 				$pk->windowID = $packet->windowid;
-				$pk->inventoryType = $packet->type;
-				$pk->windowTitle = "";
+				$pk->inventoryType = $type;
+				$pk->windowTitle = BigBrother::toJSON($title);
 				$pk->slots = $packet->slots;
+
+				$player->setSetting(["windowid:".$packet->windowid => [$packet->type, $packet->slots]]);
+
 				return $pk;
 
 			case Info::CONTAINER_CLOSE_PACKET:
 				$pk = new CloseWindowPacket();
 				$pk->windowID = $packet->windowid;
-				return $pk;*/
+				return $pk;
 
 			case Info::CONTAINER_SET_SLOT_PACKET:
 				$pk = new SetSlotPacket();
@@ -1089,7 +1145,44 @@ class Translator_102 implements Translator{
 					case ContainerSetContentPacket::SPECIAL_HOTBAR:
 					break;
 					default:
-						echo "ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
+						$windowdata = $player->getSetting("windowid:".$packet->windowid);
+
+						if($windowdata !== false){
+							switch($windowdata[0]){
+								case 0:
+									$pk->items = $packet->slots;
+
+									$hotbar = [];
+									$hotbardata = [];
+									for($i = 0; $i < 9; $i++){ 
+										$hotbardata[] = $player->getInventory()->getHotbarSlotIndex($i);
+									}
+
+									foreach($hotbardata as $hotbarslot){
+										$hotbar[$hotbarslot] = $player->getInventory()->getItem($hotbarslot);
+									}
+
+									for($i = 0; $i < 27; ++$i){
+										if(!isset($hotbar[$i])){
+											$pk->items[] = $player->getInventory()->getItem($i);
+										}else{
+											$pk->items[] = Item::get(Item::AIR, 0, 0);
+										}
+									}
+
+									foreach($hotbar as $slot){
+										$pk->items[] = $slot;
+									}
+
+									return $pk;
+								break;
+								default:
+									echo "UnknownWindowType: ".$windowdata[0]."\n";
+								break;
+							}
+						}else{
+							echo "ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
+						}
 					break;
 				}
 
@@ -1106,7 +1199,7 @@ class Translator_102 implements Translator{
 				$pk->z = $packet->z;
 
 				$nbt = new NBT(NBT::LITTLE_ENDIAN);
-				$nbt->read($packet->namedtag, true, true);
+				$nbt->read($packet->namedtag, false, true);
 				$nbt = $nbt->getData();
 
 				switch($nbt["id"]){
@@ -1392,6 +1485,7 @@ class Translator_102 implements Translator{
 			case Info::RESPAWN_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
 			case Info::FULL_CHUNK_DATA_PACKET:
+			case Info::BLOCK_EVENT_PACKET:
 			case Info::CHUNK_RADIUS_UPDATED_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
 				return null;

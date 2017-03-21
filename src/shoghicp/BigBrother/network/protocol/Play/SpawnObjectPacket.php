@@ -43,9 +43,9 @@ class SpawnObjectPacket extends Packet{
 		$this->putVarInt($this->eid);
 		$this->put($this->uuid);
 		$this->putByte($this->type);
-		$this->putDouble($this->x * 32);
-		$this->putDouble($this->y * 32);
-		$this->putDouble($this->z * 32);
+		$this->putDouble($this->x);
+		$this->putDouble($this->y);
+		$this->putDouble($this->z);
 		$this->putByte(($this->yaw / 360) << 8);
 		$this->putByte(($this->pitch / 360) << 8);
 		$this->putInt($this->data);

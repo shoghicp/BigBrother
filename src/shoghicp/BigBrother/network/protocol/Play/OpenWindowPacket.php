@@ -25,8 +25,7 @@ class OpenWindowPacket extends Packet{
 	public $inventoryType;
 	public $windowTitle;
 	public $slots;
-	public $useTitle = false;
-	public $entityId;
+	public $entityId = -1;
 
 	public function pid(){
 		return 0x13;
@@ -34,24 +33,10 @@ class OpenWindowPacket extends Packet{
 
 	public function encode(){
 		$this->putByte($this->windowID);
-		$type = "";
-		switch($this->inventoryType){
-			case 0:
-				$type = "minecraft:chest";
-				break;
-			case 1:
-				$type = "minecraft:crafting_table";
-				break;
-			case 2:
-				$type = "minecraft:furnace";
-				break;
-			//TODO: http://wiki.vg/Inventory#Windows
-		}
-		$this->putString($type);
+		$this->putString($this->inventoryType);
 		$this->putString($this->windowTitle);
 		$this->putByte($this->slots);
-		$this->putByte($this->useTitle ? 1 : 0);
-		if($this->windowID === 11){
+		if($this->entityId !== -1){
 			$this->putInt($this->entityId);
 		}
 	}

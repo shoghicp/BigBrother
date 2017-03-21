@@ -209,7 +209,7 @@ class ConvertUtils{
 					break;
 					case NBT::TAG_List:
 						$id = null;
-						foreach($this as $tag){
+						foreach($nbt as $tag){
 							if($tag instanceof Tag){
 								if(!isset($id)){
 									$id = $tag->getType();
@@ -219,15 +219,15 @@ class ConvertUtils{
 							}
 						}
 
-						$nbt->putByte($id);
+						$stream->putByte($id);
 
 						$tags = [];
-						foreach($this as $tag){
+						foreach($nbt as $tag){
 							if($tag instanceof Tag){
 								$tags[] = $tag;
 							}
 						}
-						$nbt->putInt(count($tags));
+						$stream->putInt(count($tags));
 
 						foreach($tags as $tag){
 							self::convertNBTData(true, $tag);
