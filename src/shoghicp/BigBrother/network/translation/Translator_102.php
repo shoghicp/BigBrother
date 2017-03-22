@@ -31,6 +31,7 @@ use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\CraftingEventPacket;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\protocol\DropItemPacket;
+use pocketmine\network\protocol\EntityEventPacket;
 use pocketmine\network\protocol\Info;
 use pocketmine\network\protocol\InteractPacket;
 use pocketmine\network\protocol\TextPacket;
@@ -84,6 +85,7 @@ use shoghicp\BigBrother\network\protocol\Play\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\StatisticsPacket;
+use shoghicp\BigBrother\network\protocol\Play\SetPassengersPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\RemoveEntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
@@ -239,7 +241,19 @@ class Translator_102 implements Translator{
 			case 0x0a: //UseEntityPacket
 				$pk = new InteractPacket();
 				$pk->target = $packet->target;
-				$pk->action = $packet->type;
+
+				switch($packet->type){
+					case 0:
+						$pk->action = InteractPacket::ACTION_RIGHT_CLICK;
+					break;
+					case 1:
+						$pk->action = InteractPacket::ACTION_LEFT_CLICK;
+					break;
+					case 2:
+						$pk->action = InteractPacket::ACTION_MOUSEOVER;
+					break;
+				}
+
 				return $pk;
 
 			case 0x0b: //KeepAlivePacket
@@ -674,6 +688,22 @@ class Translator_102 implements Translator{
 					case 64:
 						$packet->type = 57;
 					break;
+					/*case 90;
+						$pk = new SpawnObjectPacket();
+						$pk->eid = $packet->eid;
+						$pk->uuid = UUID::fromRandom()->toBinary();
+						$pk->type = 1;
+						$pk->x = $packet->x;
+						$pk->y = $packet->y;
+						$pk->z = $packet->z;
+						$pk->yaw = 0;
+						$pk->pitch = 0;
+						$pk->data = 1;
+						$pk->velocityX = 0;
+						$pk->velocityY = 0;
+						$pk->velocityZ = 0;
+						return $pk;
+					break;*/
 					default:
 						$packet->type = 57;
 						echo "AddEntityPacket: ".$packet->eid."\n";
@@ -831,10 +861,31 @@ class Translator_102 implements Translator{
 
 				return $pk;
 
-			/*case Info::ENTITY_EVENT_PACKET:
+			case Info::ENTITY_EVENT_PACKET:
+				switch($packet->event){
+					case EntityEventPacket::HURT_ANIMATION:
+						$pk = new STCAnimatePacket();
+						$pk->actionID = 1;
+						$pk->eid = $packet->eid;
+
+						return $pk;
+					break;
+					/*case EntityEventPacket::DEATH_ANIMATION:
+						$pk = new STCAnimatePacket();
+						$pk->actionID = 1;
+						$pk->eid = $packet->eid;
+
+						var_dump($pk);
+						return $pk;
+					break;*/
+					case EntityEventPacket::RESPAWN:
+					break;
+					default:
+						echo "EntityEventPacket: ".$packet->event."\n";
+					break;
+				}
 
 				return null;
-			*/
 
 			case Info::MOB_EFFECT_PACKET:
 				switch($packet->eventId){
@@ -1008,6 +1059,12 @@ class Translator_102 implements Translator{
 				$pk->velocityY = $packet->motionY;
 				$pk->velocityZ = $packet->motionZ;
 				return $pk;
+
+			/*case Info::SET_ENTITY_LINK_PACKET:
+				$pk = new SetPassengersPacket();
+				$pk->eid = $packet->from;
+				$pk->passengers = [$packet->to];
+				return $pk;*/
 
 			case Info::SET_HEALTH_PACKET:
 				$pk = new UpdateHealthPacket();
