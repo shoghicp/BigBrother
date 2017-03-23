@@ -22,6 +22,7 @@ use pocketmine\Player;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
+use pocketmine\math\Vector3;
 use pocketmine\network\protocol\AnimatePacket;
 use pocketmine\network\protocol\BlockEntityDataPacket;
 use pocketmine\network\protocol\ContainerClosePacket;
@@ -57,6 +58,7 @@ use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
+use shoghicp\BigBrother\network\protocol\Play\BlockActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\ChangeGameStatePacket;
@@ -80,6 +82,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\TabComletePacket;
 use shoghicp\BigBrother\network\protocol\Play\ScoreboardObjectivePacket;
 use shoghicp\BigBrother\network\protocol\Play\ServerDifficultyPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetSlotPacket;
+use shoghicp\BigBrother\network\protocol\Play\SoundEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\SpawnPlayerPacket;
@@ -96,6 +99,7 @@ use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
+use shoghicp\BigBrother\network\protocol\Play\NamedSoundEffectPacket;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
@@ -107,24 +111,9 @@ class Translator_102 implements Translator{
 				//Confirm
 				return null;
 
-			/*case 0x01: //TabCompletePacket
-				$pk = new STabComletePacket();
-
-				foreach($player->getServer()->getCommandMap()->getCommands() as $command){
-					if($command->testPermissionSilent($player)){
-						$pk->matches[] = $command->getName();
-					}
-				}
-
-				foreach($player->getServer()->getOnlinePlayers() as $packetplayer){
-					$pk->matches[] = $packetplayer->getName();
-				}
-
+			case 0x01: //TabCompletePacket
 				//TODO
-
-				//echo $packet->text."\n";
-
-				return $pk;*/
+				return null;
 
 			case 0x02: //ChatPacket
 				$pk = new TextPacket();
@@ -194,13 +183,34 @@ class Translator_102 implements Translator{
 
 				return null;
 
-			case 0x09: //ClickWindowPacket
-				/*$pk = new ContainerSetSlotPacket();
+			case 0x07: //ClickWindowPacket
+				$pk = new ContainerSetSlotPacket();
+				$pk->windowid = $packet->windowID;
+				$pk->hotbarSlot = 0;//unused
+				$pk->item = $packet->clickedItem;
 
-				if($packet->slot > 4 and $packet->slot < 9){//Armor
-					$pk->windowid = ContainerSetContentPacket::SPECIAL_ARMOR;
+				switch($packet->mode){
+					case 0:
+						switch($packet->button){
+							case 0:
+								//var_dump($packet->slot);
+								//var_dump($packet);
+								//$pk->slot = $packet->slot - 5;
+							break;
+							/*case 1:
 
-					$pk->slot = $packet->slot - 5;
+							break;*/
+						}
+					break;
+					default:
+						echo "ClickWindowPacket: ".$packet->mode."\n";
+					break;
+				}
+
+
+				/*
+
+					
 				}else{//Inventory
 					$pk->windowid = 0;
 
@@ -212,8 +222,7 @@ class Translator_102 implements Translator{
 					}
 				}
 
-				$pk->hotbarSlot = 0;//unused
-				$pk->item = $packet->item;*/
+				*/
 				return null;
 
 			case 0x08: //CloseWindowPacket
@@ -243,13 +252,13 @@ class Translator_102 implements Translator{
 				$pk->target = $packet->target;
 
 				switch($packet->type){
-					case 0:
+					case 0://interact
 						$pk->action = InteractPacket::ACTION_RIGHT_CLICK;
 					break;
-					case 1:
+					case 1://attack
 						$pk->action = InteractPacket::ACTION_LEFT_CLICK;
 					break;
-					case 2:
+					case 2://interact at
 						$pk->action = InteractPacket::ACTION_MOUSEOVER;
 					break;
 				}
@@ -615,7 +624,7 @@ class Translator_102 implements Translator{
 			case Info::SET_TIME_PACKET:
 				$pk = new TimeUpdatePacket();
 				$pk->age = $packet->time;
-				$pk->time = $packet->time; //TODO: calculate offset from MCPE
+				$pk->time = $packet->time;
 				return $pk;
 
 			case Info::START_GAME_PACKET:
@@ -860,6 +869,38 @@ class Translator_102 implements Translator{
 				$pk->disableRelativeVolume = false;
 
 				return $pk;
+
+			case Info::BLOCK_EVENT_PACKET:
+				$packets = [];
+
+				$pk = new BlockActionPacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->actionID = $packet->case1;
+				$pk->actionParam = $packet->case2;
+				$pk->blockType = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+				$packets[] = $pk;
+
+				if($packet->case1 === 1){//TODO: no sound
+					$pk = new NamedSoundEffectPacket();
+					$pk->category = 6;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->volume = 3.0;
+					$pk->pitch = 0.5;
+
+					if($packet->case2 >= 1){
+						$pk->name = "block.chest.open";
+					}else{
+						$pk->name = "block.chest.close";
+					}
+
+					$packets[] = $pk;
+				}
+
+				return $packets;
 
 			case Info::ENTITY_EVENT_PACKET:
 				switch($packet->event){
@@ -1109,7 +1150,7 @@ class Translator_102 implements Translator{
 					break;
 					case 1:
 						$type = "minecraft:crafting_table";
-						$title = "CraftingTable Inventory";
+						$title = "Crafting Table Inventory";
 					break;
 					case 2:
 						$type = "minecraft:furnace";
@@ -1144,6 +1185,10 @@ class Translator_102 implements Translator{
 					case ContainerSetContentPacket::SPECIAL_INVENTORY:
 						$pk->slot = $packet->slot + 18;
 						$pk->item = $packet->item;
+
+						var_dump($pk);
+
+						return $pk;
 					case ContainerSetContentPacket::SPECIAL_ARMOR:
 						//TODO
 					break;
@@ -1545,7 +1590,6 @@ class Translator_102 implements Translator{
 			case Info::RESPAWN_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
 			case Info::FULL_CHUNK_DATA_PACKET:
-			case Info::BLOCK_EVENT_PACKET:
 			case Info::CHUNK_RADIUS_UPDATED_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
 				return null;

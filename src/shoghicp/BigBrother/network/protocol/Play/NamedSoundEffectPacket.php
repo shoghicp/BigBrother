@@ -15,22 +15,35 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play\Client;
+namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 
-class HeldItemChangePacket extends Packet{
+class NamedSoundEffectPacket extends Packet{
 
-	public $selectedSlot;
+	public $name;
+	public $category;
+	public $x;
+	public $y;
+	public $z;
+	public $volume;
+	public $pitch;
 
 	public function pid(){
-		return 0x17;
+		return 0x19;
 	}
 
 	public function encode(){
+		$this->putString($this->name);
+		$this->putVarInt($this->category);
+		$this->putInt($this->x);
+		$this->putInt($this->y);
+		$this->putInt($this->z);
+		$this->putFloat($this->volume);
+		$this->putFloat($this->pitch);
 	}
 
 	public function decode(){
-		$this->selectedSlot = $this->getShort();
+
 	}
 }

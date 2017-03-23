@@ -18,7 +18,6 @@
 namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
-use shoghicp\BigBrother\utils\Binary;
 
 class PlayerListPacket extends Packet{
 

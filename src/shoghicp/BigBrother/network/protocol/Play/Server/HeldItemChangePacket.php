@@ -18,7 +18,6 @@
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
-use shoghicp\BigBrother\utils\Binary;
 
 class HeldItemChangePacket extends Packet{
 
