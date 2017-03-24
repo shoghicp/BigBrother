@@ -303,7 +303,7 @@ class DesktopPlayer extends Player{
 				$pk = new EncryptionRequestPacket();
 				$pk->serverID = "";
 				$pk->publicKey = $plugin->getASN1PublicKey();
-				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);//Random Bytes :(
+				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);//for PocketMine-MP  Random Bytes :(
 				$this->putRawPacket($pk);
 			}else{
 				$info = $this->getProfile($username);

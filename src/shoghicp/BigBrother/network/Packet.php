@@ -103,7 +103,7 @@ abstract class Packet extends \stdClass{
 			$this->putShort($item->getDamage());
 
 			$nbt = new NBT(NBT::LITTLE_ENDIAN);
-			$nbt->read($item->getCompoundTag());
+			$nbt->read($item->getCompoundTag());//TODO String or CompoundTag
 			$nbt = $nbt->getData();
 
 			if($nbt->getType() !== NBT::TAG_End){

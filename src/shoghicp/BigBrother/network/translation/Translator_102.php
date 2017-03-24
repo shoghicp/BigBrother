@@ -668,6 +668,10 @@ class Translator_102 implements Translator{
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
 
+				/*if(!($playerlist = $player->getSetting("PlayerList"))){
+					$playerlist = [];//TODO: Spawn Player problem...
+				}*/
+
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = $packet->uuid->toBinary();
@@ -694,10 +698,175 @@ class Translator_102 implements Translator{
 				$packets = [];
 
 				switch($packet->type){
-					case 64:
+					case 10://Chicken
+						$packet->type = 93;
+					break;
+					case 11://Cow
+						$packet->type = 92;
+					break;
+					case 12://Pig
+						$packet->type = 90;
+					break;
+					case 13://Sheep
+						$packet->type = 91;
+					break;
+					case 14://Wolf
+						$packet->type = 95;
+					break;
+					case 15://Villager
+						$packet->type = 120;
+					break;
+					case 16://Mooshroom
+						$packet->type = 96;
+					break;
+					case 17://Squid
+						$packet->type = 94;
+					break;
+					case 18://Rabbit
+						$packet->type = 101;
+					break;
+					case 19://Bat
+						$packet->type = 65;
+					break;
+					case 20://IronGolem
+						$packet->type = 99;
+					break;
+					case 21://SnowGolem (Snowman)
+						$packet->type = 97;
+					break;
+					case 22://Ocelot
+						$packet->type = 98;
+					break;
+					case 23://Horse
+						$packet->type = 100;
+					break;
+					case 28://PolarBear
+						$packet->type = 102;
+					break;
+					case 32://Zombie
+						$packet->type = 54;
+					break;
+					case 33://Creeper
+						$packet->type = 50;
+					break;
+					case 34://Skeleton
+						$packet->type = 51;
+					break;
+					case 35://Spider
+						$packet->type = 52;
+					break;
+					case 36://PigZombie
 						$packet->type = 57;
 					break;
-					/*case 90;
+					case 37://Slime
+						$packet->type = 55;
+					break;
+					case 38://Enderman
+						$packet->type = 58;
+					break;
+					case 39://Silverfish
+						$packet->type = 60;
+					break;
+					case 40://CaveSpider
+						$packet->type = 59;
+					break;
+					case 41://Ghast
+
+					break;
+					case 42://LavaSlime
+
+					break;
+					case 43://Blaze
+
+					break;
+					case 44://ZombieVillager
+						$packet->type = 27;
+					break;
+					case 45://Witch
+						$packet->type = 66;
+					break;
+					case 46://Stray
+						$packet->type = 6;
+					break;
+					case 47://Husk
+						$packet->type = 23;
+					break;
+					case 48://WitherSkeleton
+						$packet->type = 5;
+					break;
+					case 49://Guardian
+						$packet->type = 68;
+					break;
+					case 50://ElderGuardian
+						$packet->type = 4;
+					break;
+					/*case 52://Wither (Skull)
+						//Spawn Object
+					break;*/
+					case 53://EnderDragon
+						$packet->type = 63;
+					break;
+					case 54://Shulker
+						$packet->type = 69;
+					break;
+					/*case 64://Item
+						//Spawn Object
+					break;
+					case 65://PrimedTNT
+						//Spawn Object
+					break;
+					case 66://FallingSand
+						//Spawn Object
+					break;
+					case 68://ThrownExpBottle
+						//Spawn Object
+					break;
+					case 69://XPOrb
+						//Spawn Experience Orb
+					break;
+					case 71://EnderCrystal
+						//Spawn Object
+					break;
+					case 76://ShulkerBullet
+						//Spawn Object
+					break;
+					case 77:FishingHook
+						//Spawn Object
+					break;
+					case 79://DragonFireBall
+						//Spawn Object
+					break;
+					case 80://Arrow
+						//Spawn Object
+					break;
+					case 81://Snowball
+						//Spawn Object
+					break;
+					case 82://Egg
+						//Spawn Object
+					break;
+					case 83://Painting
+						//Spawn Painting
+					break;
+					case 84://Minecart
+						//Spawn Object
+					break;
+					case 85://GhastFireball
+						//Spawn Object
+					break;
+					case 86://ThrownPotion
+						//Spawn Object
+					break;
+					case 87://EnderPearl
+						//Spawn Object
+					break;
+					case 88://LeashKnot
+						//Spawn Object
+					break;
+					case 89://BlueWitherSkull
+						//Spawn Object
+					break;
+					case 90;//Boat
 						$pk = new SpawnObjectPacket();
 						$pk->eid = $packet->eid;
 						$pk->uuid = UUID::fromRandom()->toBinary();
@@ -712,6 +881,21 @@ class Translator_102 implements Translator{
 						$pk->velocityY = 0;
 						$pk->velocityZ = 0;
 						return $pk;
+					break;
+					case 93://Lightning
+						//Spawn Global Entity
+					break;
+					case 94://BlazeFireball
+						//Spawn Object
+					break;
+					case 96://MinecartHopper
+						//Spawn Object
+					break;
+					case 97:MinecartTNT
+						//Spawn Object
+					break;
+					case 98://MinecartChest
+						//Spawn Object
 					break;*/
 					default:
 						$packet->type = 57;
