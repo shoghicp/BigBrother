@@ -132,7 +132,7 @@ class Translator_102 implements Translator{
 						$found = false;
 						foreach($reflect->getConstants() as $constantname => $value){
 							if($constantname === "ACTION_RESPAWN"){
-								$pk->action = PlayerActionPacket::ACTION_RESPAWN;
+								$pk->action = PlayerActionPacket::ACTION_RESPAWN;//for PocketMine-MP
 								$found = true;
 								break;
 							}
@@ -748,7 +748,7 @@ class Translator_102 implements Translator{
 				return $pk;
 
 			case Info::ADD_ITEM_ENTITY_PACKET://Bug
-				echo "AddItemEntityPacket\n";
+				//echo "AddItemEntityPacket: ".$packet->eid."\n";
 
 				$item = clone $packet->item;
 				ConvertUtils::convertItemData(true, $item);
@@ -799,6 +799,8 @@ class Translator_102 implements Translator{
 				if($packet->eid === $player->getId()){//TODO
 					return null;
 				}else{
+					//echo "MoveEntityPacket: ".$packet->eid."\n";
+
 					$packets = [];
 
 					$pk = new EntityTeleportPacket();
@@ -882,14 +884,14 @@ class Translator_102 implements Translator{
 				$pk->blockType = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
 				$packets[] = $pk;
 
-				if($packet->case1 === 1){//TODO: no sound
+				if($packet->case1 === 1){
 					$pk = new NamedSoundEffectPacket();
-					$pk->category = 6;
+					$pk->category = 1;
 					$pk->x = $packet->x;
 					$pk->y = $packet->y;
 					$pk->z = $packet->z;
-					$pk->volume = 3.0;
-					$pk->pitch = 0.5;
+					$pk->volume = 0.5;
+					$pk->pitch = 1.0;
 
 					if($packet->case2 >= 1){
 						$pk->name = "block.chest.open";
@@ -936,7 +938,6 @@ class Translator_102 implements Translator{
 						if($packet->particles){
 							$flags |= 0x02;
 						}
-
 
 						$pk = new EntityEffectPacket();
 						$pk->eid = $packet->eid;

@@ -84,7 +84,7 @@ abstract class Packet extends \stdClass{
 				$nbt = $this->get($len);
 			}
 
-			$item = new ComputerItem($itemId, $damage, $count, $nbt);
+			$item = new ComputerItem($itemId, $damage, $count/*, $nbt*/);//TODO: Convert NBT
 
 			ConvertUtils::convertItemData(false, $item);
 

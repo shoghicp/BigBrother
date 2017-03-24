@@ -36,9 +36,9 @@ class NamedSoundEffectPacket extends Packet{
 	public function encode(){
 		$this->putString($this->name);
 		$this->putVarInt($this->category);
-		$this->putInt($this->x);
-		$this->putInt($this->y);
-		$this->putInt($this->z);
+		$this->putInt($this->x * 8);
+		$this->putInt($this->y * 8);
+		$this->putInt($this->z * 8);
 		$this->putFloat($this->volume);
 		$this->putFloat($this->pitch);
 	}
