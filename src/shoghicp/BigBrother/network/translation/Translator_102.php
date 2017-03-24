@@ -771,13 +771,13 @@ class Translator_102 implements Translator{
 						$packet->type = 59;
 					break;
 					case 41://Ghast
-
+						$packet->type = 56;
 					break;
 					case 42://LavaSlime
-
+						$packet->type = 62;
 					break;
 					case 43://Blaze
-
+						$packet->type = 61;
 					break;
 					case 44://ZombieVillager
 						$packet->type = 27;
