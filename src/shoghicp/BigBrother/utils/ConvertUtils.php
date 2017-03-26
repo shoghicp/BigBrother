@@ -19,6 +19,7 @@ namespace shoghicp\BigBrother\utils;
 
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
+use pocketmine\entity\Projectile;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\Tag;
 use pocketmine\utils\BinaryStream;
@@ -391,6 +392,7 @@ class ConvertUtils{
 				case Human::DATA_LEAD_HOLDER_EID:
 				case Human::DATA_SCALE:
 				case Human::DATA_MAX_AIR:
+				case Projectile::DATA_SHOOTER_ID:
 					//Unused
 				break;
 				default:
