@@ -23,6 +23,7 @@ use pocketmine\entity\Entity;
 use pocketmine\entity\Arrow;
 use pocketmine\entity\Item as ItemEntity;
 use pocketmine\item\Item;
+use pocketmine\block\Block;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\network\protocol\AnimatePacket;
@@ -107,7 +108,7 @@ use shoghicp\BigBrother\network\protocol\Play\NamedSoundEffectPacket;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
-class Translator_102 implements Translator{
+class Translator_105 implements Translator{
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
@@ -1102,7 +1103,11 @@ class Translator_102 implements Translator{
 			case Info::LEVEL_EVENT_PACKET://TODO
 				$issoundeffect = false;
 
-				switch($packet->evid){//EVENT_ADD_PARTICLE_MASK
+				if($packet->evid & LevelEventPacket::EVENT_ADD_PARTICLE_MASK){
+					$packet->evid &= ~LevelEventPacket::EVENT_ADD_PARTICLE_MASK;
+				}
+
+				switch($packet->evid){
 					case LevelEventPacket::EVENT_SOUND_SHOOT:
 						$issoundeffect = true;
 						$category = 0;
@@ -1164,7 +1169,7 @@ class Translator_102 implements Translator{
 				$pk->z = $packet->z;
 				$pk->actionID = $packet->case1;
 				$pk->actionParam = $packet->case2;
-				$pk->blockType = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+				$pk->blockType = $block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
 				$packets[] = $pk;
 
 				if($packet->case1 === 1){//TODO: EnderChest
@@ -1177,9 +1182,17 @@ class Translator_102 implements Translator{
 					$pk->pitch = 1.0;
 
 					if($packet->case2 >= 1){
-						$pk->name = "block.chest.open";
+						if($block === Block::ENDER_CHEST){
+							$pk->name = "block.enderchest.open";
+						}else{
+							$pk->name = "block.chest.open";
+						}
 					}else{
-						$pk->name = "block.chest.close";
+						if($block === Block::ENDER_CHEST){
+							$pk->name = "block.enderchest.close";
+						}else{
+							$pk->name = "block.chest.close";
+						}
 					}
 
 					$packets[] = $pk;

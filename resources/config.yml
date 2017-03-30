@@ -12,20 +12,6 @@ motd: "§bPocketMine-MP server using §6§lBigBrother§r§b plugin\n§aConnect t
 #Use Mojang services to authenticate players
 online-mode: true
 
-#Automatically authenticate players on SimpleAuth that were authenticated via Mojang servers
-online-mode-simpleauth: false
-
-#Action when there is a nick conflict
-#kickpe: kicks the Pocket Edition player
-#kickpc: kicks the PC player
-#kickold: kicks the player that was on the server
-#kicknew: kicks the player that is connecting
-#none: do nothing, leave it up to PocketMine-MP and other plugins
-action-on-conflict: none
-
 #This is Skin Settings
 skin-yml: "steve.yml"
 skin-slim: false
-
-#This is ResourcePackURL Settings
-resourcepackurl: "false"
