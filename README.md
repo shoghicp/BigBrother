@@ -10,7 +10,3 @@ Welcome to BigBrother of BigBrotherTeam!
 #### Notice
 * This plugin supports use with Tesseract or PocketMine-MP
 * This plugin supports Minecraft version 1.11.2
-
-##### TODO
-* Inventory
-* etc....
