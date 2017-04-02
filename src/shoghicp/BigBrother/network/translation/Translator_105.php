@@ -691,10 +691,6 @@ class Translator_105 implements Translator{
 			case Info::ADD_PLAYER_PACKET:
 				$packets = [];
 
-				/*if(!($playerlist = $player->getSetting("PlayerList"))){
-					$playerlist = [];//TODO: Spawn Player problem...
-				}*/
-
 				$pk = new SpawnPlayerPacket();
 				$pk->eid = $packet->eid;
 				$pk->uuid = $packet->uuid->toBinary();
@@ -1457,6 +1453,7 @@ class Translator_105 implements Translator{
 					default:
 						echo "ContainerOpenPacket: ".$packet->type."\n";
 						//TODO: http://wiki.vg/Inventory#Windows
+						$title = "Unknown Inventory";
 					break;
 				}
 
@@ -1473,6 +1470,9 @@ class Translator_105 implements Translator{
 			case Info::CONTAINER_CLOSE_PACKET:
 				$pk = new CloseWindowPacket();
 				$pk->windowID = $packet->windowid;
+
+				$player->removeSetting("windowid:".$packet->windowid);
+
 				return $pk;
 
 			case Info::CONTAINER_SET_SLOT_PACKET:
@@ -1481,8 +1481,14 @@ class Translator_105 implements Translator{
 
 				switch($packet->windowid){
 					case ContainerSetContentPacket::SPECIAL_INVENTORY:
+
+
+
+
 						$pk->slot = $packet->slot + 18;
 						$pk->item = $packet->item;
+
+						//
 
 						var_dump($pk);
 
@@ -1529,21 +1535,21 @@ class Translator_105 implements Translator{
 							if(!isset($hotbar[$i])){
 								$pk->items[] = $player->getInventory()->getItem($i);
 							}else{
-								$pk->items[] = Item::get(Item::AIR, 0, 0);
+								$pk->items[] = $hotbar[$i];//dummy item 
 							}
 						}
 
 						foreach($hotbar as $slot){
-							$pk->items[] = $slot;
+							$pk->items[] = $slot;//hotbar
 						}
 
 						$pk->items[] = Item::get(Item::AIR, 0, 0);//off hand
 
 						return $pk;
 					break;
-					case ContainerSetContentPacket::SPECIAL_ARMOR:
+					/*case ContainerSetContentPacket::SPECIAL_ARMOR:
 						//TODO
-					break;
+					break;*/
 					case ContainerSetContentPacket::SPECIAL_CREATIVE:
 					case ContainerSetContentPacket::SPECIAL_HOTBAR:
 					break;
@@ -1569,7 +1575,7 @@ class Translator_105 implements Translator{
 										if(!isset($hotbar[$i])){
 											$pk->items[] = $player->getInventory()->getItem($i);
 										}else{
-											$pk->items[] = Item::get(Item::AIR, 0, 0);
+											$pk->items[] = $hotbar[$i];
 										}
 									}
 
