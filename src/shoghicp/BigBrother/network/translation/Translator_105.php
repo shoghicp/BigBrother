@@ -71,6 +71,7 @@ use shoghicp\BigBrother\network\protocol\Play\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\EffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityEquipmentPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityEffectPacket;
+use shoghicp\BigBrother\network\protocol\Play\EntityStatusPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityMetadataPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityTeleportPacket;
@@ -1199,20 +1200,23 @@ class Translator_105 implements Translator{
 			case Info::ENTITY_EVENT_PACKET:
 				switch($packet->event){
 					case EntityEventPacket::HURT_ANIMATION:
-						$pk = new STCAnimatePacket();
-						$pk->actionID = 1;
+						$pk = new EntityStatusPacket();
+						$pk->status = 2;
 						$pk->eid = $packet->eid;
+
+						//TODO: sound
 
 						return $pk;
 					break;
-					/*case EntityEventPacket::DEATH_ANIMATION:
-						$pk = new STCAnimatePacket();
-						$pk->actionID = 1;
+					case EntityEventPacket::DEATH_ANIMATION:
+						$pk = new EntityStatusPacket();
+						$pk->status = 3;
 						$pk->eid = $packet->eid;
 
-						var_dump($pk);
+						//TODO: sound
+
 						return $pk;
-					break;*/
+					break;
 					case EntityEventPacket::RESPAWN:
 						//unused
 					break;
