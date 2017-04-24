@@ -30,7 +30,7 @@ use phpseclib\Crypt\RSA;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_106;
+use shoghicp\BigBrother\network\translation\Translator_107;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
 
@@ -69,8 +69,8 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		if(Info::CURRENT_PROTOCOL === 106){
-			$this->translator = new Translator_106();
+		if(Info::CURRENT_PROTOCOL === 107){
+			$this->translator = new Translator_107();
 			$this->rsa = new RSA();
 
 			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
