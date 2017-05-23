@@ -282,7 +282,7 @@ class Translator_107 implements Translator{
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
-				$pk->y = $packet->y + $player->getEyeHeight();
+				$pk->y = $packet->y + $player->getEyeHeight();//TODO: Must fix eyeheight?
 				$pk->z = $packet->z;
 				$pk->yaw = $player->yaw;
 				$pk->bodyYaw = $player->yaw;
@@ -310,7 +310,7 @@ class Translator_107 implements Translator{
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
-				$pk->y = $packet->y + $player->getEyeHeight();
+				$pk->y = $packet->y + $player->getEyeHeight();//TODO: Must fix eyeheight?
 				$pk->z = $packet->z;
 				$pk->yaw = $packet->yaw;
 				$pk->bodyYaw = $packet->yaw;
@@ -337,7 +337,7 @@ class Translator_107 implements Translator{
 			case 0x0e: //PlayerLookPacket
 				$pk = new MovePlayerPacket();
 				$pk->x = $player->x;
-				$pk->y = $player->y + $player->getEyeHeight();
+				$pk->y = $player->y + $player->getEyeHeight();//TODO: Must fix eyeheight?
 				$pk->z = $player->z;
 				$pk->yaw = $packet->yaw;
 				$pk->bodyYaw = $packet->yaw;
@@ -1021,14 +1021,19 @@ class Translator_107 implements Translator{
 				if($packet->eid === $player->getId()){//TODO
 					return null;
 				}else{
-					//echo "MoveEntityPacket: ".$packet->eid."\n";
+					if(($entity = $player->getLevel()->getEntity($packet->eid)) instanceof Entity){
+						$eyeheight = $entity->getEyeHeight();
+					}else{
+						$eyeheight = 0;
+					}
+
 
 					$packets = [];
 
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->eid;
 					$pk->x = $packet->x;
-					$pk->y = $packet->y - $player->getEyeHeight();
+					$pk->y = $packet->y - $eyeheight;
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
@@ -1046,7 +1051,7 @@ class Translator_107 implements Translator{
 				if($packet->eid === $player->getId()){//TODO
 					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $packet->x;
-					$pk->y = $packet->y - $player->getEyeHeight();
+					$pk->y = $packet->y - $player->getEyeHeight();//TODO: Must fix eyeheight?
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
@@ -1058,7 +1063,7 @@ class Translator_107 implements Translator{
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->eid;
 					$pk->x = $packet->x;
-					$pk->y = $packet->y - $player->getEyeHeight();
+					$pk->y = $packet->y - $player->getEyeHeight();//TODO: Must fix eyeheight?
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
