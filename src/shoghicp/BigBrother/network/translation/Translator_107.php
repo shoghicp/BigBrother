@@ -1005,17 +1005,63 @@ class Translator_107 implements Translator{
 
 			case Info::TAKE_ITEM_ENTITY_PACKET:
 				$itemCount = 1;
-
+				$item = Item::get(0);
 				if(($entity = $player->getLevel()->getEntity($packet->target)) instanceof ItemEntity){
-					$itemCount = $entity->getItem()->getCount();
+					$item = $entity->getItem();
+					$itemCount = $item->getCount();
 				}
 
-				$pk = new CollectItemPacket();
-				$pk->eid = $packet->eid;
-				$pk->target = $packet->target;
-				$pk->itemCount = $itemCount;
+				if($player->getInventory()->canAddItem($item)){
+					$emptyslot = $player->getInventory()->firstEmpty();
 
-				return $pk;
+					$slot = -1;
+					for($index = 0; $index < $player->getInventory()->getSize(); ++$index){
+						$i = $player->getInventory()->getItem($index);
+						if($i->equals($item) and $item->getCount() < $item->getMaxStackSize()){
+							$slot = $index;
+							$i->setCount($i->getCount() + 1);
+							break;
+						}
+					}
+
+					if($slot === -1){
+						$slot = $emptyslot;
+						$i = clone $item;
+					}
+
+					$packets = [];
+
+					if($slot >= 0 and $slot < $player->getInventory()->getHotbarSize()){
+						$pk = new SetSlotPacket();
+						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+						$pk->slot = $slot + 36;
+						$pk->item = $i;
+						$packets[] = $pk;
+					}else{
+						$pk = new SetSlotPacket();
+						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+						$pk->slot = $slot + 18;
+						$pk->item = $i;
+						$packets[] = $pk;
+					}
+
+					$pk = new ContainerSetSlotPacket();
+					$pk->windowid = ContainerSetContentPacket::SPECIAL_INVENTORY;
+					$pk->slot = $slot;
+					$pk->hotbarSlot = 0;
+					$pk->item = $i;
+					$player->handleDataPacket($pk);
+
+					$pk = new CollectItemPacket();
+					$pk->eid = $packet->eid;
+					$pk->target = $packet->target;
+					$pk->itemCount = $itemCount;
+					$packets[] = $pk;
+
+					return $packets;
+				}
+
+				return null;
 
 			case Info::MOVE_ENTITY_PACKET:
 				if($packet->eid === $player->getId()){//TODO
