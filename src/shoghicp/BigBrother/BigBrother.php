@@ -51,7 +51,7 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var Translator */
 	protected $translator;
 		
-
+	public function onEnable(){
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
 		$this->saveResource("steve.yml", false);
