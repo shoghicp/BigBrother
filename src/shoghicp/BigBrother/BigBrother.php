@@ -50,14 +50,8 @@ class BigBrother extends PluginBase implements Listener{
 
 	/** @var Translator */
 	protected $translator;
-
+		
 	public function onEnable(){
-		if($this->getServer()->getName() !== "Tesseract"){
-			$this->getLogger()->critical("You must use Tesseract.");
-			$this->getPluginLoader()->disablePlugin($this);
-			return;
-		}
-
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
 		$this->saveResource("steve.yml", false);
