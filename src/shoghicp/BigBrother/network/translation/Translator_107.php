@@ -1037,6 +1037,12 @@ class Translator_107 implements Translator{
 						$pk->slot = $slot + 36;
 						$pk->item = $i;
 						$packets[] = $pk;
+
+						$pk = new SetSlotPacket();
+						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+						$pk->slot = $slot + 9;
+						$pk->item = $i;
+						$packets[] = $pk;
 					}else{
 						$pk = new SetSlotPacket();
 						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
@@ -1512,11 +1518,16 @@ class Translator_107 implements Translator{
 					break;
 				}
 
+				$slots = 9;
+				if(($tile = $player->getLevel()->getTile(new Vector3($packet->x, $packet->y, $packet->z))) instanceof Tile){
+					$slots = $tile->getInventory()->getSize();
+				}
+
 				$pk = new OpenWindowPacket();
 				$pk->windowID = $packet->windowid;
 				$pk->inventoryType = $type;
 				$pk->windowTitle = BigBrother::toJSON($title);
-				$pk->slots = $packet->slots;
+				$pk->slots = $slots;
 
 				$player->setSetting(["windowid:".$packet->windowid => [$packet->type, $packet->slots]]);
 
@@ -1536,18 +1547,27 @@ class Translator_107 implements Translator{
 
 				switch($packet->windowid){
 					case ContainerSetContentPacket::SPECIAL_INVENTORY:
-
-
-
-
-						$pk->slot = $packet->slot + 18;
 						$pk->item = $packet->item;
 
-						//
+						if($packet->slot >= 0 and $packet->slot < $player->getInventory()->getHotbarSize()){
+							$packets = [];
 
-						var_dump($pk);
+							$pk->slot = $packet->slot + 9;
+							$packets[] = $pk;
 
-						return $pk;
+							$pk = new SetSlotPacket();
+							$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+							$pk->slot = $packet->slot + 36;
+							$pk->item = $packet->item;
+							$packets[] = $pk;
+
+							return $packets;
+						}else{
+							$pk->slot = $packet->slot + 18;
+
+							return $pk;
+						}
+					break;
 					case ContainerSetContentPacket::SPECIAL_ARMOR:
 						//TODO
 					break;
@@ -1613,7 +1633,7 @@ class Translator_107 implements Translator{
 
 						if($windowdata !== false){
 							switch($windowdata[0]){
-								case 0:
+								case 0://Chest
 									$pk->items = $packet->slots;
 
 									$hotbar = [];
