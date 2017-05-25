@@ -55,6 +55,7 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\tile\Tile;
+use pocketmine\tile\EnderChest as TileEnderChest;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
@@ -1520,7 +1521,11 @@ class Translator_107 implements Translator{
 
 				$slots = 9;
 				if(($tile = $player->getLevel()->getTile(new Vector3($packet->x, $packet->y, $packet->z))) instanceof Tile){
-					$slots = $tile->getInventory()->getSize();
+					if($tile instanceof TileEnderChest){
+						$slots = $player->getEnderChestInventory()->getSize();
+					}else{
+						$slots = $tile->getInventory()->getSize();
+					}
 				}
 
 				$pk = new OpenWindowPacket();
