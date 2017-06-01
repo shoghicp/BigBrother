@@ -19,17 +19,13 @@ namespace shoghicp\BigBrother\network\protocol\Play;
 
 use shoghicp\BigBrother\network\Packet;
 
-class ClickWindowPacket extends Packet{
+class EnchantItemPacket extends Packet{
 
 	public $windowID;
-	public $slot;
-	public $button;
-	public $actionNumber;
-	public $mode;
-	public $clickedItem;
+	public $enchantment;
 
 	public function pid(){
-		return 0x07;
+		return 0x06;
 	}
 
 	public function encode(){
@@ -38,10 +34,6 @@ class ClickWindowPacket extends Packet{
 
 	public function decode(){
 		$this->windowID = $this->getByte();
-		$this->slot = $this->getShort();
-		$this->button = $this->getByte();
-		$this->actionNumber = $this->getShort();
-		$this->mode = $this->getVarInt();
-		$this->clickedItem = $this->getSlot();
+		$this->enchantment = $this->getByte();
 	}
 }

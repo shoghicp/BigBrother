@@ -39,6 +39,7 @@ use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\TitlePacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\utils\Binary;
+use shoghicp\BigBrother\utils\InventoryUtils;
 
 class DesktopPlayer extends Player{
 
@@ -51,6 +52,7 @@ class DesktopPlayer extends Player{
 	private $bigBrother_username;
 	private $bigbrother_clientId;
 	private $bigBrother_dimension;
+	private $inventoryutils;
 	protected $Settings = [];
 	/** @var ProtocolInterface */
 	protected $interface;
@@ -60,6 +62,11 @@ class DesktopPlayer extends Player{
 		$this->bigbrother_clientId = $clientID;
 		parent::__construct($interface, $clientID, $address, $port);
 		$this->setRemoveFormat(false);// Color Code
+		$this->inventoryutils = new InventoryUtils($this);
+	}
+
+	public function getInventoryUtils(){
+		return $this->inventoryutils;
 	}
 
 	public function bigBrother_getDimension(){

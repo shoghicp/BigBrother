@@ -20,21 +20,12 @@ namespace shoghicp\BigBrother\network\translation;
 use pocketmine\Achievement;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
-use pocketmine\entity\Arrow;
-use pocketmine\entity\Item as ItemEntity;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
-use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\network\protocol\AnimatePacket;
 use pocketmine\network\protocol\BlockEntityDataPacket;
-use pocketmine\network\protocol\ContainerClosePacket;
-use pocketmine\network\protocol\ContainerOpenPacket;
-use pocketmine\network\protocol\ContainerSetContentPacket;
-use pocketmine\network\protocol\ContainerSetSlotPacket;
-use pocketmine\network\protocol\CraftingEventPacket;
 use pocketmine\network\protocol\DataPacket;
-use pocketmine\network\protocol\DropItemPacket;
 use pocketmine\network\protocol\EntityEventPacket;
 use pocketmine\network\protocol\LevelEventPacket;
 use pocketmine\network\protocol\Info;
@@ -55,7 +46,6 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\tile\Tile;
-use pocketmine\tile\EnderChest as TileEnderChest;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
@@ -63,6 +53,7 @@ use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
@@ -79,7 +70,6 @@ use shoghicp\BigBrother\network\protocol\Play\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityPropertiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\JoinGamePacket;
-use shoghicp\BigBrother\network\protocol\Play\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
@@ -99,13 +89,11 @@ use shoghicp\BigBrother\network\protocol\Play\SetPassengersPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\RemoveEntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\TimeUpdatePacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
-use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
 use shoghicp\BigBrother\network\protocol\Play\NamedSoundEffectPacket;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
@@ -119,7 +107,7 @@ class Translator_107 implements Translator{
 				return null;
 
 			case 0x01: //TabCompletePacket
-				//TODO
+				//TODO: Tab Button
 				return null;
 
 			case 0x02: //ChatPacket
@@ -190,55 +178,19 @@ class Translator_107 implements Translator{
 
 				return null;
 
-			case 0x07: //ClickWindowPacket
-				$pk = new ContainerSetSlotPacket();
-				$pk->windowid = $packet->windowID;
-				$pk->hotbarSlot = 0;//unused
-				$pk->item = $packet->clickedItem;
-
-				switch($packet->mode){
-					case 0:
-						switch($packet->button){
-							case 0:
-								//var_dump($packet->slot);
-								//var_dump($packet);
-								//$pk->slot = $packet->slot - 5;
-							break;
-							/*case 1:
-
-							break;*/
-						}
-					break;
-					default:
-						echo "ClickWindowPacket: ".$packet->mode."\n";
-					break;
-				}
-
-
-				/*
-
-					
-				}else{//Inventory
-					$pk->windowid = 0;
-
-					if($packet->slot > 35 and $packet->slot < 45){//hotbar
-						$pk->slot = $packet->slot - 36;
-					}else{
-						$pk->slot = $packet->slot + 9;
-						//TODO: hotbar slot in inventory slot
-					}
-				}
-
-				*/
+			case 0x05: //ConfirmTransactionPacket
+				//Confirm
 				return null;
+
+			case 0x07: //ClickWindowPacket
+				$pk = $player->getInventoryUtils()->onClickWindow($packet);
+
+				return $pk;
 
 			case 0x08: //CloseWindowPacket
-				if($packet->windowID !== 0x00){
-					$pk = new ContainerClosePacket();
-					$pk->windowid = $packet->windowID;
-					return $pk;
-				}
-				return null;
+				$pk = $player->getInventoryUtils()->onWindowClose(false, $packet);
+
+				return $pk;
 
 			case 0x09: //PluginMessagePacket
 				switch($packet->channel){
@@ -283,7 +235,7 @@ class Translator_107 implements Translator{
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
-				$pk->y = $packet->y + $player->getEyeHeight();//TODO: Must fix eyeheight?
+				$pk->y = $packet->y + $player->getEyeHeight();
 				$pk->z = $packet->z;
 				$pk->yaw = $player->yaw;
 				$pk->bodyYaw = $player->yaw;
@@ -311,7 +263,7 @@ class Translator_107 implements Translator{
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
-				$pk->y = $packet->y + $player->getEyeHeight();//TODO: Must fix eyeheight?
+				$pk->y = $packet->y + $player->getEyeHeight();
 				$pk->z = $packet->z;
 				$pk->yaw = $packet->yaw;
 				$pk->bodyYaw = $packet->yaw;
@@ -338,7 +290,7 @@ class Translator_107 implements Translator{
 			case 0x0e: //PlayerLookPacket
 				$pk = new MovePlayerPacket();
 				$pk->x = $player->x;
-				$pk->y = $player->y + $player->getEyeHeight();//TODO: Must fix eyeheight?
+				$pk->y = $player->y + $player->getEyeHeight();
 				$pk->z = $player->z;
 				$pk->yaw = $packet->yaw;
 				$pk->bodyYaw = $packet->yaw;
@@ -505,33 +457,9 @@ class Translator_107 implements Translator{
 				return $pk;
 
 			case 0x18: //CreativeInventoryActionPacket
-				if($packet->slot === 65535){
-					$pk = new DropItemPacket();
-					$pk->type = 0;
-					$pk->item = $packet->item;
-					return $pk;
-				}else{
-					$pk = new ContainerSetSlotPacket();
+				$pk = $player->getInventoryUtils()->onCreativeInventoryAction($packet);
 
-					if($packet->slot > 4 and $packet->slot < 9){//Armor
-						$pk->windowid = ContainerSetContentPacket::SPECIAL_ARMOR;
-
-						$pk->slot = $packet->slot - 5;
-					}else{//Inventory
-						$pk->windowid = 0;
-
-						if($packet->slot > 35 and $packet->slot < 45){//hotbar
-							$pk->slot = $packet->slot - 36;
-						}else{
-							$pk->slot = $packet->slot + 9;
-							//TODO: hotbar slot in inventory slot
-						}
-					}
-
-					$pk->hotbarSlot = 0;//unused
-					$pk->item = $packet->item;
-					return $pk;
-				}
+				return $pk;
 
 			case 0x19: //UpdateSignPacket
 				$tags = new CompoundTag("", [
@@ -970,9 +898,7 @@ class Translator_107 implements Translator{
 				$pk->ids[] = $packet->eid;
 				return $pk;
 
-			case Info::ADD_ITEM_ENTITY_PACKET://Bug
-				//echo "AddItemEntityPacket: ".$packet->eid."\n";
-
+			case Info::ADD_ITEM_ENTITY_PACKET:
 				$item = clone $packet->item;
 				ConvertUtils::convertItemData(true, $item);
 
@@ -1005,70 +931,9 @@ class Translator_107 implements Translator{
 				return $packets;
 
 			case Info::TAKE_ITEM_ENTITY_PACKET:
-				$itemCount = 1;
-				$item = Item::get(0);
-				if(($entity = $player->getLevel()->getEntity($packet->target)) instanceof ItemEntity){
-					$item = $entity->getItem();
-					$itemCount = $item->getCount();
-				}
-
-				if($player->getInventory()->canAddItem($item)){
-					$emptyslot = $player->getInventory()->firstEmpty();
-
-					$slot = -1;
-					for($index = 0; $index < $player->getInventory()->getSize(); ++$index){
-						$i = $player->getInventory()->getItem($index);
-						if($i->equals($item) and $item->getCount() < $item->getMaxStackSize()){
-							$slot = $index;
-							$i->setCount($i->getCount() + 1);
-							break;
-						}
-					}
-
-					if($slot === -1){
-						$slot = $emptyslot;
-						$i = clone $item;
-					}
-
-					$packets = [];
-
-					if($slot >= 0 and $slot < $player->getInventory()->getHotbarSize()){
-						$pk = new SetSlotPacket();
-						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-						$pk->slot = $slot + 36;
-						$pk->item = $i;
-						$packets[] = $pk;
-
-						$pk = new SetSlotPacket();
-						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-						$pk->slot = $slot + 9;
-						$pk->item = $i;
-						$packets[] = $pk;
-					}else{
-						$pk = new SetSlotPacket();
-						$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-						$pk->slot = $slot + 18;
-						$pk->item = $i;
-						$packets[] = $pk;
-					}
-
-					$pk = new ContainerSetSlotPacket();
-					$pk->windowid = ContainerSetContentPacket::SPECIAL_INVENTORY;
-					$pk->slot = $slot;
-					$pk->hotbarSlot = 0;
-					$pk->item = $i;
-					$player->handleDataPacket($pk);
-
-					$pk = new CollectItemPacket();
-					$pk->eid = $packet->eid;
-					$pk->target = $packet->target;
-					$pk->itemCount = $itemCount;
-					$packets[] = $pk;
-
-					return $packets;
-				}
-
-				return null;
+				$pk = $player->getInventoryUtils()->onTakeItemEntity($packet);
+				
+				return $pk;
 
 			case Info::MOVE_ENTITY_PACKET:
 				if($packet->eid === $player->getId()){//TODO
@@ -1104,7 +969,7 @@ class Translator_107 implements Translator{
 				if($packet->eid === $player->getId()){//TODO
 					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $packet->x;
-					$pk->y = $packet->y - $player->getEyeHeight();//TODO: Must fix eyeheight?
+					$pk->y = $packet->y - $player->getEyeHeight();
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
@@ -1116,7 +981,7 @@ class Translator_107 implements Translator{
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->eid;
 					$pk->x = $packet->x;
-					$pk->y = $packet->y - $player->getEyeHeight();//TODO: Must fix eyeheight?
+					$pk->y = $packet->y - $player->getEyeHeight();
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
@@ -1227,7 +1092,7 @@ class Translator_107 implements Translator{
 				$pk->blockType = $block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
 				$packets[] = $pk;
 
-				if($packet->case1 === 1){//TODO: EnderChest
+				if($packet->case1 === 1){
 					$pk = new NamedSoundEffectPacket();
 					$pk->category = 1;
 					$pk->x = $packet->x;
@@ -1322,7 +1187,6 @@ class Translator_107 implements Translator{
 				$entries = [];
 
 				foreach($packet->entries as $entry){
-					//echo "UpdateAtteributesPacket: ".$entry->getName()."\n";
 					switch($entry->getName()){
 						case "minecraft:player.saturation":
 						case "minecraft:player.hunger":
@@ -1457,7 +1321,7 @@ class Translator_107 implements Translator{
 				$pk->velocityZ = $packet->motionZ;
 				return $pk;
 
-			/*case Info::SET_ENTITY_LINK_PACKET:
+			/*case Info::SET_ENTITY_LINK_PACKET://TODO
 				$pk = new SetPassengersPacket();
 				$pk->eid = $packet->from;
 				$pk->passengers = [$packet->to];
@@ -1498,187 +1362,28 @@ class Translator_107 implements Translator{
 				return null;
 
 			case Info::CONTAINER_OPEN_PACKET:
-				$type = "";
-				switch($packet->type){
-					case 0:
-						$type = "minecraft:chest";
-						$title = "Chest Inventory";
-					break;
-					case 1:
-						$type = "minecraft:crafting_table";
-						$title = "Crafting Table Inventory";
-					break;
-					case 2:
-						$type = "minecraft:furnace";
-						$title = "Furnace Inventory";
-					break;
-					default:
-						echo "ContainerOpenPacket: ".$packet->type."\n";
-						//TODO: http://wiki.vg/Inventory#Windows
-						$title = "Unknown Inventory";
-					break;
-				}
-
-				$slots = 9;
-				if(($tile = $player->getLevel()->getTile(new Vector3($packet->x, $packet->y, $packet->z))) instanceof Tile){
-					if($tile instanceof TileEnderChest){
-						$slots = $player->getEnderChestInventory()->getSize();
-					}else{
-						$slots = $tile->getInventory()->getSize();
-					}
-				}
-
-				$pk = new OpenWindowPacket();
-				$pk->windowID = $packet->windowid;
-				$pk->inventoryType = $type;
-				$pk->windowTitle = BigBrother::toJSON($title);
-				$pk->slots = $slots;
-
-				$player->setSetting(["windowid:".$packet->windowid => [$packet->type, $packet->slots]]);
+				$pk = $player->getInventoryUtils()->onWindowOpen($packet);
 
 				return $pk;
 
 			case Info::CONTAINER_CLOSE_PACKET:
-				$pk = new CloseWindowPacket();
-				$pk->windowID = $packet->windowid;
-
-				$player->removeSetting("windowid:".$packet->windowid);
+				$pk = $player->getInventoryUtils()->onWindowClose(true, $packet);
 
 				return $pk;
 
 			case Info::CONTAINER_SET_SLOT_PACKET:
-				$pk = new SetSlotPacket();
-				$pk->windowID = $packet->windowid;
+				$pk = $player->getInventoryUtils()->onWindowSetSlot($packet);
 
-				switch($packet->windowid){
-					case ContainerSetContentPacket::SPECIAL_INVENTORY:
-						$pk->item = $packet->item;
-
-						if($packet->slot >= 0 and $packet->slot < $player->getInventory()->getHotbarSize()){
-							$packets = [];
-
-							$pk->slot = $packet->slot + 9;
-							$packets[] = $pk;
-
-							$pk = new SetSlotPacket();
-							$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-							$pk->slot = $packet->slot + 36;
-							$pk->item = $packet->item;
-							$packets[] = $pk;
-
-							return $packets;
-						}else{
-							$pk->slot = $packet->slot + 18;
-
-							return $pk;
-						}
-					break;
-					case ContainerSetContentPacket::SPECIAL_ARMOR:
-						//TODO
-					break;
-					case ContainerSetContentPacket::SPECIAL_CREATIVE:
-					case ContainerSetContentPacket::SPECIAL_HOTBAR:
-					break;
-					default:
-						echo "ContainerSetSlotPacket: 0x".bin2hex(chr($packet->windowid))."\n";
-					break;
-				}
-
-				return null;
+				return $pk;
+			break;
 
 			case Info::CONTAINER_SET_CONTENT_PACKET:
-				$pk = new WindowItemsPacket();
-				$pk->windowID = $packet->windowid;
+				$pk = $player->getInventoryUtils()->onWindowSetContent($packet);
 
-				switch($packet->windowid){
-					case ContainerSetContentPacket::SPECIAL_INVENTORY:
-						for($i = 0; $i < 5; ++$i){
-							$pk->items[] = Item::get(Item::AIR, 0, 0);//Craft Inventory
-						}
-
-						$pk->items[] = $player->getInventory()->getHelmet();
-						$pk->items[] = $player->getInventory()->getChestplate();
-						$pk->items[] = $player->getInventory()->getLeggings();
-						$pk->items[] = $player->getInventory()->getBoots();
-
-						$hotbar = [];
-						$hotbardata = [];
-						for($i = 0; $i < 9; $i++){ 
-							$hotbardata[] = $player->getInventory()->getHotbarSlotIndex($i);
-						}
-
-						foreach($hotbardata as $hotbarslot){
-							$hotbar[$hotbarslot] = $player->getInventory()->getItem($hotbarslot);
-						}
-
-						for($i = 0; $i < 27; ++$i){
-							if(!isset($hotbar[$i])){
-								$pk->items[] = $player->getInventory()->getItem($i);
-							}else{
-								$pk->items[] = $hotbar[$i];//dummy item 
-							}
-						}
-
-						foreach($hotbar as $slot){
-							$pk->items[] = $slot;//hotbar
-						}
-
-						$pk->items[] = Item::get(Item::AIR, 0, 0);//off hand
-
-						return $pk;
-					break;
-					/*case ContainerSetContentPacket::SPECIAL_ARMOR:
-						//TODO
-					break;*/
-					case ContainerSetContentPacket::SPECIAL_CREATIVE:
-					case ContainerSetContentPacket::SPECIAL_HOTBAR:
-					break;
-					default:
-						$windowdata = $player->getSetting("windowid:".$packet->windowid);
-
-						if($windowdata !== false){
-							switch($windowdata[0]){
-								case 0://Chest
-									$pk->items = $packet->slots;
-
-									$hotbar = [];
-									$hotbardata = [];
-									for($i = 0; $i < 9; $i++){ 
-										$hotbardata[] = $player->getInventory()->getHotbarSlotIndex($i);
-									}
-
-									foreach($hotbardata as $hotbarslot){
-										$hotbar[$hotbarslot] = $player->getInventory()->getItem($hotbarslot);
-									}
-
-									for($i = 0; $i < 27; ++$i){
-										if(!isset($hotbar[$i])){
-											$pk->items[] = $player->getInventory()->getItem($i);
-										}else{
-											$pk->items[] = $hotbar[$i];
-										}
-									}
-
-									foreach($hotbar as $slot){
-										$pk->items[] = $slot;
-									}
-
-									return $pk;
-								break;
-								default:
-									echo "UnknownWindowType: ".$windowdata[0]."\n";
-								break;
-							}
-						}else{
-							echo "ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
-						}
-					break;
-				}
-
-				return null;
+				return $pk;
 
 			case Info::CRAFTING_DATA_PACKET:
-				$player->setSetting(["Recipes" => $packet->entries, "cleanRecipes" => $packet->cleanRecipes]);
+				$player->getInventoryUtils()->setCraftInfoData($packet->entries);
 				return null;
 
 			case Info::BLOCK_ENTITY_DATA_PACKET:
@@ -1850,7 +1555,6 @@ class Translator_107 implements Translator{
 						}
 
 						$pk->setBuffer($buf, 1);
-
 						$pk->decode();
 
 						switch($pk::NETWORK_ID){
@@ -1907,7 +1611,7 @@ class Translator_107 implements Translator{
 						if(($desktop = $this->serverToInterface($player, $pk)) !== null){
 							if(is_array($desktop)){
 								foreach($desktop as $desktoppk){
-									$desktop[] = $desktoppk;
+									$packets[] = $desktoppk;
 								}
 							}else{
 								$packets[] = $desktop;

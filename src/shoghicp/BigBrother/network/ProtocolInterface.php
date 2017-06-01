@@ -27,8 +27,10 @@ use shoghicp\BigBrother\network\Info; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
+use shoghicp\BigBrother\network\protocol\Play\EnchantItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\TeleportConfirmPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\AnimatePacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ConfirmTransactionPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClickWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientSettingsPacket;
 use shoghicp\BigBrother\network\protocol\Play\ClientStatusPacket;
@@ -216,8 +218,12 @@ class ProtocolInterface implements SourceInterface{
 				case 0x04:
 					$pk = new ClientSettingsPacket();
 					break;
-				//0x05: Confirm Transaction
-				//0x06: Enchant Item
+				case 0x05:
+					$pk = new ConfirmTransactionPacket();
+					break;
+				case 0x06:
+					$pk = new EnchantItemPacket();
+					break;
 				case 0x07:
 					$pk = new ClickWindowPacket();
 					break;

@@ -15,33 +15,27 @@
  * GNU General Public License for more details.
 */
 
-namespace shoghicp\BigBrother\network\protocol\Play;
+namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\Packet;
 
-class ClickWindowPacket extends Packet{
+class ConfirmTransactionPacket extends Packet{
 
 	public $windowID;
-	public $slot;
-	public $button;
 	public $actionNumber;
-	public $mode;
-	public $clickedItem;
+	public $accepted;
 
 	public function pid(){
-		return 0x07;
+		return 0x11;
 	}
 
 	public function encode(){
-
+		$this->putByte($this->windowID);
+		$this->putShort($this->actionNumber);
+		$this->putByte($this->accepted > 0);
 	}
 
 	public function decode(){
-		$this->windowID = $this->getByte();
-		$this->slot = $this->getShort();
-		$this->button = $this->getByte();
-		$this->actionNumber = $this->getShort();
-		$this->mode = $this->getVarInt();
-		$this->clickedItem = $this->getSlot();
+		
 	}
 }
