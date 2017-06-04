@@ -38,6 +38,10 @@ class InventoryUtils{
 	private $player;
 	private $windowdata = [];
 	private $craftinfodata = [];
+	private $windowinfodata = [
+		//0 => 
+
+	];
 
 	public function __construct($player){
 		$this->player = $player;

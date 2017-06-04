@@ -98,7 +98,7 @@ use shoghicp\BigBrother\network\protocol\Play\NamedSoundEffectPacket;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
-class Translator_107 implements Translator{
+class Translator_113 implements Translator{
 
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
@@ -1534,93 +1534,6 @@ class Translator_107 implements Translator{
 				}
 
 				return null;
-
-			case Info::BATCH_PACKET:
-				$packets = [];
-
-				$str = zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
-				$len = strlen($str);
-
-				if($len === 0){
-					throw new \InvalidStateException("Decoded BatchPacket payload is empty");
-				}
-
-				$stream = new BinaryStream($str);
-
-				while($stream->offset < $len){
-					$buf = $stream->getString();
-					if(($pk = $player->getServer()->getNetwork()->getPacket(ord($buf{0}))) !== null){
-						if($pk::NETWORK_ID === Info::BATCH_PACKET){
-							throw new \InvalidStateException("Invalid BatchPacket inside BatchPacket");
-						}
-
-						$pk->setBuffer($buf, 1);
-						$pk->decode();
-
-						switch($pk::NETWORK_ID){
-							case Info::PLAYER_LIST_PACKET:
-								$pk->type = $pk->getByte();
-								$entries = $pk->getUnsignedVarInt();
-								for($i = 0; $i < $entries; $i++){
-									if($pk->type === 0){
-										$pk->entries[] = [
-											$pk->getUUID(),
-											$pk->getEntityId(),
-											$pk->getString(),
-											$pk->getString(),
-											$pk->getString(),
-										];
-									}else{
-										$pk->entry[] = [
-											$pk->getUUID(),
-										];
-									}
-								}
-							break;
-							case Info::ADD_ENTITY_PACKET:
-								$pk->eid = $pk->getEntityId();
-								$pk->eid = $pk->getEntityId();
-								$pk->type = $pk->getUnsignedVarInt();
-								$pk->getVector3f($pk->x, $pk->y, $pk->z);
-								$pk->getVector3f($pk->speedX, $pk->speedY, $pk->speedZ);
-								$pk->pitch = $pk->getLFloat();
-								$pk->yaw = $pk->getLFloat();
-								$count = $pk->getUnsignedVarInt();
-								for($i = 0; $i < $count; $i++){
-									$pk->attributes[] = [
-										$pk->getString(),
-										$pk->getLFloat(),
-										$pk->getLFloat(),
-										$pk->getLFloat(),
-									];
-								}
-								$pk->metadata = $pk->getEntityMetadata();
-								$count = $pk->getUnsignedVarInt();
-								for($i = 0; $i < $count; $i++){
-									$pk->links[] = [
-										$pk->getEntityId(),
-										$pk->getEntityId(),
-										$pk->getByte(),
-									];
-								}
-							break;
-							default:
-								echo "BatchPacket: ".$pk::NETWORK_ID."\n";
-							break;
-						}
-						if(($desktop = $this->serverToInterface($player, $pk)) !== null){
-							if(is_array($desktop)){
-								foreach($desktop as $desktoppk){
-									$packets[] = $desktoppk;
-								}
-							}else{
-								$packets[] = $desktop;
-							}
-						}
-					}
-				}
-				
-				return $packets;
 
 			case Info::BOSS_EVENT_PACKET:
 				$pk = new BossBarPacket();
