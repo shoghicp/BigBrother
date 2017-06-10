@@ -895,7 +895,7 @@ class Translator{
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
-				$pk->ids[] = $packet->entityRuntimeId;
+				$pk->ids[] = $packet->entityUniqueId;
 				return $pk;
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
@@ -1585,6 +1585,41 @@ class Translator{
 					break;
 				}
 				return null;
+
+			case 0xfe: //Info::BATCH_PACKET
+				$packets = [];
+
+				$str = zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
+				$len = strlen($str);
+
+				if($len === 0){
+					throw new \InvalidStateException("Decoded BatchPacket payload is empty");
+				}
+
+				$stream = new BinaryStream($str);
+				while($stream->offset < $len){
+					$buf = $stream->getString();
+					if(($pk = $player->getServer()->getNetwork()->getPacket(ord($buf{0}))) !== null){
+						if($pk::NETWORK_ID === 0xfe){
+							throw new \InvalidStateException("Invalid BatchPacket inside BatchPacket");
+						}
+					}
+
+					$pk->setBuffer($buf, 1);
+					$pk->decode();
+
+					if(($desktop = $this->serverToInterface($player, $pk)) !== null){
+						if(is_array($desktop)){
+							foreach($desktop as $desktoppk){
+								$packets[] = $desktoppk;
+							}
+						}else{
+							$packets[] = $desktop;
+						}
+					}
+				}
+
+				return $packets;
 
 			case Info::PLAY_STATUS_PACKET:
 			case Info::RESOURCE_PACKS_INFO_PACKET:
