@@ -1189,8 +1189,8 @@ class Translator{
 				foreach($packet->entries as $entry){
 					switch($entry->getName()){
 						case "minecraft:player.saturation":
-						case "minecraft:player.hunger":
-							//move to minecraft:health
+						case "minecraft:player.exhaustion":
+						case "minecraft:player.hunger": //move to minecraft:health
 						break;
 						case "minecraft:health":
 							if($packet->entityRuntimeId === $player->getId()){
@@ -1234,8 +1234,25 @@ class Translator{
 								$packets[] = $pk;
 							}
 						break;
-						case "minecraft:player.level":
-							//move to minecraft:player.experience
+						case "minecraft:player.level": //move to minecraft:player.experience
+						break;
+						case "minecraft:attack_damage":
+							$entries[] = [
+								"generic.attackDamage",
+								$entry->getValue()//TODO: Default Value
+							];
+						break;
+						case "minecraft:knockback_resistance":
+							$entries[] = [
+								"generic.knockbackResistance",
+								$entry->getValue()//TODO: Default Value
+							];
+						break;
+						case "minecraft:follow_range":
+							$entries[] = [
+								"generic.followRange",
+								$entry->getValue()//TODO: Default Value
+							];
 						break;
 						default:
 							echo "UpdateAtteributesPacket: ".$entry->getName()."\n";

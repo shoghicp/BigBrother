@@ -208,7 +208,6 @@ class Session{
 						$packet = new LoginDisconnectPacket();
 						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
 						$this->writePacket($packet);
-						echo "write\n";
 					}elseif($protocol > Info::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
 						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
