@@ -17,10 +17,10 @@
 
 namespace shoghicp\BigBrother\utils;
 
-use pocketmine\network\protocol\DropItemPacket;
-use pocketmine\network\protocol\ContainerClosePacket;
-use pocketmine\network\protocol\ContainerSetSlotPacket;
-use pocketmine\network\protocol\ContainerSetContentPacket;
+use pocketmine\network\mcpe\protocol\DropItemPacket;
+use pocketmine\network\mcpe\protocol\ContainerClosePacket;
+use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
+use pocketmine\network\mcpe\protocol\ContainerSetContentPacket;
 
 use pocketmine\entity\Item as ItemEntity;
 use pocketmine\math\Vector3;
@@ -423,7 +423,7 @@ class InventoryUtils{
 			$player->handleDataPacket($pk);
 
 			$pk = new CollectItemPacket();
-			$pk->eid = $packet->eid;
+			$pk->eid = $packet->entityRuntimeId;
 			$pk->target = $packet->target;
 			$pk->itemCount = $itemCount;
 			$packets[] = $pk;

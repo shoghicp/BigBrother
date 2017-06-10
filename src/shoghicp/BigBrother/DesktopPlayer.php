@@ -18,10 +18,13 @@
 namespace shoghicp\BigBrother;
 
 use pocketmine\event\Timings;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\level\Level;
-use pocketmine\network\protocol\Info;
-use pocketmine\network\protocol\LoginPacket;
-use pocketmine\network\protocol\RequestChunkRadiusPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
+use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
+use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
+use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -259,6 +262,10 @@ class DesktopPlayer extends Player{
 			$pk->radius = 8;
 			$this->handleDataPacket($pk);
 
+			$pk = new ResourcePackClientResponsePacket();
+			$pk->status = ResourcePackClientResponsePacket::STATUS_COMPLETED;
+			$this->handleDataPacket($pk);
+
 			$pk = new KeepAlivePacket();
 			$pk->id = mt_rand();
 			$this->putRawPacket($pk);
@@ -393,6 +400,22 @@ class DesktopPlayer extends Player{
 			}
 		}
 		return false;
+	}
+
+	public function handleDataPacket(DataPacket $packet){
+		if($this->connected === false){
+			return;
+		}
+
+		$timings = Timings::getReceiveDataPacketTimings($packet);
+		$timings->startTiming();
+
+		$this->getServer()->getPluginManager()->callEvent($ev = new DataPacketReceiveEvent($this, $packet));
+		if(!$ev->isCancelled() and !$packet->handle($this)){
+			$this->getServer()->getLogger()->debug("Unhandled " . $packet->getName() . " received from " . $this->getName() . ": 0x" . bin2hex($packet->buffer));
+		}
+
+		$timings->stopTiming();
 	}
 
 	public function putRawPacket(Packet $packet){

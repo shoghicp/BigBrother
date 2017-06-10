@@ -76,15 +76,15 @@ class DesktopChunk{
 			}
 
 			/* Bits Per Block & Palette Length */
-			$payload .= Binary::writeByte($bitsperblock).Binary::writeVarInt(count($palette));
+			$payload .= Binary::writeByte($bitsperblock).Binary::writeComputerVarInt(count($palette));
 
 			/* Palette */
 			foreach($palette as $num => $value){
-				$payload .= Binary::writeVarInt($value);
+				$payload .= Binary::writeComputerVarInt($value);
 			}
 
 			/* Data Array Length */
-			$payload .= Binary::writeVarInt(strlen($chunkdata) / 8);
+			$payload .= Binary::writeComputerVarInt(strlen($chunkdata) / 8);
 
 			/* Data Array */
 			$payload .= $chunkdata;

@@ -138,7 +138,7 @@ abstract class Packet extends \stdClass{
 	}
 
 	protected function getVarInt(){
-		return Binary::readVarInt($this->buffer, $this->offset);
+		return Binary::readComputerVarInt($this->buffer, $this->offset);
 	}
 
 	protected function feof(){
@@ -192,7 +192,7 @@ abstract class Packet extends \stdClass{
 	}
 
 	protected function putVarInt($v){
-		$this->buffer .= Binary::writeVarInt($v);
+		$this->buffer .= Binary::writeComputerVarInt($v);
 	}
 
 	public abstract function pid();
@@ -205,7 +205,7 @@ abstract class Packet extends \stdClass{
 		$this->buffer = "";
 		$this->offset = 0;
 		$this->encode();
-		return Binary::writeVarInt($this->pid()) . $this->buffer;
+		return Binary::writeComputerVarInt($this->pid()) . $this->buffer;
 	}
 
 	public function read($buffer, $offset = 0){

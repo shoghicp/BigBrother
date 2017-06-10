@@ -48,7 +48,7 @@ class Session{
 	}
 
 	public function setCompression($threshold){
-		$this->writeRaw(Binary::writeVarInt(0x03) . Binary::writeVarInt($threshold >= 0 ? $threshold : -1));
+		$this->writeRaw(Binary::writeComputerVarInt(0x03) . Binary::writeComputerVarInt($threshold >= 0 ? $threshold : -1));
 		$this->threshold = $threshold === -1 ? null : $threshold;
 	}
 
@@ -93,7 +93,7 @@ class Session{
 	public function writePacket(Packet $packet){
 		$data = $packet->write();
 		if($this->threshold === null){
-			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
 		}else{
 			$dataLength = strlen($data);
 			if($dataLength >= $this->threshold){
@@ -102,14 +102,14 @@ class Session{
 				$dataLength = 0;
 			}
 
-			$data = Binary::writeVarInt($dataLength) . $data;
-			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+			$data = Binary::writeComputerVarInt($dataLength) . $data;
+			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
 		}
 	}
 
 	public function writeRaw($data){
 		if($this->threshold === null){
-			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
 		}else{
 			$dataLength = strlen($data);
 			if($dataLength >= $this->threshold){
@@ -118,8 +118,8 @@ class Session{
 				$dataLength = 0;
 			}
 
-			$data = Binary::writeVarInt($dataLength) . $data;
-			$this->write(Binary::writeVarInt(strlen($data)) . $data);
+			$data = Binary::writeComputerVarInt($dataLength) . $data;
+			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
 		}
 	}
 
@@ -138,7 +138,7 @@ class Session{
 		$buffer = $this->read($length);
 
 		if($this->threshold !== null){
-			$dataLength = Binary::readVarInt($buffer, $offset);
+			$dataLength = Binary::readComputerVarInt($buffer, $offset);
 			if($dataLength !== 0){
 				if($dataLength < $this->threshold){
 					$this->close("Invalid compression threshold");
@@ -155,7 +155,7 @@ class Session{
 		if($this->status === 2){ //Login
 			$this->manager->sendPacket($this->identifier, $buffer);
 		}elseif($this->status === 1){
-			$pid = Binary::readVarInt($buffer, $offset);
+			$pid = Binary::readComputerVarInt($buffer, $offset);
 			if($pid === 0x00){
 				$sample = [];
 				foreach($this->manager->sample as $id => $name){
@@ -181,7 +181,7 @@ class Session{
 				}
 				$data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-				$data = Binary::writeVarInt(0x00) . Binary::writeVarInt(strlen($data)) . $data;
+				$data = Binary::writeComputerVarInt(0x00) . Binary::writeComputerVarInt(strlen($data)) . $data;
 				$this->writeRaw($data);
 			}elseif($pid === 0x01){
 				$packet = new PingPacket();
@@ -190,15 +190,15 @@ class Session{
 				$this->status = -1;
 			}
 		}elseif($this->status === 0){
-			$pid = Binary::readVarInt($buffer, $offset);
+			$pid = Binary::readComputerVarInt($buffer, $offset);
 			if($pid === 0x00){
-				$protocol = Binary::readVarInt($buffer, $offset);
-				$len = Binary::readVarInt($buffer, $offset);
+				$protocol = Binary::readComputerVarInt($buffer, $offset);
+				$len = Binary::readComputerVarInt($buffer, $offset);
 				$hostname = substr($buffer, $offset, $len);
 				$offset += $len;
 				$serverPort = Binary::readShort(substr($buffer, $offset, 2));
 				$offset += 2;
-				$nextState = Binary::readVarInt($buffer, $offset);
+				$nextState = Binary::readComputerVarInt($buffer, $offset);
 
 				if($nextState === 1){
 					$this->status = 1;

@@ -18,7 +18,7 @@
 namespace shoghicp\BigBrother;
 
 use pocketmine\plugin\PluginBase;
-use pocketmine\network\protocol\Info;
+use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\block\Block;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\block\BlockPlaceEvent;
@@ -29,8 +29,7 @@ use pocketmine\Achievement;
 use phpseclib\Crypt\RSA;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
-use shoghicp\BigBrother\network\translation\Translator;
-use shoghicp\BigBrother\network\translation\Translator_113;
+use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
 
@@ -70,7 +69,7 @@ class BigBrother extends PluginBase implements Listener{
 		}
 
 		if(Info::CURRENT_PROTOCOL === 113){
-			$this->translator = new Translator_113();
+			$this->translator = new Translator();
 			$this->rsa = new RSA();
 
 			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer

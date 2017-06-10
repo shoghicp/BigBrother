@@ -17,7 +17,7 @@
 
 namespace shoghicp\BigBrother\network;
 
-use pocketmine\network\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
 use pocketmine\utils\MainLogger;
@@ -52,7 +52,6 @@ use shoghicp\BigBrother\network\protocol\Play\Client\TabCompletePacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseItemPacket;
-use shoghicp\BigBrother\network\translation\Translator;
 use shoghicp\BigBrother\utils\Binary;
 
 class ProtocolInterface implements SourceInterface{
@@ -77,7 +76,7 @@ class ProtocolInterface implements SourceInterface{
 
 	private $threshold = null;
 
-	public function __construct(BigBrother $plugin, $server, Translator $translator, $threshold){
+	public function __construct(BigBrother $plugin, $server, $translator, $threshold){
 		$this->plugin = $plugin;
 		$this->server = $server;
 		$this->translator = $translator;

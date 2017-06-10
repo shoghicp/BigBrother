@@ -53,14 +53,14 @@ class Binary extends \pocketmine\utils\Binary{
 					$m .= self::writeByte($d[1]);
 				break;
 				case 1://VarInt
-					$m .= self::writeVarInt($d[1]);
+					$m .= self::writeComputerVarInt($d[1]);
 				break;
 				case 2://Float
 					$m .= self::writeFloat($d[1]);
 				break;
 				case 3://String
 				case 4://Chat
-					$m .= self::writeVarInt(strlen($d[1])) . $d[1];
+					$m .= self::writeComputerVarInt(strlen($d[1])) . $d[1];
 				break;
 				case 5://Slot
 					$item = $d[1];
@@ -104,7 +104,7 @@ class Binary extends \pocketmine\utils\Binary{
 		return $m;
 	}
 
-	public static function readVarInt($buffer, &$offset = 0){
+	public static function readComputerVarInt($buffer, &$offset = 0){
 		$number = 0;
 		$shift = 0;
 
@@ -159,7 +159,7 @@ class Binary extends \pocketmine\utils\Binary{
 		return $number;
 	}
 
-	public static function writeVarInt($number){
+	public static function writeComputerVarInt($number){
 		$encoded = "";
 		do{
 			$next_byte = $number & 0x7f;
