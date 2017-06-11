@@ -28,7 +28,7 @@ class PlayerDiggingPacket extends Packet{
 	public $face;
 
 	public function pid(){
-		return 0x13;
+		return 0x14;
 	}
 
 	public function encode(){

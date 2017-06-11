@@ -26,7 +26,7 @@ class SetExperiencePacket extends Packet{
 	public $totalexperience;
 
 	public function pid(){
-		return 0x3d;
+		return 0x3f;
 	}
 
 	public function encode(){

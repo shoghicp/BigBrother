@@ -30,7 +30,7 @@ class UpdateSignPacket extends Packet{
 	public $line4;
 
 	public function pid(){
-		return 0x19;
+		return 0x1c;
 	}
 
 	public function encode(){

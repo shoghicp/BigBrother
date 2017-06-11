@@ -29,7 +29,7 @@ class ClickWindowPacket extends Packet{
 	public $clickedItem;
 
 	public function pid(){
-		return 0x07;
+		return 0x08;
 	}
 
 	public function encode(){

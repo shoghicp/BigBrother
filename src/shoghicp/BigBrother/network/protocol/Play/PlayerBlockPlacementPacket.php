@@ -31,7 +31,7 @@ class PlayerBlockPlacementPacket extends Packet{
 	public $cursorZ;
 
 	public function pid(){
-		return 0x1c;
+		return 0x1f;
 	}
 
 	public function encode(){

@@ -25,7 +25,7 @@ class CreativeInventoryActionPacket extends Packet{
 	public $item;
 
 	public function pid(){
-		return 0x18;
+		return 0x1b;
 	}
 
 	public function encode(){

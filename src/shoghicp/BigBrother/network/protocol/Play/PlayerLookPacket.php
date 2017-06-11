@@ -26,7 +26,7 @@ class PlayerLookPacket extends Packet{
 	public $onGround;
 
 	public function pid(){
-		return 0x0e;
+		return 0x10;
 	}
 
 	public function encode(){

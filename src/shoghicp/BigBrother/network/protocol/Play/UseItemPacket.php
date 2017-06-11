@@ -24,7 +24,7 @@ class UseItemPacket extends Packet{
 	public $hand;
 
 	public function pid(){
-		return 0x1d;
+		return 0x20;
 	}
 
 	public function encode(){

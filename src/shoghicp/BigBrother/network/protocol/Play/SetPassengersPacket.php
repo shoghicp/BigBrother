@@ -25,7 +25,7 @@ class SetPassengersPacket extends Packet{
 	public $passengers = [];
 
 	public function pid(){
-		return 0x40;
+		return 0x42;
 	}
 
 	public function encode(){

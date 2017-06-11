@@ -25,12 +25,7 @@ class DesktopChunk{
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
 
-		//mcregion and anvil is support
-		//pmanvil ?
-		//var_dump($this->provider->getProviderName());
-
 		$payload = "";
-
 		foreach($chunk->getSubChunks() as $num => $subChunk){
 			if($subChunk->isEmpty()){
 				continue;

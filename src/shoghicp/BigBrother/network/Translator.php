@@ -106,18 +106,18 @@ class Translator{
 				//Confirm
 				return null;
 
-			case 0x01: //TabCompletePacket
+			case 0x02: //TabCompletePacket
 				//TODO: Tab Button
 				return null;
 
-			case 0x02: //ChatPacket
+			case 0x03: //ChatPacket
 				$pk = new TextPacket();
 				$pk->type = 1;//Chat Type
 				$pk->source = "";
 				$pk->message = $packet->message;
 				return $pk;
 
-			case 0x03: //ClientStatusPacket
+			case 0x04: //ClientStatusPacket
 				switch($packet->actionID){
 					case 0:
 						$pk = new PlayerActionPacket();
@@ -157,17 +157,13 @@ class Translator{
 						$pk->statistic = $statistic;
 						$player->putRawPacket($pk);
 					break;
-					case 2:
-						//$player->awardAchievement("openInventory"); this for DesktopPlayer
-						//Achievement::broadcast($player, "openInventory");//Debug
-					break;
 					default:
 						echo "ClientStatusPacket: ".$packet->actionID."\n";
 					break;
 				}
 				return null;
 
-			case 0x04: //ClientSettingsPacket
+			case 0x05: //ClientSettingsPacket
 				$player->setSetting([
 					"Lang" => $packet->lang,
 					"View" => $packet->view,
@@ -178,21 +174,21 @@ class Translator{
 
 				return null;
 
-			case 0x05: //ConfirmTransactionPacket
+			case 0x06: //ConfirmTransactionPacket
 				//Confirm
 				return null;
 
-			case 0x07: //ClickWindowPacket
-				$pk = $player->getInventoryUtils()->onClickWindow($packet);
+			case 0x08: //ClickWindowPacket
+				$pk = $player->getInventoryUtils()->onWindowClick($packet);
 
 				return $pk;
 
-			case 0x08: //CloseWindowPacket
+			case 0x09: //CloseWindowPacket
 				$pk = $player->getInventoryUtils()->onWindowClose(false, $packet);
 
 				return $pk;
 
-			case 0x09: //PluginMessagePacket
+			case 0x0a: //PluginMessagePacket
 				switch($packet->channel){
 					case "REGISTER"://Mods Register
 						$player->setSetting(["Channels" => $packet->data]);
@@ -206,7 +202,7 @@ class Translator{
 				}
 				return null;
 
-			case 0x0a: //UseEntityPacket
+			case 0x0b: //UseEntityPacket
 				$pk = new InteractPacket();
 				$pk->target = $packet->target;
 
@@ -224,14 +220,18 @@ class Translator{
 
 				return $pk;
 
-			case 0x0b: //KeepAlivePacket
+			case 0x0c: //KeepAlivePacket
 				$pk = new KeepAlivePacket();
 				$pk->id = mt_rand();
 				$player->putRawPacket($pk);
 
 				return null;
 
-			case 0x0c: //PlayerPositonPacket
+			case 0x0d: //PlayerPacket
+				$player->setSetting(["onGround" => $packet->onGround]);
+				return null;
+
+			case 0x0e: //PlayerPositonPacket
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
@@ -259,7 +259,7 @@ class Translator{
 
 				return $packets;
 
-			case 0x0d: //PlayerPositionAndLookPacket
+			case 0x0f: //PlayerPositionAndLookPacket
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
@@ -287,7 +287,7 @@ class Translator{
 
 				return $packets;
 
-			case 0x0e: //PlayerLookPacket
+			case 0x10: //PlayerLookPacket
 				$pk = new MovePlayerPacket();
 				$pk->x = $player->x;
 				$pk->y = $player->y + $player->getEyeHeight();
@@ -296,16 +296,12 @@ class Translator{
 				$pk->bodyYaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				return $pk;
-
-			case 0x0f: //PlayerPacket
-				$player->setSetting(["onGround" => $packet->onGround]);
-				return null;
 			
-			case 0x12: //PlayerAbilitiesPacket
+			case 0x13: //PlayerAbilitiesPacket
 				$player->setSetting(["isFlying" => $packet->isFlying]);
 				return null;
 
-			case 0x13: //PlayerDiggingPacket
+			case 0x14: //PlayerDiggingPacket
 				switch($packet->status){
 					case 0:
 						if($player->getGamemode() === 1){
@@ -384,7 +380,7 @@ class Translator{
 
 				return null;
 
-			case 0x14: //EntityActionPacket
+			case 0x15: //EntityActionPacket
 				switch($packet->actionID){
 					case 0://Start sneaking
 						$pk = new PlayerActionPacket();
@@ -443,7 +439,7 @@ class Translator{
 
 				return null;
 
-			case 0x17: //HeldItemChangePacket
+			case 0x1a: //HeldItemChangePacket
 				$slot = $player->getInventory()->getHotbarSlotIndex($packet->selectedSlot);
 
 				$pk = new MobEquipmentPacket();
@@ -456,12 +452,12 @@ class Translator{
 
 				return $pk;
 
-			case 0x18: //CreativeInventoryActionPacket
+			case 0x1b: //CreativeInventoryActionPacket
 				$pk = $player->getInventoryUtils()->onCreativeInventoryAction($packet);
 
 				return $pk;
 
-			case 0x19: //UpdateSignPacket
+			case 0x1c: //UpdateSignPacket
 				$tags = new CompoundTag("", [
 					new StringTag("id", Tile::SIGN),
 					new StringTag("Text1", $packet->line1),
@@ -484,13 +480,13 @@ class Translator{
 
 				return $pk;
 
-			case 0x1a: //AnimatePacket
+			case 0x1d: //AnimatePacket
 				$pk = new AnimatePacket();
 				$pk->action = 1;
 				$pk->eid = $player->getId();
 				return $pk;
 
-			case 0x1c; //PlayerBlockPlacementPacket
+			case 0x1f; //PlayerBlockPlacementPacket
 				if($packet->direction !== 255){
 					$pk = new UseItemPacket();
 					$pk->x = $packet->x;
@@ -514,7 +510,7 @@ class Translator{
 
 				return null;
 
-			case 0x1d://UseItemPacket
+			case 0x20://UseItemPacket
 				$pk = new UseItemPacket();
 				$pk->x = 0;
 				$pk->y = 0;

@@ -25,7 +25,7 @@ class EntityPropertiesPacket extends Packet{
 	public $entries = [];
 
 	public function pid(){
-		return 0x4a;
+		return 0x4d;
 	}
 
 	public function encode(){

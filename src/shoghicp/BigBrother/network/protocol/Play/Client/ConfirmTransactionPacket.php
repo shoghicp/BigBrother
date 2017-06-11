@@ -26,7 +26,7 @@ class ConfirmTransactionPacket extends Packet{
 	public $accepted;
 
 	public function pid(){
-		return 0x05;
+		return 0x06;
 	}
 
 	public function encode(){

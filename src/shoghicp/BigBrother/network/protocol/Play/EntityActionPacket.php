@@ -26,7 +26,7 @@ class EntityActionPacket extends Packet{
 	public $jumpboost;
 
 	public function pid(){
-		return 0x14;
+		return 0x15;
 	}
 
 	public function encode(){

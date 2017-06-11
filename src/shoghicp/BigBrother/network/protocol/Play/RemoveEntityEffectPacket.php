@@ -25,7 +25,7 @@ class RemoveEntityEffectPacket extends Packet{
 	public $effectId;
 
 	public function pid(){
-		return 0x31;
+		return 0x32;
 	}
 
 	public function encode(){

@@ -24,7 +24,7 @@ class DestroyEntitiesPacket extends Packet{
 	public $ids = [];
 
 	public function pid(){
-		return 0x30;
+		return 0x31;
 	}
 
 	public function encode(){

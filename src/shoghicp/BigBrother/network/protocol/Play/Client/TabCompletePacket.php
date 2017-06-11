@@ -29,7 +29,7 @@ class TabCompletePacket extends Packet{
 	public $z;
 
 	public function pid(){
-		return 0x01;
+		return 0x02;
 	}
 
 	public function encode(){

@@ -26,7 +26,7 @@ class EntityEquipmentPacket extends Packet{
 	public $item;
 
 	public function pid(){
-		return 0x3c;
+		return 0x3e;
 	}
 
 	public function encode(){

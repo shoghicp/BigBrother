@@ -30,7 +30,7 @@ class PlayerAbilitiesPacket extends Packet{
 	public $walkingSpeed;
 
 	public function pid(){
-		return 0x12;
+		return 0x13;
 	}
 
 	public function encode(){

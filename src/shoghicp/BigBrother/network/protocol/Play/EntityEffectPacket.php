@@ -28,7 +28,7 @@ class EntityEffectPacket extends Packet{
 	public $flags;
 
 	public function pid(){
-		return 0x4b;
+		return 0x4e;
 	}
 
 	public function encode(){

@@ -25,7 +25,7 @@ class EnchantItemPacket extends Packet{
 	public $enchantment;
 
 	public function pid(){
-		return 0x06;
+		return 0x07;
 	}
 
 	public function encode(){

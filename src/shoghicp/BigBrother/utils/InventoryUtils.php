@@ -442,8 +442,4 @@ class InventoryUtils{
 		$this->craftinfodata = $craftinfodata;
 	}
 
-	/*public function onClickWindow(){
-		
-	}*/
-
 }

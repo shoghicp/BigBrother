@@ -30,7 +30,7 @@ class SoundEffectPacket extends Packet{
 	public $pitch;
 
 	public function pid(){
-		return 0x46;
+		return 0x48;
 	}
 
 	public function encode(){

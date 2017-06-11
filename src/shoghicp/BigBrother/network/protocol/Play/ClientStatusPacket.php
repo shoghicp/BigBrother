@@ -24,7 +24,7 @@ class ClientStatusPacket extends Packet{
 	public $actionID;
 
 	public function pid(){
-		return 0x03;
+		return 0x04;
 	}
 
 	public function encode(){

@@ -24,7 +24,7 @@ class KeepAlivePacket extends Packet{
 	public $id;
 
 	public function pid(){
-		return 0x0b;
+		return 0x0c;
 	}
 
 	public function encode(){

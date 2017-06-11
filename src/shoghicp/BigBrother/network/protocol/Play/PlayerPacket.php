@@ -24,7 +24,7 @@ class PlayerPacket extends Packet{
 	public $onGround;
 
 	public function pid(){
-		return 0x0f;
+		return 0x0d;
 	}
 
 	public function encode(){

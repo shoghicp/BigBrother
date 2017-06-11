@@ -29,7 +29,7 @@ class PlayerPositionAndLookPacket extends Packet{
 	public $onGround;
 
 	public function pid(){
-		return 0x0d;
+		return 0x0f;
 	}
 
 	public function encode(){

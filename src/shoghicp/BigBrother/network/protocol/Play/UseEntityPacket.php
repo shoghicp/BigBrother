@@ -25,7 +25,7 @@ class UseEntityPacket extends Packet{
 	public $type;
 
 	public function pid(){
-		return 0x0a;
+		return 0x0b;
 	}
 
 	public function encode(){

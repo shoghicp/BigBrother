@@ -26,7 +26,7 @@ class CollectItemPacket extends Packet{
 	public $itemCount;
 
 	public function pid(){
-		return 0x48;
+		return 0x4a;
 	}
 
 	public function encode(){

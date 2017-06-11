@@ -28,7 +28,7 @@ class ClientSettingsPacket extends Packet{
 	public $skinsetting;
 
 	public function pid(){
-		return 0x04;
+		return 0x05;
 	}
 
 	public function encode(){

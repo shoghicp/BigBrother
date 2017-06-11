@@ -31,7 +31,7 @@ class TitlePacket extends Packet{
 	public $data = null;
 
 	public function pid(){
-		return 0x45;
+		return 0x47;
 	}
 
 	public function encode(){

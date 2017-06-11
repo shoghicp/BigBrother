@@ -25,7 +25,7 @@ class PluginMessagePacket extends Packet{
 	public $data = [];
 
 	public function pid(){
-		return 0x09;
+		return 0x0a;
 	}
 
 	public function encode(){

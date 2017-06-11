@@ -24,7 +24,7 @@ class AnimatePacket extends Packet{
 	public $hand;
 
 	public function pid(){
-		return 0x1a;
+		return 0x1d;
 	}
 
 	public function encode(){

@@ -25,7 +25,7 @@ class EntityHeadLookPacket extends Packet{
 	public $yaw;
 
 	public function pid(){
-		return 0x34;
+		return 0x35;
 	}
 
 	public function encode(){

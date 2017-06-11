@@ -24,7 +24,7 @@ class CloseWindowPacket extends Packet{
 	public $windowID;
 
 	public function pid(){
-		return 0x08;
+		return 0x09;
 	}
 
 	public function encode(){
