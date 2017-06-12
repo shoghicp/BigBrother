@@ -423,7 +423,7 @@ class InventoryUtils{
 			$player->handleDataPacket($pk);
 
 			$pk = new CollectItemPacket();
-			$pk->eid = $packet->entityRuntimeId;
+			$pk->eid = $packet->eid;
 			$pk->target = $packet->target;
 			$pk->itemCount = $itemCount;
 			$packets[] = $pk;
