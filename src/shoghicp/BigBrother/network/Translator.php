@@ -58,7 +58,6 @@ use shoghicp\BigBrother\network\protocol\Play\BlockActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\ChangeGameStatePacket;
-use shoghicp\BigBrother\network\protocol\Play\CollectItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\EffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityEquipmentPacket;
@@ -927,6 +926,9 @@ class Translator{
 				return $packets;
 
 			case Info::TAKE_ITEM_ENTITY_PACKET:
+				$packet->target = $packet->getEntityRuntimeId();
+				$packet->eid = $packet->getEntityRuntimeId();
+
 				$pk = $player->getInventoryUtils()->onTakeItemEntity($packet);
 				
 				return $pk;

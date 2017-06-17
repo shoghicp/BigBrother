@@ -32,6 +32,7 @@ use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\network\protocol\Play\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetSlotPacket;
 use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
+use shoghicp\BigBrother\network\protocol\Play\CollectItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
 
 class InventoryUtils{
