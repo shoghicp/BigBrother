@@ -237,7 +237,7 @@ class DesktopPlayer extends Player{
 			$pk = new LoginPacket();
 			$pk->username = $this->bigBrother_username;
 			$pk->protocol = Info::CURRENT_PROTOCOL;
-			$pk->clientUUID = UUID::fromString($this->bigBrother_formatedUUID);
+			$pk->clientUUID = $this->bigBrother_formatedUUID;
 			$pk->clientId = crc32($this->bigbrother_clientId);
 			$pk->serverAddress = "127.0.0.1:25565";
 			if($skin === null or $skin === false){
