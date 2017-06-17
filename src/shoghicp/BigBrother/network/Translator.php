@@ -926,8 +926,8 @@ class Translator{
 				return $packets;
 
 			case Info::TAKE_ITEM_ENTITY_PACKET:
-				$packet->target = $packet->getEntityRuntimeId();
-				$packet->eid = $packet->getEntityRuntimeId();
+				$packet->target = $packet->getEntityRuntimeId(); //blame pmmp :(
+				$packet->eid = $packet->getEntityRuntimeId(); //blame pmmp :(
 
 				$pk = $player->getInventoryUtils()->onTakeItemEntity($packet);
 				

@@ -37,9 +37,9 @@ use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
 
 class InventoryUtils{
 	private $player;
-	private $windowdata = [];
-	private $craftinfodata = [];
-	private $windowinfodata = [
+	private $windowInfo = [];
+	private $craftInfo = [];
+	private $windowData = [
 		//0 => 
 
 	];
@@ -85,7 +85,7 @@ class InventoryUtils{
 		$pk->windowTitle = BigBrother::toJSON($title);
 		$pk->slots = $slots;
 
-		$this->windowdata[$packet->windowid] = ["type" => $packet->type, "slots" => []];
+		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => []];
 
 		return $pk;
 	}
@@ -97,7 +97,7 @@ class InventoryUtils{
 			$pk = new CloseWindowPacket();
 			$pk->windowID = $packet->windowid;
 
-			unset($this->windowdata[$packet->windowid]);
+			unset($this->windowInfo[$packet->windowid]);
 		}else{
 			if($packet->windowID !== ContainerSetContentPacket::SPECIAL_INVENTORY){//Player Inventory
 				$pk = new ContainerClosePacket();
