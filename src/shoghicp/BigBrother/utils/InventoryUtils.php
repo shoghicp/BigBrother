@@ -439,8 +439,8 @@ class InventoryUtils{
 
 	}
 
-	public function setCraftInfoData($craftinfodata){
-		$this->craftinfodata = $craftinfodata;
+	public function setCraftInfoData($craftInfo){
+		$this->craftInfo = $craftInfo;
 	}
 
 }
