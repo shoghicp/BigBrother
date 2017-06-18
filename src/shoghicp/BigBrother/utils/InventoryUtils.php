@@ -38,8 +38,12 @@ use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
 class InventoryUtils{
 	private $player;
 	private $windowInfo = [];
-	private $craftInfo = [];
+	private $craftInfoData = [];
 	private $windowData = [
+		//0 => 
+
+	];
+	private $playerWindowData = [
 		//0 => 
 
 	];
@@ -65,6 +69,11 @@ class InventoryUtils{
 			break;
 			default://TODO: http://wiki.vg/Inventory#Windows
 				echo "[InventoryUtils] ContainerOpenPacket: ".$packet->type."\n";
+
+				$pk = new ContainerClosePacket();
+				$pk->windowid = $packet->windowid;
+				$player->handleDataPacket($pk);
+
 				return null;
 			break;
 		}
@@ -145,6 +154,8 @@ class InventoryUtils{
 	public function onWindowSetContent($packet){
 		$pk = new WindowItemsPacket();
 		$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+
+		//var_dump($packet);
 
 		switch($packet->windowid){
 			case ContainerSetContentPacket::SPECIAL_INVENTORY:
@@ -439,8 +450,8 @@ class InventoryUtils{
 
 	}
 
-	public function setCraftInfoData($craftInfo){
-		$this->craftInfo = $craftInfo;
+	public function setCraftInfoData($craftInfoData){
+		$this->craftInfoData = $craftInfoData;
 	}
 
 }

@@ -527,7 +527,9 @@ class Translator{
 				return $pk;
 
 			default:
-				echo "[Receive][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
+				if(\pocketmine\DEBUG > 3){
+					echo "[Receive][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
+				}
 				return null;
 		}
 	}
@@ -600,15 +602,6 @@ class Translator{
 				$pk->damageDisabled = ($player->getGamemode() & 0x01) > 0;
 				$pk->isFlying = false;
 				$pk->isCreative = ($player->getGamemode() & 0x01) > 0;
-				$packets[] = $pk;
-
-				$pk = new PlayerPositionAndLookPacket();
-				$pk->x = $packet->x;
-				$pk->y = $packet->y;
-				$pk->z = $packet->z;
-				$pk->yaw = $player->yaw;
-				$pk->pitch = $player->pitch;
-				$pk->teleportId = 0;
 				$packets[] = $pk;
 
 				return $packets;
@@ -964,15 +957,18 @@ class Translator{
 				}
 
 			case Info::MOVE_PLAYER_PACKET:
-				if($packet->entityRuntimeId === $player->getId()){//TODO
-					$pk = new PlayerPositionAndLookPacket();
-					$pk->x = $packet->x;
-					$pk->y = $packet->y - $player->getEyeHeight();
-					$pk->z = $packet->z;
-					$pk->yaw = $packet->yaw;
-					$pk->pitch = $packet->pitch;
-					$pk->onGround = $player->isOnGround();
-					return $pk;
+				if($packet->entityRuntimeId === $player->getId()){
+					if($player->spawned){//for Loading Chunks
+						$pk = new PlayerPositionAndLookPacket();
+						$pk->x = $packet->x;
+						$pk->y = $packet->y - $player->getEyeHeight();
+						$pk->z = $packet->z;
+						$pk->yaw = $packet->yaw;
+						$pk->pitch = $packet->pitch;
+						$pk->onGround = $player->isOnGround();
+						return $pk;
+					}
+					return null;
 				}else{
 					$packets = [];
 
@@ -1186,8 +1182,10 @@ class Translator{
 
 				foreach($packet->entries as $entry){
 					switch($entry->getName()){
-						case "minecraft:player.saturation":
-						case "minecraft:player.exhaustion":
+						case "minecraft:player.saturation": //TODO
+						case "minecraft:player.exhaustion": //TODO
+						case "minecraft:absorption": //TODO
+						break;
 						case "minecraft:player.hunger": //move to minecraft:health
 						break;
 						case "minecraft:health":
@@ -1222,6 +1220,8 @@ class Translator{
 								$entry->getValue()//TODO: Default Value
 							];
 						break;
+						case "minecraft:player.level": //move to minecraft:player.experience
+						break;
 						case "minecraft:player.experience":
 							if($packet->entityRuntimeId === $player->getId()){
 								$pk = new SetExperiencePacket();
@@ -1231,8 +1231,6 @@ class Translator{
 
 								$packets[] = $pk;
 							}
-						break;
-						case "minecraft:player.level": //move to minecraft:player.experience
 						break;
 						case "minecraft:attack_damage":
 							$entries[] = [
@@ -1646,7 +1644,9 @@ class Translator{
 				return null;
 
 			default:
-				echo "[Send][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
+				if(\pocketmine\DEBUG > 3){
+					echo "[Send][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
+				}
 				return null;
 		}
 	}

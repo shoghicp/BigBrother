@@ -123,9 +123,11 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function sendPacket($target, Packet $packet){
-		$id = bin2hex(chr($packet->pid()));
-		if($id !== "1f"){
-			echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
+		if(\pocketmine\DEBUG > 3){
+			$id = bin2hex(chr($packet->pid()));
+			if($id !== "1f"){
+				echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
+			}
 		}
 		
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
@@ -190,9 +192,11 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	protected function handlePacket(DesktopPlayer $player, $payload){
-		$id = bin2hex(chr(ord($payload{0})));
-		if($id !== "0b"){//KeepAlivePacket
-			echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+		if(\pocketmine\DEBUG > 3){
+			$id = bin2hex(chr(ord($payload{0})));
+			if($id !== "0b"){//KeepAlivePacket
+				echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+			}
 		}
 
 		$pid = ord($payload{0});
@@ -286,7 +290,9 @@ class ProtocolInterface implements SourceInterface{
 					$pk = new UseItemPacket();
 					break;
 				default:
-					echo "[Receive][Interface] 0x".bin2hex(chr($pid))."\n"; //Debug
+					if(\pocketmine\DEBUG > 3){
+						echo "[Receive][Interface] 0x".bin2hex(chr($pid))."\n"; //Debug
+					}
 					return;
 			}
 
@@ -294,12 +300,10 @@ class ProtocolInterface implements SourceInterface{
 			$this->receivePacket($player, $pk);
 		}elseif($status === 0){
 			if($pid === 0x00){
-				echo "LoginStart\n";
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
 			}elseif($pid === 0x01 and $this->plugin->isOnlineMode()){
-				echo "EncryptionResponse\n";
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_processAuthentication($this->plugin, $pk);

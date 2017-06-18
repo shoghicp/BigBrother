@@ -64,7 +64,7 @@ class DesktopPlayer extends Player{
 		$this->plugin = $plugin;
 		$this->bigbrother_clientId = $clientID;
 		parent::__construct($interface, $clientID, $address, $port);
-		$this->setRemoveFormat(false);// Color Code
+		$this->setRemoveFormat(false);// Color Code TODO: remove it?
 		$this->inventoryutils = new InventoryUtils($this);
 	}
 
@@ -196,12 +196,10 @@ class DesktopPlayer extends Player{
 			$this->bigBrother_sendChunk($X, $Z);
 		}
 
-		if($this->chunkLoadCount >= 4 and $this->spawned === false and $this->teleportPosition === null){
+		if($this->chunkLoadCount >= $this->spawnThreshold and $this->spawned === false and $this->teleportPosition === null){
 			$this->plugin->getServer()->sendFullPlayerListData($this);//PlayerList
 
 			$this->doFirstSpawn();
-			$this->inventory->sendContents($this);
-			$this->inventory->sendArmorContents($this);
 		}
 
 		Timings::$playerChunkSendTimer->stopTiming();
@@ -287,7 +285,7 @@ class DesktopPlayer extends Player{
 			$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = true;
 			$this->setSetting(["PlayerList" => $playerlist]);
 
-			$pk = new TitlePacket(); //Set SubTitle for this
+			$pk = new TitlePacket(); //for Set SubTitle 
 			$pk->actionID = TitlePacket::TYPE_SET_TITLE;
 			$pk->data = TextFormat::toJSON("");
 			$this->putRawPacket($pk);
