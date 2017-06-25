@@ -43,13 +43,22 @@ class InventoryUtils{
 		//0 => 
 
 	];
-	private $playerWindowData = [
-		//0 => 
-
-	];
+	private $playerCraftSlot = [];
 
 	public function __construct($player){
 		$this->player = $player;
+
+		$this->playerCraftSlot = array_fill(0, 4, Item::get(Item::AIR));
+	}
+
+	public function getInventory(array $items){
+
+
+		return $items;
+	}
+
+	public function getHotbar(array $items){
+		return $items;
 	}
 
 	public function onWindowOpen($packet){
@@ -94,7 +103,7 @@ class InventoryUtils{
 		$pk->windowTitle = BigBrother::toJSON($title);
 		$pk->slots = $slots;
 
-		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => []];
+		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => $slots];
 
 		return $pk;
 	}
@@ -152,49 +161,71 @@ class InventoryUtils{
 	}
 
 	public function onWindowSetContent($packet){
-		$pk = new WindowItemsPacket();
-		$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-
-		//var_dump($packet);
+		//TODO: implement save hotbar
+		//TODO: implement save inventory
 
 		switch($packet->windowid){
 			case ContainerSetContentPacket::SPECIAL_INVENTORY:
-			case ContainerSetContentPacket::SPECIAL_ARMOR:
+				$pk = new WindowItemsPacket();
+				$pk->windowID = $packet->windowid;
+
 				for($i = 0; $i < 5; ++$i){
-					$pk->items[] = Item::get(Item::AIR, 0, 0);//Craft Inventory
+					$pk->items[] = Item::get(Item::AIR, 0, 0);//Craft
 				}
 
-				$pk->items[] = $this->player->getInventory()->getHelmet();
-				$pk->items[] = $this->player->getInventory()->getChestplate();
-				$pk->items[] = $this->player->getInventory()->getLeggings();
-				$pk->items[] = $this->player->getInventory()->getBoots();
+				for($i = 0; $i < 4; ++$i){
+					$pk->items[] = Item::get(Item::AIR, 0, 0);//Armor
+				}
 
 				$hotbar = [];
-				$hotbardata = [];
-				for($i = 0; $i < 9; $i++){ 
-					$hotbardata[] = $this->player->getInventory()->getHotbarSlotIndex($i);
+				foreach($packet->hotbar as $num => $hotbarslot){
+					if($hotbarslot === -1){
+						$packet->hotbar[$num] = $hotbarslot = $num + $this->player->getInventory()->getHotbarSize();
+					}
+
+					$hotbarslot -= $this->player->getInventory()->getHotbarSize();
+					$hotbar[] = $packet->slots[$hotbarslot];
 				}
 
-				foreach($hotbardata as $hotbarslot){
-					$hotbar[$hotbarslot] = $this->player->getInventory()->getItem($hotbarslot);
+				for($i = 0; $i < $this->player->getInventory()->getSize(); $i++){
+					$hotbarslot = $i + $this->player->getInventory()->getHotbarSize();
+					if(!in_array($hotbarslot, $packet->hotbar)){
+						$pk->items[] = $packet->slots[$i];
+					}
 				}
 
-				for($i = 9; $i < 36; ++$i){
-					$pk->items[] = $this->player->getInventory()->getItem($i);
+				foreach($hotbar as $item){
+					$pk->items[] = $item;//hotbar
 				}
 
-				foreach($hotbar as $slot){
-					$pk->items[] = $slot;//hotbar
-				}
-
-				$pk->items[] = Item::get(Item::AIR, 0, 0);//off hand
+				$pk->items[] = Item::get(Item::AIR, 0, 0);//offhand
 
 				return $pk;
+			break;
+			case ContainerSetContentPacket::SPECIAL_ARMOR:
+				$packets = [];
+
+				foreach($packet->slots as $slot => $item){
+					$pk = new SetSlotPacket();
+					$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+					$pk->item = $item;
+					$pk->slot = $slot + 5;
+
+					$packets[] = $pk;
+				}
+
+				//TODO: implement save armor items
+				
+				return $packets;
 			break;
 			case ContainerSetContentPacket::SPECIAL_CREATIVE:
 			case ContainerSetContentPacket::SPECIAL_HOTBAR:
 			break;
 			default:
+				if(isset($this->windowInfo[$packet->windowid])){
+					//var_dump($packet);
+				}
+
 				echo "[InventoryUtils] ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
 			break;
 		}
@@ -386,17 +417,17 @@ class InventoryUtils{
 	public function onTakeItemEntity($packet){
 		$itemCount = 1;
 		$item = Item::get(0);
-		if(($entity = $player->getLevel()->getEntity($packet->target)) instanceof ItemEntity){
+		if(($entity = $this->player->getLevel()->getEntity($packet->target)) instanceof ItemEntity){
 			$item = $entity->getItem();
 			$itemCount = $item->getCount();
 		}
 
-		if($player->getInventory()->canAddItem($item)){
-			$emptyslot = $player->getInventory()->firstEmpty();
+		if($this->player->getInventory()->canAddItem($item)){
+			$emptyslot = $this->player->getInventory()->firstEmpty();
 
 			$slot = -1;
-			for($index = 0; $index < $player->getInventory()->getSize(); ++$index){
-				$i = $player->getInventory()->getItem($index);
+			for($index = 0; $index < $this->player->getInventory()->getSize(); ++$index){
+				$i = $this->player->getInventory()->getItem($index);
 				if($i->equals($item) and $item->getCount() < $item->getMaxStackSize()){
 					$slot = $index;
 					$i->setCount($i->getCount() + 1);
@@ -411,7 +442,7 @@ class InventoryUtils{
 
 			$packets = [];
 
-			if($slot >= 0 and $slot < $player->getInventory()->getHotbarSize()){
+			if($slot >= 0 and $slot < $this->player->getInventory()->getHotbarSize()){
 				$pk = new SetSlotPacket();
 				$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
 				$pk->slot = $slot + 36;
@@ -432,7 +463,7 @@ class InventoryUtils{
 			$pk->slot = $slot;
 			$pk->hotbarSlot = 0;
 			$pk->item = $i;
-			$player->handleDataPacket($pk);
+			$this->player->handleDataPacket($pk);
 
 			$pk = new CollectItemPacket();
 			$pk->eid = $packet->eid;

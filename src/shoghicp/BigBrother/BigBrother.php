@@ -183,7 +183,6 @@ class BigBrother extends PluginBase implements Listener{
 
 		$message = $source.$message;
 		$result = TextFormat::toJSON($message);
-		//var_dump(json_decode($result, true));
 		if(is_array($parameters)){
 			$result = json_decode($result, true);
 			unset($result["text"]);

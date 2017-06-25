@@ -94,6 +94,7 @@ use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\NamedSoundEffectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
@@ -120,7 +121,7 @@ class Translator{
 				switch($packet->actionID){
 					case 0:
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 
 						$reflect = new \ReflectionClass($pk);
 						$found = false;
@@ -245,7 +246,7 @@ class Translator{
 					if(strpos($packet->y, ".") !== false){
 						if(floor($player->y) === floor($packet->y)){
 							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_JUMP;
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
@@ -273,7 +274,7 @@ class Translator{
 					if(strpos($packet->y, ".") !== false){
 						if(floor($player->y) === floor($packet->y)){
 							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_JUMP;
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
@@ -305,14 +306,14 @@ class Translator{
 					case 0:
 						if($player->getGamemode() === 1){
 							$pk = new RemoveBlockPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
 							$pk->z = $packet->z;
 							return $pk;
 						}else{
 							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_START_BREAK;
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
@@ -323,7 +324,7 @@ class Translator{
 					break;
 					case 1:
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
 						$pk->x = $packet->x;
 						$pk->y = $packet->y;
@@ -335,7 +336,7 @@ class Translator{
 						if($player->getGamemode() !== 1){
 							$packets = [];
 							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
@@ -344,7 +345,7 @@ class Translator{
 							$packets[] = $pk;
 
 							$pk = new RemoveBlockPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
 							$pk->z = $packet->z;
@@ -358,7 +359,7 @@ class Translator{
 						$item = $player->getInventory()->getItemInHand();
 						if($item->getId() === Item::BOW){//Shoot Arrow
 							$pk = new PlayerActionPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_RELEASE_ITEM;
 							$pk->x = $packet->x;
 							$pk->y = $packet->y;
@@ -366,7 +367,7 @@ class Translator{
 							$pk->face = $packet->face;
 						}else{//Eating
 							$pk = new EntityEventPacket();
-							$pk->eid = 0;
+							$pk->entityRuntimeId = $player->getId();
 							$pk->event = EntityEventPacket::USE_ITEM;
 						}
 
@@ -383,7 +384,7 @@ class Translator{
 				switch($packet->actionID){
 					case 0://Start sneaking
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_START_SNEAK;
 						$pk->x = 0;
 						$pk->y = 0;
@@ -393,7 +394,7 @@ class Translator{
 					break;
 					case 1://Stop sneaking
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_STOP_SNEAK;
 						$pk->x = 0;
 						$pk->y = 0;
@@ -403,7 +404,7 @@ class Translator{
 					break;
 					case 2://leave bed
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_STOP_SLEEPING;
 						$pk->x = 0;
 						$pk->y = 0;
@@ -413,7 +414,7 @@ class Translator{
 					break;
 					case 3://Start sprinting
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_START_SPRINT;
 						$pk->x = 0;
 						$pk->y = 0;
@@ -423,7 +424,7 @@ class Translator{
 					break;
 					case 4://Stop sprinting
 						$pk = new PlayerActionPacket();
-						$pk->eid = 0;
+						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_STOP_SPRINT;
 						$pk->x = 0;
 						$pk->y = 0;
@@ -440,14 +441,16 @@ class Translator{
 
 			case 0x1a: //HeldItemChangePacket
 				$slot = $player->getInventory()->getHotbarSlotIndex($packet->selectedSlot);
+				$item = $player->getInventory()->getItem($slot);
+				if($item->getId() === Item::AIR){
+					$slot = 246; //246 + 9 = 255
+				}
 
 				$pk = new MobEquipmentPacket();
-				$pk->eid = 0;
-				$pk->item = $player->getInventory()->getItem($slot);
-				$pk->slot = $slot + 9;
-				$pk->inventorySlot = $pk->slot;//for PocketMine-MP
-				$pk->selectedSlot = $packet->selectedSlot;
-				$pk->hotbarSlot = $pk->selectedSlot;//for PocketMine-MP
+				$pk->entityRuntimeId = 0;
+				$pk->item = $item;
+				$pk->inventorySlot = $slot + 9;
+				$pk->hotbarSlot = $packet->selectedSlot;
 
 				return $pk;
 
@@ -482,7 +485,7 @@ class Translator{
 			case 0x1d: //AnimatePacket
 				$pk = new AnimatePacket();
 				$pk->action = 1;
-				$pk->eid = $player->getId();
+				$pk->entityRuntimeId = $player->getId();
 				return $pk;
 
 			case 0x1f; //PlayerBlockPlacementPacket
@@ -1010,8 +1013,6 @@ class Translator{
 				$pk->z = $packet->z;
 				$pk->direction = $packet->direction;
 
-				//var_dump($pk);
-
 				return $pk;*/
 
 			case Info::LEVEL_EVENT_PACKET://TODO
@@ -1266,12 +1267,18 @@ class Translator{
 				return $packets;
 
 			case Info::MOB_EQUIPMENT_PACKET:
+				$packets = [];
+				$pk = new HeldItemChangePacket();
+				$pk->selectedSlot = $packet->hotbarSlot;
+				$packets[] = $pk;
+
 				$pk = new EntityEquipmentPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->slot = 0;//main hand
 				$pk->item = $packet->item;
+				$packets[] = $pk;
 
-				return $pk;
+				return $packets;
 
 			case Info::MOB_ARMOR_EQUIPMENT_PACKET:
 				$packets = [];
