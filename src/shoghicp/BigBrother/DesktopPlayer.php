@@ -223,6 +223,7 @@ class DesktopPlayer extends Player{
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
+			$skin = false;
 			foreach($this->bigBrother_properties as $property){
 				if($property["name"] === "textures"){
 					$skindata = json_decode(base64_decode($property["value"]), true);
