@@ -36,6 +36,7 @@ use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEffectPacket;
+use pocketmine\network\mcpe\protocol\DropItemPacket;
 use pocketmine\network\mcpe\protocol\RemoveBlockPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\utils\BinaryStream;
@@ -354,6 +355,13 @@ class Translator{
 						}else{
 							echo "PlayerDiggingPacket: ".$packet->status."\n";
 						}
+					break;
+					case 3:
+					case 4:
+						$pk = new DropItemPacket();
+						$pk->item = $player->getInventory()->getItemInHand();
+						if($packet->status === 4) $pk->item->count = 1;
+						return $pk;
 					break;
 					case 5:
 						$item = $player->getInventory()->getItemInHand();
