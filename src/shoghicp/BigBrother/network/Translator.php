@@ -1084,7 +1084,7 @@ class Translator{
 				$pk->z = $packet->z;
 				$pk->actionID = $packet->case1;
 				$pk->actionParam = $packet->case2;
-				$pk->blockType = $block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+				$pk->blockType = $blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
 				$packets[] = $pk;
 
 				if($packet->case1 === 1){
@@ -1097,13 +1097,13 @@ class Translator{
 					$pk->pitch = 1.0;
 
 					if($packet->case2 >= 1){
-						if($block === Block::ENDER_CHEST){
+						if($blockId === 130){
 							$pk->name = "block.enderchest.open";
 						}else{
 							$pk->name = "block.chest.open";
 						}
 					}else{
-						if($block === Block::ENDER_CHEST){
+						if($blockId === 130){
 							$pk->name = "block.enderchest.close";
 						}else{
 							$pk->name = "block.chest.close";
@@ -1609,7 +1609,12 @@ class Translator{
 			case 0xfe: //Info::BATCH_PACKET
 				$packets = [];
 
-				$str = zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
+				try{//Just to be sure
+					$str = \zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
+				}catch(\ErrorException $e){
+					return null;
+				}
+
 				$len = strlen($str);
 
 				if($len === 0){

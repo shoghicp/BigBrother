@@ -43,23 +43,41 @@ class InventoryUtils{
 		//0 => 
 
 	];
+	private $playerHeldItem = null;
 	private $playerCraftSlot = [];
+	private $playerArmorSlot = [];
+	private $playerInventorySlot = [];
+	private $playerHotbarSlot = [];
 
 	public function __construct($player){
 		$this->player = $player;
 
-		$this->playerCraftSlot = array_fill(0, 4, Item::get(Item::AIR));
+		$this->playerCraftSlot = array_fill(0, 5, Item::get(Item::AIR));
+		$this->playerArmorSlot = array_fill(0, 5, Item::get(Item::AIR));
+		$this->playerInventorySlot = array_fill(0, 36, Item::get(Item::AIR));
+		$this->playerHotbarSlot = array_fill(0, 9, Item::get(Item::AIR));
+		$this->playerHeldItem = Item::get(Item::AIR);
 	}
 
-	public function getInventory(array $items){
+	/* easy call function */
 
+	public function getInventory(array $items){
+		foreach($this->playerInventorySlot as $item){
+			$items[] = $item;
+		}
 
 		return $items;
 	}
 
 	public function getHotbar(array $items){
+		foreach($this->playerHotbarSlot as $item){
+			$items[] = $item;
+		}
+
 		return $items;
 	}
+
+
 
 	public function onWindowOpen($packet){
 		$type = "";
@@ -109,7 +127,10 @@ class InventoryUtils{
 	}
 
 	public function onWindowClose($isserver, $packet){
-		//TODO: DropItem
+		foreach($this->playerCraftSlot as $item){
+			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $item);//TODO: Drop Packet
+		}
+		$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $this->playerHeldItem); //TODO: Drop Packet
 
 		if($isserver){
 			$pk = new CloseWindowPacket();
@@ -138,8 +159,15 @@ class InventoryUtils{
 
 				if($packet->slot >= 0 and $packet->slot < $this->player->getInventory()->getHotbarSize()){
 					$pk->slot = $packet->slot + 36;
+					
+					$pk2 = new ContainerSetSlotPacket();//link hotbar in item
+					$pk2->windowid = ContainerSetContentPacket::SPECIAL_HOTBAR;
+					$pk2->slot = $packet->slot + 9;
+					$pk2->hotbarSlot = $packet->slot;
+					$pk2->item = $packet->item;
+					$this->player->handleDataPacket($pk2);
 				}else{
-					$pk->slot = $packet->slot + 18;
+					$pk->slot = $packet->slot;
 				}
 				return $pk;
 			break;
@@ -161,9 +189,6 @@ class InventoryUtils{
 	}
 
 	public function onWindowSetContent($packet){
-		//TODO: implement save hotbar
-		//TODO: implement save inventory
-
 		switch($packet->windowid){
 			case ContainerSetContentPacket::SPECIAL_INVENTORY:
 				$pk = new WindowItemsPacket();
@@ -187,10 +212,12 @@ class InventoryUtils{
 					$hotbar[] = $packet->slots[$hotbarslot];
 				}
 
+				$inventory = [];
 				for($i = 0; $i < $this->player->getInventory()->getSize(); $i++){
 					$hotbarslot = $i + $this->player->getInventory()->getHotbarSize();
 					if(!in_array($hotbarslot, $packet->hotbar)){
 						$pk->items[] = $packet->slots[$i];
+						$inventory[] = $packet->slots[$i];
 					}
 				}
 
@@ -199,6 +226,9 @@ class InventoryUtils{
 				}
 
 				$pk->items[] = Item::get(Item::AIR, 0, 0);//offhand
+
+				$this->playerInventorySlot = $inventory;
+				$this->playerHotbarSlot = $hotbar;
 
 				return $pk;
 			break;
@@ -214,7 +244,7 @@ class InventoryUtils{
 					$packets[] = $pk;
 				}
 
-				//TODO: implement save armor items
+				$this->playerArmorSlot = $packet->slots;
 				
 				return $packets;
 			break;
@@ -223,7 +253,15 @@ class InventoryUtils{
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowid])){
-					//var_dump($packet);
+					$pk = new WindowItemsPacket();
+					$pk->windowID = $packet->windowid;
+
+					$pk->items = $packet->slots;
+
+					$pk->items = $this->getInventory($pk->items);
+					$pk->items = $this->getHotbar($pk->items);
+
+					return $pk;
 				}
 
 				echo "[InventoryUtils] ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
@@ -238,7 +276,14 @@ class InventoryUtils{
 			case 0:
 				switch($packet->button){
 					case 0://Left mouse click
-
+						/*if($packet->item->getCount() % 2 === 0){
+							$item = clone $packet->item;
+							$item->setCount($item->getCount() / 2);
+							$item->setCount($item->getCount() / 2);
+						}else{
+							$item->setCount((($item->getCount() - 1) / 2) + 1);
+							//$item->getCount() / 2);
+						}*/
 					break;
 					case 1://Right mouse click
 
@@ -251,8 +296,6 @@ class InventoryUtils{
 			case 1:
 				switch($packet->button){
 					case 0://Shift + left mouse click
-
-					break;
 					case 1://Shift + right mouse click
 
 					break;
@@ -385,9 +428,11 @@ class InventoryUtils{
 			$pk = new DropItemPacket();
 			$pk->type = 0;
 			$pk->item = $packet->item;
+
 			return $pk;
 		}else{
 			$pk = new ContainerSetSlotPacket();
+			$pk->item = $packet->item;
 
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
 				$pk->windowid = ContainerSetContentPacket::SPECIAL_ARMOR;
@@ -395,20 +440,12 @@ class InventoryUtils{
 			}else{//Inventory
 				$pk->windowid = ContainerSetContentPacket::SPECIAL_INVENTORY;
 
-				//TODO
-
-				echo "[onCreativeInventoryAction] TODO\n";
-						
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
 					$pk->slot = $packet->slot - 36;
 				}else{
-					$pk->slot = $packet->slot + 9;
-					//TODO: hotbar slot in inventory slot
+					$pk->slot = $packet->slot;
 				}
 			}
-
-			$pk->hotbarSlot = 0;//unused
-			$pk->item = $packet->item;
 			return $pk;
 		}
 		return null;
@@ -440,28 +477,9 @@ class InventoryUtils{
 				$i = clone $item;
 			}
 
-			$packets = [];
-
-			if($slot >= 0 and $slot < $this->player->getInventory()->getHotbarSize()){
-				$pk = new SetSlotPacket();
-				$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-				$pk->slot = $slot + 36;
-				$pk->item = $i;
-
-				$packets[] = $pk;
-			}else{
-				$pk = new SetSlotPacket();
-				$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
-				$pk->slot = $slot + 18;
-				$pk->item = $i;
-
-				$packets[] = $pk;
-			}
-
 			$pk = new ContainerSetSlotPacket();
 			$pk->windowid = ContainerSetContentPacket::SPECIAL_INVENTORY;
 			$pk->slot = $slot;
-			$pk->hotbarSlot = 0;
 			$pk->item = $i;
 			$this->player->handleDataPacket($pk);
 
@@ -469,9 +487,8 @@ class InventoryUtils{
 			$pk->eid = $packet->eid;
 			$pk->target = $packet->target;
 			$pk->itemCount = $itemCount;
-			$packets[] = $pk;
 
-			return $packets;
+			return $pk;
 		}
 
 		return null;
