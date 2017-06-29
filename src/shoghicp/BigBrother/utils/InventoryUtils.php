@@ -132,6 +132,9 @@ class InventoryUtils{
 		}
 		$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $this->playerHeldItem); //TODO: Drop Packet
 
+		$this->playerCraftSlot = array_fill(0, 5, Item::get(Item::AIR));
+		$this->playerHeldItem = Item::get(Item::AIR);
+
 		if($isserver){
 			$pk = new CloseWindowPacket();
 			$pk->windowID = $packet->windowid;
