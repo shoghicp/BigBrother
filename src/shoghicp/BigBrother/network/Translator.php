@@ -1267,18 +1267,26 @@ class Translator{
 				return $packets;
 
 			case Info::MOB_EQUIPMENT_PACKET:
-				$packets = [];
-				$pk = new HeldItemChangePacket();
-				$pk->selectedSlot = $packet->hotbarSlot;
-				$packets[] = $pk;
+				if($packet->entityRuntimeId === $player->getId()){
+					$packets = [];
+
+					$pk = new HeldItemChangePacket();
+					$pk->selectedSlot = $packet->hotbarSlot;
+					$packets[] = $pk;
+				}
 
 				$pk = new EntityEquipmentPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->slot = 0;//main hand
 				$pk->item = $packet->item;
-				$packets[] = $pk;
 
-				return $packets;
+				if(count($packets) > 0){
+					$packets[] = $pk;
+					
+					return $packets;
+				}
+
+				return $pk;
 
 			case Info::MOB_ARMOR_EQUIPMENT_PACKET:
 				$packets = [];

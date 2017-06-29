@@ -44,6 +44,7 @@ class InventoryUtils{
 
 	];
 	private $playerHeldItem = null;
+	private $playerHeldItemSlot = -1;
 	private $playerCraftSlot = [];
 	private $playerArmorSlot = [];
 	private $playerInventorySlot = [];
