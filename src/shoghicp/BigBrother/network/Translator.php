@@ -1267,9 +1267,9 @@ class Translator{
 				return $packets;
 
 			case Info::MOB_EQUIPMENT_PACKET:
-				if($packet->entityRuntimeId === $player->getId()){
-					$packets = [];
+				$packets = [];
 
+				if($packet->entityRuntimeId === $player->getId()){
 					$pk = new HeldItemChangePacket();
 					$pk->selectedSlot = $packet->hotbarSlot;
 					$packets[] = $pk;
@@ -1282,7 +1282,7 @@ class Translator{
 
 				if(count($packets) > 0){
 					$packets[] = $pk;
-					
+
 					return $packets;
 				}
 
