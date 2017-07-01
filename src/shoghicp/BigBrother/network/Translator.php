@@ -447,7 +447,7 @@ class Translator{
 				}
 
 				$pk = new MobEquipmentPacket();
-				$pk->entityRuntimeId = 0;
+				$pk->entityRuntimeId = $player->getId();
 				$pk->item = $item;
 				$pk->inventorySlot = $slot + 9;
 				$pk->hotbarSlot = $packet->selectedSlot;
@@ -1551,14 +1551,16 @@ class Translator{
 					break;
 				}
 
-				if(isset($pk2) and count($pk->players) > 0){//php bug
+				if(isset($pk2)){
 					$packets[] = $pk2;
+				}
+
+				if(count($pk->players) > 0){
 					$packets[] = $pk;
-					return $packets;
-				}elseif(isset($pk2)){
-					return $pk2;
-				}elseif(count($pk->players) > 0){
-					return $pk;
+				}
+
+				if(count($packets) > 0){
+					return $packets;//TODO: Must check it
 				}
 
 				return null;

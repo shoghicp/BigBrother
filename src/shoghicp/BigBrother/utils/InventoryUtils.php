@@ -128,12 +128,20 @@ class InventoryUtils{
 	}
 
 	public function onWindowClose($isserver, $packet){
-		foreach($this->playerCraftSlot as $item){
-			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $item);//TODO: Drop Packet
-		}
-		$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $this->playerHeldItem); //TODO: Drop Packet
+		foreach($this->playerCraftSlot as $num => $item){
+			$pk = new DropItemPacket();
+			$pk->type = 0;
+			$pk->item = $item;
+			$this->player->handleDataPacket($pk);
 
-		$this->playerCraftSlot = array_fill(0, 5, Item::get(Item::AIR));
+			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
+		}
+
+		$pk = new DropItemPacket();
+		$pk->type = 0;
+		$pk->item = $this->playerHeldItem;
+		$this->player->handleDataPacket($pk);
+
 		$this->playerHeldItem = Item::get(Item::AIR);
 
 		if($isserver){
@@ -276,6 +284,8 @@ class InventoryUtils{
 	}
 
 	public function onWindowClick($packet){
+		$changeData = ["PE" => [], "PC" => []];
+
 		switch($packet->mode){
 			case 0:
 				switch($packet->button){
@@ -421,6 +431,8 @@ class InventoryUtils{
 				echo "[InventoryUtils] ClickWindowPacket: ".$packet->mode."\n";
 			break;
 		}
+
+		//$changeData
 
 		var_dump($packet);
 

@@ -143,6 +143,8 @@ class BigBrother extends PluginBase implements Listener{
 	 */
 	public function onRespawn(PlayerRespawnEvent $event){
 		$player = $event->getPlayer();
+		$player->sendPopup("§bhi");
+
 		if($player instanceof DesktopPlayer and $player->getHealth() === 0){
 			$pk = new RespawnPacket();
 			$pk->dimension = $player->bigBrother_getDimension();
@@ -182,9 +184,15 @@ class BigBrother extends PluginBase implements Listener{
 		}
 
 		$message = $source.$message;
-		$result = TextFormat::toJSON($message);
-		if(is_array($parameters)){
-			$result = json_decode($result, true);
+		$result = json_decode(TextFormat::toJSON($message), true);
+
+		if($type === 3 or $type === 4){//Just to be sure
+			if(isset($result["text"])){
+				$result["text"] = $message;
+			}
+		}
+
+		if(count($parameters) > 0){
 			unset($result["text"]);
 
 			$message = TextFormat::clean($message);
@@ -204,24 +212,21 @@ class BigBrother extends PluginBase implements Listener{
 			foreach($parameters as $num => $parameter){
 				$result["with"][$num] = [];
 
-				$parameter = TextFormat::clean($parameter);
 				if(strpos($parameter, "%") !== false){
 					$result["with"][$num]["translate"] = str_replace("%", "", $parameter);
 				}else{
 					$result["with"][$num]["text"] = $parameter;
 				}
 			}
-			$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		}
 
-		$result = json_decode($result, true);
 		if(isset($result["extra"])){
 			if(count($result["extra"]) === 0){
 				unset($result["extra"]);
 			}
 		}
-		$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 
+		$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		return $result;
 	}
 
