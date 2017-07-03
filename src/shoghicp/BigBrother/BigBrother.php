@@ -20,6 +20,7 @@ namespace shoghicp\BigBrother;
 use pocketmine\plugin\PluginBase;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\block\Block;
+use pocketmine\block\Chest;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\Listener;
@@ -168,6 +169,26 @@ class BigBrother extends PluginBase implements Listener{
 				$pk->y = $block->y;
 				$pk->z = $block->z;
 				$player->putRawPacket($pk);
+			}
+		}
+
+		if($block instanceof Chest){
+			$num_side_chest = 0;
+			for($i=2; $i<=5; ++$i){
+				if(($side_chest = $block->getSide($i))->getId() === $block->getId()){
+					++$num_side_chest;
+					for($j=2; $j<=5; ++$j){
+						// cancel block placement event if side chest is already large-chest
+						if($side_chest->getSide($j)->getId() === $side_chest->getId()){
+							$event->setCancelled();
+						}
+					}
+				}
+			}
+
+			// cancel if there are more than one chest that can be large-chest
+			if($num_side_chest > 1){
+				$event->setCancelled();
 			}
 		}
 	}
