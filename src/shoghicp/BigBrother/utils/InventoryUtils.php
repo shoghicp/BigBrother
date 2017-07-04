@@ -129,19 +129,11 @@ class InventoryUtils{
 
 	public function onWindowClose($isserver, $packet){
 		foreach($this->playerCraftSlot as $num => $item){
-			$pk = new DropItemPacket();
-			$pk->type = 0;
-			$pk->item = $item;
-			$this->player->handleDataPacket($pk);
-
+			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $item, $this->player->getDirectionVector()->multiply(0.4), 40);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
 		}
 
-		$pk = new DropItemPacket();
-		$pk->type = 0;
-		$pk->item = $this->playerHeldItem;
-		$this->player->handleDataPacket($pk);
-
+		$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $this->playerHeldItem, $this->player->getDirectionVector()->multiply(0.4), 40);
 		$this->playerHeldItem = Item::get(Item::AIR);
 
 		if($isserver){
@@ -181,6 +173,7 @@ class InventoryUtils{
 				}else{
 					$pk->slot = $packet->slot;
 				}
+
 				return $pk;
 			break;
 			case ContainerSetContentPacket::SPECIAL_ARMOR:
@@ -441,11 +434,16 @@ class InventoryUtils{
 
 	public function onCreativeInventoryAction($packet){
 		if($packet->slot === 65535){
-			$pk = new DropItemPacket();
-			$pk->type = 0;
-			$pk->item = $packet->item;
+			foreach($this->player->getInventory()->getContents() as $slot => $item){
+				if($item->equals($packet->item, true, true)){
+					$this->player->getInventory()->setItem($slot, Item::get(Item::AIR));
+					break;
+				}
+			}
 
-			return $pk;
+			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $packet->item, $this->player->getDirectionVector()->multiply(0.4), 40);
+
+			return null;
 		}else{
 			$pk = new ContainerSetSlotPacket();
 			$pk->item = $packet->item;

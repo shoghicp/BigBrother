@@ -174,10 +174,10 @@ class BigBrother extends PluginBase implements Listener{
 
 		if($block instanceof Chest){
 			$num_side_chest = 0;
-			for($i=2; $i<=5; ++$i){
+			for($i = 2; $i <= 5; ++$i){
 				if(($side_chest = $block->getSide($i))->getId() === $block->getId()){
 					++$num_side_chest;
-					for($j=2; $j<=5; ++$j){
+					for($j = 2; $j <= 5; ++$j){
 						// cancel block placement event if side chest is already large-chest
 						if($side_chest->getSide($j)->getId() === $side_chest->getId()){
 							$event->setCancelled();

@@ -39,6 +39,7 @@ use pocketmine\network\mcpe\protocol\MobEffectPacket;
 use pocketmine\network\mcpe\protocol\DropItemPacket;
 use pocketmine\network\mcpe\protocol\RemoveBlockPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
+use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\UUID;
@@ -358,10 +359,21 @@ class Translator{
 					break;
 					case 3:
 					case 4:
-						$pk = new DropItemPacket();
-						$pk->item = $player->getInventory()->getItemInHand();
-						if($packet->status === 4) $pk->item->count = 1;
-						return $pk;
+						if($packet->status === 4){
+							$item = clone $player->getInventory()->getItemInHand();
+							$item->setCount($item->getCount() - 1);
+
+							$dropItem = clone $player->getInventory()->getItemInHand();
+							$dropItem->setCount(1);
+						}else{
+							$item = Item::get(Item::AIR);
+							$dropItem = clone $player->getInventory()->getItemInHand();
+						}
+
+						$player->getInventory()->setItem($player->getInventory()->getHeldItemSlot(), $item);
+						$player->getLevel()->dropItem($player->add(0, 1.3, 0), $dropItem, $player->getDirectionVector()->multiply(0.4), 40);
+
+						return null;
 					break;
 					case 5:
 						$item = $player->getInventory()->getItemInHand();
