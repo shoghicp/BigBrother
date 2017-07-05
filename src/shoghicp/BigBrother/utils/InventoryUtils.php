@@ -17,7 +17,6 @@
 
 namespace shoghicp\BigBrother\utils;
 
-use pocketmine\network\mcpe\protocol\DropItemPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
 use pocketmine\network\mcpe\protocol\ContainerSetContentPacket;
