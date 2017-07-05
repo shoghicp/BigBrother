@@ -278,6 +278,9 @@ class InventoryUtils{
 	public function onWindowClick($packet){
 		$changeData = ["PE" => [], "PC" => []];
 
+		//$item = ;
+		//$heldItem = ;
+
 		switch($packet->mode){
 			case 0:
 				switch($packet->button){
@@ -424,7 +427,13 @@ class InventoryUtils{
 			break;
 		}
 
-		//$changeData
+		foreach($changeData["PE"] as $slotdata){
+			# code...
+		}
+
+		foreach($changeData["PC"] as $slotdata){
+			# code...
+		}
 
 		var_dump($packet);
 

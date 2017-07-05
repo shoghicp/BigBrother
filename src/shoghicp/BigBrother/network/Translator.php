@@ -359,14 +359,14 @@ class Translator{
 					case 3:
 					case 4:
 						if($packet->status === 4){
-							$item = clone $player->getInventory()->getItemInHand();
+							$item = $player->getInventory()->getItemInHand();
 							$item->setCount($item->getCount() - 1);
 
-							$dropItem = clone $player->getInventory()->getItemInHand();
+							$dropItem = $player->getInventory()->getItemInHand();
 							$dropItem->setCount(1);
 						}else{
 							$item = Item::get(Item::AIR);
-							$dropItem = clone $player->getInventory()->getItemInHand();
+							$dropItem = $player->getInventory()->getItemInHand();
 						}
 
 						$player->getInventory()->setItem($player->getInventory()->getHeldItemSlot(), $item);
