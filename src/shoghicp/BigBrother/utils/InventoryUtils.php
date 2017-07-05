@@ -427,6 +427,13 @@ class InventoryUtils{
 			break;
 		}
 
+		if($packet->windowid === 0){
+			if($packet->slot >= 1 and $packet->slot){
+
+			}
+			$this->onCraft();
+		}
+
 		foreach($changeData["PE"] as $slotdata){
 			# code...
 		}

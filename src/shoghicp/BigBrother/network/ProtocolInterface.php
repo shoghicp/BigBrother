@@ -90,7 +90,7 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	public function shutdown(){
-        $this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
+		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
 	public function setName(string $name){
@@ -100,7 +100,7 @@ class ProtocolInterface implements SourceInterface{
 			"OnlinePlayers" => $info->getPlayerCount(),
 		];
 		$buffer = chr(ServerManager::PACKET_SET_OPTION).chr(strlen("name"))."name".json_encode($value);
-        $this->thread->pushMainToThreadPacket($buffer);
+		$this->thread->pushMainToThreadPacket($buffer);
 	}
 
 	public function closeSession($identifier){

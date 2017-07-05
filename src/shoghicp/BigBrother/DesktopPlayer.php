@@ -37,6 +37,7 @@ use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginSuccessPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\TitlePacket;
@@ -185,21 +186,26 @@ class DesktopPlayer extends Player{
 			$this->level->registerChunkLoader($this, $X, $Z, false);
 
 			if(!$this->level->populateChunk($X, $Z)){
-				if($this->spawned and $this->teleportPosition === null){
-					continue;
-				}else{
-					break;
-				}
+				continue;
 			}
 
 			unset($this->loadQueue[$index]);
 			$this->bigBrother_sendChunk($X, $Z);
 		}
 
-		if($this->chunkLoadCount >= $this->spawnThreshold and $this->spawned === false and $this->teleportPosition === null){
+		if($this->chunkLoadCount >= $this->spawnThreshold and $this->spawned === false){
 			$this->plugin->getServer()->sendFullPlayerListData($this);//PlayerList
 
 			$this->doFirstSpawn();
+
+			$pk = new PlayerPositionAndLookPacket();
+			$pk->x = $this->x;
+			$pk->y = $this->y;
+			$pk->z = $this->z;
+			$pk->yaw = 0;
+			$pk->pitch = 0;
+			$pk->flags = 0;
+			$this->putRawPacket($pk);//for loading screen
 		}
 
 		Timings::$playerChunkSendTimer->stopTiming();
