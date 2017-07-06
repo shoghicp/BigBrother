@@ -369,7 +369,7 @@ class Translator{
 							$dropItem = $player->getInventory()->getItemInHand();
 						}
 
-						$player->getInventory()->setItem($player->getInventory()->getHeldItemSlot(), $item);
+						$player->getInventory()->setItemInHand($item);
 						$player->getLevel()->dropItem($player->add(0, 1.3, 0), $dropItem, $player->getDirectionVector()->multiply(0.4), 40);
 
 						return null;
@@ -1313,7 +1313,7 @@ class Translator{
 				foreach($packet->slots as $num => $item){
 					$pk = new EntityEquipmentPacket();
 					$pk->eid = $packet->entityRuntimeId;
-					$pk->slot = $num + 2;
+					$pk->slot = 2 + 3 - $num;
 					$pk->item = $item;
 					$packets[] = $pk;
 				}
