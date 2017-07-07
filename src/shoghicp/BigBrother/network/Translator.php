@@ -5,7 +5,7 @@
  * |   __ <|  ||  _  ||   __ <|   _||  _  ||   _||     ||  -__||   _|
  * |______/|__||___  ||______/|__|  |_____||____||__|__||_____||__|
  *             |_____|
- *                                                                              
+ *
  * BigBrother plugin for PocketMine-MP
  * Copyright (C) 2014-2015 shoghicp <https://github.com/shoghicp/BigBrother>
  * Copyright (C) 2016- BigBrotherTeam
@@ -307,7 +307,7 @@ class Translator{
 				$pk->bodyYaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				return $pk;
-			
+
 			case 0x13: //PlayerAbilitiesPacket
 				$player->setSetting(["isFlying" => $packet->isFlying]);
 				return null;
@@ -899,7 +899,7 @@ class Translator{
 					$pk->pitch = $packet->pitch;
 					$pk->metadata = $packet->metadata;
 				}
-				
+
 				$packets[] = $pk;
 
 				$pk = new EntityTeleportPacket();
@@ -910,7 +910,7 @@ class Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
-				
+
 				return $packets;
 
 			case Info::REMOVE_ENTITY_PACKET:
@@ -955,7 +955,7 @@ class Translator{
 				$packet->eid = $packet->getEntityRuntimeId(); //blame pmmp :(
 
 				$pk = $player->getInventoryUtils()->onTakeItemEntity($packet);
-				
+
 				return $pk;
 
 			case Info::MOVE_ENTITY_PACKET:
@@ -1203,7 +1203,7 @@ class Translator{
 						echo "MobEffectPacket: ".$packet->eventId."\n";
 					break;
 				}
-				
+
 				return null;
 
 			case Info::UPDATE_ATTRIBUTES_PACKET:
@@ -1358,7 +1358,7 @@ class Translator{
 						$pk->bedX = $bedXYZ[0];
 						$pk->bedY = $bedXYZ[1];
 						$pk->bedZ = $bedXYZ[2];
-						
+
 						$packets[] = $pk;
 					}
 				}
@@ -1415,7 +1415,7 @@ class Translator{
 					default:
 						echo "AnimatePacket: ".$packet->actionID."\n";
 					break;
-				}	
+				}
 				return null;
 
 			case Info::CONTAINER_OPEN_PACKET:
@@ -1467,7 +1467,7 @@ class Translator{
 						return null;
 					break;
 				}
-				
+
 				return $pk;
 
 			case Info::SET_DIFFICULTY_PACKET:
@@ -1532,7 +1532,7 @@ class Translator{
 									"textures" => [
 										"SKIN" => [
 											//TODO
-										] 
+										]
 									]
 								];
 
@@ -1548,7 +1548,7 @@ class Translator{
 								$entry[0]->toBinary(),
 								TextFormat::clean($entry[2]),
 								$peroperties,
-								0,//TODO: Gamemode 
+								0,//TODO: Gamemode
 								0,
 								true,
 								BigBrother::toJSON($entry[2])

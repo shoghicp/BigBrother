@@ -5,7 +5,7 @@
  * |   __ <|  ||  _  ||   __ <|   _||  _  ||   _||     ||  -__||   _|
  * |______/|__||___  ||______/|__|  |_____||____||__|__||_____||__|
  *             |_____|
- *                                                                              
+ *
  * BigBrother plugin for PocketMine-MP
  * Copyright (C) 2014-2015 shoghicp <https://github.com/shoghicp/BigBrother>
  * Copyright (C) 2016- BigBrotherTeam
@@ -49,7 +49,7 @@ class InventoryUtils{
 	private $windowInfo = [];
 	private $craftInfoData = [];
 	private $windowData = [
-		//0 => 
+		//0 =>
 
 	];
 	private $playerHeldItem = null;
@@ -172,7 +172,7 @@ class InventoryUtils{
 
 				if($packet->slot >= 0 and $packet->slot < $this->player->getInventory()->getHotbarSize()){
 					$pk->slot = $packet->slot + 36;
-					
+
 					$pk2 = new ContainerSetSlotPacket();//link hotbar in item
 					$pk2->windowid = ContainerSetContentPacket::SPECIAL_HOTBAR;
 					$pk2->slot = $packet->slot + 9;
@@ -259,7 +259,7 @@ class InventoryUtils{
 				}
 
 				$this->playerArmorSlot = $packet->slots;
-				
+
 				return $packets;
 			break;
 			case ContainerSetContentPacket::SPECIAL_CREATIVE:
@@ -380,7 +380,7 @@ class InventoryUtils{
 						if($packet->slot !== -999){//Ctrl + Drop key
 
 						}else{//Right click outside inventory holding nothing
-									
+
 						}
 					break;
 					default:

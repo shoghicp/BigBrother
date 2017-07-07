@@ -5,7 +5,7 @@
  * |   __ <|  ||  _  ||   __ <|   _||  _  ||   _||     ||  -__||   _|
  * |______/|__||___  ||______/|__|  |_____||____||__|__||_____||__|
  *             |_____|
- *                                                                              
+ *
  * BigBrother plugin for PocketMine-MP
  * Copyright (C) 2014-2015 shoghicp <https://github.com/shoghicp/BigBrother>
  * Copyright (C) 2016- BigBrotherTeam
@@ -98,7 +98,7 @@ class BigBrother extends PluginBase implements Listener{
 				$this->rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
 				$this->rsa->loadKey($this->privateKey);
 			}
-			
+
 			$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".MCInfo::VERSION);
 
 			$disable = true;

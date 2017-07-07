@@ -5,7 +5,7 @@
  * |   __ <|  ||  _  ||   __ <|   _||  _  ||   _||     ||  -__||   _|
  * |______/|__||___  ||______/|__|  |_____||____||__|__||_____||__|
  *             |_____|
- *                                                                              
+ *
  * BigBrother plugin for PocketMine-MP
  * Copyright (C) 2014-2015 shoghicp <https://github.com/shoghicp/BigBrother>
  * Copyright (C) 2016- BigBrotherTeam
@@ -139,7 +139,7 @@ class ProtocolInterface implements SourceInterface{
 				echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
 			}
 		}
-		
+
 		$data = chr(ServerManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . $packet->write();
 		$this->thread->pushMainToThreadPacket($data);
 	}
