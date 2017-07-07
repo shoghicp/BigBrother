@@ -1,0 +1,8 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+*.php text eol=lf
+*.yml text eol=lf
+*.png binary
+
+resources/steve.yml binary
+resources/alex.yml binary
