@@ -441,7 +441,7 @@ class InventoryUtils{
 			break;
 		}
 
-		if($packet->windowid === 0){
+		if($packet->windowID === 0){
 			if($packet->slot >= 1 and $packet->slot){
 
 			}
