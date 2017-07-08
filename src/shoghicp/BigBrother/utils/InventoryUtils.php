@@ -71,6 +71,10 @@ class InventoryUtils{
 
 	/* easy call function */
 
+	public function dropItemNaturally(Item $item){
+			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $item, $this->player->getDirectionVector()->multiply(0.4), 40);
+	}
+
 	public function getInventory(array $items){
 		foreach($this->playerInventorySlot as $item){
 			$items[] = $item;
@@ -138,11 +142,11 @@ class InventoryUtils{
 
 	public function onWindowClose($isserver, $packet){
 		foreach($this->playerCraftSlot as $num => $item){
-			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $item, $this->player->getDirectionVector()->multiply(0.4), 40);
+			$this->dropItemNaturally($item);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
 		}
 
-		$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $this->playerHeldItem, $this->player->getDirectionVector()->multiply(0.4), 40);
+		$this->dropItemNaturally($this->playerHeldItem);
 		$this->playerHeldItem = Item::get(Item::AIR);
 
 		if($isserver){
@@ -466,7 +470,8 @@ class InventoryUtils{
 				}
 			}
 
-			$this->player->getLevel()->dropItem($this->player->add(0, 1.3, 0), $packet->item, $this->player->getDirectionVector()->multiply(0.4), 40);
+			// TODO check if item in the packet is not illegal
+			$this->dropItemNaturally($packet->item);
 
 			return null;
 		}else{
