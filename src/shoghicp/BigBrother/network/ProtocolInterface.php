@@ -103,7 +103,7 @@ class ProtocolInterface implements SourceInterface{
 		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
-	public function setName(string $name){
+	public function setName($name){
 		$info = $this->plugin->getServer()->getQueryInformation();
 		$value = [
 			"MaxPlayers" => $info->getMaxPlayerCount(),
