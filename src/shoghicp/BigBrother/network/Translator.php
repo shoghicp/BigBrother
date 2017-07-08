@@ -380,7 +380,7 @@ class Translator{
 						}
 
 						$player->getInventory()->setItemInHand($item);
-						$player->getInventoryUtils()->dropItemNaturally($dropItem);
+						$player->dropItemNaturally($dropItem);
 
 						return null;
 					break;

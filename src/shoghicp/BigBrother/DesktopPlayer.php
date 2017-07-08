@@ -83,6 +83,10 @@ class DesktopPlayer extends Player{
 		return $this->inventoryutils;
 	}
 
+	public function dropItemNaturally($item){
+		$this->getLevel()->dropItem($this->add(0, 1.3, 0), $item, $this->getDirectionVector()->multiply(0.4), 40);
+	}
+
 	public function bigBrother_getDimension(){
 		return $this->bigBrother_dimension;
 	}
