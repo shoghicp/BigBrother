@@ -179,8 +179,11 @@ class InventoryUtils{
 					$pk2->hotbarSlot = $packet->slot;
 					$pk2->item = $packet->item;
 					$this->player->handleDataPacket($pk2);
-				}else{
+				}elseif($packet->slot >= $this->player->getInventory()->getHotbarSize() and $packet->slot < $this->player->getInventory()->getSize()){
 					$pk->slot = $packet->slot;
+				}elseif($packet->slot >= $this->player->getInventory()->getSize() and $packet->slot < $this->player->getInventory()->getSize() + 4){
+					// ignore this packet (this packet is not needed because this is duplicated packet)
+					$pk = null;
 				}
 
 				return $pk;
