@@ -115,7 +115,7 @@ class InventoryUtils{
 			break;
 		}
 
-		$slots = 9;
+		$slots = 0;
 		if(($tile = $this->player->getLevel()->getTile(new Vector3($packet->x, $packet->y, $packet->z))) instanceof Tile){
 			if($tile instanceof TileEnderChest){
 				$slots = $this->player->getEnderChestInventory()->getSize();
