@@ -109,7 +109,7 @@ class InventoryUtils{
 
 				$pk = new ContainerClosePacket();
 				$pk->windowid = $packet->windowid;
-				$player->handleDataPacket($pk);
+				$this->player->handleDataPacket($pk);
 
 				return null;
 			break;
