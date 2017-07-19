@@ -29,7 +29,7 @@ namespace shoghicp\BigBrother\utils;
 
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
-use pocketmine\network\mcpe\protocol\ContainerSetContentPacket;
+use pocketmine\network\mcpe\protocol\types\ContainerIds;
 
 use pocketmine\entity\Item as ItemEntity;
 use pocketmine\math\Vector3;
@@ -151,7 +151,7 @@ class InventoryUtils{
 
 			unset($this->windowInfo[$packet->windowid]);
 		}else{
-			if($packet->windowID !== ContainerSetContentPacket::SPECIAL_INVENTORY){//Player Inventory
+			if($packet->windowID !== ContainerIds::INVENTORY){//Player Inventory
 				$pk = new ContainerClosePacket();
 				$pk->windowid = $packet->windowID;
 			}else{
@@ -167,14 +167,14 @@ class InventoryUtils{
 		$pk->windowID = $packet->windowid;
 
 		switch($packet->windowid){
-			case ContainerSetContentPacket::SPECIAL_INVENTORY:
+			case ContainerIds::INVENTORY:
 				$pk->item = $packet->item;
 
 				if($packet->slot >= 0 and $packet->slot < $this->player->getInventory()->getHotbarSize()){
 					$pk->slot = $packet->slot + 36;
 
 					$pk2 = new ContainerSetSlotPacket();//link hotbar in item
-					$pk2->windowid = ContainerSetContentPacket::SPECIAL_HOTBAR;
+					$pk2->windowid = ContainerIds::HOTBAR;
 					$pk2->slot = $packet->slot + 9;
 					$pk2->hotbarSlot = $packet->slot;
 					$pk2->item = $packet->item;
@@ -188,15 +188,15 @@ class InventoryUtils{
 
 				return $pk;
 			break;
-			case ContainerSetContentPacket::SPECIAL_ARMOR:
-				$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+			case ContainerIds::ARMOR:
+				$pk->windowID = ContainerIds::INVENTORY;
 				$pk->item = $packet->item;
 				$pk->slot = $packet->slot + 5;
 
 				return $pk;
 			break;
-			case ContainerSetContentPacket::SPECIAL_CREATIVE:
-			case ContainerSetContentPacket::SPECIAL_HOTBAR:
+			case ContainerIds::CREATIVE:
+			case ContainerIds::HOTBAR:
 			break;
 			default:
 				echo "[InventoryUtils] ContainerSetSlotPacket: 0x".bin2hex(chr($packet->windowid))."\n";
@@ -207,7 +207,7 @@ class InventoryUtils{
 
 	public function onWindowSetContent($packet){
 		switch($packet->windowid){
-			case ContainerSetContentPacket::SPECIAL_INVENTORY:
+			case ContainerIds::INVENTORY:
 				$pk = new WindowItemsPacket();
 				$pk->windowID = $packet->windowid;
 
@@ -249,12 +249,12 @@ class InventoryUtils{
 
 				return $pk;
 			break;
-			case ContainerSetContentPacket::SPECIAL_ARMOR:
+			case ContainerIds::ARMOR:
 				$packets = [];
 
 				foreach($packet->slots as $slot => $item){
 					$pk = new SetSlotPacket();
-					$pk->windowID = ContainerSetContentPacket::SPECIAL_INVENTORY;
+					$pk->windowID = ContainerIds::INVENTORY;
 					$pk->item = $item;
 					$pk->slot = $slot + 5;
 
@@ -265,8 +265,8 @@ class InventoryUtils{
 
 				return $packets;
 			break;
-			case ContainerSetContentPacket::SPECIAL_CREATIVE:
-			case ContainerSetContentPacket::SPECIAL_HOTBAR:
+			case ContainerIds::CREATIVE:
+			case ContainerIds::HOTBAR:
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowid])){
@@ -478,10 +478,10 @@ class InventoryUtils{
 			$pk->item = $packet->item;
 
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
-				$pk->windowid = ContainerSetContentPacket::SPECIAL_ARMOR;
+				$pk->windowid = ContainerIds::ARMOR;
 				$pk->slot = $packet->slot - 5;
 			}else{//Inventory
-				$pk->windowid = ContainerSetContentPacket::SPECIAL_INVENTORY;
+				$pk->windowid = ContainerIds::INVENTORY;
 
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
 					$pk->slot = $packet->slot - 36;
@@ -521,7 +521,7 @@ class InventoryUtils{
 			}
 
 			$pk = new ContainerSetSlotPacket();
-			$pk->windowid = ContainerSetContentPacket::SPECIAL_INVENTORY;
+			$pk->windowid = ContainerIds::INVENTORY;
 			$pk->slot = $slot;
 			$pk->item = $i;
 			$this->player->handleDataPacket($pk);
