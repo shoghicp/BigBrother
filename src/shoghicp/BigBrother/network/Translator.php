@@ -33,6 +33,7 @@ use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -49,7 +50,6 @@ use pocketmine\network\mcpe\protocol\MobEffectPacket;
 use pocketmine\network\mcpe\protocol\RemoveBlockPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
-use pocketmine\utils\BinaryStream;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
@@ -1648,22 +1648,9 @@ class Translator{
 			case 0xfe: //Info::BATCH_PACKET
 				$packets = [];
 
-				try{//Just to be sure
-					$str = \zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
-				}catch(\ErrorException $e){
-					return null;
-				}
-
-				$len = strlen($str);
-
-				if($len === 0){
-					throw new \InvalidStateException("Decoded BatchPacket payload is empty");
-				}
-
-				$stream = new BinaryStream($str);
-				while($stream->offset < $len){
-					$buf = $stream->getString();
-					if(($pk = $player->getServer()->getNetwork()->getPacket(ord($buf{0}))) !== null){
+				$packet->decode();
+				foreach($packet->getPackets() as $buf){
+					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){
 						if($pk::NETWORK_ID === 0xfe){
 							throw new \InvalidStateException("Invalid BatchPacket inside BatchPacket");
 						}
@@ -1673,13 +1660,7 @@ class Translator{
 					$pk->decode();
 
 					if(($desktop = $this->serverToInterface($player, $pk)) !== null){
-						if(is_array($desktop)){
-							foreach($desktop as $desktoppk){
-								$packets[] = $desktoppk;
-							}
-						}else{
-							$packets[] = $desktop;
-						}
+						array_push($packets, $desktop);
 					}
 				}
 
