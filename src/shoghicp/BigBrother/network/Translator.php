@@ -1660,7 +1660,11 @@ class Translator{
 					$pk->decode();
 
 					if(($desktop = $this->serverToInterface($player, $pk)) !== null){
-						array_push($packets, $desktop);
+						if(is_array($desktop)){
+							$packets = array_merge($packets, $desktop);
+						}else{
+							$packets[] = $desktop;
+						}
 					}
 				}
 
