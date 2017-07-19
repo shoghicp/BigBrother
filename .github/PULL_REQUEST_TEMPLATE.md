@@ -9,4 +9,4 @@
 ### Follow-up
 
 
-<!--- Thank you for sendting pull-request! -->
+<!--- Thank you for sending pull-request! -->
