@@ -430,7 +430,7 @@ class DesktopPlayer extends Player{
 		$timings->startTiming();
 
 		$this->getServer()->getPluginManager()->callEvent($ev = new DataPacketReceiveEvent($this, $packet));
-		if(!$ev->isCancelled() and !$packet->handle($this)){
+		if(!$ev->isCancelled() and !$packet->handle($this->sessionAdapter)){
 			$this->getServer()->getLogger()->debug("Unhandled " . $packet->getName() . " received from " . $this->getName() . ": 0x" . bin2hex($packet->buffer));
 		}
 
