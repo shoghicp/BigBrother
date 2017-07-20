@@ -503,42 +503,30 @@ class ConvertUtils{
 	}
 
 	/*
-	* $iscomputer = true is PE => PC
-	* $iscomputer = false is PC => PE
-	*/
+	 * $iscomputer = true is PE => PC
+	 * $iscomputer = false is PC => PE
+	 */
 	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
 		self::$timingConvertBlock->startTiming();
 
 		if($iscomputer){
-			foreach(self::$idlist as $convertblockdata){
-				if($convertblockdata[0][0] === $blockid){
-					if($convertblockdata[0][1] === -1){
-						$blockid = $convertblockdata[1][0];
-						if($convertblockdata[1][1] !== -1){
-							$blockdata = $convertblockdata[1][1];
-						}
-						break;
-					}elseif($convertblockdata[0][1] === $blockdata){
-						$blockid = $convertblockdata[1][0];
-						$blockdata = $convertblockdata[1][1];
-						break;
-					}
-				}
-			}
+			$src = 0; $dst = 1;
 		}else{
-			foreach(self::$idlist as $convertblockdata){
-				if($convertblockdata[1][0] === $blockid){
-					if($convertblockdata[1][1] === -1){
-						$blockid = $convertblockdata[0][0];
-						if($convertblockdata[0][1] !== -1){
-							$blockdata = $convertblockdata[0][1];
-						}
-						break;
-					}elseif($convertblockdata[1][1] === $blockdata){
-						$blockid = $convertblockdata[0][0];
-						$blockdata = $convertblockdata[0][1];
-						break;
+			$src = 1; $dst = 0;
+		}
+
+		foreach(self::$idlist as $convertblockdata){
+			if($convertblockdata[$src][0] === $blockid){
+				if($convertblockdata[$src][1] === -1){
+					$blockid = $convertblockdata[$dst][0];
+					if($convertblockdata[$dst][1] !== -1){
+						$blockdata = $convertblockdata[$dst][1];
 					}
+					break;
+				}elseif($convertblockdata[$src][1] === $blockdata){
+					$blockid = $convertblockdata[$dst][0];
+					$blockdata = $convertblockdata[$dst][1];
+					break;
 				}
 			}
 		}
