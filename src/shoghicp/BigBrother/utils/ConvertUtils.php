@@ -78,6 +78,12 @@ class ConvertUtils{
 		[
 			[445, 0], [450, 0] //Shulker Shell
 		],
+		[
+			[125, -1], [158, -1] //Dropper
+		],
+		[
+			[410, -1], [154, -1] //Hopper
+		],
 		//******** Tipped Arrows *******//
 		/*[
 			[262, -1], [440, -1] //TODO: Fix that
