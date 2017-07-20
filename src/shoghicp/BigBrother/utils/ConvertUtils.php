@@ -352,9 +352,9 @@ class ConvertUtils{
 	}
 
 	/*
-	* $iscomputer = true is PE => PC
-	* $iscomputer = false is PC => PE
-	*/
+	 * $iscomputer = true is PE => PC
+	 * $iscomputer = false is PC => PE
+	 */
 	public static function convertNBTData($iscomputer, &$nbt, $convert = false){
 		if($iscomputer){
 			$stream = new BinaryStream();
@@ -458,61 +458,44 @@ class ConvertUtils{
 	}
 
 	/*
-	* $iscomputer = true is PE => PC
-	* $iscomputer = false is PC => PE
-	*/
+	 * $iscomputer = true is PE => PC
+	 * $iscomputer = false is PC => PE
+	 */
 	public static function convertItemData($iscomputer, &$item){
 		self::$timingConvertItem->startTiming();
 
-		if($iscomputer){
-			$itemid = $item->getId();
-			$itemdamage = $item->getDamage();
-			$itemcount = $item->getCount();
-			$itemnbt = $item->getCompoundTag();
+		$itemid = $item->getId();
+		$itemdamage = $item->getDamage();
+		$itemcount = $item->getCount();
+		$itemnbt = $item->getCompoundTag();
 
-			foreach(self::$idlist as $convertitemdata){
-				if($convertitemdata[0][0] === $item->getId()){
-					if($convertitemdata[0][1] === -1){
-						$itemid = $convertitemdata[1][0];
-						if($convertitemdata[1][1] !== -1){
-							$itemdamage = $convertitemdata[1][1];
-						}else{
-							$itemdamage = $item->getDamage();
-						}
-						break;
-					}elseif($convertitemdata[0][1] === $item->getDamage()){
-						$itemid = $convertitemdata[1][0];
-						$itemdamage = $convertitemdata[1][1];
-						break;
+		if($iscomputer){
+			$src = 0; $dst = 1;
+		}else{
+			$src = 1; $dst = 0;
+		}
+
+		foreach(self::$idlist as $convertitemdata){
+			if($convertitemdata[$src][0] === $item->getId()){
+				if($convertitemdata[$src][1] === -1){
+					$itemid = $convertitemdata[$dst][0];
+					if($convertitemdata[$dst][1] === -1){
+						$itemdamage = $item->getDamage();
+					}else{
+						$itemdamage = $convertitemdata[$dst][1];
 					}
+					break;
+				}elseif($convertitemdata[$src][1] === $item->getDamage()){
+					$itemid = $convertitemdata[$dst][0];
+					$itemdamage = $convertitemdata[$dst][1];
+					break;
 				}
 			}
+		}
 
+		if($iscomputer){
 			$item = new ComputerItem($itemid, $itemdamage, $itemcount, $itemnbt);
 		}else{
-			$itemid = $item->getId();
-			$itemdamage = $item->getDamage();
-			$itemcount = $item->getCount();
-			$itemnbt = $item->getCompoundTag();
-
-			foreach(self::$idlist as $convertitemdata){
-				if($convertitemdata[1][0] === $item->getId()){
-					if($convertitemdata[1][1] === -1){
-						$itemid = $convertitemdata[0][0];
-						if($convertitemdata[0][1] !== -1){
-							$itemdamage = $convertitemdata[0][1];
-						}else{
-							$itemdamage = $item->getDamage();
-						}
-						break;
-					}elseif($convertitemdata[1][1] === $item->getDamage()){
-						$itemid = $convertitemdata[0][0];
-						$itemdamage = $convertitemdata[0][1];
-						break;
-					}
-				}
-			}
-
 			$item = Item::get($itemid, $itemdamage, $itemcount, $itemnbt);
 		}
 
