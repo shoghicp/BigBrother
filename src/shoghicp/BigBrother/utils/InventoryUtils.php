@@ -36,6 +36,7 @@ use pocketmine\math\Vector3;
 use pocketmine\tile\Tile;
 use pocketmine\tile\EnderChest as TileEnderChest;
 use pocketmine\item\Item;
+use pocketmine\inventory\InventoryHolder;
 
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\network\protocol\Play\OpenWindowPacket;
@@ -104,6 +105,14 @@ class InventoryUtils{
 				$type = "minecraft:furnace";
 				$title = "Furnace";
 			break;
+			case 3:
+				$type = "minecraft:enchanting_table";
+				$title = "Enchant";
+			break;
+			case 5:
+				$type = "minecraft:anvil";
+				$title = "Anvil";
+			break;
 			default://TODO: http://wiki.vg/Inventory#Windows
 				echo "[InventoryUtils] ContainerOpenPacket: ".$packet->type."\n";
 
@@ -120,7 +129,7 @@ class InventoryUtils{
 			if($tile instanceof TileEnderChest){
 				$slots = $this->player->getEnderChestInventory()->getSize();
 				$title = "Ender Chest";
-			}else{
+			}elseif($tile instanceof InventoryHolder){
 				$slots = $tile->getInventory()->getSize();
 			}
 		}
