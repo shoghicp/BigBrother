@@ -346,6 +346,14 @@ class ConvertUtils{
 		*/
 	];
 
+	/*
+	 * Complicated Block Id Conversion methods
+	 */
+	private static $idmappers = [
+		96  => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
+		167 => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
+	];
+
 	public static function init(){
 		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
 		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
@@ -475,20 +483,25 @@ class ConvertUtils{
 			$src = 1; $dst = 0;
 		}
 
-		foreach(self::$idlist as $convertitemdata){
-			if($convertitemdata[$src][0] === $item->getId()){
-				if($convertitemdata[$src][1] === -1){
-					$itemid = $convertitemdata[$dst][0];
-					if($convertitemdata[$dst][1] === -1){
-						$itemdamage = $item->getDamage();
-					}else{
+		$idmapper = self::$idmappers[$itemid] ?? null;
+		if($idmapper !== null and is_callable($idmapper)){
+			$idmapper($itemid, $itemdamage, $iscomputer, false);
+		}else{
+			foreach(self::$idlist as $convertitemdata){
+				if($convertitemdata[$src][0] === $item->getId()){
+					if($convertitemdata[$src][1] === -1){
+						$itemid = $convertitemdata[$dst][0];
+						if($convertitemdata[$dst][1] === -1){
+							$itemdamage = $item->getDamage();
+						}else{
+							$itemdamage = $convertitemdata[$dst][1];
+						}
+						break;
+					}elseif($convertitemdata[$src][1] === $item->getDamage()){
+						$itemid = $convertitemdata[$dst][0];
 						$itemdamage = $convertitemdata[$dst][1];
+						break;
 					}
-					break;
-				}elseif($convertitemdata[$src][1] === $item->getDamage()){
-					$itemid = $convertitemdata[$dst][0];
-					$itemdamage = $convertitemdata[$dst][1];
-					break;
 				}
 			}
 		}
@@ -515,18 +528,23 @@ class ConvertUtils{
 			$src = 1; $dst = 0;
 		}
 
-		foreach(self::$idlist as $convertblockdata){
-			if($convertblockdata[$src][0] === $blockid){
-				if($convertblockdata[$src][1] === -1){
-					$blockid = $convertblockdata[$dst][0];
-					if($convertblockdata[$dst][1] !== -1){
+		$idmapper = self::$idmappers[$blockid] ?? null;
+		if($idmapper !== null and is_callable($idmapper)){
+			$idmapper($blockid, $blockdata, $iscomputer, true);
+		}else{
+			foreach(self::$idlist as $convertblockdata){
+				if($convertblockdata[$src][0] === $blockid){
+					if($convertblockdata[$src][1] === -1){
+						$blockid = $convertblockdata[$dst][0];
+						if($convertblockdata[$dst][1] !== -1){
+							$blockdata = $convertblockdata[$dst][1];
+						}
+						break;
+					}elseif($convertblockdata[$src][1] === $blockdata){
+						$blockid = $convertblockdata[$dst][0];
 						$blockdata = $convertblockdata[$dst][1];
+						break;
 					}
-					break;
-				}elseif($convertblockdata[$src][1] === $blockdata){
-					$blockid = $convertblockdata[$dst][0];
-					$blockdata = $convertblockdata[$dst][1];
-					break;
 				}
 			}
 		}
@@ -595,6 +613,31 @@ class ConvertUtils{
 		return $newdata;
 	}
 
+	/*
+	 * Blame Mojang!! :-@
+	 * Why Mojang change the order of flag bits?
+	 * Why Mojang change the directions??
+	 *
+	 * #blamemojang
+	 */
+	private static function convertTrapdoor(int &$id, int &$meta, bool $iscomputer, bool $isblock) {
+		if($isblock){
+			//swap bits
+			$meta ^= (($meta & 0x04) << 1);
+			$meta ^= (($meta & 0x08) >> 1);
+			$meta ^= (($meta & 0x04) << 1);
+
+			//swap directions
+			$directions = [
+				0 => 3,
+				1 => 2,
+				2 => 1,
+				3 => 0
+			];
+
+			$meta = (($meta >> 2) << 2) | $directions[$meta & 0x03];
+		}
+	}
 }
 
 
