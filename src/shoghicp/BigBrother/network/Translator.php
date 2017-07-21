@@ -1077,8 +1077,67 @@ class Translator{
 							break;
 						}
 					break;
+					case LevelEventPacket::EVENT_SOUND_DOOR:
+						$issoundeffect = true;
+						$category = 0;
+
+						$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+
+						switch($block->getId()){
+							case Block::WOOD_DOOR_BLOCK:
+							case Block::SPRUCE_DOOR_BLOCK:
+							case Block::BIRCH_DOOR_BLOCK:
+							case Block::JUNGLE_DOOR_BLOCK:
+							case Block::ACACIA_DOOR_BLOCK:
+							case Block::DARK_OAK_DOOR_BLOCK:
+								if(($block->getDamage() & 0x04) === 0x04){
+									$name = "block.wooden_door.open";
+								}else{
+									$name = "block.wooden_door.close";
+								}
+							break;
+							case Block::IRON_DOOR_BLOCK:
+								if(($block->getDamage() & 0x08) === 0x08){
+									$name = "block.iron_door.open";
+								}else{
+									$name = "block.iron_door.close";
+								}
+							break;
+							case Block::TRAPDOOR:
+								if(($block->getDamage() & 0x08) === 0x08){
+									$name = "block.wooden_trapdoor.open";
+								}else{
+									$name = "block.wooden_trapdoor.close";
+								}
+							break;
+							case Block::IRON_TRAPDOOR:
+								if(($block->getDamage() & 0x04) === 0x04){
+									$name = "block.iron_trapdoor.open";
+								}else{
+									$name = "block.iron_trapdoor.close";
+								}
+							break;
+							case Block::OAK_FENCE_GATE:
+							case Block::SPRUCE_FENCE_GATE:
+							case Block::BIRCH_FENCE_GATE:
+							case Block::JUNGLE_FENCE_GATE:
+							case Block::DARK_OAK_FENCE_GATE:
+							case Block::ACACIA_FENCE_GATE:
+								if(($block->getDamage() & 0x04) === 0x04){
+									$name = "block.fence_gate.open";
+								}else{
+									$name = "block.fence_gate.close";
+								}
+							break;
+							default:
+								echo "[LevelEventPacket] Unkwnon DoorSound\n";
+								return null;
+							break;
+						}
+					break;
 					default:
 						echo "LevelEventPacket: ".$packet->evid."\n";
+						return null;
 					break;
 				}
 
