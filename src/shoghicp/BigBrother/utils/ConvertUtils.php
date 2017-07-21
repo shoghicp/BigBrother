@@ -354,9 +354,30 @@ class ConvertUtils{
 		167 => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
 	];
 
+	private static $idlistIndex = [
+		[/* Index for PE => PC */],
+		[/* Index for PC => PE */],
+	];
+
 	public static function init(){
 		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
 		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
+
+		foreach(self::$idlist as $entry){
+			//append index (PE => PC)
+			if(isset(self::$idlistIndex[0][$entry[0][0]])){
+				self::$idlistIndex[0][$entry[0][0]][] = $entry;
+			}else{
+				self::$idlistIndex[0][$entry[0][0]] = [$entry];
+			}
+
+			//append index (PC => PE)
+			if(isset(self::$idlistIndex[1][$entry[1][0]])){
+				self::$idlistIndex[1][$entry[1][0]][] = $entry;
+			}else{
+				self::$idlistIndex[1][$entry[1][0]] = [$entry];
+			}
+		}
 	}
 
 	/*
@@ -487,21 +508,19 @@ class ConvertUtils{
 		if($idmapper !== null and is_callable($idmapper)){
 			$idmapper($itemid, $itemdamage, $iscomputer, false);
 		}else{
-			foreach(self::$idlist as $convertitemdata){
-				if($convertitemdata[$src][0] === $item->getId()){
-					if($convertitemdata[$src][1] === -1){
-						$itemid = $convertitemdata[$dst][0];
-						if($convertitemdata[$dst][1] === -1){
-							$itemdamage = $item->getDamage();
-						}else{
-							$itemdamage = $convertitemdata[$dst][1];
-						}
-						break;
-					}elseif($convertitemdata[$src][1] === $item->getDamage()){
-						$itemid = $convertitemdata[$dst][0];
+			foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
+				if($convertitemdata[$src][1] === -1){
+					$itemid = $convertitemdata[$dst][0];
+					if($convertitemdata[$dst][1] === -1){
+						$itemdamage = $item->getDamage();
+					}else{
 						$itemdamage = $convertitemdata[$dst][1];
-						break;
 					}
+					break;
+				}elseif($convertitemdata[$src][1] === $item->getDamage()){
+					$itemid = $convertitemdata[$dst][0];
+					$itemdamage = $convertitemdata[$dst][1];
+					break;
 				}
 			}
 		}
@@ -532,19 +551,17 @@ class ConvertUtils{
 		if($idmapper !== null and is_callable($idmapper)){
 			$idmapper($blockid, $blockdata, $iscomputer, true);
 		}else{
-			foreach(self::$idlist as $convertblockdata){
-				if($convertblockdata[$src][0] === $blockid){
-					if($convertblockdata[$src][1] === -1){
-						$blockid = $convertblockdata[$dst][0];
-						if($convertblockdata[$dst][1] !== -1){
-							$blockdata = $convertblockdata[$dst][1];
-						}
-						break;
-					}elseif($convertblockdata[$src][1] === $blockdata){
-						$blockid = $convertblockdata[$dst][0];
+			foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
+				if($convertblockdata[$src][1] === -1){
+					$blockid = $convertblockdata[$dst][0];
+					if($convertblockdata[$dst][1] !== -1){
 						$blockdata = $convertblockdata[$dst][1];
-						break;
 					}
+					break;
+				}elseif($convertblockdata[$src][1] === $blockdata){
+					$blockid = $convertblockdata[$dst][0];
+					$blockdata = $convertblockdata[$dst][1];
+					break;
 				}
 			}
 		}
