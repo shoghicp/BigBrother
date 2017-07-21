@@ -43,6 +43,7 @@ use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
+use shoghicp\BigBrother\utils\ConvertUtils;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -62,6 +63,8 @@ class BigBrother extends PluginBase implements Listener{
 	protected $translator;
 
 	public function onEnable(){
+		ConvertUtils::init();
+
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
 		$this->saveResource("steve.yml", false);

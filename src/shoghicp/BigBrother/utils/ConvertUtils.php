@@ -30,6 +30,7 @@ namespace shoghicp\BigBrother\utils;
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
 use pocketmine\entity\Projectile;
+use pocketmine\event\TimingsHandler;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\Tag;
 use pocketmine\utils\BinaryStream;
@@ -37,7 +38,10 @@ use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{
-	public static $idlist = [
+	private static $timingConvertItem;
+	private static $timingConvertBlock;
+
+	private static $idlist = [
 		//************** ITEMS ***********//
 		[
 			[325, 8], [326, 0] //Water bucket
@@ -343,9 +347,43 @@ class ConvertUtils{
 	];
 
 	/*
-	* $iscomputer = true is PE => PC
-	* $iscomputer = false is PC => PE
-	*/
+	 * Complicated Block Id Conversion methods
+	 */
+	private static $idmappers = [
+		96  => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
+		167 => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
+	];
+
+	private static $idlistIndex = [
+		[/* Index for PE => PC */],
+		[/* Index for PC => PE */],
+	];
+
+	public static function init(){
+		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
+		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
+
+		foreach(self::$idlist as $entry){
+			//append index (PE => PC)
+			if(isset(self::$idlistIndex[0][$entry[0][0]])){
+				self::$idlistIndex[0][$entry[0][0]][] = $entry;
+			}else{
+				self::$idlistIndex[0][$entry[0][0]] = [$entry];
+			}
+
+			//append index (PC => PE)
+			if(isset(self::$idlistIndex[1][$entry[1][0]])){
+				self::$idlistIndex[1][$entry[1][0]][] = $entry;
+			}else{
+				self::$idlistIndex[1][$entry[1][0]] = [$entry];
+			}
+		}
+	}
+
+	/*
+	 * $iscomputer = true is PE => PC
+	 * $iscomputer = false is PC => PE
+	 */
 	public static function convertNBTData($iscomputer, &$nbt, $convert = false){
 		if($iscomputer){
 			$stream = new BinaryStream();
@@ -449,101 +487,86 @@ class ConvertUtils{
 	}
 
 	/*
-	* $iscomputer = true is PE => PC
-	* $iscomputer = false is PC => PE
-	*/
+	 * $iscomputer = true is PE => PC
+	 * $iscomputer = false is PC => PE
+	 */
 	public static function convertItemData($iscomputer, &$item){
-		if($iscomputer){
-			$itemid = $item->getId();
-			$itemdamage = $item->getDamage();
-			$itemcount = $item->getCount();
-			$itemnbt = $item->getCompoundTag();
+		self::$timingConvertItem->startTiming();
 
-			foreach(self::$idlist as $convertitemdata){
-				if($convertitemdata[0][0] === $item->getId()){
-					if($convertitemdata[0][1] === -1){
-						$itemid = $convertitemdata[1][0];
-						if($convertitemdata[1][1] !== -1){
-							$itemdamage = $convertitemdata[1][1];
-						}else{
-							$itemdamage = $item->getDamage();
-						}
-						break;
-					}elseif($convertitemdata[0][1] === $item->getDamage()){
-						$itemid = $convertitemdata[1][0];
-						$itemdamage = $convertitemdata[1][1];
-						break;
+		$itemid = $item->getId();
+		$itemdamage = $item->getDamage();
+		$itemcount = $item->getCount();
+		$itemnbt = $item->getCompoundTag();
+
+		if($iscomputer){
+			$src = 0; $dst = 1;
+		}else{
+			$src = 1; $dst = 0;
+		}
+
+		$idmapper = self::$idmappers[$itemid] ?? null;
+		if($idmapper !== null and is_callable($idmapper)){
+			$idmapper($itemid, $itemdamage, $iscomputer, false);
+		}else{
+			foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
+				if($convertitemdata[$src][1] === -1){
+					$itemid = $convertitemdata[$dst][0];
+					if($convertitemdata[$dst][1] === -1){
+						$itemdamage = $item->getDamage();
+					}else{
+						$itemdamage = $convertitemdata[$dst][1];
 					}
+					break;
+				}elseif($convertitemdata[$src][1] === $item->getDamage()){
+					$itemid = $convertitemdata[$dst][0];
+					$itemdamage = $convertitemdata[$dst][1];
+					break;
 				}
 			}
+		}
 
+		if($iscomputer){
 			$item = new ComputerItem($itemid, $itemdamage, $itemcount, $itemnbt);
 		}else{
-			$itemid = $item->getId();
-			$itemdamage = $item->getDamage();
-			$itemcount = $item->getCount();
-			$itemnbt = $item->getCompoundTag();
-
-			foreach(self::$idlist as $convertitemdata){
-				if($convertitemdata[1][0] === $item->getId()){
-					if($convertitemdata[1][1] === -1){
-						$itemid = $convertitemdata[0][0];
-						if($convertitemdata[0][1] !== -1){
-							$itemdamage = $convertitemdata[0][1];
-						}else{
-							$itemdamage = $item->getDamage();
-						}
-						break;
-					}elseif($convertitemdata[1][1] === $item->getDamage()){
-						$itemid = $convertitemdata[0][0];
-						$itemdamage = $convertitemdata[0][1];
-						break;
-					}
-				}
-			}
-
 			$item = Item::get($itemid, $itemdamage, $itemcount, $itemnbt);
 		}
+
+		self::$timingConvertItem->stopTiming();
 	}
 
 	/*
-	* $iscomputer = true is PE => PC
-	* $iscomputer = false is PC => PE
-	*/
+	 * $iscomputer = true is PE => PC
+	 * $iscomputer = false is PC => PE
+	 */
 	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
+		self::$timingConvertBlock->startTiming();
+
 		if($iscomputer){
-			foreach(self::$idlist as $convertblockdata){
-				if($convertblockdata[0][0] === $blockid){
-					if($convertblockdata[0][1] === -1){
-						$blockid = $convertblockdata[1][0];
-						if($convertblockdata[1][1] !== -1){
-							$blockdata = $convertblockdata[1][1];
-						}
-						break;
-					}elseif($convertblockdata[0][1] === $blockdata){
-						$blockid = $convertblockdata[1][0];
-						$blockdata = $convertblockdata[1][1];
-						break;
-					}
-				}
-			}
+			$src = 0; $dst = 1;
 		}else{
-			foreach(self::$idlist as $convertblockdata){
-				if($convertblockdata[1][0] === $blockid){
-					if($convertblockdata[1][1] === -1){
-						$blockid = $convertblockdata[0][0];
-						if($convertblockdata[0][1] !== -1){
-							$blockdata = $convertblockdata[0][1];
-						}
-						break;
-					}elseif($convertblockdata[1][1] === $blockdata){
-						$blockid = $convertblockdata[0][0];
-						$blockdata = $convertblockdata[0][1];
-						break;
+			$src = 1; $dst = 0;
+		}
+
+		$idmapper = self::$idmappers[$blockid] ?? null;
+		if($idmapper !== null and is_callable($idmapper)){
+			$idmapper($blockid, $blockdata, $iscomputer, true);
+		}else{
+			foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
+				if($convertblockdata[$src][1] === -1){
+					$blockid = $convertblockdata[$dst][0];
+					if($convertblockdata[$dst][1] !== -1){
+						$blockdata = $convertblockdata[$dst][1];
 					}
+					break;
+				}elseif($convertblockdata[$src][1] === $blockdata){
+					$blockid = $convertblockdata[$dst][0];
+					$blockdata = $convertblockdata[$dst][1];
+					break;
 				}
 			}
 		}
+
+		self::$timingConvertBlock->stopTiming();
 	}
 
 	public static function convertPEToPCMetadata(array $olddata){
@@ -607,6 +630,31 @@ class ConvertUtils{
 		return $newdata;
 	}
 
+	/*
+	 * Blame Mojang!! :-@
+	 * Why Mojang change the order of flag bits?
+	 * Why Mojang change the directions??
+	 *
+	 * #blamemojang
+	 */
+	private static function convertTrapdoor(int &$id, int &$meta, bool $iscomputer, bool $isblock) {
+		if($isblock){
+			//swap bits
+			$meta ^= (($meta & 0x04) << 1);
+			$meta ^= (($meta & 0x08) >> 1);
+			$meta ^= (($meta & 0x04) << 1);
+
+			//swap directions
+			$directions = [
+				0 => 3,
+				1 => 2,
+				2 => 1,
+				3 => 0
+			];
+
+			$meta = (($meta >> 2) << 2) | $directions[$meta & 0x03];
+		}
+	}
 }
 
 
