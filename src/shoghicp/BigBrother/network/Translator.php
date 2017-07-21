@@ -1097,7 +1097,7 @@ class Translator{
 								}
 							break;
 							case Block::IRON_DOOR_BLOCK:
-								if(($block->getDamage() & 0x08) === 0x08){
+								if(($block->getDamage() & 0x04) === 0x04){
 									$name = "block.iron_door.open";
 								}else{
 									$name = "block.iron_door.close";
@@ -1111,7 +1111,7 @@ class Translator{
 								}
 							break;
 							case Block::IRON_TRAPDOOR:
-								if(($block->getDamage() & 0x04) === 0x04){
+								if(($block->getDamage() & 0x08) === 0x08){
 									$name = "block.iron_trapdoor.open";
 								}else{
 									$name = "block.iron_trapdoor.close";
