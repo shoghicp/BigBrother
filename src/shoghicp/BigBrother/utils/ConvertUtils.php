@@ -685,5 +685,3 @@ class ComputerItem{
 	}
 
 }
-
-ConvertUtils::init();
