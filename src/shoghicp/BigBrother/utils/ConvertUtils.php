@@ -30,6 +30,7 @@ namespace shoghicp\BigBrother\utils;
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
 use pocketmine\entity\Projectile;
+use pocketmine\event\TimingsHandler;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\Tag;
 use pocketmine\utils\BinaryStream;
@@ -37,6 +38,9 @@ use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{
+	private static $timingConvertItem;
+	private static $timingConvertBlock;
+
 	private static $idlist = [
 		//************** ITEMS ***********//
 		[
@@ -342,6 +346,11 @@ class ConvertUtils{
 		*/
 	];
 
+	public static function init(){
+		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
+		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
+	}
+
 	/*
 	* $iscomputer = true is PE => PC
 	* $iscomputer = false is PC => PE
@@ -453,6 +462,8 @@ class ConvertUtils{
 	* $iscomputer = false is PC => PE
 	*/
 	public static function convertItemData($iscomputer, &$item){
+		self::$timingConvertItem->startTiming();
+
 		if($iscomputer){
 			$itemid = $item->getId();
 			$itemdamage = $item->getDamage();
@@ -504,6 +515,8 @@ class ConvertUtils{
 
 			$item = Item::get($itemid, $itemdamage, $itemcount, $itemnbt);
 		}
+
+		self::$timingConvertItem->stopTiming();
 	}
 
 	/*
@@ -511,6 +524,8 @@ class ConvertUtils{
 	* $iscomputer = false is PC => PE
 	*/
 	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
+		self::$timingConvertBlock->startTiming();
+
 		if($iscomputer){
 			foreach(self::$idlist as $convertblockdata){
 				if($convertblockdata[0][0] === $blockid){
@@ -544,6 +559,8 @@ class ConvertUtils{
 				}
 			}
 		}
+
+		self::$timingConvertBlock->stopTiming();
 	}
 
 	public static function convertPEToPCMetadata(array $olddata){
@@ -637,3 +654,5 @@ class ComputerItem{
 	}
 
 }
+
+ConvertUtils::init();
