@@ -37,7 +37,7 @@ use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{
-	public static $idlist = [
+	private static $idlist = [
 		//************** ITEMS ***********//
 		[
 			[325, 8], [326, 0] //Water bucket
