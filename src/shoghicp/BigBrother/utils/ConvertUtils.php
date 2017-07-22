@@ -345,19 +345,11 @@ class ConvertUtils{
 		],
 		*/
 	];
-
-	/*
-	 * Complicated Block Id Conversion methods
-	 */
-	private static $idmappers = [
-		96  => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
-		167 => "shoghicp\BigBrother\utils\ConvertUtils::convertTrapdoor",
-	];
-
 	private static $idlistIndex = [
 		[/* Index for PE => PC */],
 		[/* Index for PC => PE */],
 	];
+
 
 	public static function init(){
 		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
@@ -504,24 +496,19 @@ class ConvertUtils{
 			$src = 1; $dst = 0;
 		}
 
-		$idmapper = self::$idmappers[$itemid] ?? null;
-		if($idmapper !== null and is_callable($idmapper)){
-			$idmapper($itemid, $itemdamage, $iscomputer, false);
-		}else{
-			foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
-				if($convertitemdata[$src][1] === -1){
-					$itemid = $convertitemdata[$dst][0];
-					if($convertitemdata[$dst][1] === -1){
-						$itemdamage = $item->getDamage();
-					}else{
-						$itemdamage = $convertitemdata[$dst][1];
-					}
-					break;
-				}elseif($convertitemdata[$src][1] === $item->getDamage()){
-					$itemid = $convertitemdata[$dst][0];
+		foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
+			if($convertitemdata[$src][1] === -1){
+				$itemid = $convertitemdata[$dst][0];
+				if($convertitemdata[$dst][1] === -1){
+					$itemdamage = $item->getDamage();
+				}else{
 					$itemdamage = $convertitemdata[$dst][1];
-					break;
 				}
+				break;
+			}elseif($convertitemdata[$src][1] === $item->getDamage()){
+				$itemid = $convertitemdata[$dst][0];
+				$itemdamage = $convertitemdata[$dst][1];
+				break;
 			}
 		}
 
@@ -547,22 +534,24 @@ class ConvertUtils{
 			$src = 1; $dst = 0;
 		}
 
-		$idmapper = self::$idmappers[$blockid] ?? null;
-		if($idmapper !== null and is_callable($idmapper)){
-			$idmapper($blockid, $blockdata, $iscomputer, true);
-		}else{
-			foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
-				if($convertblockdata[$src][1] === -1){
-					$blockid = $convertblockdata[$dst][0];
-					if($convertblockdata[$dst][1] !== -1){
-						$blockdata = $convertblockdata[$dst][1];
-					}
-					break;
-				}elseif($convertblockdata[$src][1] === $blockdata){
-					$blockid = $convertblockdata[$dst][0];
+		switch($blockid){
+			case 96:
+			case 167:
+				self::convertTrapdoor($blockid, $blockdamage, $iscomputer);
+			break;
+		}
+
+		foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
+			if($convertblockdata[$src][1] === -1){
+				$blockid = $convertblockdata[$dst][0];
+				if($convertblockdata[$dst][1] !== -1){
 					$blockdata = $convertblockdata[$dst][1];
-					break;
 				}
+				break;
+			}elseif($convertblockdata[$src][1] === $blockdata){
+				$blockid = $convertblockdata[$dst][0];
+				$blockdata = $convertblockdata[$dst][1];
+				break;
 			}
 		}
 
@@ -637,7 +626,7 @@ class ConvertUtils{
 	 *
 	 * #blamemojang
 	 */
-	private static function convertTrapdoor(int &$id, int &$meta, bool $iscomputer, bool $isblock) {
+	private static function convertTrapdoor(int &$id, int &$meta, bool $iscomputer){
 		if($isblock){
 			//swap bits
 			$meta ^= (($meta & 0x04) << 1);
