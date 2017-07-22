@@ -29,6 +29,7 @@ namespace shoghicp\BigBrother\network;
 
 use pocketmine\Achievement;
 use pocketmine\Player;
+use pocketmine\Server;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
@@ -569,6 +570,8 @@ class Translator{
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
 		switch($packet->pid()){
 			case Info::DISCONNECT_PACKET:
+				BigBrother::removePlayerList($player);
+
 				if($player->bigBrother_getStatus() === 0){
 					$pk = new LoginDisconnectPacket();
 					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
@@ -576,6 +579,7 @@ class Translator{
 					$pk = new PlayDisconnectPacket();
 					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
 				}
+
 				return $pk;
 
 			case Info::TEXT_PACKET:
@@ -1069,16 +1073,81 @@ class Translator{
 							case Item::SPLASH_POTION:
 								$name = "entity.splash_potion.throw";
 							break;
-							case Item::ENDER_PEARL:
+							case Item::BOW:
+								$name = "entity.arrow.shoot";
+							break;
+							case 368:
 								$name = "entity.enderpearl.throw";
 							break;
 							default:
 								echo "LevelEventPacket: ".$id."\n";
+								return null;
 							break;
 						}
 					break;
+					case LevelEventPacket::EVENT_SOUND_DOOR:
+						$issoundeffect = true;
+						$category = 0;
+
+						$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+
+						switch($block->getId()){
+							case Block::WOOD_DOOR_BLOCK:
+							case Block::SPRUCE_DOOR_BLOCK:
+							case Block::BIRCH_DOOR_BLOCK:
+							case Block::JUNGLE_DOOR_BLOCK:
+							case Block::ACACIA_DOOR_BLOCK:
+							case Block::DARK_OAK_DOOR_BLOCK:
+								if(($block->getDamage() & 0x04) === 0x04){
+									$name = "block.wooden_door.open";
+								}else{
+									$name = "block.wooden_door.close";
+								}
+							break;
+							case Block::IRON_DOOR_BLOCK:
+								if(($block->getDamage() & 0x04) === 0x04){
+									$name = "block.iron_door.open";
+								}else{
+									$name = "block.iron_door.close";
+								}
+							break;
+							case Block::TRAPDOOR:
+								if(($block->getDamage() & 0x08) === 0x08){
+									$name = "block.wooden_trapdoor.open";
+								}else{
+									$name = "block.wooden_trapdoor.close";
+								}
+							break;
+							case Block::IRON_TRAPDOOR:
+								if(($block->getDamage() & 0x08) === 0x08){
+									$name = "block.iron_trapdoor.open";
+								}else{
+									$name = "block.iron_trapdoor.close";
+								}
+							break;
+							case Block::OAK_FENCE_GATE:
+							case Block::SPRUCE_FENCE_GATE:
+							case Block::BIRCH_FENCE_GATE:
+							case Block::JUNGLE_FENCE_GATE:
+							case Block::DARK_OAK_FENCE_GATE:
+							case Block::ACACIA_FENCE_GATE:
+								if(($block->getDamage() & 0x04) === 0x04){
+									$name = "block.fence_gate.open";
+								}else{
+									$name = "block.fence_gate.close";
+								}
+							break;
+							default:
+								echo "[LevelEventPacket] Unkwnon DoorSound\n";
+								return null;
+							break;
+						}
+					break;
+					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
+					break;
 					default:
 						echo "LevelEventPacket: ".$packet->evid."\n";
+						return null;
 					break;
 				}
 
@@ -1495,7 +1564,6 @@ class Translator{
 				return $packets;
 
 			case Info::PLAYER_LIST_PACKET:
-				$packets = [];
 				$pk = new PlayerListPacket();
 
 				switch($packet->type){
@@ -1508,21 +1576,13 @@ class Translator{
 
 						foreach($packet->entries as $entry){
 							if(isset($playerlist[$entry[0]->toString()])){
-								if(!isset($pk2)){
-									$pk2 = new PlayerListPacket();
-									$pk2->actionID = PlayerListPacket::TYPE_UPDATE_NAME;
-								}
-								$pk2->players[] = [
-									$entry[0]->toBinary(),
-									true,
-									BigBrother::toJSON($entry[2])
-								];
 								continue;
 							}
 
-							$packetplayer = $player->getServer()->getPlayerExact(TextFormat::clean($entry[2]));
-							if($packetplayer instanceof DesktopPlayer){
-								$peroperties = $packetplayer->bigBrother_getPeroperties();
+							$pkplayer = BigBrother::getPlayerList(TextFormat::clean($entry[2]));
+							if($pkplayer instanceof DesktopPlayer){
+								$properties = $pkplayer->bigBrother_getProperties();
+								$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
 							}else{
 								//TODO: Skin Problem
 								$value = [//Dummy Data
@@ -1536,25 +1596,27 @@ class Translator{
 									]
 								];
 
-								$peroperties = [
+								$properties = [
 									[
 										"name" => "textures",
 										"value" => base64_encode(json_encode($value)),
 									]
 								];
+
+								$uuid = $entry[0]->toBinary();
 							}
 
 							$pk->players[] = [
-								$entry[0]->toBinary(),
+								$uuid,
 								TextFormat::clean($entry[2]),
-								$peroperties,
+								$properties,
 								0,//TODO: Gamemode
 								0,
 								true,
 								BigBrother::toJSON($entry[2])
 							];
 
-							$playerlist[$entry[0]->toString()] = true;
+							$playerlist[$entry[0]->toString()] = TextFormat::clean($entry[2]);
 						}
 
 						$player->setSetting(["PlayerList" => $playerlist]);
@@ -1567,32 +1629,31 @@ class Translator{
 						}
 
 						foreach($packet->entries as $entry){
-							$pk->players[] = [
-								$entry[0]->toBinary(),
-							];
-
 							if(isset($playerlist[$entry[0]->toString()])){
+
+								$pkplayer = BigBrother::getPlayerList($playerlist[$entry[0]->toString()]);
+								if($pkplayer instanceof DesktopPlayer){
+									$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
+								}else{
+									$uuid = $entry[0]->toBinary();
+								}
+
 								unset($playerlist[$entry[0]->toString()]);
+							}else{
+								$uuid = $entry[0]->toBinary();
 							}
+
+
+							$pk->players[] = [
+								$uuid,
+							];
 						}
 
 						$player->setSetting(["PlayerList" => $playerlist]);
 					break;
 				}
 
-				if(isset($pk2)){
-					$packets[] = $pk2;
-				}
-
-				if(count($pk->players) > 0){
-					$packets[] = $pk;
-				}
-
-				if(count($packets) > 0){
-					return $packets;//TODO: Must check it
-				}
-
-				return null;
+				return $pk;
 
 			case Info::BOSS_EVENT_PACKET:
 				$pk = new BossBarPacket();

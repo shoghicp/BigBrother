@@ -43,6 +43,7 @@ use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
+use shoghicp\BigBrother\utils\ConvertUtils;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -61,7 +62,11 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var Translator */
 	protected $translator;
 
+	protected static $playerList = [];
+
 	public function onEnable(){
+		ConvertUtils::init();
+
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
 		$this->saveResource("steve.yml", false);
@@ -257,6 +262,24 @@ class BigBrother extends PluginBase implements Listener{
 
 		$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		return $result;
+	}
+
+	public static function addPlayerList(DesktopPlayer $player){
+		self::$playerList[$player->getName()] = $player;
+	}
+
+	public static function removePlayerList(DesktopPlayer $player){
+		if(isset(self::$playerList[$player->getName()])){
+			unset(self::$playerList[$player->getName()]);
+		}
+	}
+
+	public static function getPlayerList($username){
+		if(isset(self::$playerList[$username])){
+			return self::$playerList[$username];
+		}
+
+		return null;
 	}
 
 }
