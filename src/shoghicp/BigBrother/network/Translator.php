@@ -1073,7 +1073,7 @@ class Translator{
 							case Item::SPLASH_POTION:
 								$name = "entity.splash_potion.throw";
 							break;
-							case Item::ENDER_PEARL:
+							case 368:
 								$name = "entity.enderpearl.throw";
 							break;
 							default:
