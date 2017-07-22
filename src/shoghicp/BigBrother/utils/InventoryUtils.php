@@ -30,6 +30,7 @@ namespace shoghicp\BigBrother\utils;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\WindowTypes;
 
 use pocketmine\entity\Item as ItemEntity;
 use pocketmine\math\Vector3;
@@ -93,23 +94,23 @@ class InventoryUtils{
 	public function onWindowOpen($packet){
 		$type = "";
 		switch($packet->type){
-			case 0:
+			case WindowTypes::CONTAINER:
 				$type = "minecraft:chest";
 				$title = "Chest";
 			break;
-			case 1:
+			case WindowTypes::WORKBENCH:
 				$type = "minecraft:crafting_table";
 				$title = "Crafting Table";
 			break;
-			case 2:
+			case WindowTypes::FURNACE:
 				$type = "minecraft:furnace";
 				$title = "Furnace";
 			break;
-			case 3:
+			case WindowTypes::ENCHANTMENT:
 				$type = "minecraft:enchanting_table";
 				$title = "Enchant";
 			break;
-			case 5:
+			case WindowTypes::ANVIL:
 				$type = "minecraft:anvil";
 				$title = "Anvil";
 			break;
