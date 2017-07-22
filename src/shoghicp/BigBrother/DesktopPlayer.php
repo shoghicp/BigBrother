@@ -111,7 +111,7 @@ class DesktopPlayer extends Player{
 		return $this->bigBrother_status;
 	}
 
-	public function bigBrother_getPeroperties(){
+	public function bigBrother_getProperties(){
 		return $this->bigBrother_properties;
 	}
 

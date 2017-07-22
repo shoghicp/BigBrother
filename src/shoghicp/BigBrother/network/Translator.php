@@ -1581,7 +1581,7 @@ class Translator{
 
 							$pkplayer = BigBrother::getPlayerList(TextFormat::clean($entry[2]));
 							if($pkplayer instanceof DesktopPlayer){
-								$peroperties = $pkplayer->bigBrother_getPeroperties();
+								$properties = $pkplayer->bigBrother_getProperties();
 								$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
 							}else{
 								//TODO: Skin Problem
@@ -1596,7 +1596,7 @@ class Translator{
 									]
 								];
 
-								$peroperties = [
+								$properties = [
 									[
 										"name" => "textures",
 										"value" => base64_encode(json_encode($value)),
@@ -1609,7 +1609,7 @@ class Translator{
 							$pk->players[] = [
 								$uuid,
 								TextFormat::clean($entry[2]),
-								$peroperties,
+								$properties,
 								0,//TODO: Gamemode
 								0,
 								true,
