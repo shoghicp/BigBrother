@@ -528,31 +528,33 @@ class ConvertUtils{
 	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
 		self::$timingConvertBlock->startTiming();
 
-		if($iscomputer){
-			$src = 0; $dst = 1;
-		}else{
-			$src = 1; $dst = 0;
-		}
-
 		switch($blockid){
 			case 96:
 			case 167:
-				self::convertTrapdoor($blockid, $blockdamage, $iscomputer);
+				self::convertTrapdoor($iscomputer, $blockid, $blockdata);
 			break;
-		}
 
-		foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
-			if($convertblockdata[$src][1] === -1){
-				$blockid = $convertblockdata[$dst][0];
-				if($convertblockdata[$dst][1] !== -1){
-					$blockdata = $convertblockdata[$dst][1];
+			default:
+				if($iscomputer){
+					$src = 0; $dst = 1;
+				}else{
+					$src = 1; $dst = 0;
 				}
-				break;
-			}elseif($convertblockdata[$src][1] === $blockdata){
-				$blockid = $convertblockdata[$dst][0];
-				$blockdata = $convertblockdata[$dst][1];
-				break;
-			}
+
+				foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
+					if($convertblockdata[$src][1] === -1){
+						$blockid = $convertblockdata[$dst][0];
+						if($convertblockdata[$dst][1] !== -1){
+							$blockdata = $convertblockdata[$dst][1];
+						}
+						break;
+					}elseif($convertblockdata[$src][1] === $blockdata){
+						$blockid = $convertblockdata[$dst][0];
+						$blockdata = $convertblockdata[$dst][1];
+						break;
+					}
+				}
+			break;
 		}
 
 		self::$timingConvertBlock->stopTiming();
@@ -626,23 +628,21 @@ class ConvertUtils{
 	 *
 	 * #blamemojang
 	 */
-	private static function convertTrapdoor(int &$id, int &$meta, bool $iscomputer){
-		if($isblock){
-			//swap bits
-			$meta ^= (($meta & 0x04) << 1);
-			$meta ^= (($meta & 0x08) >> 1);
-			$meta ^= (($meta & 0x04) << 1);
+	private static function convertTrapdoor(bool $iscomputer, int &$blockid, int &$blockdata){
+		//swap bits
+		$blockdata ^= (($blockdata & 0x04) << 1);
+		$blockdata ^= (($blockdata & 0x08) >> 1);
+		$blockdata ^= (($blockdata & 0x04) << 1);
 
-			//swap directions
-			$directions = [
-				0 => 3,
-				1 => 2,
-				2 => 1,
-				3 => 0
-			];
+		//swap directions
+		$directions = [
+			0 => 3,
+			1 => 2,
+			2 => 1,
+			3 => 0
+		];
 
-			$meta = (($meta >> 2) << 2) | $directions[$meta & 0x03];
-		}
+		$blockdata = (($blockdata >> 2) << 2) | $directions[$blockdata & 0x03];
 	}
 }
 
