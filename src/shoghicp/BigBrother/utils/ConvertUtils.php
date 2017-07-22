@@ -491,26 +491,34 @@ class ConvertUtils{
 		$itemcount = $item->getCount();
 		$itemnbt = $item->getCompoundTag();
 
-		if($iscomputer){
-			$src = 0; $dst = 1;
-		}else{
-			$src = 1; $dst = 0;
-		}
+		switch($itemid){
+			case Item::PUMPKIN:
+				$itemdamage = 0;
+			break;
 
-		foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
-			if($convertitemdata[$src][1] === -1){
-				$itemid = $convertitemdata[$dst][0];
-				if($convertitemdata[$dst][1] === -1){
-					$itemdamage = $item->getDamage();
+			default:
+				if($iscomputer){
+					$src = 0; $dst = 1;
 				}else{
-					$itemdamage = $convertitemdata[$dst][1];
+					$src = 1; $dst = 0;
 				}
-				break;
-			}elseif($convertitemdata[$src][1] === $item->getDamage()){
-				$itemid = $convertitemdata[$dst][0];
-				$itemdamage = $convertitemdata[$dst][1];
-				break;
-			}
+
+				foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
+					if($convertitemdata[$src][1] === -1){
+						$itemid = $convertitemdata[$dst][0];
+						if($convertitemdata[$dst][1] === -1){
+							$itemdamage = $item->getDamage();
+						}else{
+							$itemdamage = $convertitemdata[$dst][1];
+						}
+						break;
+					}elseif($convertitemdata[$src][1] === $item->getDamage()){
+						$itemid = $convertitemdata[$dst][0];
+						$itemdamage = $convertitemdata[$dst][1];
+						break;
+					}
+				}
+			break;
 		}
 
 		if($iscomputer){
