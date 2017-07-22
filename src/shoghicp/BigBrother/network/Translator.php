@@ -1073,11 +1073,15 @@ class Translator{
 							case Item::SPLASH_POTION:
 								$name = "entity.splash_potion.throw";
 							break;
+							case Item::BOW:
+								$name = "entity.arrow.shoot";
+							break;
 							case 368:
 								$name = "entity.enderpearl.throw";
 							break;
 							default:
 								echo "LevelEventPacket: ".$id."\n";
+								return null;
 							break;
 						}
 					break;

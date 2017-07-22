@@ -533,7 +533,6 @@ class ConvertUtils{
 			case 167:
 				self::convertTrapdoor($iscomputer, $blockid, $blockdata);
 			break;
-
 			default:
 				if($iscomputer){
 					$src = 0; $dst = 1;
@@ -601,11 +600,15 @@ class ConvertUtils{
 					$newdata[2] = [3, str_replace("\n", "", $d[1])];//TODO
 					$newdata[3] = [6, true];
 				break;
+				case Human::DATA_FUSE_LENGTH:
+					$newdata[6] = [1, $d[1]];
+				break;
 				case Human::DATA_PLAYER_FLAGS:
 				case Human::DATA_PLAYER_BED_POSITION:
 				case Human::DATA_LEAD_HOLDER_EID:
 				case Human::DATA_SCALE:
 				case Human::DATA_MAX_AIR:
+				case Human::DATA_OWNER_EID:
 				case Projectile::DATA_SHOOTER_ID:
 					//Unused
 				break;
