@@ -28,6 +28,7 @@
 namespace shoghicp\BigBrother\utils;
 
 use pocketmine\item\Item;
+use pocketmine\block\Block;
 use pocketmine\entity\Human;
 use pocketmine\entity\Projectile;
 use pocketmine\event\TimingsHandler;
@@ -529,8 +530,8 @@ class ConvertUtils{
 		self::$timingConvertBlock->startTiming();
 
 		switch($blockid){
-			case 96:
-			case 167:
+			case Block::WOODEN_TRAPDOOR:
+			case Block::IRON_TRAPDOOR:
 				self::convertTrapdoor($iscomputer, $blockid, $blockdata);
 			break;
 			default:
