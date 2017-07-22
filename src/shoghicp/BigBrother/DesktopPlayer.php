@@ -119,6 +119,10 @@ class DesktopPlayer extends Player{
 		return $this->bigBrother_uuid;
 	}
 
+	public function bigBrother_getformatedUUID(){
+		return $this->bigBrother_formatedUUID;
+	}
+
 	public function getSettings(){
 		return $this->Settings;
 	}
@@ -274,8 +278,9 @@ class DesktopPlayer extends Player{
 				}
 				$pk->skin = $skin;
 			}
-
 			$this->handleDataPacket($pk);
+
+			BigBrother::addPlayerList($this);
 
 			$pk = new RequestChunkRadiusPacket();//for PocketMine-MP
 			$pk->radius = 8;
@@ -303,7 +308,7 @@ class DesktopPlayer extends Player{
 			$this->putRawPacket($pk);
 
 			$playerlist = [];
-			$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = true;
+			$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = $this->bigBrother_username;
 			$this->setSetting(["PlayerList" => $playerlist]);
 
 			$pk = new TitlePacket(); //for Set SubTitle

@@ -29,6 +29,7 @@ namespace shoghicp\BigBrother\network;
 
 use pocketmine\Achievement;
 use pocketmine\Player;
+use pocketmine\Server;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
@@ -569,6 +570,8 @@ class Translator{
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
 		switch($packet->pid()){
 			case Info::DISCONNECT_PACKET:
+				BigBrother::removePlayerList($player);
+
 				if($player->bigBrother_getStatus() === 0){
 					$pk = new LoginDisconnectPacket();
 					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
@@ -576,6 +579,7 @@ class Translator{
 					$pk = new PlayDisconnectPacket();
 					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
 				}
+
 				return $pk;
 
 			case Info::TEXT_PACKET:
@@ -1135,6 +1139,8 @@ class Translator{
 							break;
 						}
 					break;
+					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
+					break;
 					default:
 						echo "LevelEventPacket: ".$packet->evid."\n";
 						return null;
@@ -1554,7 +1560,6 @@ class Translator{
 				return $packets;
 
 			case Info::PLAYER_LIST_PACKET:
-				$packets = [];
 				$pk = new PlayerListPacket();
 
 				switch($packet->type){
@@ -1567,21 +1572,13 @@ class Translator{
 
 						foreach($packet->entries as $entry){
 							if(isset($playerlist[$entry[0]->toString()])){
-								if(!isset($pk2)){
-									$pk2 = new PlayerListPacket();
-									$pk2->actionID = PlayerListPacket::TYPE_UPDATE_NAME;
-								}
-								$pk2->players[] = [
-									$entry[0]->toBinary(),
-									true,
-									BigBrother::toJSON($entry[2])
-								];
 								continue;
 							}
 
-							$packetplayer = $player->getServer()->getPlayerExact(TextFormat::clean($entry[2]));
-							if($packetplayer instanceof DesktopPlayer){
-								$peroperties = $packetplayer->bigBrother_getPeroperties();
+							$pkplayer = BigBrother::getPlayerList(TextFormat::clean($entry[2]));
+							if($pkplayer instanceof DesktopPlayer){
+								$peroperties = $pkplayer->bigBrother_getPeroperties();
+								$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
 							}else{
 								//TODO: Skin Problem
 								$value = [//Dummy Data
@@ -1601,10 +1598,12 @@ class Translator{
 										"value" => base64_encode(json_encode($value)),
 									]
 								];
+
+								$uuid = $entry[0]->toBinary();
 							}
 
 							$pk->players[] = [
-								$entry[0]->toBinary(),
+								$uuid,
 								TextFormat::clean($entry[2]),
 								$peroperties,
 								0,//TODO: Gamemode
@@ -1613,7 +1612,7 @@ class Translator{
 								BigBrother::toJSON($entry[2])
 							];
 
-							$playerlist[$entry[0]->toString()] = true;
+							$playerlist[$entry[0]->toString()] = TextFormat::clean($entry[2]);
 						}
 
 						$player->setSetting(["PlayerList" => $playerlist]);
@@ -1626,32 +1625,31 @@ class Translator{
 						}
 
 						foreach($packet->entries as $entry){
-							$pk->players[] = [
-								$entry[0]->toBinary(),
-							];
-
 							if(isset($playerlist[$entry[0]->toString()])){
+
+								$pkplayer = BigBrother::getPlayerList($playerlist[$entry[0]->toString()]);
+								if($pkplayer instanceof DesktopPlayer){
+									$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
+								}else{
+									$uuid = $entry[0]->toBinary();
+								}
+
 								unset($playerlist[$entry[0]->toString()]);
+							}else{
+								$uuid = $entry[0]->toBinary();
 							}
+
+
+							$pk->players[] = [
+								$uuid,
+							];
 						}
 
 						$player->setSetting(["PlayerList" => $playerlist]);
 					break;
 				}
 
-				if(isset($pk2)){
-					$packets[] = $pk2;
-				}
-
-				if(count($pk->players) > 0){
-					$packets[] = $pk;
-				}
-
-				if(count($packets) > 0){
-					return $packets;//TODO: Must check it
-				}
-
-				return null;
+				return $pk;
 
 			case Info::BOSS_EVENT_PACKET:
 				$pk = new BossBarPacket();
