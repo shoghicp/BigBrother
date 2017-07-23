@@ -220,38 +220,50 @@ class BigBrother extends PluginBase implements Listener{
 		$message = $source.$message;
 		$result = json_decode(TextFormat::toJSON($message), true);
 
-		if($type === 3 or $type === 4){//Just to be sure
-			if(isset($result["text"])){
-				$result["text"] = $message;
-			}
-		}
+		switch($type){
+			case 2:
+				unset($result["text"]);
+				$message = TextFormat::clean($message);
 
-		if(count($parameters) > 0){
-			unset($result["text"]);
+				if(substr($message, 0, 1) === "["){//chat.type.admin
+					$result["translate"] = "chat.type.admin";
 
-			$message = TextFormat::clean($message);
-			$result["translate"] = str_replace("%", "", $message);
+					$result["with"][] = ["text" => substr($message, 1, strpos($message, ":") - 1)];
+					$result["with"][] = ["translate" => preg_replace('/[^0-9a-zA-Z.]/', '', substr($message, strpos($message, "%")))];
 
-			//Patch :(
-			if(str_replace("%", "", $message) === "commands.gamemode.success.self"){
-				$parameters = [$parameters[2]];
-			}elseif(str_replace("%", "", $message) === "commands.gamemode.success.other"){
-				if(count($parameters) === 2){
-					$parameters = [$parameters[0], $parameters[1]];
+					$with = &$result["with"][1];
 				}else{
-					$parameters = [$parameters[1], $parameters[2]];
-				}
-			}
+					$result["translate"] = str_replace("%", "", $message);
 
-			foreach($parameters as $num => $parameter){
-				$result["with"][$num] = [];
-
-				if(strpos($parameter, "%") !== false){
-					$result["with"][$num]["translate"] = str_replace("%", "", $parameter);
-				}else{
-					$result["with"][$num]["text"] = $parameter;
+					$with = &$result;
 				}
-			}
+
+				if(count($parameters) > 0){
+					if($with["translate"] === "commands.gamemode.success.self"){//Patch :(
+						$parameters = [$parameters[2]];
+					}elseif($with["translate"] === "commands.gamemode.success.other"){
+						if(count($parameters) === 2){
+							$parameters = [$parameters[0], $parameters[1]];
+						}else{
+							$parameters = [$parameters[1], $parameters[2]];
+						}
+					}
+
+					foreach($parameters as $num => $parameter){
+						if(strpos($parameter, "%") !== false){
+							$with["with"][] = ["translate" => str_replace("%", "", $parameter)];
+						}else{
+							$with["with"][] = ["text" => $parameter];
+						}
+					}
+				}
+			break;
+			case 3:
+			case 4://Just to be sure
+				if(isset($result["text"])){
+					$result["text"] = $message;
+				}
+			break;
 		}
 
 		if(isset($result["extra"])){
