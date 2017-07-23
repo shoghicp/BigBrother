@@ -1092,7 +1092,7 @@ class Translator{
 						$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 
 						switch($block->getId()){
-							case Block::WOOD_DOOR_BLOCK:
+							case Block::WOODEN_DOOR_BLOCK:
 							case Block::SPRUCE_DOOR_BLOCK:
 							case Block::BIRCH_DOOR_BLOCK:
 							case Block::JUNGLE_DOOR_BLOCK:
