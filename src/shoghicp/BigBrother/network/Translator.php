@@ -31,6 +31,7 @@ use pocketmine\Achievement;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Living;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
@@ -966,7 +967,7 @@ class Translator{
 				if($packet->entityRuntimeId === $player->getId()){//TODO
 					return null;
 				}else{
-					if(($entity = $player->getLevel()->getEntity($packet->entityRuntimeId)) instanceof Entity){
+					if(($entity = $player->getLevel()->getEntity($packet->entityRuntimeId)) instanceof Living){
 						$eyeheight = $entity->getEyeHeight();
 					}else{
 						$eyeheight = 0;
