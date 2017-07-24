@@ -51,6 +51,10 @@ class SpawnMobPacket extends Packet{
 	}
 
 	public function encode(){
+		assert($this->yaw >= 0 and $this->yaw < 360);
+		assert($this->pitch >= 0 and $this->pitch < 360);
+		assert($this->headPitch >= 0 and $this->headPitch < 360);
+
 		$this->putVarInt($this->eid);
 		$this->put($this->uuid);
 		$this->putVarInt($this->type);

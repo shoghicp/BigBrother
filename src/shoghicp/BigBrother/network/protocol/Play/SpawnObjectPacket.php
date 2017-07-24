@@ -49,6 +49,9 @@ class SpawnObjectPacket extends Packet{
 	}
 
 	public function encode(){
+		assert($this->yaw >= 0 and $this->yaw < 360);
+		assert($this->pitch >= 0 and $this->pitch < 360);
+
 		$this->putVarInt($this->eid);
 		$this->put($this->uuid);
 		$this->putByte($this->type);
