@@ -49,19 +49,22 @@ class SpawnObjectPacket extends Packet{
 	}
 
 	public function encode(){
+		assert($this->yaw >= 0 and $this->yaw < 360);
+		assert($this->pitch >= 0 and $this->pitch < 360);
+
 		$this->putVarInt($this->eid);
 		$this->put($this->uuid);
 		$this->putByte($this->type);
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);
-		$this->putByte((int) ($this->yaw * (256 / 360)));//TODO
-		$this->putByte((int) ($this->pitch * (256 / 360)));//TODO
+		$this->putByte((int)round($this->yaw * 256 / 360));//TODO make sure
+		$this->putByte((int)round($this->pitch * 256 / 360));//TODO make sure
 		$this->putInt($this->data);
 		if($this->data > 0){
-			$this->putShort($this->velocityX * 8000);
-			$this->putShort($this->velocityY * 8000);
-			$this->putShort($this->velocityZ * 8000);
+			$this->putShort((int)round($this->velocityX * 8000));
+			$this->putShort((int)round($this->velocityY * 8000));
+			$this->putShort((int)round($this->velocityZ * 8000));
 		}
 	}
 

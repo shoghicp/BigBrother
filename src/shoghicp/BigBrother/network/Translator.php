@@ -46,6 +46,7 @@ use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
+use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEffectPacket;
@@ -61,12 +62,18 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
+use shoghicp\BigBrother\DesktopChunk;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\TabComletePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\BossBarPacket;
@@ -83,10 +90,8 @@ use shoghicp\BigBrother\network\protocol\Play\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\Play\EntityPropertiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\JoinGamePacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayDisconnectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\TabComletePacket;
+use shoghicp\BigBrother\network\protocol\Play\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\ScoreboardObjectivePacket;
 use shoghicp\BigBrother\network\protocol\Play\ServerDifficultyPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetSlotPacket;
@@ -100,14 +105,12 @@ use shoghicp\BigBrother\network\protocol\Play\StatisticsPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetPassengersPacket;
 use shoghicp\BigBrother\network\protocol\Play\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\RemoveEntityEffectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\TimeUpdatePacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
 use shoghicp\BigBrother\network\protocol\Play\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\NamedSoundEffectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
@@ -242,6 +245,7 @@ class Translator{
 
 			case 0x0d: //PlayerPacket
 				$player->setSetting(["onGround" => $packet->onGround]);
+				$player->onGround = $packet->onGround;
 				return null;
 
 			case 0x0e: //PlayerPositonPacket
@@ -255,19 +259,16 @@ class Translator{
 				$pk->pitch = $player->pitch;
 				$packets[] = $pk;
 
-				if(strpos($player->y, ".") === false){
-					if(strpos($packet->y, ".") !== false){
-						if(floor($player->y) === floor($packet->y)){
-							$pk = new PlayerActionPacket();
-							$pk->entityRuntimeId = $player->getId();
-							$pk->action = PlayerActionPacket::ACTION_JUMP;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$pk->face = 0;
-							$packets[] = $pk;
-						}
-					}
+				if($player->isOnGround() and !$packet->onGround){
+					echo "Jump B $packet->x, $packet->y, $packet->z\n";
+					$pk = new PlayerActionPacket();
+					$pk->entityRuntimeId = $player->getId();
+					$pk->action = PlayerActionPacket::ACTION_JUMP;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->face = 0;
+					$packets[] = $pk;
 				}
 
 				return $packets;
@@ -283,19 +284,15 @@ class Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
-				if(strpos($player->y, ".") === false){
-					if(strpos($packet->y, ".") !== false){
-						if(floor($player->y) === floor($packet->y)){
-							$pk = new PlayerActionPacket();
-							$pk->entityRuntimeId = $player->getId();
-							$pk->action = PlayerActionPacket::ACTION_JUMP;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$pk->face = 0;
-							$packets[] = $pk;
-						}
-					}
+				if($player->isOnGround() and !$packet->onGround){
+					$pk = new PlayerActionPacket();
+					$pk->entityRuntimeId = $player->getId();
+					$pk->action = PlayerActionPacket::ACTION_JUMP;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->face = 0;
+					$packets[] = $pk;
 				}
 
 				return $packets;
@@ -308,6 +305,7 @@ class Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->bodyYaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
+
 				return $pk;
 
 			case 0x13: //PlayerAbilitiesPacket
@@ -570,6 +568,21 @@ class Translator{
 
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
 		switch($packet->pid()){
+			case Info::PLAY_STATUS_PACKET:
+				if($packet->status === PlayStatusPacket::PLAYER_SPAWN){
+					$pk = new PlayerPositionAndLookPacket();//for loading screen
+					$pk->x = $player->getX();
+					$pk->y = $player->getY();
+					$pk->z = $player->getZ();
+					$pk->yaw = 0;
+					$pk->pitch = 0;
+					$pk->flags = 0;
+
+					return $pk;
+				}
+
+				return null;
+
 			case Info::DISCONNECT_PACKET:
 				BigBrother::removePlayerList($player);
 
@@ -1564,6 +1577,25 @@ class Translator{
 
 				return $packets;
 
+			case Info::FULL_CHUNK_DATA_PACKET:
+				$blockEntities = [];
+				foreach($player->getLevel()->getChunkTiles($packet->chunkX, $packet->chunkZ) as $tile){
+					$blockEntities[] = $tile->getSpawnCompound();
+				}
+
+				$chunk = new DesktopChunk($player, $packet->chunkX, $packet->chunkZ);
+
+				$pk = new ChunkDataPacket();
+				$pk->chunkX = $packet->chunkX;
+				$pk->chunkZ = $packet->chunkZ;
+				$pk->groundUp = true;
+				$pk->primaryBitmap = $chunk->getBitMapData();
+				$pk->payload = $chunk->getChunkData();
+				$pk->biomes = $chunk->getBiomesData();
+				$pk->blockEntities = $blockEntities;
+
+				return $pk;
+
 			case Info::PLAYER_LIST_PACKET:
 				$pk = new PlayerListPacket();
 
@@ -1732,11 +1764,9 @@ class Translator{
 
 				return $packets;
 
-			case Info::PLAY_STATUS_PACKET:
 			case Info::RESOURCE_PACKS_INFO_PACKET:
 			case Info::RESPAWN_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
-			case Info::FULL_CHUNK_DATA_PACKET:
 			case Info::CHUNK_RADIUS_UPDATED_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
 				return null;
