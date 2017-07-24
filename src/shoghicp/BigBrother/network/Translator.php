@@ -245,6 +245,7 @@ class Translator{
 
 			case 0x0d: //PlayerPacket
 				$player->setSetting(["onGround" => $packet->onGround]);
+				$player->onGround = $packet->onGround;
 				return null;
 
 			case 0x0e: //PlayerPositonPacket
@@ -258,19 +259,16 @@ class Translator{
 				$pk->pitch = $player->pitch;
 				$packets[] = $pk;
 
-				if(strpos($player->y, ".") === false){
-					if(strpos($packet->y, ".") !== false){
-						if(floor($player->y) === floor($packet->y)){
-							$pk = new PlayerActionPacket();
-							$pk->entityRuntimeId = $player->getId();
-							$pk->action = PlayerActionPacket::ACTION_JUMP;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$pk->face = 0;
-							$packets[] = $pk;
-						}
-					}
+				if($player->isOnGround() and !$packet->onGround){
+					echo "Jump B $packet->x, $packet->y, $packet->z\n";
+					$pk = new PlayerActionPacket();
+					$pk->entityRuntimeId = $player->getId();
+					$pk->action = PlayerActionPacket::ACTION_JUMP;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->face = 0;
+					$packets[] = $pk;
 				}
 
 				return $packets;
@@ -286,19 +284,15 @@ class Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
-				if(strpos($player->y, ".") === false){
-					if(strpos($packet->y, ".") !== false){
-						if(floor($player->y) === floor($packet->y)){
-							$pk = new PlayerActionPacket();
-							$pk->entityRuntimeId = $player->getId();
-							$pk->action = PlayerActionPacket::ACTION_JUMP;
-							$pk->x = $packet->x;
-							$pk->y = $packet->y;
-							$pk->z = $packet->z;
-							$pk->face = 0;
-							$packets[] = $pk;
-						}
-					}
+				if($player->isOnGround() and !$packet->onGround){
+					$pk = new PlayerActionPacket();
+					$pk->entityRuntimeId = $player->getId();
+					$pk->action = PlayerActionPacket::ACTION_JUMP;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->face = 0;
+					$packets[] = $pk;
 				}
 
 				return $packets;
@@ -311,6 +305,7 @@ class Translator{
 				$pk->yaw = $packet->yaw;
 				$pk->bodyYaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
+
 				return $pk;
 
 			case 0x13: //PlayerAbilitiesPacket
