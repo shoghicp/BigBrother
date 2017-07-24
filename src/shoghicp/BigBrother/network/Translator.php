@@ -260,7 +260,6 @@ class Translator{
 				$packets[] = $pk;
 
 				if($player->isOnGround() and !$packet->onGround){
-					echo "Jump B $packet->x, $packet->y, $packet->z\n";
 					$pk = new PlayerActionPacket();
 					$pk->entityRuntimeId = $player->getId();
 					$pk->action = PlayerActionPacket::ACTION_JUMP;
