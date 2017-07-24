@@ -43,6 +43,7 @@ use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class BigBrother extends PluginBase implements Listener{
@@ -166,6 +167,17 @@ class BigBrother extends PluginBase implements Listener{
 			$pk->gamemode = $player->getGamemode();
 			$pk->levelType = "default";
 			$player->putRawPacket($pk);
+
+			$pk = new PlayerPositionAndLookPacket();
+			$pk->x = $player->getX();
+			$pk->y = $player->getY();
+			$pk->z = $player->getZ();
+			$pk->yaw = 0;
+			$pk->pitch = 0;
+			$pk->flags = 0;
+			$player->putRawPacket($pk);
+
+			$player->getLevel()->requestChunk($player->getX() >> 4, $player->getZ() >> 4, $player);//TODO: orderChunks
 		}
 	}
 
@@ -193,16 +205,13 @@ class BigBrother extends PluginBase implements Listener{
 				if(($side_chest = $block->getSide($i))->getId() === $block->getId()){
 					++$num_side_chest;
 					for($j = 2; $j <= 5; ++$j){
-						// cancel block placement event if side chest is already large-chest
-						if($side_chest->getSide($j)->getId() === $side_chest->getId()){
+						if($side_chest->getSide($j)->getId() === $side_chest->getId()){//Cancel block placement event if side chest is already large-chest
 							$event->setCancelled();
 						}
 					}
 				}
 			}
-
-			// cancel if there are more than one chest that can be large-chest
-			if($num_side_chest > 1){
+			if($num_side_chest > 1){//Cancel if there are more than one chest that can be large-chest
 				$event->setCancelled();
 			}
 		}

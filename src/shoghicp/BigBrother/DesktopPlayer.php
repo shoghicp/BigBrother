@@ -27,18 +27,16 @@
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\Player;
 use pocketmine\event\Timings;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\level\Level;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\SourceInterface;
-use pocketmine\Player;
-use pocketmine\Server;
-use pocketmine\tile\Sign;
 use pocketmine\utils\Utils;
 use pocketmine\utils\UUID;
 use pocketmine\utils\TextFormat;
@@ -47,8 +45,6 @@ use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginSuccessPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\TitlePacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
@@ -146,87 +142,6 @@ class DesktopPlayer extends Player{
 
 	public function cleanSetting($settingname){
 		unset($this->Settings[$settingname]);
-	}
-
-	public function bigBrother_sendChunk($x, $z){
-		if($this->connected === false){
-			return;
-		}
-
-		$this->usedChunks[Level::chunkHash($x, $z)] = true;
-		$this->chunkLoadCount++;
-
-		$blockEntities = [];
-		foreach($this->level->getChunkTiles($x, $z) as $tile){
-			$blockEntities[] = $tile->getSpawnCompound();
-		}
-
-		$chunk = new DesktopChunk($this, $x, $z);
-
-		$pk = new ChunkDataPacket();
-		$pk->chunkX = $x;
-		$pk->chunkZ = $z;
-		$pk->groundUp = true;
-		$pk->primaryBitmap = $chunk->getBitMapData();
-		$pk->payload = $chunk->getChunkData();
-		$pk->biomes = $chunk->getBiomesData();
-		$pk->blockEntities = $blockEntities;
-		$this->putRawPacket($pk);
-
-		if($this->spawned){
-			foreach($this->level->getChunkEntities($x, $z) as $entity){
-				if($entity !== $this and !$entity->closed and $entity->isAlive()){
-					$entity->spawnTo($this);
-				}
-			}
-		}
-	}
-
-	protected function sendNextChunk(){
-		if($this->connected === false){
-			return;
-		}
-
-		Timings::$playerChunkSendTimer->startTiming();
-
-		$count = 0;
-		foreach($this->loadQueue as $index => $distance){
-			if($count >= $this->chunksPerTick){
-				break;
-			}
-
-			$X = null;
-			$Z = null;
-			Level::getXZ($index, $X, $Z);
-			++$count;
-
-			$this->usedChunks[$index] = false;
-			$this->level->registerChunkLoader($this, $X, $Z, false);
-
-			if(!$this->level->populateChunk($X, $Z)){
-				continue;
-			}
-
-			unset($this->loadQueue[$index]);
-			$this->bigBrother_sendChunk($X, $Z);
-		}
-
-		if($this->chunkLoadCount >= $this->spawnThreshold and $this->spawned === false){
-			$this->plugin->getServer()->sendFullPlayerListData($this);//PlayerList
-
-			$this->doFirstSpawn();
-
-			$pk = new PlayerPositionAndLookPacket();
-			$pk->x = $this->x;
-			$pk->y = $this->y;
-			$pk->z = $this->z;
-			$pk->yaw = 0;
-			$pk->pitch = 0;
-			$pk->flags = 0;
-			$this->putRawPacket($pk);//for loading screen
-		}
-
-		Timings::$playerChunkSendTimer->stopTiming();
 	}
 
 	public function bigBrother_authenticate($uuid, $onlineModeData = null){
