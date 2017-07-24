@@ -55,13 +55,13 @@ class SpawnObjectPacket extends Packet{
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);
-		$this->putByte((int) ($this->yaw * (256 / 360)));//TODO
-		$this->putByte((int) ($this->pitch * (256 / 360)));//TODO
+		$this->putByte((int)round($this->yaw * 256 / 360));//TODO make sure
+		$this->putByte((int)round($this->pitch * 256 / 360));//TODO make sure
 		$this->putInt($this->data);
 		if($this->data > 0){
-			$this->putShort($this->velocityX * 8000);
-			$this->putShort($this->velocityY * 8000);
-			$this->putShort($this->velocityZ * 8000);
+			$this->putShort((int)round($this->velocityX * 8000));
+			$this->putShort((int)round($this->velocityY * 8000));
+			$this->putShort((int)round($this->velocityZ * 8000));
 		}
 	}
 

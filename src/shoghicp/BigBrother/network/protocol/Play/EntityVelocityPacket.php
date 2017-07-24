@@ -42,9 +42,9 @@ class EntityVelocityPacket extends Packet{
 
 	public function encode(){
 		$this->putVarInt($this->eid);
-		$this->putShort($this->velocityX * 8000);
-		$this->putShort($this->velocityY * 8000);
-		$this->putShort($this->velocityZ * 8000);
+		$this->putShort((int)round($this->velocityX * 8000));
+		$this->putShort((int)round($this->velocityY * 8000));
+		$this->putShort((int)round($this->velocityZ * 8000));
 	}
 
 	public function decode(){
