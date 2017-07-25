@@ -1015,6 +1015,7 @@ class Translator{
 						$pk->yaw = $packet->yaw;
 						$pk->pitch = $packet->pitch;
 						$pk->onGround = $player->isOnGround();
+
 						return $pk;
 					}
 					return null;

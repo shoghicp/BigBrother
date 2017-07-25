@@ -37,6 +37,7 @@ use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\SourceInterface;
+use pocketmine\level\Level;
 use pocketmine\utils\Utils;
 use pocketmine\utils\UUID;
 use pocketmine\utils\TextFormat;
@@ -45,6 +46,7 @@ use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginSuccessPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\TitlePacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
@@ -142,6 +144,33 @@ class DesktopPlayer extends Player{
 
 	public function cleanSetting($settingname){
 		unset($this->Settings[$settingname]);
+	}
+
+	public function bigBrother_respawn(){
+		$pk = new PlayerPositionAndLookPacket();
+		$pk->x = $this->getX();
+		$pk->y = $this->getY();
+		$pk->z = $this->getZ();
+		$pk->yaw = 0;
+		$pk->pitch = 0;
+		$pk->flags = 0;
+		$this->putRawPacket($pk);
+
+		foreach($this->usedChunks as $index => $d){//reset chunks
+			Level::getXZ($index, $x, $z);
+
+			foreach($this->level->getChunkEntities($x, $z) as $entity){
+				if($entity !== $this){
+					$entity->despawnFrom($this);
+				}
+			}
+
+			unset($this->usedChunks[$index]);
+			$this->level->unregisterChunkLoader($this, $x, $z);
+			unset($this->loadQueue[$index]);
+		}
+
+		$this->usedChunks = [];
 	}
 
 	public function bigBrother_authenticate($uuid, $onlineModeData = null){

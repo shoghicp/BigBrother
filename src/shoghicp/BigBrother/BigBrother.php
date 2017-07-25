@@ -43,7 +43,6 @@ use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class BigBrother extends PluginBase implements Listener{
@@ -168,16 +167,7 @@ class BigBrother extends PluginBase implements Listener{
 			$pk->levelType = "default";
 			$player->putRawPacket($pk);
 
-			$pk = new PlayerPositionAndLookPacket();
-			$pk->x = $player->getX();
-			$pk->y = $player->getY();
-			$pk->z = $player->getZ();
-			$pk->yaw = 0;
-			$pk->pitch = 0;
-			$pk->flags = 0;
-			$player->putRawPacket($pk);
-
-			$player->getLevel()->requestChunk($player->getX() >> 4, $player->getZ() >> 4, $player);//TODO: orderChunks
+			$player->bigBrother_respawn();
 		}
 	}
 
@@ -258,7 +248,7 @@ class BigBrother extends PluginBase implements Listener{
 						}
 					}
 
-					foreach($parameters as $num => $parameter){
+					foreach($parameters as $parameter){
 						if(strpos($parameter, "%") !== false){
 							$with["with"][] = ["translate" => str_replace("%", "", $parameter)];
 						}else{
