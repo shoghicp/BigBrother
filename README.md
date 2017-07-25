@@ -1,9 +1,9 @@
 BigBrother
 =============
-[![license](https://img.shields.io/github/license/BigBrotherTeam/BigBrother.svg?style=flat-square)](https://github.com/BigBrotherTeam/BigBrother/blob/master/LICENSE)
-[![GitHub contributors](https://img.shields.io/github/contributors/BigBrotherTeam/BigBrother.svg?style=flat-square)](https://github.com/BigBrotherTeam/BigBrother/graphs/contributors)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/BigBrotherTeam/BigBrother.svg?style=flat-square)](https://github.com/BigBrotherTeam/BigBrother/pulls)
-[![issues](https://img.shields.io/github/issues/BigBrotherTeam/BigBrother.svg?style=flat-square)](https://github.com/BigBrotherTeam/BigBrother/issues)
+[![license](https://img.shields.io/github/license/BigBrotherTeam/BigBrother.svg)](https://github.com/BigBrotherTeam/BigBrother/blob/master/LICENSE)
+[![GitHub contributors](https://img.shields.io/github/contributors/BigBrotherTeam/BigBrother.svg)](https://github.com/BigBrotherTeam/BigBrother/graphs/contributors)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Percentage of issues still open")
 
 Welcome to BigBrother, a shoghicp's project who has been abandonned and who has been taken back by the BigBrotherTeam!
 -------------
