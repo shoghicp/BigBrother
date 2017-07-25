@@ -493,6 +493,7 @@ class ConvertUtils{
 
 		switch($itemid){
 			case Item::PUMPKIN:
+			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
 
