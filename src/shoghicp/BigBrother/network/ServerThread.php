@@ -87,9 +87,9 @@ class ServerThread extends \Thread{
 		}
 
 		$this->internalSocket = $sockets[0];
-		stream_set_blocking($this->internalSocket, 0);
+		stream_set_blocking($this->internalSocket, false);
 		$this->externalSocket = $sockets[1];
-		stream_set_blocking($this->externalSocket, 0);
+		stream_set_blocking($this->externalSocket, false);
 
 		$this->start();
 	}
