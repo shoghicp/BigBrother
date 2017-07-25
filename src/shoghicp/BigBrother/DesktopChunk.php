@@ -27,7 +27,6 @@
 
 namespace shoghicp\BigBrother;
 
-use pocketmine\Player;
 use pocketmine\level\Level;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
@@ -35,7 +34,7 @@ use shoghicp\BigBrother\utils\ConvertUtils;
 class DesktopChunk{
 	private $player, $chunkX, $chunkZ, $provider, $groundup, $bitmap, $biomes, $data;
 
-	public function __construct(Player $player, $chunkX, $chunkZ){
+	public function __construct(DesktopPlayer $player, $chunkX, $chunkZ){
 		$this->player = $player;
 		$this->chunkX = $chunkX;
 		$this->chunkZ = $chunkZ;
