@@ -33,7 +33,7 @@ use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class DesktopChunk{
-	private $player, $chunkX, $chunkZ, $provider, $groundup, $bitmap, $biomes;
+	private $player, $chunkX, $chunkZ, $provider, $groundup, $bitmap, $biomes, $data;
 
 	public function __construct(Player $player, $chunkX, $chunkZ){
 		$this->player = $player;

@@ -29,6 +29,7 @@ namespace shoghicp\BigBrother\network;
 
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
+use pocketmine\Server;
 use pocketmine\Player;
 use pocketmine\utils\MainLogger;
 use shoghicp\BigBrother\BigBrother;
@@ -68,6 +69,8 @@ class ProtocolInterface implements SourceInterface{
 
 	/** @var BigBrother */
 	protected $plugin;
+	/** @var Server */
+	protected $server;
 	/** @var Translator */
 	protected $translator;
 	/** @var ServerThread */

@@ -68,6 +68,8 @@ class DesktopPlayer extends Player{
 	protected $Settings = [];
 	/** @var ProtocolInterface */
 	protected $interface;
+	/** @var BigBrother */
+	protected $plugin;
 
 	public function __construct(SourceInterface $interface, $clientID, $address, $port, BigBrother $plugin){
 		$this->plugin = $plugin;
