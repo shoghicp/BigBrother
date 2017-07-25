@@ -49,18 +49,16 @@ class ServerThread extends \Thread{
 	protected $internalSocket;
 
 	/**
-	 * @param \Threaded       $externalQueue
-	 * @param \Threaded       $internalQueue
 	 * @param \ThreadedLogger $logger
 	 * @param \ClassLoader    $loader
 	 * @param int             $port 1-65536
 	 * @param string          $interface
 	 * @param string          $motd
-	 * @param string          $icon
+	 * @param string|null     $icon
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, $port, $interface = "0.0.0.0", $motd = "Minecraft: PE server", $icon = null){
+	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null){
 		$this->port = (int) $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");

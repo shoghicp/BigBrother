@@ -101,13 +101,21 @@ class ServerManager{
 	/** @var string[] */
 	public $sample = [];
 	public $description;
+	/** @var string|null */
 	public $favicon;
 	public $serverdata = [
 		"MaxPlayers" => 20,
 		"OnlinePlayers" => 0,
 	];
 
-	public function __construct(ServerThread $thread, $port, $interface, $description = "", $favicon = null){
+	/**
+	 * @param ServerThread $thread
+	 * @param int          $port
+	 * @param string       $interface
+	 * @param string       $description
+	 * @param string|null  $favicon
+	 */
+	public function __construct(ServerThread $thread, int $port, string $interface, string $description = "", string $favicon = null){
 		$this->thread = $thread;
 		$this->description = $description;
 		if($favicon === null or ($image = file_get_contents($favicon)) == ""){
