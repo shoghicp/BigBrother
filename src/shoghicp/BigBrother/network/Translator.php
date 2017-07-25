@@ -116,6 +116,11 @@ use shoghicp\BigBrother\utils\ConvertUtils;
 
 class Translator{
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param Packet        $packet
+	 * @return DataPacket|array<DataPacket>|null
+	 */
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
 			case 0x00: //TeleportConfirmPacket
@@ -565,6 +570,11 @@ class Translator{
 		}
 	}
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param DataPacket    $packet
+	 * @return Packet|array<Packet>|null
+	 */
 	public function serverToInterface(DesktopPlayer $player, DataPacket $packet){
 		switch($packet->pid()){
 			case Info::PLAY_STATUS_PACKET:
