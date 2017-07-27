@@ -27,15 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EntityPropertiesPacket extends Packet{
+class EntityPropertiesPacket extends OutboundPacket{
 
 	public $eid;
 	public $entries = [];
 
 	public function pid(){
-		return 0x4d;
+		return self::ENTITY_PROPERTIES_PACKET;
 	}
 
 	public function encode(){
@@ -46,9 +46,5 @@ class EntityPropertiesPacket extends Packet{
 			$this->putDouble($entry[1]);
 			$this->putVarInt(0);//TODO: Modifiers
 		}
-	}
-
-	public function decode(){
-
 	}
 }

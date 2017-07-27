@@ -27,23 +27,19 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class TimeUpdatePacket extends Packet{
+class TimeUpdatePacket extends OutboundPacket{
 
 	public $age;
 	public $time;
 
 	public function pid(){
-		return 0x46;
+		return self::TIME_UPDATE_PACKET;
 	}
 
 	public function encode(){
 		$this->putLong($this->age);
 		$this->putLong($this->time);
-	}
-
-	public function decode(){
-
 	}
 }

@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class SpawnPaintingPacket extends Packet{
+class SpawnPaintingPacket extends OutboundPacket{
 
 	public $eid;
 	public $uuid;
@@ -40,7 +40,7 @@ class SpawnPaintingPacket extends Packet{
 	public $direction;
 
 	public function pid(){
-		return 0x04;
+		return self::SPAWN_PAINTING_PACKET;
 	}
 
 	public function encode(){
@@ -49,9 +49,5 @@ class SpawnPaintingPacket extends Packet{
 		$this->putString($this->title);
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putByte($this->direction);
-	}
-
-	public function decode(){
-
 	}
 }

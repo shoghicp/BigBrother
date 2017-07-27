@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EntityEffectPacket extends Packet{
+class EntityEffectPacket extends OutboundPacket{
 
 	public $eid;
 	public $effectId;
@@ -38,7 +38,7 @@ class EntityEffectPacket extends Packet{
 	public $flags;
 
 	public function pid(){
-		return 0x4e;
+		return self::ENTITY_EFFECT_PACKET;
 	}
 
 	public function encode(){
@@ -47,9 +47,5 @@ class EntityEffectPacket extends Packet{
 		$this->putByte($this->amplifier);
 		$this->putVarInt($this->duration);
 		$this->putByte($this->flags);
-	}
-
-	public function decode(){
-
 	}
 }

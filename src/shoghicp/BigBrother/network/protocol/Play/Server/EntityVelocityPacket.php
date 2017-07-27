@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EntityVelocityPacket extends Packet{
+class EntityVelocityPacket extends OutboundPacket{
 
 	public $eid;
 	public $velocityX;
@@ -37,7 +37,7 @@ class EntityVelocityPacket extends Packet{
 	public $velocityZ;
 
 	public function pid(){
-		return 0x3d;
+		return self::ENTITY_VELOCITY_PACKET;
 	}
 
 	public function encode(){
@@ -45,9 +45,5 @@ class EntityVelocityPacket extends Packet{
 		$this->putShort((int)round($this->velocityX * 8000));
 		$this->putShort((int)round($this->velocityY * 8000));
 		$this->putShort((int)round($this->velocityZ * 8000));
-	}
-
-	public function decode(){
-
 	}
 }

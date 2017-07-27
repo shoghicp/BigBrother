@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EffectPacket extends Packet{
+class EffectPacket extends OutboundPacket{
 
 	public $effectId;
 	public $x;
@@ -39,7 +39,7 @@ class EffectPacket extends Packet{
 	public $disableRelativeVolume;
 
 	public function pid(){
-		return 0x21;
+		return self::EFFECT_PACKET;
 	}
 
 	public function encode(){
@@ -47,9 +47,5 @@ class EffectPacket extends Packet{
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putInt($this->data);
 		$this->putByte($this->disableRelativeVolume > 0);
-	}
-
-	public function decode(){
-
 	}
 }

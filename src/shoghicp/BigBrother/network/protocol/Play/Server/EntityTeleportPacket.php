@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EntityTeleportPacket extends Packet{
+class EntityTeleportPacket extends OutboundPacket{
 	public $eid;
 	public $x;
 	public $y;
@@ -39,7 +39,7 @@ class EntityTeleportPacket extends Packet{
 	public $onGround = true;
 
 	public function pid(){
-		return 0x4b;
+		return self::ENTITY_TELEPORT_PACKET;
 	}
 
 	public function encode(){
@@ -53,9 +53,5 @@ class EntityTeleportPacket extends Packet{
 		$this->putByte((int)round($this->yaw * 256 / 360));//TODO make sure
 		$this->putByte((int)round($this->pitch * 256 / 360));//TODO make sure
 		$this->putByte($this->onGround ? 1 : 0);
-	}
-
-	public function decode(){
-
 	}
 }

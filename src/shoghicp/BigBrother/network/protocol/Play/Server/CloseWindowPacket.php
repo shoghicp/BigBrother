@@ -27,21 +27,17 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class CloseWindowPacket extends Packet{
+class CloseWindowPacket extends OutboundPacket{
 
 	public $windowID;
 
 	public function pid(){
-		return 0x12;
+		return self::CLOSE_WINDOW_PACKET;
 	}
 
 	public function encode(){
 		$this->putByte($this->windowID);
-	}
-
-	public function decode(){
-
 	}
 }

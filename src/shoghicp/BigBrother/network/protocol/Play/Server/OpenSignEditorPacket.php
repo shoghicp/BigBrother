@@ -27,23 +27,19 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class OpenSignEditorPacket extends Packet{
+class OpenSignEditorPacket extends OutboundPacket{
 
 	public $x;
 	public $y;
 	public $z;
 
 	public function pid(){
-		return 0x2a;
+		return self::OPEN_SIGN_EDITOR_PACKET;
 	}
 
 	public function encode(){
 		$this->putPosition($this->x, $this->y, $this->z);
-	}
-
-	public function decode(){
-
 	}
 }

@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class PlayerListPacket extends Packet{
+class PlayerListPacket extends OutboundPacket{
 
 	const TYPE_ADD = 0;
 	const TYPE_UPDATE_NAME = 3;
@@ -39,7 +39,7 @@ class PlayerListPacket extends Packet{
 	public $players = [];
 
 	public function pid(){
-		return 0x2d;
+		return self::PLAYER_LIST_PACKET;
 	}
 
 	public function clean(){
@@ -88,9 +88,5 @@ class PlayerListPacket extends Packet{
 					break;
 			}
 		}
-	}
-
-	public function decode(){
-
 	}
 }

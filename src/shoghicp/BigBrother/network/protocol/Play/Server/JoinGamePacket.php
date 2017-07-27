@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class JoinGamePacket extends Packet{
+class JoinGamePacket extends OutboundPacket{
 
 	public $eid;
 	public $gamemode;
@@ -40,7 +40,7 @@ class JoinGamePacket extends Packet{
 	public $reducedDebugInfo = false;
 
 	public function pid(){
-		return 0x23;
+		return self::JOIN_GAME_PACKET;
 	}
 
 	public function encode(){
@@ -51,9 +51,5 @@ class JoinGamePacket extends Packet{
 		$this->putByte($this->maxPlayers);
 		$this->putString($this->levelType);
 		$this->putByte($this->reducedDebugInfo ? 1 : 0);
-	}
-
-	public function decode(){
-
 	}
 }

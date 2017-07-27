@@ -27,25 +27,21 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class UpdateHealthPacket extends Packet{
+class UpdateHealthPacket extends OutboundPacket{
 
 	public $health;
 	public $food;
 	public $saturation;
 
 	public function pid(){
-		return 0x40;
+		return self::UPDATE_HEALTH_PACKET;
 	}
 
 	public function encode(){
 		$this->putFloat($this->health);
 		$this->putVarInt($this->food);
 		$this->putFloat($this->saturation);
-	}
-
-	public function decode(){
-
 	}
 }

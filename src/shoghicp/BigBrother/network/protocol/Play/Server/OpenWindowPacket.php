@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class OpenWindowPacket extends Packet{
+class OpenWindowPacket extends OutboundPacket{
 
 	public $windowID;
 	public $inventoryType;
@@ -38,7 +38,7 @@ class OpenWindowPacket extends Packet{
 	public $entityId = -1;
 
 	public function pid(){
-		return 0x13;
+		return self::OPEN_WINDOW_PACKET;
 	}
 
 	public function encode(){
@@ -49,9 +49,5 @@ class OpenWindowPacket extends Packet{
 		if($this->entityId !== -1){
 			$this->putInt($this->entityId);
 		}
-	}
-
-	public function decode(){
-
 	}
 }

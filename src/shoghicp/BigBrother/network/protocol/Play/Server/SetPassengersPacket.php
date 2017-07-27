@@ -27,15 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class SetPassengersPacket extends Packet{
+class SetPassengersPacket extends OutboundPacket{
 
 	public $eid;
 	public $passengers = [];
 
 	public function pid(){
-		return 0x42;
+		return self::SET_PASSENGERS_PACKET;
 	}
 
 	public function encode(){
@@ -44,9 +44,5 @@ class SetPassengersPacket extends Packet{
 		foreach($this->passengers as $passenger){
 			$this->putVarInt($passenger);
 		}
-	}
-
-	public function decode(){
-
 	}
 }

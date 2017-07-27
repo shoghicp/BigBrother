@@ -27,14 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class TabCompletePacket extends Packet{
+class TabCompletePacket extends OutboundPacket{
 
 	public $matches = [];
 
 	public function pid(){
-		return 0x0e;
+		return self::TAB_COMPLETE_PACKET;
 	}
 
 	public function encode(){
@@ -42,8 +42,5 @@ class TabCompletePacket extends Packet{
 		foreach($this->matches as $match){
 			$this->putString($match);
 		}
-	}
-
-	public function decode(){
 	}
 }

@@ -27,21 +27,17 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class PlayDisconnectPacket extends Packet{
+class PlayDisconnectPacket extends OutboundPacket{
 
 	public $reason;
 
 	public function pid(){
-		return 0x1a;
+		return self::PLAY_DISCONNECT_PACKET;
 	}
 
 	public function encode(){
 		$this->putString($this->reason);
-	}
-
-	public function decode(){
-		$this->reason = $this->getString();
 	}
 }

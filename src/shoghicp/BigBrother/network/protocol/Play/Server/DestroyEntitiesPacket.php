@@ -27,14 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class DestroyEntitiesPacket extends Packet{
+class DestroyEntitiesPacket extends OutboundPacket{
 
 	public $ids = [];
 
 	public function pid(){
-		return 0x31;
+		return self::DESTROY_ENTITIES_PACKET;
 	}
 
 	public function encode(){
@@ -42,9 +42,5 @@ class DestroyEntitiesPacket extends Packet{
 		foreach($this->ids as $id){
 			$this->putVarInt($id);
 		}
-	}
-
-	public function decode(){
-
 	}
 }

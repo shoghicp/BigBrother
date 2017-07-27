@@ -27,15 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EntityHeadLookPacket extends Packet{
+class EntityHeadLookPacket extends OutboundPacket{
 
 	public $eid;
 	public $yaw;
 
 	public function pid(){
-		return 0x35;
+		return self::ENTITY_HEAD_LOOK_PACKET;
 	}
 
 	public function encode(){
@@ -43,9 +43,5 @@ class EntityHeadLookPacket extends Packet{
 
 		$this->putVarInt($this->eid);
 		$this->putByte((int)round($this->yaw * 256 / 360));//TODO make sure
-	}
-
-	public function decode(){
-
 	}
 }

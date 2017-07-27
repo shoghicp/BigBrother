@@ -27,11 +27,11 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 use pocketmine\nbt\NBT;
 
-class ChunkDataPacket extends Packet{
+class ChunkDataPacket extends OutboundPacket{
 
 	public $chunkX;
 	public $chunkZ;
@@ -42,7 +42,7 @@ class ChunkDataPacket extends Packet{
 	public $blockEntities = [];
 
 	public function pid(){
-		return 0x20;
+		return self::CHUNK_DATA_PACKET;
 	}
 
 	public function encode(){
@@ -64,9 +64,5 @@ class ChunkDataPacket extends Packet{
 			ConvertUtils::convertNBTData(true, $blockEntity);
 			$this->put($blockEntity);
 		}
-	}
-
-	public function decode(){
-
 	}
 }

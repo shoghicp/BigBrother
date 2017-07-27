@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class TitlePacket extends Packet{
+class TitlePacket extends OutboundPacket{
 
 	const TYPE_SET_TITLE = 0;
 	const TYPE_SET_SUB_TITLE = 1;
@@ -41,7 +41,7 @@ class TitlePacket extends Packet{
 	public $data = null;
 
 	public function pid(){
-		return 0x47;
+		return self::TITLE_PACKET;
 	}
 
 	public function encode(){
@@ -57,9 +57,5 @@ class TitlePacket extends Packet{
 				$this->putInt($this->data[2]);
 			break;
 		}
-	}
-
-	public function decode(){
-
 	}
 }

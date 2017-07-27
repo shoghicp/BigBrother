@@ -27,25 +27,21 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class SetExperiencePacket extends Packet{
+class SetExperiencePacket extends OutboundPacket{
 
 	public $experience;
 	public $level;
 	public $totalexperience;
 
 	public function pid(){
-		return 0x3f;
+		return self::SET_EXPERIENCE_PACKET;
 	}
 
 	public function encode(){
 		$this->putFloat($this->experience);
 		$this->putVarInt($this->level);
 		$this->putVarInt($this->totalexperience);
-	}
-
-	public function decode(){
-
 	}
 }

@@ -27,25 +27,21 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class CollectItemPacket extends Packet{
+class CollectItemPacket extends OutboundPacket{
 
 	public $eid;
 	public $target;
 	public $itemCount;
 
 	public function pid(){
-		return 0x4a;
+		return self::COLLECT_ITEM_PACKET;
 	}
 
 	public function encode(){
 		$this->putVarInt($this->target);
 		$this->putVarInt($this->eid);
 		$this->putVarInt($this->itemCount);
-	}
-
-	public function decode(){
-
 	}
 }

@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class ScoreboardObjectivePacket extends Packet{
+class ScoreboardObjectivePacket extends OutboundPacket{
 
 	public $ObjectiveName;
 	public $Mode;
@@ -37,7 +37,7 @@ class ScoreboardObjectivePacket extends Packet{
 	public $Type;
 
 	public function pid(){
-		return 0x41;
+		return self::SCOREBOARD_OBJECTIVE_PACKET;
 	}
 
 	public function encode(){
@@ -45,8 +45,5 @@ class ScoreboardObjectivePacket extends Packet{
 		$this->putByte($this->Mode);
 		$this->putString($this->ObjectiveValue);
 		$this->putString($this->Type);
-	}
-
-	public function decode(){
 	}
 }

@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class BlockActionPacket extends Packet{
+class BlockActionPacket extends OutboundPacket{
 
 	public $x;
 	public $y;
@@ -39,7 +39,7 @@ class BlockActionPacket extends Packet{
 	public $blockType;
 
 	public function pid(){
-		return 0x0a;
+		return self::BLOCK_ACTION_PACKET;
 	}
 
 	public function encode(){
@@ -47,9 +47,5 @@ class BlockActionPacket extends Packet{
 		$this->putByte($this->actionID);
 		$this->putByte($this->actionParam);
 		$this->putVarInt($this->blockType);
-	}
-
-	public function decode(){
-
 	}
 }

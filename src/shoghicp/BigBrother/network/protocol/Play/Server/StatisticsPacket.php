@@ -27,15 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class StatisticsPacket extends Packet{
+class StatisticsPacket extends OutboundPacket{
 
 	public $count;
 	public $statistic = [];
 
 	public function pid(){
-		return 0x07;
+		return self::STATISTICS_PACKET;
 	}
 
 	public function encode(){
@@ -44,9 +44,5 @@ class StatisticsPacket extends Packet{
 			$this->putString($statistic[0]);
 			$this->putVarInt($statistic[1]);
 		}
-	}
-
-	public function decode(){
-
 	}
 }

@@ -27,25 +27,21 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class EntityEquipmentPacket extends Packet{
+class EntityEquipmentPacket extends OutboundPacket{
 
 	public $eid;
 	public $slot;
 	public $item;
 
 	public function pid(){
-		return 0x3e;
+		return self::ENTITY_EQUIPMENT_PACKET;
 	}
 
 	public function encode(){
 		$this->putVarInt($this->eid);
 		$this->putVarInt($this->slot);
 		$this->putSlot($this->item);
-	}
-
-	public function decode(){
-
 	}
 }

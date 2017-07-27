@@ -27,10 +27,10 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\Binary;
 
-class SpawnMobPacket extends Packet{
+class SpawnMobPacket extends OutboundPacket{
 
 	public $eid;
 	public $uuid;
@@ -47,7 +47,7 @@ class SpawnMobPacket extends Packet{
 	public $metadata;
 
 	public function pid(){
-		return 0x03;
+		return self::SPAWN_MOB_PACKET;
 	}
 
 	public function encode(){
@@ -68,9 +68,5 @@ class SpawnMobPacket extends Packet{
 		$this->putShort((int)round($this->velocityY * 8000));
 		$this->putShort((int)round($this->velocityZ * 8000));
 		$this->put(Binary::writeMetadata($this->metadata));
-	}
-
-	public function decode(){
-
 	}
 }

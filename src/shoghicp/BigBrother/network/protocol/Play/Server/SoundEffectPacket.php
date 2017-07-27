@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class SoundEffectPacket extends Packet{
+class SoundEffectPacket extends OutboundPacket{
 
 	public $id;
 	public $category;
@@ -40,7 +40,7 @@ class SoundEffectPacket extends Packet{
 	public $pitch;
 
 	public function pid(){
-		return 0x48;
+		return self::SOUND_EFFECT_PACKET;
 	}
 
 	public function encode(){
@@ -51,9 +51,5 @@ class SoundEffectPacket extends Packet{
 		$this->putInt($this->z * 8);
 		$this->putFloat($this->volume);
 		$this->putFloat($this->pitch);
-	}
-
-	public function decode(){
-
 	}
 }

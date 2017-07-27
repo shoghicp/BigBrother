@@ -27,23 +27,19 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class ChatPacket extends Packet{
+class ChatPacket extends OutboundPacket{
 
 	public $message;
 	public $position = 0; //0 = chat, 1 = system message, 2 = action bar
 
 	public function pid(){
-		return 0x0f;
+		return self::CHAT_PACKET;
 	}
 
 	public function encode(){
 		$this->putString($this->message);
 		$this->putByte($this->position);
-	}
-
-	public function decode(){
-
 	}
 }

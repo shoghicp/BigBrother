@@ -27,20 +27,17 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class ServerDifficultyPacket extends Packet{
+class ServerDifficultyPacket extends OutboundPacket{
 
 	public $difficulty;
 
 	public function pid(){
-		return 0x0d;
+		return self::SERVER_DIFFICULTY_PACKET;
 	}
 
 	public function encode(){
 		$this->putByte($this->difficulty);
-	}
-
-	public function decode(){
 	}
 }

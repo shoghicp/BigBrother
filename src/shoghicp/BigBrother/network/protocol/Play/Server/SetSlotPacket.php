@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class SetSlotPacket extends Packet{
+class SetSlotPacket extends OutboundPacket{
 
 	public $windowID;
 	public $slot;
@@ -37,16 +37,12 @@ class SetSlotPacket extends Packet{
 	public $item;
 
 	public function pid(){
-		return 0x16;
+		return self::SET_SLOT_PACKET;
 	}
 
 	public function encode(){
 		$this->putByte($this->windowID);
 		$this->putShort($this->slot);
 		$this->putSlot($this->item);
-	}
-
-	public function decode(){
-
 	}
 }

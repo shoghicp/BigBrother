@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class BlockChangePacket extends Packet{
+class BlockChangePacket extends OutboundPacket{
 
 	public $x;
 	public $y;
@@ -38,15 +38,11 @@ class BlockChangePacket extends Packet{
 	public $blockMeta;
 
 	public function pid(){
-		return 0x0b;
+		return self::BLOCK_CHANGE_PACKET;
 	}
 
 	public function encode(){
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putVarInt(($this->blockId << 4) | ($this->blockMeta & 15));
-	}
-
-	public function decode(){
-
 	}
 }

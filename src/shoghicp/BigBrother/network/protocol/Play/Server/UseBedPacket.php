@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class UseBedPacket extends Packet{
+class UseBedPacket extends OutboundPacket{
 
 	public $eid;
 	public $bedX;
@@ -37,14 +37,11 @@ class UseBedPacket extends Packet{
 	public $bedZ;
 
 	public function pid(){
-		return 0x2f;
+		return self::USE_BED_PACKET;
 	}
 
 	public function encode(){
 		$this->putVarInt($this->eid);
 		$this->putPosition($this->bedX, $this->bedY, $this->bedZ);
-	}
-
-	public function decode(){
 	}
 }

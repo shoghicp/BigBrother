@@ -27,16 +27,16 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class WindowItemsPacket extends Packet{
+class WindowItemsPacket extends OutboundPacket{
 
 	public $windowID;
 	/** @var \pocketmine\item\Item[] */
 	public $items = [];
 
 	public function pid(){
-		return 0x14;
+		return self::WINDOW_ITEMS_PACKET;
 	}
 
 	public function encode(){
@@ -45,9 +45,5 @@ class WindowItemsPacket extends Packet{
 		foreach($this->items as $item){
 			$this->putSlot($item);
 		}
-	}
-
-	public function decode(){
-
 	}
 }

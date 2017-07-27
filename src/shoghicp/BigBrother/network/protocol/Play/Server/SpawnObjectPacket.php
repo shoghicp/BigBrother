@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class SpawnObjectPacket extends Packet{
+class SpawnObjectPacket extends OutboundPacket{
 
 	public $eid;
 	public $uuid;
@@ -45,7 +45,7 @@ class SpawnObjectPacket extends Packet{
 	public $velocityZ;
 
 	public function pid(){
-		return 0x00;
+		return self::SPAWN_OBJECT_PACKET;
 	}
 
 	public function encode(){
@@ -66,9 +66,5 @@ class SpawnObjectPacket extends Packet{
 			$this->putShort((int)round($this->velocityY * 8000));
 			$this->putShort((int)round($this->velocityZ * 8000));
 		}
-	}
-
-	public function decode(){
-
 	}
 }

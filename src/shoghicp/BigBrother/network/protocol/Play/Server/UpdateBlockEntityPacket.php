@@ -27,10 +27,10 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
-class UpdateBlockEntityPacket extends Packet{
+class UpdateBlockEntityPacket extends OutboundPacket{
 
 	public $x;
 	public $y;
@@ -39,7 +39,7 @@ class UpdateBlockEntityPacket extends Packet{
 	public $namedtag = "";
 
 	public function pid(){
-		return 0x09;
+		return self::UPDATE_BLOCK_ENTITY_PACKET;
 	}
 
 	public function encode(){
@@ -47,8 +47,5 @@ class UpdateBlockEntityPacket extends Packet{
 		$this->putByte($this->actionID);
 		ConvertUtils::convertNBTData(true, $this->namedtag);
 		$this->put($this->namedtag);
-	}
-
-	public function decode(){
 	}
 }

@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class BossBarPacket extends Packet{
+class BossBarPacket extends OutboundPacket{
 
 	const TYPE_ADD = 0;
 	const TYPE_REMOVE = 1;
@@ -40,7 +40,7 @@ class BossBarPacket extends Packet{
 	public $actionID;
 
 	public function pid(){
-		return 0x0c;
+		return self::BOSS_BAR_PACKET;
 	}
 
 	public function encode(){
@@ -64,8 +64,5 @@ class BossBarPacket extends Packet{
 			break;
 			//TODO: addtype
 		}
-	}
-
-	public function decode(){
 	}
 }

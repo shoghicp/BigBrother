@@ -27,23 +27,19 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class ChangeGameStatePacket extends Packet{
+class ChangeGameStatePacket extends OutboundPacket{
 
 	public $reason;
 	public $value;
 
 	public function pid(){
-		return 0x1e;
+		return self::CHANGE_GAME_STATE_PACKET;
 	}
 
 	public function encode(){
 		$this->putByte($this->reason);
 		$this->putFloat($this->value);
-	}
-
-	public function decode(){
-
 	}
 }

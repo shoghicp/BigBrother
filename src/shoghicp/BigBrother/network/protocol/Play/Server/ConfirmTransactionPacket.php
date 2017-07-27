@@ -27,25 +27,21 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class ConfirmTransactionPacket extends Packet{
+class ConfirmTransactionPacket extends OutboundPacket{
 
 	public $windowID;
 	public $actionNumber;
 	public $accepted;
 
 	public function pid(){
-		return 0x11;
+		return self::CONFIRM_TRANSACTION_PACKET;
 	}
 
 	public function encode(){
 		$this->putByte($this->windowID);
 		$this->putShort($this->actionNumber);
 		$this->putByte($this->accepted > 0);
-	}
-
-	public function decode(){
-
 	}
 }
