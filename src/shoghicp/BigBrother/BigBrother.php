@@ -41,8 +41,8 @@ use phpseclib\Crypt\RSA;
 use shoghicp\BigBrother\network\Info as MCInfo;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
-use shoghicp\BigBrother\network\protocol\Play\RespawnPacket;
-use shoghicp\BigBrother\network\protocol\Play\OpenSignEditorPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\OpenSignEditorPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class BigBrother extends PluginBase implements Listener{

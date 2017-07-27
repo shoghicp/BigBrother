@@ -39,10 +39,10 @@ use pocketmine\item\Item;
 use pocketmine\inventory\InventoryHolder;
 
 use shoghicp\BigBrother\BigBrother;
-use shoghicp\BigBrother\network\protocol\Play\OpenWindowPacket;
-use shoghicp\BigBrother\network\protocol\Play\SetSlotPacket;
-use shoghicp\BigBrother\network\protocol\Play\WindowItemsPacket;
-use shoghicp\BigBrother\network\protocol\Play\CollectItemPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\OpenWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\SetSlotPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\WindowItemsPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\CollectItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
 
 class InventoryUtils{
