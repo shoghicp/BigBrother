@@ -38,10 +38,9 @@ class UseItemPacket extends Packet{
 	}
 
 	public function encode(){
-		$this->hand = $this->getVarInt();
 	}
 
 	public function decode(){
-
+		$this->hand = $this->getVarInt();
 	}
 }
