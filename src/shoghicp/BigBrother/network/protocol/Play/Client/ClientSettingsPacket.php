@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class ClientSettingsPacket extends Packet{
+class ClientSettingsPacket extends InboundPacket{
 
 	public $lang;
 	public $view;
@@ -38,11 +38,7 @@ class ClientSettingsPacket extends Packet{
 	public $skinsetting;
 
 	public function pid(){
-		return 0x05;
-	}
-
-	public function encode(){
-
+		return self::CLIENT_SETTINGS_PACKET;
 	}
 
 	public function decode(){

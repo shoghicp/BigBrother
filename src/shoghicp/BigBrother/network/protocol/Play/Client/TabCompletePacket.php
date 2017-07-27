@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class TabCompletePacket extends Packet{
+class TabCompletePacket extends InboundPacket{
 
 	public $text;
 	public $assumeCommand;
@@ -39,11 +39,7 @@ class TabCompletePacket extends Packet{
 	public $z;
 
 	public function pid(){
-		return 0x02;
-	}
-
-	public function encode(){
-
+		return self::TAB_COMPLETE_PACKET;
 	}
 
 	public function decode(){

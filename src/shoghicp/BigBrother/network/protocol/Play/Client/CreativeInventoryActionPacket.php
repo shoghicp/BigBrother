@@ -27,19 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class CreativeInventoryActionPacket extends Packet{
+class CreativeInventoryActionPacket extends InboundPacket{
 
 	public $slot;
 	public $item;
 
 	public function pid(){
-		return 0x1b;
-	}
-
-	public function encode(){
-
+		return self::CREATIVE_INVENTORY_ACTION_PACKET;
 	}
 
 	public function decode(){

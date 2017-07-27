@@ -27,18 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class ClientStatusPacket extends Packet{
+class ClientStatusPacket extends InboundPacket{
 
 	public $actionID;
 
 	public function pid(){
-		return 0x04;
-	}
-
-	public function encode(){
-
+		return self::CLIENT_STATUS_PACKET;
 	}
 
 	public function decode(){

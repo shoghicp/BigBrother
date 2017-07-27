@@ -27,19 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class UseEntityPacket extends Packet{
+class UseEntityPacket extends InboundPacket{
 
 	public $target;
 	public $type;
 
 	public function pid(){
-		return 0x0b;
-	}
-
-	public function encode(){
-
+		return self::USE_ENTITY_PACKET;
 	}
 
 	public function decode(){

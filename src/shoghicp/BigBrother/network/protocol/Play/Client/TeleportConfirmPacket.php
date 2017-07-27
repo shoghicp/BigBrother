@@ -27,18 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class TeleportConfirmPacket extends Packet{
+class TeleportConfirmPacket extends InboundPacket{
 
 	public $teleportId;
 
 	public function pid(){
-		return 0x00;
-	}
-
-	public function encode(){
-
+		return self::TELEPORT_CONFIRM_PACKET;
 	}
 
 	public function decode(){

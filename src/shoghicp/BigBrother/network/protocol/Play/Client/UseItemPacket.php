@@ -27,17 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class UseItemPacket extends Packet{
+class UseItemPacket extends InboundPacket{
 
 	public $hand;
 
 	public function pid(){
-		return 0x20;
-	}
-
-	public function encode(){
+		return self::USE_ITEM_PACKET;
 	}
 
 	public function decode(){

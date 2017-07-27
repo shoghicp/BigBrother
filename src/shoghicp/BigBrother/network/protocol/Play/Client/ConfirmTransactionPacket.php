@@ -27,20 +27,16 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class ConfirmTransactionPacket extends Packet{
+class ConfirmTransactionPacket extends InboundPacket{
 
 	public $windowID;
 	public $actionNumber;
 	public $accepted;
 
 	public function pid(){
-		return 0x06;
-	}
-
-	public function encode(){
-
+		return self::CONFIRM_TRANSACTION_PACKET;
 	}
 
 	public function decode(){

@@ -27,19 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class EnchantItemPacket extends Packet{
+class EnchantItemPacket extends InboundPacket{
 
 	public $windowID;
 	public $enchantment;
 
 	public function pid(){
-		return 0x07;
-	}
-
-	public function encode(){
-
+		return self::ENCHANT_ITEM_PACKET;
 	}
 
 	public function decode(){

@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerPositionPacket extends Packet{
+class PlayerPositionPacket extends InboundPacket{
 
 	public $x;
 	public $y;
@@ -37,11 +37,7 @@ class PlayerPositionPacket extends Packet{
 	public $onGround;
 
 	public function pid(){
-		return 0x0e;
-	}
-
-	public function encode(){
-
+		return self::PLAYER_POSITION_PACKET;
 	}
 
 	public function decode(){

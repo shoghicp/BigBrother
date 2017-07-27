@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class UpdateSignPacket extends Packet{
+class UpdateSignPacket extends InboundPacket{
 
 	public $x;
 	public $y;
@@ -40,10 +40,7 @@ class UpdateSignPacket extends Packet{
 	public $line4;
 
 	public function pid(){
-		return 0x1c;
-	}
-
-	public function encode(){
+		return self::UPDATE_SIGN_PACKET;
 	}
 
 	public function decode(){

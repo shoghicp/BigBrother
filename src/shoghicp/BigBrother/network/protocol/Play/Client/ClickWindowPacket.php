@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class ClickWindowPacket extends Packet{
+class ClickWindowPacket extends InboundPacket{
 
 	public $windowID;
 	public $slot;
@@ -39,11 +39,7 @@ class ClickWindowPacket extends Packet{
 	public $clickedItem;
 
 	public function pid(){
-		return 0x08;
-	}
-
-	public function encode(){
-
+		return self::CLICK_WINDOW_PACKET;
 	}
 
 	public function decode(){

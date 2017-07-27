@@ -27,19 +27,16 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class EntityActionPacket extends Packet{
+class EntityActionPacket extends InboundPacket{
 
 	public $eid;
 	public $actionID;
 	public $jumpboost;
 
 	public function pid(){
-		return 0x15;
-	}
-
-	public function encode(){
+		return self::ENTITY_ACTION_PACKET;
 	}
 
 	public function decode(){

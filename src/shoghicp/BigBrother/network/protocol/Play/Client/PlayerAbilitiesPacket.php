@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerAbilitiesPacket extends Packet{
+class PlayerAbilitiesPacket extends InboundPacket{
 
 	public $damageDisabled;
 	public $canFly;
@@ -40,10 +40,7 @@ class PlayerAbilitiesPacket extends Packet{
 	public $walkingSpeed;
 
 	public function pid(){
-		return 0x13;
-	}
-
-	public function encode(){
+		return self::PLAYER_ABILITIES_PACKET;
 	}
 
 	public function decode(){

@@ -27,18 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class ChatPacket extends Packet{
+class ChatPacket extends InboundPacket{
 
 	public $message;
 
 	public function pid(){
-		return 0x03;
-	}
-
-	public function encode(){
-
+		return self::CHAT_PACKET;
 	}
 
 	public function decode(){

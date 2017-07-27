@@ -27,18 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerPacket extends Packet{
+class PlayerPacket extends InboundPacket{
 
 	public $onGround;
 
 	public function pid(){
-		return 0x0d;
-	}
-
-	public function encode(){
-
+		return self::PLAYER_PACKET;
 	}
 
 	public function decode(){

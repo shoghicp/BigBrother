@@ -27,18 +27,14 @@
 
 namespace shoghicp\BigBrother\network\protocol\Login;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class LoginStartPacket extends Packet{
+class LoginStartPacket extends InboundPacket{
 
 	public $name;
 
 	public function pid(){
-		return 0x00;
-	}
-
-	public function encode(){
-		$this->putString($this->name);
+		return self::LOGIN_START_PACKET;
 	}
 
 	public function decode(){

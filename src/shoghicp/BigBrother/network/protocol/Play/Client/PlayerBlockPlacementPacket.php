@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerBlockPlacementPacket extends Packet{
+class PlayerBlockPlacementPacket extends InboundPacket{
 
 	public $x;
 	public $y;
@@ -41,11 +41,7 @@ class PlayerBlockPlacementPacket extends Packet{
 	public $cursorZ;
 
 	public function pid(){
-		return 0x1f;
-	}
-
-	public function encode(){
-
+		return self::PLAYER_BLOCK_PLACEMENT_PACKET;
 	}
 
 	public function decode(){

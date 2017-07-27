@@ -27,9 +27,9 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerDiggingPacket extends Packet{
+class PlayerDiggingPacket extends InboundPacket{
 
 	public $status;
 	public $x;
@@ -38,11 +38,7 @@ class PlayerDiggingPacket extends Packet{
 	public $face;
 
 	public function pid(){
-		return 0x14;
-	}
-
-	public function encode(){
-
+		return self::PLAYER_DIGGING_PACKET;
 	}
 
 	public function decode(){

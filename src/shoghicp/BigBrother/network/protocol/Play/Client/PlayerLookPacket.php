@@ -27,20 +27,16 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerLookPacket extends Packet{
+class PlayerLookPacket extends InboundPacket{
 
 	public $yaw;
 	public $pitch;
 	public $onGround;
 
 	public function pid(){
-		return 0x10;
-	}
-
-	public function encode(){
-
+		return self::PLAYER_LOOK_PACKET;
 	}
 
 	public function decode(){
