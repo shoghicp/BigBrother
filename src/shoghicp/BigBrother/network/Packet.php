@@ -35,10 +35,12 @@ use shoghicp\BigBrother\utils\ComputerItem;
 
 abstract class Packet extends \stdClass{
 
+	/** @var string */
 	protected $buffer;
+	/** @var int */
 	protected $offset = 0;
 
-	protected function get($len){
+	protected function get(int $len) : string{
 		if($len < 0){
 			$this->offset = strlen($this->buffer) - 1;
 
@@ -55,33 +57,33 @@ abstract class Packet extends \stdClass{
 		return $buffer;
 	}
 
-	protected function getLong(){
+	protected function getLong() : int{
 		return Binary::readLong($this->get(8));
 	}
 
-	protected function getInt(){
+	protected function getInt() : int{
 		return Binary::readInt($this->get(4));
 	}
 
-	protected function getPosition(&$x, &$y, &$z){
+	protected function getPosition(int &$x=null, int &$y=null, int &$z=null){
 		$long = $this->getLong();
 		$x = $long >> 38;
 		$y = ($long >> 26) & 0xFFF;
 		$z = $long << 38 >> 38;
 	}
 
-	protected function getFloat(){
+	protected function getFloat() : float{
 		return Binary::readFloat($this->get(4));
 	}
 
-	protected function getDouble(){
+	protected function getDouble() : float{
 		return Binary::readDouble($this->get(8));
 	}
 
 	/**
 	 * @return Item
 	 */
-	protected function getSlot(){
+	protected function getSlot() : Item{
 		$itemId = $this->getShort();
 		if($itemId === 65535){ //Empty
 			return Item::get(Item::AIR, 0, 0);
@@ -127,81 +129,81 @@ abstract class Packet extends \stdClass{
 		}
 	}
 
-	protected function getShort(){
+	protected function getShort() : int{
 		return Binary::readShort($this->get(2));
 	}
 
-	protected function getTriad(){
+	protected function getTriad() : int{
 		return Binary::readTriad($this->get(3));
 	}
 
-	protected function getLTriad(){
+	protected function getLTriad() : int{
 		return Binary::readTriad(strrev($this->get(3)));
 	}
 
-	protected function getByte(){
+	protected function getByte() : int{
 		return ord($this->buffer{$this->offset++});
 	}
 
-	protected function getString(){
+	protected function getString() : string{
 		return $this->get($this->getVarInt());
 	}
 
-	protected function getVarInt(){
+	protected function getVarInt() : int{
 		return Binary::readComputerVarInt($this->buffer, $this->offset);
 	}
 
-	protected function feof(){
+	protected function feof() : bool{
 		return !isset($this->buffer{$this->offset});
 	}
 
-	protected function put($str){
+	protected function put(string $str){
 		$this->buffer .= $str;
 	}
 
-	protected function putLong($v){
+	protected function putLong(int $v){
 		$this->buffer .= Binary::writeLong($v);
 	}
 
-	protected function putInt($v){
+	protected function putInt(int $v){
 		$this->buffer .= Binary::writeInt($v);
 	}
 
-	protected function putPosition($x, $y, $z){
+	protected function putPosition(int $x, int $y, int $z){
 		$long = (($x & 0x3FFFFFF) << 38) | (($y & 0xFFF) << 26) | ($z & 0x3FFFFFF);
 		$this->putLong($long);
 	}
 
-	protected function putFloat($v){
+	protected function putFloat(float $v){
 		$this->buffer .= Binary::writeFloat($v);
 	}
 
-	protected function putDouble($v){
+	protected function putDouble(float $v){
 		$this->buffer .= Binary::writeDouble($v);
 	}
 
-	protected function putShort($v){
+	protected function putShort(int $v){
 		$this->buffer .= Binary::writeShort($v);
 	}
 
-	protected function putTriad($v){
+	protected function putTriad(int $v){
 		$this->buffer .= Binary::writeTriad($v);
 	}
 
-	protected function putLTriad($v){
+	protected function putLTriad(int $v){
 		$this->buffer .= strrev(Binary::writeTriad($v));
 	}
 
-	protected function putByte($v){
+	protected function putByte(int $v){
 		$this->buffer .= chr($v);
 	}
 
-	protected function putString($v){
+	protected function putString(string $v){
 		$this->putVarInt(strlen($v));
 		$this->put($v);
 	}
 
-	protected function putVarInt($v){
+	protected function putVarInt(int $v){
 		$this->buffer .= Binary::writeComputerVarInt($v);
 	}
 
@@ -211,17 +213,16 @@ abstract class Packet extends \stdClass{
 
 	protected abstract function decode();
 
-	public function write(){
+	public function write() : string{
 		$this->buffer = "";
 		$this->offset = 0;
 		$this->encode();
 		return Binary::writeComputerVarInt($this->pid()) . $this->buffer;
 	}
 
-	public function read($buffer, $offset = 0){
+	public function read(string $buffer, int $offset = 0){
 		$this->buffer = $buffer;
 		$this->offset = $offset;
 		$this->decode();
 	}
-
 }

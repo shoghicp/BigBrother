@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class EncryptionRequestPacket extends OutboundPacket{
 
+	/** @var string */
 	public $serverID;
+	/** @var string */
 	public $publicKey;
+	/** @var string */
 	public $verifyToken;
 
 	public function pid(){

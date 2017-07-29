@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class LoginStartPacket extends InboundPacket{
 
+	/** @var string */
 	public $name;
 
 	public function pid(){

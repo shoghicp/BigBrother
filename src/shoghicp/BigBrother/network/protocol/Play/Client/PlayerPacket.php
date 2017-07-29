@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class PlayerPacket extends InboundPacket{
 
+	/** @var bool */
 	public $onGround;
 
 	public function pid(){

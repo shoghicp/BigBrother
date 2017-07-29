@@ -32,13 +32,21 @@ use shoghicp\BigBrother\utils\Binary;
 
 class SpawnPlayerPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var string */
 	public $uuid;
+	/** @var float */
 	public $x;
+	/** @var float */
 	public $y;
+	/** @var float */
 	public $z;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $pitch;
+	/** @var array */
 	public $metadata;
 
 	public function pid(){

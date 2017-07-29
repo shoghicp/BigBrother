@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class KeepAlivePacket extends InboundPacket{
 
+	/** @var int */
 	public $id;
 
 	public function pid(){

@@ -31,7 +31,9 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class PluginMessagePacket extends InboundPacket{
 
+	/** @var string */
 	public $channel;
+	/** @var string[] */
 	public $data = [];
 
 	public function pid(){

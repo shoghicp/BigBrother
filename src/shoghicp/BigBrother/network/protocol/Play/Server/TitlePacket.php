@@ -37,7 +37,9 @@ class TitlePacket extends OutboundPacket{
 	const TYPE_HIDE = 3;
 	const TYPE_RESET = 4;
 
+	/** @var int */
 	public $actionID;
+	/** @var string|int[] */
 	public $data = null;
 
 	public function pid(){

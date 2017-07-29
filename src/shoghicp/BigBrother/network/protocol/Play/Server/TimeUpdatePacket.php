@@ -31,7 +31,9 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class TimeUpdatePacket extends OutboundPacket{
 
+	/** @var int */
 	public $age;
+	/** @var int */
 	public $time;
 
 	public function pid(){

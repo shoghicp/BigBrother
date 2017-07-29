@@ -31,13 +31,21 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class PlayerBlockPlacementPacket extends InboundPacket{
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $direction;
+	/** @var int */
 	public $hand;
+	/** @var float */
 	public $cursorX;
+	/** @var float */
 	public $cursorY;
+	/** @var float */
 	public $cursorZ;
 
 	public function pid(){

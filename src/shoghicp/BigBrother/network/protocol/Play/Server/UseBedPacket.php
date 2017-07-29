@@ -31,9 +31,13 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class UseBedPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int */
 	public $bedX;
+	/** @var int */
 	public $bedY;
+	/** @var int */
 	public $bedZ;
 
 	public function pid(){

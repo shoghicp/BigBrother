@@ -28,10 +28,13 @@
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
+use pocketmine\item\Item;
 
 class CreativeInventoryActionPacket extends InboundPacket{
 
+	/** @var int */
 	public $slot;
+	/** @var Item */
 	public $item;
 
 	public function pid(){

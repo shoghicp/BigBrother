@@ -31,10 +31,15 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class PlayerDiggingPacket extends InboundPacket{
 
+	/** @var int */
 	public $status;
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $face;
 
 	public function pid(){

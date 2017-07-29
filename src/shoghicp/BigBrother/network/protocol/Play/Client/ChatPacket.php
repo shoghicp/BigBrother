@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class ChatPacket extends InboundPacket{
 
+	/** @var string */
 	public $message;
 
 	public function pid(){

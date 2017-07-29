@@ -31,7 +31,9 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class AnimatePacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int */
 	public $actionID;
 
 	public function pid(){

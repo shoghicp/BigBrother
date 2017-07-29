@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class UpdateHealthPacket extends OutboundPacket{
 
+	/** @var float */
 	public $health;
+	/** @var int */
 	public $food;
+	/** @var float */
 	public $saturation;
 
 	public function pid(){

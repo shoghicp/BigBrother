@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class LoginDisconnectPacket extends OutboundPacket{
 
+	/** @var string */
 	public $reason;
 
 	public function pid(){

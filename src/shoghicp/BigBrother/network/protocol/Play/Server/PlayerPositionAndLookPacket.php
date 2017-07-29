@@ -31,12 +31,19 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class PlayerPositionAndLookPacket extends OutboundPacket{
 
+	/** @var float */
 	public $x;
+	/** @var float */
 	public $y;
+	/** @var float */
 	public $z;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $pitch;
+	/** @var int */
 	public $flags;
+	/** @var int */
 	public $teleportId;
 
 	public function pid(){

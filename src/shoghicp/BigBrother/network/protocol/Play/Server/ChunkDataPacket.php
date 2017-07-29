@@ -33,12 +33,19 @@ use pocketmine\nbt\NBT;
 
 class ChunkDataPacket extends OutboundPacket{
 
+	/** @var int */
 	public $chunkX;
+	/** @var int */
 	public $chunkZ;
+	/** @var int */
 	public $groundUp;
+	/** @var int */
 	public $primaryBitmap;
+	/** @var string */
 	public $payload;
+	/** @var string */
 	public $biomes;
+	/** @var array */
 	public $blockEntities = [];
 
 	public function pid(){

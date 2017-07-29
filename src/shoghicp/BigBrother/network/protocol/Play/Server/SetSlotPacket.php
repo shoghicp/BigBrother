@@ -28,12 +28,15 @@
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
+use pocketmine\item\Item;
 
 class SetSlotPacket extends OutboundPacket{
 
+	/** @var int */
 	public $windowID;
+	/** @var int */
 	public $slot;
-	/** @var \pocketmine\item\Item */
+	/** @var Item */
 	public $item;
 
 	public function pid(){

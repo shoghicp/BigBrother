@@ -31,11 +31,17 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class EffectPacket extends OutboundPacket{
 
+	/** @var int */
 	public $effectId;
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $data;
+	/** @var bool */
 	public $disableRelativeVolume;
 
 	public function pid(){

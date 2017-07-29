@@ -31,10 +31,15 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class BlockChangePacket extends OutboundPacket{
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $blockId;
+	/** @var int */
 	public $blockMeta;
 
 	public function pid(){

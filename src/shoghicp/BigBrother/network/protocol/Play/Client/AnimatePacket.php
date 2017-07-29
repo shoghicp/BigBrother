@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class AnimatePacket extends InboundPacket{
 
+	/** @var int  */
 	public $hand;
 
 	public function pid(){

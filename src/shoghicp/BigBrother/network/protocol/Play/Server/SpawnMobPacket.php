@@ -32,18 +32,31 @@ use shoghicp\BigBrother\utils\Binary;
 
 class SpawnMobPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var string */
 	public $uuid;
+	/** @var int */
 	public $type;
+	/** @var float */
 	public $x;
+	/** @var float */
 	public $y;
+	/** @var float */
 	public $z;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $pitch;
+	/** @var float */
 	public $headPitch;
+	/** @var float */
 	public $velocityX;
+	/** @var float */
 	public $velocityY;
+	/** @var float */
 	public $velocityZ;
+	/** @var array */
 	public $metadata;
 
 	public function pid(){

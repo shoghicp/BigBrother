@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class CollectItemPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int */
 	public $target;
+	/** @var int */
 	public $itemCount;
 
 	public function pid(){

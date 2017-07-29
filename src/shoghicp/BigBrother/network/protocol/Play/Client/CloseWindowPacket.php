@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class CloseWindowPacket extends InboundPacket{
 
+	/** @var int */
 	public $windowID;
 
 	public function pid(){

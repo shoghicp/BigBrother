@@ -31,7 +31,9 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class RemoveEntityEffectPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int */
 	public $effectId;
 
 	public function pid(){

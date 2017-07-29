@@ -32,10 +32,15 @@ use shoghicp\BigBrother\utils\ConvertUtils;
 
 class UpdateBlockEntityPacket extends OutboundPacket{
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $actionID;
+	/** @var string */
 	public $namedtag = "";
 
 	public function pid(){

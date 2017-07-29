@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class TeleportConfirmPacket extends InboundPacket{
 
+	/** @var int */
 	public $teleportId;
 
 	public function pid(){

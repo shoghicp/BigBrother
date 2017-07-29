@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class EntityPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
 
 	public function pid(){

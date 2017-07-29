@@ -36,8 +36,21 @@ class BossBarPacket extends OutboundPacket{
 	const TYPE_UPDATE_HEALTH = 2;
 	const TYPE_UPDATE_TITLE = 3;
 
+	/** @var string */
 	public $uuid;
+	/** @var int */
 	public $actionID;
+
+	/** @var string */
+	public $title;
+	/** @var float */
+	public $health;
+	/** @var int */
+	public $color;
+	/** @var int */
+	public $division;
+	/** @var int */
+	public $flags;
 
 	public function pid(){
 		return self::BOSS_BAR_PACKET;

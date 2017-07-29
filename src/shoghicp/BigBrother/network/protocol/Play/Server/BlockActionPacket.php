@@ -31,11 +31,17 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class BlockActionPacket extends OutboundPacket{
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $actionID;
+	/** @var int */
 	public $actionParam;
+	/** @var int */
 	public $blockType;
 
 	public function pid(){

@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class EntityActionPacket extends InboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int */
 	public $actionID;
+	/** @var int */
 	public $jumpboost;
 
 	public function pid(){

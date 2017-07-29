@@ -31,9 +31,13 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class EntityVelocityPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var float */
 	public $velocityX;
+	/** @var float */
 	public $velocityY;
+	/** @var float */
 	public $velocityZ;
 
 	public function pid(){

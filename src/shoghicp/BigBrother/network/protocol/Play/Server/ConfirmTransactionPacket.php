@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class ConfirmTransactionPacket extends OutboundPacket{
 
+	/** @var int */
 	public $windowID;
+	/** @var int */
 	public $actionNumber;
+	/** @var bool */
 	public $accepted;
 
 	public function pid(){

@@ -31,12 +31,19 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class UpdateSignPacket extends InboundPacket{
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var string */
 	public $line1;
+	/** @var string */
 	public $line2;
+	/** @var string */
 	public $line3;
+	/** @var string */
 	public $line4;
 
 	public function pid(){

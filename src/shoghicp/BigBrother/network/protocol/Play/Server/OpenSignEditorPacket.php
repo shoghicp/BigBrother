@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class OpenSignEditorPacket extends OutboundPacket{
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
 
 	public function pid(){

@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class ClientStatusPacket extends InboundPacket{
 
+	/** @var int */
 	public $actionID;
 
 	public function pid(){

@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class ServerDifficultyPacket extends OutboundPacket{
 
+	/** @var int */
 	public $difficulty;
 
 	public function pid(){

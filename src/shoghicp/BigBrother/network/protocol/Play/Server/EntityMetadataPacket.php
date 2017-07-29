@@ -32,7 +32,9 @@ use shoghicp\BigBrother\utils\Binary;
 
 class EntityMetadataPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var array */
 	public $metadata;
 
 	public function pid(){

@@ -31,12 +31,19 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class SpawnPaintingPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var string */
 	public $uuid;
+	/** @var string */
 	public $title;
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $direction;
 
 	public function pid(){

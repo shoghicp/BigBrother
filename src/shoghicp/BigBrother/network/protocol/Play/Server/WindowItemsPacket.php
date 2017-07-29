@@ -28,11 +28,13 @@
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
+use pocketmine\item\Item;
 
 class WindowItemsPacket extends OutboundPacket{
 
+	/** @var int */
 	public $windowID;
-	/** @var \pocketmine\item\Item[] */
+	/** @var Item[] */
 	public $items = [];
 
 	public function pid(){

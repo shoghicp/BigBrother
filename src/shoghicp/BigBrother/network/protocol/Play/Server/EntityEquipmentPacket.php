@@ -28,11 +28,15 @@
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
+use pocketmine\item\Item;
 
 class EntityEquipmentPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int */
 	public $slot;
+	/** @var Item */
 	public $item;
 
 	public function pid(){

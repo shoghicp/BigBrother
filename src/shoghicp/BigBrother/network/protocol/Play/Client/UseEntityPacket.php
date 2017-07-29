@@ -31,8 +31,20 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class UseEntityPacket extends InboundPacket{
 
+	/** @var int */
 	public $target;
+	/** @var int */
 	public $type;
+
+	/** @var float */
+	public $targetX;
+	/** @var float */
+	public $targetY;
+	/** @var float */
+	public $targetZ;
+
+	/** @var int */
+	public $hand;
 
 	public function pid(){
 		return self::USE_ENTITY_PACKET;

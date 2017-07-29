@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class HeldItemChangePacket extends OutboundPacket{
 
+	/** @var int */
 	public $selectedSlot;
 
 	public function pid(){

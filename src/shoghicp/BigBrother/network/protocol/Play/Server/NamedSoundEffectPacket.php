@@ -31,12 +31,19 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class NamedSoundEffectPacket extends OutboundPacket{
 
+	/** @var string */
 	public $name;
+	/** @var int */
 	public $category;
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var float */
 	public $volume;
+	/** @var float */
 	public $pitch;
 
 	public function pid(){

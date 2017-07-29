@@ -35,7 +35,9 @@ class PlayerListPacket extends OutboundPacket{
 	const TYPE_UPDATE_NAME = 3;
 	const TYPE_REMOVE = 4;
 
+	/** @var int */
 	public $actionID;
+	/** @var array */
 	public $players = [];
 
 	public function pid(){

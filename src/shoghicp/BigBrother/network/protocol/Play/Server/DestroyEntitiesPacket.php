@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class DestroyEntitiesPacket extends OutboundPacket{
 
+	/** @var int[] */
 	public $ids = [];
 
 	public function pid(){

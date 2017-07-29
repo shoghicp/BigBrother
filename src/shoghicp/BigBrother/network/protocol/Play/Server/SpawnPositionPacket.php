@@ -31,8 +31,11 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class SpawnPositionPacket extends OutboundPacket{
 
+	/** @var int */
 	public $spawnX;
+	/** @var int */
 	public $spawnY;
+	/** @var int */
 	public $spawnZ;
 
 	public function pid(){

@@ -31,11 +31,18 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class ClientSettingsPacket extends InboundPacket{
 
+	/** @var string */
 	public $lang;
+	/** @var int */
 	public $view;
+	/** @var int */
 	public $chatmode;
+	/** @var int */
 	public $chatcolor;
+	/** @var string */
 	public $skinsetting;
+	/** @var int */
+	public $mainhand;
 
 	public function pid(){
 		return self::CLIENT_SETTINGS_PACKET;

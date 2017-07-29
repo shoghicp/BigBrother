@@ -31,11 +31,17 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class TabCompletePacket extends InboundPacket{
 
+	/** @var string */
 	public $text;
+	/** @var bool */
 	public $assumeCommand;
+	/** @var bool */
 	public $hasPosition;
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
 
 	public function pid(){

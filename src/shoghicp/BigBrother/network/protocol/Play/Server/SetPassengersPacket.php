@@ -31,7 +31,9 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class SetPassengersPacket extends OutboundPacket{
 
+	/** @var int */
 	public $eid;
+	/** @var int[] */
 	public $passengers = [];
 
 	public function pid(){

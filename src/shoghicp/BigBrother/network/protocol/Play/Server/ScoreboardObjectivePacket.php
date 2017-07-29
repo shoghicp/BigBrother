@@ -31,9 +31,13 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class ScoreboardObjectivePacket extends OutboundPacket{
 
+	/** @var string */
 	public $ObjectiveName;
+	/** @var int */
 	public $Mode;
+	/** @var string */
 	public $ObjectiveValue;
+	/** @var string */
 	public $Type;
 
 	public function pid(){

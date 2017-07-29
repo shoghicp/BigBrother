@@ -31,12 +31,18 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class PlayerAbilitiesPacket extends InboundPacket{
 
+	/** @var bool */
 	public $damageDisabled;
+	/** @var bool */
 	public $canFly;
+	/** @var bool */
 	public $isFlying = false;
+	/** @var bool */
 	public $isCreative;
 
+	/** @var float */
 	public $flyingSpeed;
+	/** @var float */
 	public $walkingSpeed;
 
 	public function pid(){

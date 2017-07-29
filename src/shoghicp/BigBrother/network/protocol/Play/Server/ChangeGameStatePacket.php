@@ -31,7 +31,9 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class ChangeGameStatePacket extends OutboundPacket{
 
+	/** @var int */
 	public $reason;
+	/** @var float */
 	public $value;
 
 	public function pid(){

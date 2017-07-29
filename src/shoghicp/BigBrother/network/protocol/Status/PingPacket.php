@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\Packet;
 
 class PingPacket extends Packet{
 
+	/** @var int */
 	public $time;
 
 	public function pid(){

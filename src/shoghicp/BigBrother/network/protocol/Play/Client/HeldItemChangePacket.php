@@ -31,6 +31,7 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class HeldItemChangePacket extends InboundPacket{
 
+	/** @var int */
 	public $selectedSlot;
 
 	public function pid(){
