@@ -50,7 +50,7 @@ class PlayerAbilitiesPacket extends InboundPacket{
 	}
 
 	public function decode(){
-		$flags = base_convert($this->getByte(), 10, 2);
+		$flags = base_convert((string)$this->getByte(), 10, 2);
 		if(strlen($flags) !== 8){
 			$flags = str_repeat("0", 8 - strlen($flags)).$flags;
 		}

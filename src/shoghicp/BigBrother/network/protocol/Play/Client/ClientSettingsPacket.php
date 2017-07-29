@@ -53,7 +53,7 @@ class ClientSettingsPacket extends InboundPacket{
 		$this->view = $this->getByte();
 		$this->chatmode = $this->getByte();
 		$this->chatcolor = (bool) $this->getByte();
-		$this->skinsetting = base_convert($this->getByte(), 10, 2);
+		$this->skinsetting = base_convert((string)$this->getByte(), 10, 2);
 		$this->mainhand = $this->getVarInt();
 	}
 }
