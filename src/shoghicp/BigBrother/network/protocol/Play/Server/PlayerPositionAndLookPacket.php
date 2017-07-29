@@ -42,9 +42,9 @@ class PlayerPositionAndLookPacket extends OutboundPacket{
 	/** @var float */
 	public $pitch;
 	/** @var int */
-	public $flags;
+	public $flags = 0;
 	/** @var int */
-	public $teleportId;
+	public $teleportId = 0;
 
 	public function pid(){
 		return self::PLAYER_POSITION_AND_LOOK_PACKET;
