@@ -52,6 +52,6 @@ class EffectPacket extends OutboundPacket{
 		$this->putInt($this->effectId);
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putInt($this->data);
-		$this->putByte($this->disableRelativeVolume > 0);
+		$this->putByte($this->disableRelativeVolume > 0 ? 1 : 0);
 	}
 }
