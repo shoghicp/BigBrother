@@ -38,31 +38,31 @@ use shoghicp\BigBrother\network\Info; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
-use shoghicp\BigBrother\network\protocol\Play\EnchantItemPacket;
-use shoghicp\BigBrother\network\protocol\Play\TeleportConfirmPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\EnchantItemPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\TeleportConfirmPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\AnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ConfirmTransactionPacket;
-use shoghicp\BigBrother\network\protocol\Play\ClickWindowPacket;
-use shoghicp\BigBrother\network\protocol\Play\ClientSettingsPacket;
-use shoghicp\BigBrother\network\protocol\Play\ClientStatusPacket;
-use shoghicp\BigBrother\network\protocol\Play\CreativeInventoryActionPacket;
-use shoghicp\BigBrother\network\protocol\Play\EntityActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClickWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClientSettingsPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClientStatusPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CreativeInventoryActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\EntityActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\CloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\KeepAlivePacket;
-use shoghicp\BigBrother\network\protocol\Play\PlayerBlockPlacementPacket;
-use shoghicp\BigBrother\network\protocol\Play\PlayerDiggingPacket;
-use shoghicp\BigBrother\network\protocol\Play\PlayerLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\PlayerPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerBlockPlacementPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerDiggingPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\PlayerPositionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\PluginMessagePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\TabCompletePacket;
-use shoghicp\BigBrother\network\protocol\Play\UpdateSignPacket;
-use shoghicp\BigBrother\network\protocol\Play\UseEntityPacket;
-use shoghicp\BigBrother\network\protocol\Play\UseItemPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\UpdateSignPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\UseEntityPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\UseItemPacket;
 use shoghicp\BigBrother\utils\Binary;
 
 class ProtocolInterface implements SourceInterface{
@@ -219,87 +219,79 @@ class ProtocolInterface implements SourceInterface{
 
 		if($status === 1){
 			switch($pid){
-				case 0x00:
+				case InboundPacket::TELEPORT_CONFIRM_PACKET:
 					$pk = new TeleportConfirmPacket();
 					break;
-				//0x01: Prepare Crafting Grid
-				case 0x02:
+				case InboundPacket::TAB_COMPLETE_PACKET:
 					$pk = new TabCompletePacket();
 					break;
-				case 0x03:
+				case InboundPacket::CHAT_PACKET:
 					$pk = new ChatPacket();
 					break;
-				case 0x04:
+				case InboundPacket::CLIENT_STATUS_PACKET:
 					$pk = new ClientStatusPacket();
 					break;
-				case 0x05:
+				case InboundPacket::CLIENT_SETTINGS_PACKET:
 					$pk = new ClientSettingsPacket();
 					break;
-				case 0x06:
+				case InboundPacket::CONFIRM_TRANSACTION_PACKET:
 					$pk = new ConfirmTransactionPacket();
 					break;
-				case 0x07:
+				case InboundPacket::ENCHANT_ITEM_PACKET:
 					$pk = new EnchantItemPacket();
 					break;
-				case 0x08:
+				case InboundPacket::CLICK_WINDOW_PACKET:
 					$pk = new ClickWindowPacket();
 					break;
-				case 0x09:
+				case InboundPacket::CLOSE_WINDOW_PACKET:
 					$pk = new CloseWindowPacket();
 					break;
-				case 0x0a:
+				case InboundPacket::PLUGIN_MESSAGE_PACKET:
 					$pk = new PluginMessagePacket();
 					break;
-				case 0x0b:
+				case InboundPacket::USE_ENTITY_PACKET:
 					$pk = new UseEntityPacket();
 					break;
-				case 0x0c:
+				case InboundPacket::KEEP_ALIVE_PACKET:
 					$pk = new KeepAlivePacket();
 					break;
-				case 0x0d:
+				case InboundPacket::PLAYER_PACKET:
 					$pk = new PlayerPacket();
 					break;
-				case 0x0e:
+				case InboundPacket::PLAYER_POSITION_PACKET:
 					$pk = new PlayerPositionPacket();
 					break;
-				case 0x0f:
+				case InboundPacket::PLAYER_POSITION_AND_LOOK_PACKET:
 					$pk = new PlayerPositionAndLookPacket();
 					break;
-				case 0x10:
+				case InboundPacket::PLAYER_LOOK_PACKET:
 					$pk = new PlayerLookPacket();
 					break;
-				//0x11: Vehicle Move
-				//0x12: Steer Boat
-				case 0x13:
+				case InboundPacket::PLAYER_ABILITIES_PACKET:
 					$pk = new PlayerAbilitiesPacket();
 					break;
-				case 0x14:
+				case InboundPacket::PLAYER_DIGGING_PACKET:
 					$pk = new PlayerDiggingPacket();
 					break;
-				case 0x15:
+				case InboundPacket::ENTITY_ACTION_PACKET:
 					$pk = new EntityActionPacket();
 					break;
-				//0x16: Steer Vehicle
-				//0x17: Crafting Book Data
-				//0x18: Resource Pack Status
-				//0x19: Advancement Tab
-				case 0x1a:
+				case InboundPacket::HELD_ITEM_CHANGE_PACKET:
 					$pk = new HeldItemChangePacket();
 					break;
-				case 0x1b:
+				case InboundPacket::CREATIVE_INVENTORY_ACTION_PACKET:
 					$pk = new CreativeInventoryActionPacket();
 					break;
-				case 0x1c:
+				case InboundPacket::UPDATE_SIGN_PACKET:
 					$pk = new UpdateSignPacket();
 					break;
-				case 0x1d:
+				case InboundPacket::ANIMATE_PACKET:
 					$pk = new AnimatePacket();
 					break;
-				//0x1e: Spectate
-				case 0x1f:
+				case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
 					$pk = new PlayerBlockPlacementPacket();
 					break;
-				case 0x20:
+				case InboundPacket::USE_ITEM_PACKET:
 					$pk = new UseItemPacket();
 					break;
 				default:
@@ -312,11 +304,11 @@ class ProtocolInterface implements SourceInterface{
 			$pk->read($payload, $offset);
 			$this->receivePacket($player, $pk);
 		}elseif($status === 0){
-			if($pid === 0x00){
+			if($pid === InboundPacket::LOGIN_START_PACKET){
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
-			}elseif($pid === 0x01 and $this->plugin->isOnlineMode()){
+			}elseif($pid === InboundPacket::ENCRYPTION_RESPONSE_PACKET and $this->plugin->isOnlineMode()){
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_processAuthentication($this->plugin, $pk);

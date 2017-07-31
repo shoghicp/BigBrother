@@ -29,7 +29,7 @@ namespace shoghicp\BigBrother\network;
 
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
-use shoghicp\BigBrother\network\protocol\Login\PingPacket;
+use shoghicp\BigBrother\network\protocol\Status\PingPacket;
 use shoghicp\BigBrother\utils\AES;
 use shoghicp\BigBrother\utils\Binary;
 

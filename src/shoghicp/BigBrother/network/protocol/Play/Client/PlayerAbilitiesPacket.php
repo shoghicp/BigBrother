@@ -27,27 +27,30 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerAbilitiesPacket extends Packet{
+class PlayerAbilitiesPacket extends InboundPacket{
 
+	/** @var bool */
 	public $damageDisabled;
+	/** @var bool */
 	public $canFly;
+	/** @var bool */
 	public $isFlying = false;
+	/** @var bool */
 	public $isCreative;
 
+	/** @var float */
 	public $flyingSpeed;
+	/** @var float */
 	public $walkingSpeed;
 
 	public function pid(){
-		return 0x13;
-	}
-
-	public function encode(){
+		return self::PLAYER_ABILITIES_PACKET;
 	}
 
 	public function decode(){
-		$flags = base_convert($this->getByte(), 10, 2);
+		$flags = base_convert((string)$this->getByte(), 10, 2);
 		if(strlen($flags) !== 8){
 			$flags = str_repeat("0", 8 - strlen($flags)).$flags;
 		}

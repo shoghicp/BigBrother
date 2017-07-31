@@ -27,23 +27,25 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PlayerPositionAndLookPacket extends Packet{
+class PlayerPositionAndLookPacket extends InboundPacket{
 
+	/** @var float */
 	public $x;
+	/** @var float */
 	public $y;
+	/** @var float */
 	public $z;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $pitch;
+	/** @var bool */
 	public $onGround;
 
 	public function pid(){
-		return 0x0f;
-	}
-
-	public function encode(){
-
+		return self::PLAYER_POSITION_AND_LOOK_PACKET;
 	}
 
 	public function decode(){

@@ -27,18 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class KeepAlivePacket extends Packet{
+class KeepAlivePacket extends InboundPacket{
 
+	/** @var int */
 	public $id;
 
 	public function pid(){
-		return 0x0c;
-	}
-
-	public function encode(){
-
+		return self::KEEP_ALIVE_PACKET;
 	}
 
 	public function decode(){

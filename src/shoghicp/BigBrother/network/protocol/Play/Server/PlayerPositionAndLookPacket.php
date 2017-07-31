@@ -27,20 +27,27 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class PlayerPositionAndLookPacket extends Packet{
+class PlayerPositionAndLookPacket extends OutboundPacket{
 
+	/** @var float */
 	public $x;
+	/** @var float */
 	public $y;
+	/** @var float */
 	public $z;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $pitch;
-	public $flags;
-	public $teleportId;
+	/** @var int */
+	public $flags = 0;
+	/** @var int */
+	public $teleportId = 0;
 
 	public function pid(){
-		return 0x2e;
+		return self::PLAYER_POSITION_AND_LOOK_PACKET;
 	}
 
 	public function encode(){
@@ -51,9 +58,5 @@ class PlayerPositionAndLookPacket extends Packet{
 		$this->putFloat($this->pitch);
 		$this->putByte($this->flags);
 		$this->putVarInt($this->teleportId);
-	}
-
-	public function decode(){
-
 	}
 }

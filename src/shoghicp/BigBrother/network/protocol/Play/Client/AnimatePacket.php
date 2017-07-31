@@ -27,18 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class AnimatePacket extends Packet{
+class AnimatePacket extends InboundPacket{
 
+	/** @var int  */
 	public $hand;
 
 	public function pid(){
-		return 0x1d;
-	}
-
-	public function encode(){
-
+		return self::ANIMATE_PACKET;
 	}
 
 	public function decode(){

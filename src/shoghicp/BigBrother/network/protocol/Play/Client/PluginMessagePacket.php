@@ -27,18 +27,17 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class PluginMessagePacket extends Packet{
+class PluginMessagePacket extends InboundPacket{
 
+	/** @var string */
 	public $channel;
+	/** @var string[] */
 	public $data = [];
 
 	public function pid(){
-		return 0x0a;
-	}
-
-	public function encode(){
+		return self::PLUGIN_MESSAGE_PACKET;
 	}
 
 	public function decode(){

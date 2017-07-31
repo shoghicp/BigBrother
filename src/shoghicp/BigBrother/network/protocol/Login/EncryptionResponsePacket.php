@@ -27,19 +27,17 @@
 
 namespace shoghicp\BigBrother\network\protocol\Login;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class EncryptionResponsePacket extends Packet{
+class EncryptionResponsePacket extends InboundPacket{
 
+	/** @var string */
 	public $sharedSecret;
+	/** @var string */
 	public $verifyToken;
 
 	public function pid(){
-		return 0x01;
-	}
-
-	public function encode(){
-
+		return self::ENCRYPTION_RESPONSE_PACKET;
 	}
 
 	public function decode(){

@@ -27,18 +27,15 @@
 
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 
-class CloseWindowPacket extends Packet{
+class CloseWindowPacket extends InboundPacket{
 
+	/** @var int */
 	public $windowID;
 
 	public function pid(){
-		return 0x09;
-	}
-
-	public function encode(){
-
+		return self::CLOSE_WINDOW_PACKET;
 	}
 
 	public function decode(){

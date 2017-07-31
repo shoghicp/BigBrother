@@ -27,21 +27,18 @@
 
 namespace shoghicp\BigBrother\network\protocol\Login;
 
-use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\OutboundPacket;
 
-class LoginDisconnectPacket extends Packet{
+class LoginDisconnectPacket extends OutboundPacket{
 
+	/** @var string */
 	public $reason;
 
 	public function pid(){
-		return 0x00;
+		return self::LOGIN_DISCONNECT_PACKET;
 	}
 
 	public function encode(){
 		$this->putString($this->reason);
-	}
-
-	public function decode(){
-		$this->reason = $this->getString();
 	}
 }
