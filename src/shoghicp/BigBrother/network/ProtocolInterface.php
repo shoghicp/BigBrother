@@ -124,7 +124,7 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
-	public function close(Player $player, $reason = "unknown reason"){
+	public function close(Player $player, string $reason = "unknown reason"){
 		if(isset($this->sessions[$player])){
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
@@ -170,7 +170,7 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
-	public function putPacket(Player $player, DataPacket $packet, $needACK = false, $immediate = true){
+	public function putPacket(Player $player, DataPacket $packet, bool $needACK = false, bool $immediate = true){
 		$id = 0;
 		if($needACK){
 			$id = $this->identifier++;
@@ -318,7 +318,7 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
-	public function process(){
+	public function process() : bool{
 		if(count($this->identifiers) > 0){
 			foreach($this->identifiers as $id => $player){
 				$player->handleACK($id);

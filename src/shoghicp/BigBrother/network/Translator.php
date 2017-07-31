@@ -35,6 +35,7 @@ use pocketmine\entity\Living;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -52,7 +53,6 @@ use pocketmine\network\mcpe\protocol\MobEffectPacket;
 use pocketmine\network\mcpe\protocol\RemoveBlockPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
-use pocketmine\utils\BinaryStream;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
@@ -1114,7 +1114,7 @@ class Translator{
 						$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 
 						switch($block->getId()){
-							case Block::WOOD_DOOR_BLOCK:
+							case Block::WOODEN_DOOR_BLOCK:
 							case Block::SPRUCE_DOOR_BLOCK:
 							case Block::BIRCH_DOOR_BLOCK:
 							case Block::JUNGLE_DOOR_BLOCK:
@@ -1748,22 +1748,11 @@ class Translator{
 				return null;
 
 			case 0xfe: //Info::BATCH_PACKET
-				$packet->offset = 1;
-				$packet->payload = $packet->get(strlen($packet->buffer) - 1);
-
 				$packets = [];
 
-				$str = zlib_decode($packet->payload, 1024 * 1024 * 64); //Max 64MB
-				$len = strlen($str);
-
-				if($len === 0){
-					throw new \InvalidStateException("Decoded BatchPacket payload is empty");
-				}
-
-				$stream = new BinaryStream($str);
-				while($stream->offset < $len){
-					$buf = $stream->getString();
-					if(($pk = $player->getServer()->getNetwork()->getPacket(ord($buf{0}))) !== null){
+				$packet->decode();
+				foreach($packet->getPackets() as $buf){
+					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){
 						if($pk::NETWORK_ID === 0xfe){
 							throw new \InvalidStateException("Invalid BatchPacket inside BatchPacket");
 						}
@@ -1774,9 +1763,7 @@ class Translator{
 
 					if(($desktop = $this->serverToInterface($player, $pk)) !== null){
 						if(is_array($desktop)){
-							foreach($desktop as $desktoppk){
-								$packets[] = $desktoppk;
-							}
+							$packets = array_merge($packets, $desktop);
 						}else{
 							$packets[] = $desktop;
 						}
