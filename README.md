@@ -13,7 +13,7 @@ Welcome to BigBrother, a shoghicp's project who has been abandonned and who has 
 
 #### Notice
 * This plugin supports use with PocketMine-MP (pmmp). Using spoons will cause many bugs & problems.
-* This plugin supports Minecraft version 1.12 ONLY.
+* This plugin supports Minecraft version 1.12.1 ONLY.
 
 #### Features implemented
 * Login (with premium account or not)
