@@ -65,6 +65,7 @@ use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\DesktopChunk;
 use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
+use shoghicp\BigBrother\network\InboundPacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
@@ -121,22 +122,22 @@ class Translator{
 	 */
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
-			case 0x00: //TeleportConfirmPacket
+			case InboundPacket::TELEPORT_CONFIRM_PACKET:
 				//Confirm
 				return null;
 
-			case 0x02: //TabCompletePacket
+			case InboundPacket::TAB_COMPLETE_PACKET:
 				//TODO: Tab Button
 				return null;
 
-			case 0x03: //ChatPacket
+			case InboundPacket::CHAT_PACKET:
 				$pk = new TextPacket();
 				$pk->type = 1;//Chat Type
 				$pk->source = "";
 				$pk->message = $packet->message;
 				return $pk;
 
-			case 0x04: //ClientStatusPacket
+			case InboundPacket::CLIENT_STATUS_PACKET:
 				switch($packet->actionID){
 					case 0:
 						$pk = new PlayerActionPacket();
@@ -182,7 +183,7 @@ class Translator{
 				}
 				return null;
 
-			case 0x05: //ClientSettingsPacket
+			case InboundPacket::CLIENT_SETTINGS_PACKET:
 				$player->setSetting([
 					"Lang" => $packet->lang,
 					"View" => $packet->view,
@@ -193,21 +194,21 @@ class Translator{
 
 				return null;
 
-			case 0x06: //ConfirmTransactionPacket
+			case InboundPacket::CONFIRM_TRANSACTION_PACKET:
 				//Confirm
 				return null;
 
-			case 0x08: //ClickWindowPacket
+			case InboundPacket::CLICK_WINDOW_PACKET:
 				$pk = $player->getInventoryUtils()->onWindowClick($packet);
 
 				return $pk;
 
-			case 0x09: //CloseWindowPacket
+			case InboundPacket::CLOSE_WINDOW_PACKET:
 				$pk = $player->getInventoryUtils()->onWindowClose(false, $packet);
 
 				return $pk;
 
-			case 0x0a: //PluginMessagePacket
+			case InboundPacket::PLUGIN_MESSAGE_PACKET:
 				switch($packet->channel){
 					case "REGISTER"://Mods Register
 						$player->setSetting(["Channels" => $packet->data]);
@@ -221,7 +222,7 @@ class Translator{
 				}
 				return null;
 
-			case 0x0b: //UseEntityPacket
+			case InboundPacket::USE_ENTITY_PACKET:
 				$pk = new InteractPacket();
 				$pk->target = $packet->target;
 
@@ -239,19 +240,19 @@ class Translator{
 
 				return $pk;
 
-			case 0x0c: //KeepAlivePacket
+			case InboundPacket::KEEP_ALIVE_PACKET:
 				$pk = new KeepAlivePacket();
 				$pk->id = mt_rand();
 				$player->putRawPacket($pk);
 
 				return null;
 
-			case 0x0d: //PlayerPacket
+			case InboundPacket::PLAYER_PACKET:
 				$player->setSetting(["onGround" => $packet->onGround]);
 				$player->onGround = $packet->onGround;
 				return null;
 
-			case 0x0e: //PlayerPositonPacket
+			case InboundPacket::PLAYER_POSITION_PACKET:
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
@@ -275,7 +276,7 @@ class Translator{
 
 				return $packets;
 
-			case 0x0f: //PlayerPositionAndLookPacket
+			case InboundPacket::PLAYER_POSITION_AND_LOOK_PACKET:
 				$packets = [];
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
@@ -299,7 +300,7 @@ class Translator{
 
 				return $packets;
 
-			case 0x10: //PlayerLookPacket
+			case InboundPacket::PLAYER_LOOK_PACKET:
 				$pk = new MovePlayerPacket();
 				$pk->x = $player->x;
 				$pk->y = $player->y + $player->getEyeHeight();
@@ -310,11 +311,11 @@ class Translator{
 
 				return $pk;
 
-			case 0x13: //PlayerAbilitiesPacket
+			case InboundPacket::PLAYER_ABILITIES_PACKET:
 				$player->setSetting(["isFlying" => $packet->isFlying]);
 				return null;
 
-			case 0x14: //PlayerDiggingPacket
+			case InboundPacket::PLAYER_DIGGING_PACKET:
 				switch($packet->status){
 					case 0:
 						if($player->getGamemode() === 1){
@@ -411,7 +412,7 @@ class Translator{
 
 				return null;
 
-			case 0x15: //EntityActionPacket
+			case InboundPacket::ENTITY_ACTION_PACKET:
 				switch($packet->actionID){
 					case 0://Start sneaking
 						$pk = new PlayerActionPacket();
@@ -470,7 +471,7 @@ class Translator{
 
 				return null;
 
-			case 0x1a: //HeldItemChangePacket
+			case InboundPacket::HELD_ITEM_CHANGE_PACKET:
 				$slot = $player->getInventory()->getHotbarSlotIndex($packet->selectedSlot);
 				$item = $player->getInventory()->getItem($slot);
 				if($item->getId() === Item::AIR){
@@ -485,12 +486,12 @@ class Translator{
 
 				return $pk;
 
-			case 0x1b: //CreativeInventoryActionPacket
+			case InboundPacket::CREATIVE_INVENTORY_ACTION_PACKET:
 				$pk = $player->getInventoryUtils()->onCreativeInventoryAction($packet);
 
 				return $pk;
 
-			case 0x1c: //UpdateSignPacket
+			case InboundPacket::UPDATE_SIGN_PACKET:
 				$tags = new CompoundTag("", [
 					new StringTag("id", Tile::SIGN),
 					new StringTag("Text1", $packet->line1),
@@ -513,13 +514,13 @@ class Translator{
 
 				return $pk;
 
-			case 0x1d: //AnimatePacket
+			case InboundPacket::ANIMATE_PACKET:
 				$pk = new AnimatePacket();
 				$pk->action = 1;
 				$pk->entityRuntimeId = $player->getId();
 				return $pk;
 
-			case 0x1f; //PlayerBlockPlacementPacket
+			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
 				if($packet->direction !== 255){
 					$pk = new UseItemPacket();
 					$pk->x = $packet->x;
@@ -543,7 +544,7 @@ class Translator{
 
 				return null;
 
-			case 0x20://UseItemPacket
+			case InboundPacket::USE_ITEM_PACKET:
 				$pk = new UseItemPacket();
 				$pk->x = 0;
 				$pk->y = 0;
