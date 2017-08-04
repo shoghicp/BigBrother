@@ -32,12 +32,12 @@ class AES{
 	/** @var string */
 	private $key;
 	/** @var int */
-	private $keyLenght;
+	private $keyLength;
 
 	/** @var string */
 	private $IV;
 	/** @var int */
-	private $IVLenght;
+	private $IVLength;
 
 	/** @var resource */
 	private $enc;
@@ -53,9 +53,9 @@ class AES{
 		$this->algorithm = "rijndael-".$bits;
 		$this->mode = strtolower($mode);
 		$mcrypt = mcrypt_module_open($this->algorithm, "", $this->mode, "");
-		$this->IVLenght = mcrypt_enc_get_iv_size($mcrypt);
+		$this->IVLength = mcrypt_enc_get_iv_size($mcrypt);
 		mcrypt_module_close($mcrypt);
-		$this->keyLenght = $bits >> 3;
+		$this->keyLength = $bits >> 3;
 		$this->setKey();
 		$this->setIV();
 		$this->init();
@@ -78,11 +78,11 @@ class AES{
 	}
 
 	public function setKey(string $key = ""){
-		$this->key = str_pad($key, $this->keyLenght, "\x00", STR_PAD_RIGHT);
+		$this->key = str_pad($key, $this->keyLength, "\x00", STR_PAD_RIGHT);
 	}
 
 	public function setIV(string $IV = ""){
-		$this->IV = str_pad($IV, $this->IVLenght, "\x00", STR_PAD_RIGHT);
+		$this->IV = str_pad($IV, $this->IVLength, "\x00", STR_PAD_RIGHT);
 	}
 
 	public function encrypt(string $plaintext) : string{
