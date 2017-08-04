@@ -28,10 +28,29 @@
 namespace shoghicp\BigBrother\utils;
 
 class AES{
-	private $key, $keyLenght, $IV, $IVLenght, $enc, $dec, $mode, $algorithm;
 
-	function __construct($bits, $mode, $blockSize){
-		$this->algorithm = "rijndael-".intval($bits);
+	/** @var string */
+	private $key;
+	/** @var int */
+	private $keyLenght;
+
+	/** @var string */
+	private $IV;
+	/** @var int */
+	private $IVLenght;
+
+	/** @var resource */
+	private $enc;
+	/** @var resource */
+	private $dec;
+
+	/** @var string */
+	private $mode;
+	/** @var string */
+	private $algorithm;
+
+	function __construct(int $bits, string $mode, int $blockSize){
+		$this->algorithm = "rijndael-".$bits;
 		$this->mode = strtolower($mode);
 		$mcrypt = mcrypt_module_open($this->algorithm, "", $this->mode, "");
 		$this->IVLenght = mcrypt_enc_get_iv_size($mcrypt);
@@ -58,20 +77,19 @@ class AES{
 		mcrypt_generic_init($this->dec, $this->key, $this->IV);
 	}
 
-	public function setKey($key = ""){
+	public function setKey(string $key = ""){
 		$this->key = str_pad($key, $this->keyLenght, "\x00", STR_PAD_RIGHT);
 	}
 
-	public function setIV($IV = ""){
+	public function setIV(string $IV = ""){
 		$this->IV = str_pad($IV, $this->IVLenght, "\x00", STR_PAD_RIGHT);
 	}
 
-	public function encrypt($plaintext){
+	public function encrypt(string $plaintext) : string{
 		return mcrypt_generic($this->enc, $plaintext);
 	}
 
-	public function decrypt($ciphertext){
+	public function decrypt(string $ciphertext) : string{
 		return mdecrypt_generic($this->dec, $ciphertext);
 	}
-
 }

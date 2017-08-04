@@ -33,17 +33,17 @@ use pocketmine\nbt\NBT;
 
 class Binary extends \pocketmine\utils\Binary{
 
-	public static function sha1($input){
+	public static function sha1(string $input) : string{
 		$number = new BigInteger(sha1($input, true), -256);
 		$zero = new BigInteger(0);
 		return ($zero->compare($number) <= 0 ? "":"-") . ltrim($number->toHex(), "0");
 	}
 
-	public static function UUIDtoString($uuid){
+	public static function UUIDtoString(string $uuid) : string{
 		return substr($uuid, 0, 8) ."-". substr($uuid, 8, 4) ."-". substr($uuid, 12, 4) ."-". substr($uuid, 16, 4) ."-". substr($uuid, 20);
 	}
 
-	public static function writeMetadata(array $data){
+	public static function writeMetadata(array $data) : string{
 		if(!isset($data["convert"])){
 			$data = ConvertUtils::convertPEToPCMetadata($data);
 		}
@@ -55,6 +55,7 @@ class Binary extends \pocketmine\utils\Binary{
 				continue;
 			}
 
+			assert(is_int($bottom));
 			$m .= self::writeByte($bottom);
 			$m .= self::writeByte($d[0]);
 
@@ -114,7 +115,7 @@ class Binary extends \pocketmine\utils\Binary{
 		return $m;
 	}
 
-	public static function readComputerVarInt($buffer, &$offset = 0){
+	public static function readComputerVarInt(string $buffer, int &$offset = 0) : int{
 		$number = 0;
 		$shift = 0;
 
@@ -129,7 +130,12 @@ class Binary extends \pocketmine\utils\Binary{
 		return $number;
 	}
 
-	public static function readVarIntSession(Session $session, &$offset = 0){
+	/**
+	 * @param Session $session
+	 * @param int &$offset
+	 * @return int|bool
+	 */
+	public static function readVarIntSession(Session $session, int &$offset = 0){
 		$number = 0;
 		$shift = 0;
 
@@ -149,7 +155,12 @@ class Binary extends \pocketmine\utils\Binary{
 	}
 
 
-	public static function readVarIntStream($fp, &$offset = 0){
+	/**
+	 * @param resource $fp
+	 * @param int &$offset
+	 * @return int|bool
+	 */
+	public static function readVarIntStream($fp, int &$offset = 0){
 		$number = 0;
 		$shift = 0;
 
@@ -169,7 +180,7 @@ class Binary extends \pocketmine\utils\Binary{
 		return $number;
 	}
 
-	public static function writeComputerVarInt($number){
+	public static function writeComputerVarInt(int $number) : string{
 		$encoded = "";
 		do{
 			$next_byte = $number & 0x7f;
