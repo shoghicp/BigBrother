@@ -29,15 +29,21 @@ namespace shoghicp\BigBrother\network;
 
 class ServerThread extends \Thread{
 
+	/** @var int */
 	protected $port;
+	/** @var string */
 	protected $interface;
 	/** @var \ThreadedLogger */
 	protected $logger;
+	/** @var \ClassLoader */
 	protected $loader;
+	/** @var string */
 	protected $data;
 
+	/** @var array */
 	public $loadPaths;
 
+	/** @var bool */
 	protected $shutdown;
 
 	/** @var \Threaded */
@@ -45,7 +51,9 @@ class ServerThread extends \Thread{
 	/** @var \Threaded */
 	protected $internalQueue;
 
+	/** @var resource */
 	protected $externalSocket;
+	/** @var resource */
 	protected $internalSocket;
 
 	/**
@@ -59,7 +67,7 @@ class ServerThread extends \Thread{
 	 * @throws \Exception
 	 */
 	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null){
-		$this->port = (int) $port;
+		$this->port = $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
 		}
@@ -108,7 +116,7 @@ class ServerThread extends \Thread{
 		}
 	}
 
-	public function isShutdown(){
+	public function isShutdown() : bool{
 		return $this->shutdown === true;
 	}
 
@@ -116,53 +124,66 @@ class ServerThread extends \Thread{
 		$this->shutdown = true;
 	}
 
-	public function getPort(){
+	public function getPort() : int{
 		return $this->port;
 	}
 
-	public function getInterface(){
+	public function getInterface() : string{
 		return $this->interface;
 	}
 
 	/**
 	 * @return \ThreadedLogger
 	 */
-	public function getLogger(){
+	public function getLogger() : \ThreadedLogger{
 		return $this->logger;
 	}
 
 	/**
 	 * @return \Threaded
 	 */
-	public function getExternalQueue(){
+	public function getExternalQueue() : \Threaded{
 		return $this->externalQueue;
 	}
 
 	/**
 	 * @return \Threaded
 	 */
-	public function getInternalQueue(){
+	public function getInternalQueue() : \Threaded{
 		return $this->internalQueue;
 	}
 
+	/**
+	 * @return resource
+	 */
 	public function getInternalSocket(){
 		return $this->internalSocket;
 	}
 
-	public function pushMainToThreadPacket($str){
+	public function pushMainToThreadPacket(string $str){
+		assert($this->internalQueue instanceof \ArrayAccess);
 		$this->internalQueue[] = $str;
 		@fwrite($this->externalSocket, "\xff", 1); //Notify
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function readMainToThreadPacket(){
+		assert($this->internalQueue instanceof \ArrayAccess);
 		return $this->internalQueue->shift();
 	}
 
-	public function pushThreadToMainPacket($str){
+	public function pushThreadToMainPacket(string $str){
+		assert($this->internalQueue instanceof \ArrayAccess);
 		$this->externalQueue[] = $str;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function readThreadToMainPacket(){
+		assert($this->externalQueue instanceof \ArrayAccess);
 		return $this->externalQueue->shift();
 	}
 

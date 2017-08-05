@@ -85,11 +85,13 @@ class ProtocolInterface implements SourceInterface{
 	/** @var DesktopPlayer[] */
 	protected $identifiers = [];
 
+	/** @var int */
 	protected $identifier = 0;
 
-	private $threshold = null;
+	/** @var int */
+	private $threshold;
 
-	public function __construct(BigBrother $plugin, $server, $translator, $threshold){
+	public function __construct(BigBrother $plugin, Server $server, Translator $translator, int $threshold){
 		$this->plugin = $plugin;
 		$this->server = $server;
 		$this->translator = $translator;
@@ -116,7 +118,7 @@ class ProtocolInterface implements SourceInterface{
 		$this->thread->pushMainToThreadPacket($buffer);
 	}
 
-	public function closeSession($identifier){
+	public function closeSession(int $identifier){
 		if(isset($this->sessionsPlayers[$identifier])){
 			$player = $this->sessionsPlayers[$identifier];
 			unset($this->sessionsPlayers[$identifier]);
@@ -135,7 +137,7 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
-	protected function sendPacket($target, Packet $packet){
+	protected function sendPacket(int $target, Packet $packet){
 		if(\pocketmine\DEBUG > 3){
 			$id = bin2hex(chr($packet->pid()));
 			if($id !== "1f"){
@@ -155,7 +157,7 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
-	public function enableEncryption(DesktopPlayer $player, $secret){
+	public function enableEncryption(DesktopPlayer $player, string $secret){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
 			$data = chr(ServerManager::PACKET_ENABLE_ENCRYPTION) . Binary::writeInt($target) . $secret;
@@ -176,6 +178,7 @@ class ProtocolInterface implements SourceInterface{
 			$id = $this->identifier++;
 			$this->identifiers[$id] = $player;
 		}
+		assert($player instanceof DesktopPlayer);
 		$packets = $this->translator->serverToInterface($player, $packet);
 		if($packets !== null and $this->sessions->contains($player)){
 			$target = $this->sessions[$player];
@@ -204,7 +207,7 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
-	protected function handlePacket(DesktopPlayer $player, $payload){
+	protected function handlePacket(DesktopPlayer $player, string $payload){
 		if(\pocketmine\DEBUG > 3){
 			$id = bin2hex(chr(ord($payload{0})));
 			if($id !== "0b"){//KeepAlivePacket
@@ -382,5 +385,4 @@ class ProtocolInterface implements SourceInterface{
 
 		return true;
 	}
-
 }

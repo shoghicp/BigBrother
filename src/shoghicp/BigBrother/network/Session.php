@@ -36,18 +36,30 @@ use shoghicp\BigBrother\utils\Binary;
 class Session{
 	/** @var ServerManager */
 	private $manager;
+	/** @var int */
 	private $identifier;
+	/** @var resource */
 	private $socket;
+	/** @var int */
 	private $status = 0;
+	/** @var string */
 	protected $address;
+	/** @var int */
 	protected $port;
 	/** @var AES */
 	protected $aes;
+	/** @var bool */
 	protected $hasCrypto = false;
 
+	/** @var ?int */
 	private $threshold = null;
 
-	public function __construct(ServerManager $manager, $identifier, $socket){
+	/**
+	 * @param ServerManager $manager
+	 * @param int $identifier
+	 * @param resource $socket
+	 */
+	public function __construct(ServerManager $manager, int $identifier, $socket){
 		$this->manager = $manager;
 		$this->identifier = $identifier;
 		$this->socket = $socket;
@@ -57,12 +69,12 @@ class Session{
 		$this->address = substr($addr, 0, $final);
 	}
 
-	public function setCompression($threshold){
+	public function setCompression(int $threshold){
 		$this->writeRaw(Binary::writeComputerVarInt(0x03) . Binary::writeComputerVarInt($threshold >= 0 ? $threshold : -1));
 		$this->threshold = $threshold === -1 ? null : $threshold;
 	}
 
-	public function write($data){
+	public function write(string $data){
 		if($this->hasCrypto){
 			@fwrite($this->socket, $this->aes->encrypt($data));
 		}else{
@@ -70,7 +82,7 @@ class Session{
 		}
 	}
 
-	public function read($len){
+	public function read(int $len) : string{
 		if($this->hasCrypto){
 			$data = @fread($this->socket, $len);
 			if(strlen($data) > 0){
@@ -83,15 +95,15 @@ class Session{
 		}
 	}
 
-	public function getAddress(){
+	public function getAddress() : string{
 		return $this->address;
 	}
 
-	public function getPort(){
+	public function getPort() : int{
 		return $this->port;
 	}
 
-	public function enableEncryption($secret){
+	public function enableEncryption(string $secret){
 		$this->aes = new AES(128, "CFB", 8);
 		$this->aes->setKey($secret);
 		$this->aes->setIV($secret);
@@ -117,7 +129,7 @@ class Session{
 		}
 	}
 
-	public function writeRaw($data){
+	public function writeRaw(string $data){
 		if($this->threshold === null){
 			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
 		}else{
@@ -235,12 +247,11 @@ class Session{
 		}
 	}
 
-	public function getID(){
+	public function getID() : int{
 		return $this->identifier;
 	}
 
-	public function close($reason = ""){
+	public function close(string $reason = ""){
 		$this->manager->close($this);
 	}
-
 }

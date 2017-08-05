@@ -88,21 +88,28 @@ class ServerManager{
 
 	/** @var ServerThread */
 	protected $thread;
+	/** @var resource */
 	protected $fp;
+	/** @var resource */
 	protected $socket;
+	/** @var int */
 	protected $identifier = 0;
+	/** @var resource[] */
 	protected $sockets = [];
 	/** @var Session[] */
 	protected $sessions = [];
 	/** @var \Logger */
 	protected $logger;
+	/** @var bool */
 	protected $shutdown = false;
 
 	/** @var string[] */
 	public $sample = [];
+	/** @var string */
 	public $description;
 	/** @var string|null */
 	public $favicon;
+	/** @var array */
 	public $serverdata = [
 		"MaxPlayers" => 20,
 		"OnlinePlayers" => 0,
@@ -144,7 +151,7 @@ class ServerManager{
 		$this->process();
 	}
 
-	public function getServerData(){
+	public function getServerData() : array{
 		return $this->serverdata;
 	}
 
@@ -224,7 +231,7 @@ class ServerManager{
 		return false;
 	}
 
-	public function sendPacket($id, $buffer){
+	public function sendPacket(int $id, string $buffer){
 		$this->thread->pushThreadToMainPacket(chr(self::PACKET_SEND_PACKET) . Binary::writeInt($id) . $buffer);
 	}
 
@@ -233,7 +240,7 @@ class ServerManager{
 		$this->thread->pushThreadToMainPacket($data);
 	}
 
-	protected function closeSession($id, $flag){
+	protected function closeSession(int $id, int $flag){
 		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id).Binary::writeInt($flag));
 	}
 
@@ -270,6 +277,9 @@ class ServerManager{
 		}
 	}
 
+	/**
+	 * @param resource $s
+	 */
 	protected function findSocket($s){
 		foreach($this->sockets as $identifier => $socket){
 			if($identifier > 0 and $socket === $s){
@@ -286,5 +296,4 @@ class ServerManager{
 		unset($this->sessions[$identifier]);
 		$this->closeSession($identifier, 0);
 	}
-
 }
