@@ -1090,7 +1090,7 @@ class Translator{
 							case Item::EGG:
 								$name = "entity.egg.throw";
 							break;
-							case Item::ENCHANTING_BOTTLE:
+							case Item::BOTTLE_O_ENCHANTING:
 								$name = "entity.experience_bottle.throw";
 							break;
 							case Item::SPLASH_POTION:
