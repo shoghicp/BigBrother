@@ -140,8 +140,8 @@ class ServerManager{
 
 		$this->socket = stream_socket_server("tcp://$interface:$port", $errno, $errstr, STREAM_SERVER_LISTEN | STREAM_SERVER_BIND);
 		if(!$this->socket){
-			$this->logger->critical("[BigBrother] **** FAILED TO BIND TO " . $interface . ":" . $port . "!", true, true, 0);
-			$this->logger->critical("[BigBrother] Perhaps a server is already running on that port?", true, true, 0);
+			$this->logger->critical("[BigBrother] **** FAILED TO BIND TO " . $interface . ":" . $port . "!");
+			$this->logger->critical("[BigBrother] Perhaps a server is already running on that port?");
 			exit(1);
 		}
 
