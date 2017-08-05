@@ -43,7 +43,7 @@ class JoinGamePacket extends OutboundPacket{
 	public $maxPlayers;
 	/** @var string */
 	public $levelType;
-	/** @var int */
+	/** @var bool */
 	public $reducedDebugInfo = false;
 
 	public function pid(){
