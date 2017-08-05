@@ -496,7 +496,6 @@ class ConvertUtils{
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
-
 			default:
 				if($iscomputer){
 					$src = 0; $dst = 1;

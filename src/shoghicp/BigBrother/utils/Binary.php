@@ -86,13 +86,8 @@ class Binary extends \pocketmine\utils\Binary{
 						$nbt->read($item->getCompoundTag());
 						$nbt = $nbt->getData();
 
-						if($nbt->getType() !== NBT::TAG_End){
-							ConvertUtils::convertNBTData(true, $nbt);
-
-							$m .= self::writeByte(strlen($nbt)).$nbt;
-						}else{
-							$m .= self::writeByte(0);
-						}
+						ConvertUtils::convertNBTData(true, $nbt);
+						$m .= $nbt;
 					}
 				break;
 				case 6://Boolean

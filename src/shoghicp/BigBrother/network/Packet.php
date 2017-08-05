@@ -118,14 +118,8 @@ abstract class Packet extends \stdClass{
 			$nbt->read($item->getCompoundTag());//TODO String or CompoundTag
 			$nbt = $nbt->getData();
 
-			if($nbt->getType() !== NBT::TAG_End){
-				ConvertUtils::convertNBTData(true, $nbt);
-
-				$this->putByte(strlen($nbt));
-				$this->put($nbt);
-			}else{
-				$this->putByte(0);
-			}
+			ConvertUtils::convertNBTData(true, $nbt);
+			$this->put($nbt);
 		}
 	}
 
