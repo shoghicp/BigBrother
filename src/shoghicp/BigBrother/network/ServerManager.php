@@ -168,61 +168,75 @@ class ServerManager{
 
 			$buffer = substr($packet, 1);
 
-			if($pid === self::PACKET_SEND_PACKET){
-				$id = Binary::readInt(substr($buffer, 0, 4));
-				$data = substr($buffer, 4);
+			switch($pid){
+				case self::PACKET_SEND_PACKET:
+					$id = Binary::readInt(substr($buffer, 0, 4));
+					$data = substr($buffer, 4);
 
-				if(!isset($this->sessions[$id])){
-					$this->closeSession($id, 0);
-					return true;
-				}
-				$this->sessions[$id]->writeRaw($data);
-			}elseif($pid === self::PACKET_ENABLE_ENCRYPTION){
-				$id = Binary::readInt(substr($buffer, 0, 4));
-				$secret = substr($buffer, 4);
+					if(!isset($this->sessions[$id])){
+						$this->closeSession($id, 0);
+						return true;
+					}
+					$this->sessions[$id]->writeRaw($data);
+				break;
 
-				if(!isset($this->sessions[$id])){
-					$this->closeSession($id, 0);
-					return true;
-				}
-				$this->sessions[$id]->enableEncryption($secret);
-			}elseif($pid === self::PACKET_SET_COMPRESSION){
-				$id = Binary::readInt(substr($buffer, 0, 4));
-				$threshold = Binary::readInt(substr($buffer, 4, 4));
+				case self::PACKET_ENABLE_ENCRYPTION:
+					$id = Binary::readInt(substr($buffer, 0, 4));
+					$secret = substr($buffer, 4);
 
-				if(!isset($this->sessions[$id])){
-					$this->closeSession($id, 0);
-					return true;
-				}
-				$this->sessions[$id]->setCompression($threshold);
-			}elseif($pid === self::PACKET_SET_OPTION){
-				$offset = 1;
-				$len = ord($packet{$offset++});
-                $name = substr($packet, $offset, $len);
-                $offset += $len;
-                $value = substr($packet, $offset);
-                switch($name){
-                	case "name":
-                		$this->serverdata = json_decode($value, true);
-                	break;
-                }
-			}elseif($pid === self::PACKET_CLOSE_SESSION){
-				$id = Binary::readInt(substr($buffer, 0, 4));
-				if(isset($this->sessions[$id])){
-					$this->close($this->sessions[$id]);
-				}else{
-					$this->closeSession($id, 1);
-				}
-			}elseif($pid === self::PACKET_SHUTDOWN){
-				foreach($this->sessions as $session){
-					$session->close();
-				}
+					if(!isset($this->sessions[$id])){
+						$this->closeSession($id, 0);
+						return true;
+					}
+					$this->sessions[$id]->enableEncryption($secret);
+				break;
 
-				$this->shutdown();
-				stream_socket_shutdown($this->socket, STREAM_SHUT_RDWR);
-				$this->shutdown = true;
-			}elseif($pid === self::PACKET_EMERGENCY_SHUTDOWN){
-				$this->shutdown = true;
+				case self::PACKET_SET_COMPRESSION:
+					$id = Binary::readInt(substr($buffer, 0, 4));
+					$threshold = Binary::readInt(substr($buffer, 4, 4));
+
+					if(!isset($this->sessions[$id])){
+						$this->closeSession($id, 0);
+						return true;
+					}
+					$this->sessions[$id]->setCompression($threshold);
+				break;
+
+				case self::PACKET_SET_OPTION:
+					$offset = 1;
+					$len = ord($packet{$offset++});
+					$name = substr($packet, $offset, $len);
+					$offset += $len;
+					$value = substr($packet, $offset);
+					switch($name){
+						case "name":
+							$this->serverdata = json_decode($value, true);
+						break;
+					}
+				break;
+
+				case self::PACKET_CLOSE_SESSION:
+					$id = Binary::readInt(substr($buffer, 0, 4));
+					if(isset($this->sessions[$id])){
+						$this->close($this->sessions[$id]);
+					}else{
+						$this->closeSession($id, 1);
+					}
+				break;
+
+				case self::PACKET_SHUTDOWN:
+					foreach($this->sessions as $session){
+						$session->close();
+					}
+
+					$this->shutdown();
+					stream_socket_shutdown($this->socket, STREAM_SHUT_RDWR);
+					$this->shutdown = true;
+				break;
+
+				case self::PACKET_EMERGENCY_SHUTDOWN:
+					$this->shutdown = true;
+				break;
 			}
 
 			return true;
