@@ -258,7 +258,11 @@ class BigBrother extends PluginBase implements Listener{
 				}
 
 				if($with["translate"] === "gameMode.changed"){//Patch :(
-					$with["with"][] = ["text" => "select gamemode"];//TODO : must support pmmp
+					if(count($parameters) > 0){
+						$with["with"][] = ["translate" => str_replace("%", "", $parameters[0])];
+					}else{
+						$with["with"][] = ["text" => "select gamemode"];
+					}
 				}
 			break;
 			case 3:
