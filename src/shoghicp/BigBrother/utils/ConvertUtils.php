@@ -423,7 +423,7 @@ class ConvertUtils{
 						$stream->putFloat($nbt->getValue());
 					break;
 					case NBT::TAG_Double:
-						$stream->putFloat($nbt->getValue());
+						$stream->put(pack("d", $nbt->getValue()));
 					break;
 					case NBT::TAG_ByteArray:
 						$stream->putInt(strlen($nbt->getValue()));
