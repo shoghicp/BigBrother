@@ -5,7 +5,7 @@
  *
  * Uses mcrypt, if available, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Useful resources are as follows:
  *
@@ -18,9 +18,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/RC4.php');
+ *    include 'vendor/autoload.php';
  *
- *    $rc4 = new RC4();
+ *    $rc4 = new \phpseclib\Crypt\RC4();
  *
  *    $rc4->setKey('abcdefgh');
  *
@@ -34,102 +34,59 @@
  * ?>
  * </code>
  *
- * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
  * @category  Crypt
  * @package   RC4
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMVII Jim Wigginton
+ * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
 namespace phpseclib\Crypt;
 
-/**#@+
- * @access private
- * @see RC4::RC4()
- */
-/**
- * Toggles the internal implementation
- */
-@define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-@define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see RC4::_crypt()
- */
-@define('CRYPT_RC4_ENCRYPT', 0);
-@define('CRYPT_RC4_DECRYPT', 1);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of RC4.
  *
  * @package RC4
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  public
  */
 class RC4 extends Base
 {
+    /**#@+
+     * @access private
+     * @see \phpseclib\Crypt\RC4::_crypt()
+    */
+    const ENCRYPT = 0;
+    const DECRYPT = 1;
+    /**#@-*/
+
     /**
      * Block Length of the cipher
      *
      * RC4 is a stream cipher
      * so we the block_size to 0
      *
-     * @see Base::block_size
-     * @var Integer
+     * @see \phpseclib\Crypt\Base::block_size
+     * @var int
      * @access private
      */
     var $block_size = 0;
 
     /**
-     * The default password key_size used by setPassword()
+     * Key Length (in bytes)
      *
-     * @see Base::password_key_size
-     * @see Base::setPassword()
-     * @var Integer
+     * @see \phpseclib\Crypt\RC4::setKeyLength()
+     * @var int
      * @access private
      */
-    var $password_key_size = 128; // = 1024 bits
-
-    /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'RC4';
+    var $key_length = 128; // = 1024 bits
 
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see Base::cipher_name_mcrypt
-     * @var String
+     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'arcfour';
@@ -137,7 +94,7 @@ class RC4 extends Base
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
      *
-     * @see Base::inline_crypt
+     * @see \phpseclib\Crypt\Base::inline_crypt
      * @var mixed
      * @access private
      */
@@ -146,8 +103,8 @@ class RC4 extends Base
     /**
      * The Key
      *
-     * @see RC4::setKey()
-     * @var String
+     * @see self::setKey()
+     * @var string
      * @access private
      */
     var $key = "\0";
@@ -155,8 +112,8 @@ class RC4 extends Base
     /**
      * The Key Stream for decryption and encryption
      *
-     * @see RC4::setKey()
-     * @var Array
+     * @see self::setKey()
+     * @var array
      * @access private
      */
     var $stream;
@@ -166,13 +123,48 @@ class RC4 extends Base
      *
      * Determines whether or not the mcrypt extension should be used.
      *
-     * @see Base::Base()
-     * @return RC4
+     * @see \phpseclib\Crypt\Base::__construct()
+     * @return \phpseclib\Crypt\RC4
      * @access public
      */
-    function RC4()
+    function __construct()
     {
-        parent::Base(CRYPT_MODE_STREAM);
+        parent::__construct(Base::MODE_STREAM);
+    }
+
+    /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
+     *
+     * @see \phpseclib\Crypt\Base::__construct()
+     * @param int $engine
+     * @access public
+     * @return bool
+     */
+    function isValidEngine($engine)
+    {
+        if ($engine == Base::ENGINE_OPENSSL) {
+            if (version_compare(PHP_VERSION, '5.3.7') >= 0) {
+                $this->cipher_name_openssl = 'rc4-40';
+            } else {
+                switch (strlen($this->key)) {
+                    case 5:
+                        $this->cipher_name_openssl = 'rc4-40';
+                        break;
+                    case 8:
+                        $this->cipher_name_openssl = 'rc4-64';
+                        break;
+                    case 16:
+                        $this->cipher_name_openssl = 'rc4';
+                        break;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        return parent::isValidEngine($engine);
     }
 
     /**
@@ -190,8 +182,8 @@ class RC4 extends Base
      * {@link http://www.rsa.com/rsalabs/node.asp?id=2009 http://www.rsa.com/rsalabs/node.asp?id=2009}
      * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
      *
-     * @param String $iv
-     * @see RC4::setKey()
+     * @param string $iv
+     * @see self::setKey()
      * @access public
      */
     function setIV($iv)
@@ -199,72 +191,96 @@ class RC4 extends Base
     }
 
     /**
-     * Sets the key.
+     * Sets the key length
      *
-     * Keys can be between 1 and 256 bytes long.  If they are longer then 256 bytes, the first 256 bytes will
-     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.
+     * Keys can be between 1 and 256 bytes long.
      *
      * @access public
-     * @see Base::setKey()
-     * @param String $key
+     * @param int $length
      */
-    function setKey($key)
+    function setKeyLength($length)
     {
-        parent::setKey(substr($key, 0, 256));
+        if ($length < 8) {
+            $this->key_length = 1;
+        } elseif ($length > 2048) {
+            $this->key_length = 256;
+        } else {
+            $this->key_length = $length >> 3;
+        }
+
+        parent::setKeyLength($length);
     }
 
     /**
      * Encrypts a message.
      *
-     * @see Base::decrypt()
-     * @see RC4::_crypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see self::_crypt()
      * @access public
-     * @param String $plaintext
-     * @return String $ciphertext
+     * @param string $plaintext
+     * @return string $ciphertext
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine != Base::ENGINE_INTERNAL) {
             return parent::encrypt($plaintext);
         }
-        return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
+        return $this->_crypt($plaintext, self::ENCRYPT);
     }
 
     /**
      * Decrypts a message.
      *
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
-     * Atleast if the continuous buffer is disabled.
+     * At least if the continuous buffer is disabled.
      *
-     * @see Base::encrypt()
-     * @see RC4::_crypt()
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see self::_crypt()
      * @access public
-     * @param String $ciphertext
-     * @return String $plaintext
+     * @param string $ciphertext
+     * @return string $plaintext
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine != Base::ENGINE_INTERNAL) {
             return parent::decrypt($ciphertext);
         }
-        return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);
+        return $this->_crypt($ciphertext, self::DECRYPT);
     }
 
+    /**
+     * Encrypts a block
+     *
+     * @access private
+     * @param string $in
+     */
+    function _encryptBlock($in)
+    {
+        // RC4 does not utilize this method
+    }
+
+    /**
+     * Decrypts a block
+     *
+     * @access private
+     * @param string $in
+     */
+    function _decryptBlock($in)
+    {
+        // RC4 does not utilize this method
+    }
 
     /**
      * Setup the key (expansion)
      *
-     * @see Base::_setupKey()
+     * @see \phpseclib\Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
     {
         $key = $this->key;
         $keyLength = strlen($key);
-        $keyStream = array();
-        for ($i = 0; $i < 256; $i++) {
-            $keyStream[$i] = $i;
-        }
+        $keyStream = range(0, 255);
         $j = 0;
         for ($i = 0; $i < 256; $i++) {
             $j = ($j + $keyStream[$i] + ord($key[$i % $keyLength])) & 255;
@@ -274,7 +290,7 @@ class RC4 extends Base
         }
 
         $this->stream = array();
-        $this->stream[CRYPT_RC4_DECRYPT] = $this->stream[CRYPT_RC4_ENCRYPT] = array(
+        $this->stream[self::DECRYPT] = $this->stream[self::ENCRYPT] = array(
             0, // index $i
             0, // index $j
             $keyStream
@@ -284,12 +300,12 @@ class RC4 extends Base
     /**
      * Encrypts or decrypts a message.
      *
-     * @see RC4::encrypt()
-     * @see RC4::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @access private
-     * @param String $text
-     * @param Integer $mode
-     * @return String $text
+     * @param string $text
+     * @param int $mode
+     * @return string $text
      */
     function _crypt($text, $mode)
     {
@@ -318,7 +334,7 @@ class RC4 extends Base
 
             $keyStream[$i] = $ksj;
             $keyStream[$j] = $ksi;
-            $text[$k] = chr(ord($text[$k]) ^ $keyStream[($ksj + $ksi) & 255]);
+            $text[$k] = $text[$k] ^ chr($keyStream[($ksj + $ksi) & 255]);
         }
 
         return $text;
