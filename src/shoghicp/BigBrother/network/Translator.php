@@ -664,7 +664,7 @@ class Translator{
 				$pk = new JoinGamePacket();
 				$pk->eid = $packet->entityUniqueId;
 				$pk->gamemode = $packet->playerGamemode;
-				$pk->dimension = $player->bigBrother_getDimensionPEToPC($pk->dimension);
+				$pk->dimension = $player->bigBrother_getDimensionPEToPC($packet->dimension);
 				$pk->difficulty = $player->getServer()->getDifficulty();
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
 				$pk->levelType = "default";
