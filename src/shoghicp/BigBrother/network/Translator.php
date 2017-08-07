@@ -326,6 +326,8 @@ class Translator{
 							$pk->z = $packet->z;
 							return $pk;
 						}else{
+							$packets = [];
+
 							$pk = new PlayerActionPacket();
 							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_START_BREAK;
@@ -333,7 +335,28 @@ class Translator{
 							$pk->y = $packet->y;
 							$pk->z = $packet->z;
 							$pk->face = $packet->face;
-							return $pk;
+							$packets[] = $pk;
+
+							$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+							if($block->getHardness() === 0){
+								$pk = new PlayerActionPacket();
+								$pk->entityRuntimeId = $player->getId();
+								$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
+								$pk->x = $packet->x;
+								$pk->y = $packet->y;
+								$pk->z = $packet->z;
+								$pk->face = $packet->face;
+								$packets[] = $pk;
+
+								$pk = new RemoveBlockPacket();
+								$pk->entityRuntimeId = $player->getId();
+								$pk->x = $packet->x;
+								$pk->y = $packet->y;
+								$pk->z = $packet->z;
+								$packets[] = $pk;
+							}
+
+							return $packets;
 						}
 					break;
 					case 1:
