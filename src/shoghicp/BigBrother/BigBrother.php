@@ -95,12 +95,12 @@ class BigBrother extends PluginBase implements Listener{
 			if($this->onlineMode){
 				$this->getLogger()->info("Server is being started in the background");
 				$this->getLogger()->info("Generating keypair");
-				$this->rsa->setPrivateKeyFormat(CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
-				$this->rsa->setPublicKeyFormat(CRYPT_RSA_PUBLIC_FORMAT_PKCS1);
+				$this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
+				$this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS8);
+				$this->rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
 				$keys = $this->rsa->createKey(1024);
 				$this->privateKey = $keys["privatekey"];
 				$this->publicKey = $keys["publickey"];
-				$this->rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
 				$this->rsa->loadKey($this->privateKey);
 			}
 
