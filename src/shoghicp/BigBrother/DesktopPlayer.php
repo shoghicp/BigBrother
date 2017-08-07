@@ -55,23 +55,34 @@ use shoghicp\BigBrother\utils\InventoryUtils;
 
 class DesktopPlayer extends Player{
 
+	/** @var int */
 	private $bigBrother_status = 0; //0 = log in, 1 = playing
+	/** @var string */
 	protected $bigBrother_uuid;
+	/** @var string */
 	protected $bigBrother_formatedUUID;
+	/** @var array */
 	protected $bigBrother_properties = [];
+	/** @var string */
 	private $bigBrother_checkToken;
+	/** @var string */
 	private $bigBrother_secret;
+	/** @var string */
 	private $bigBrother_username;
+	/** @var string */
 	private $bigbrother_clientId;
+	/** @var int */
 	private $bigBrother_dimension;
+	/** @var InventoryUtils */
 	private $inventoryutils;
+	/** @var array */
 	protected $Settings = [];
 	/** @var ProtocolInterface */
 	protected $interface;
 	/** @var BigBrother */
 	protected $plugin;
 
-	public function __construct(SourceInterface $interface, $clientID, $address, $port, BigBrother $plugin){
+	public function __construct(SourceInterface $interface, string $clientID, string $address, int $port, BigBrother $plugin){
 		$this->plugin = $plugin;
 		$this->bigbrother_clientId = $clientID;
 		parent::__construct($interface, $clientID, $address, $port);
@@ -79,7 +90,7 @@ class DesktopPlayer extends Player{
 		$this->inventoryutils = new InventoryUtils($this);
 	}
 
-	public function getInventoryUtils(){
+	public function getInventoryUtils() : InventoryUtils{
 		return $this->inventoryutils;
 	}
 
@@ -87,11 +98,11 @@ class DesktopPlayer extends Player{
 		$this->getLevel()->dropItem($this->add(0, 1.3, 0), $item, $this->getDirectionVector()->multiply(0.4), 40);
 	}
 
-	public function bigBrother_getDimension(){
+	public function bigBrother_getDimension() : int{
 		return $this->bigBrother_dimension;
 	}
 
-	public function bigBrother_getDimensionPEToPC($level_dimension){
+	public function bigBrother_getDimensionPEToPC(int $level_dimension) : int{
 		switch($level_dimension){
 			case 0://Overworld
 				$dimension = 0;
@@ -107,44 +118,41 @@ class DesktopPlayer extends Player{
 		return $dimension;
 	}
 
-	public function bigBrother_getStatus(){
+	public function bigBrother_getStatus() : int{
 		return $this->bigBrother_status;
 	}
 
-	public function bigBrother_getProperties(){
+	public function bigBrother_getProperties() : array{
 		return $this->bigBrother_properties;
 	}
 
-	public function bigBrother_getUniqueId(){
+	public function bigBrother_getUniqueId() : string{
 		return $this->bigBrother_uuid;
 	}
 
-	public function bigBrother_getformatedUUID(){
+	public function bigBrother_getformatedUUID() : string{
 		return $this->bigBrother_formatedUUID;
 	}
 
-	public function getSettings(){
+	public function getSettings() : array{
 		return $this->Settings;
 	}
 
-	public function getSetting($settingname = null){
-		if(isset($this->Settings[$settingname])){
-			return $this->Settings[$settingname];
-		}
-		return false;
+	public function getSetting(string $settingname){
+		return $this->Settings[$settingname] ?? false;
 	}
 
-	public function setSetting($settings){
+	public function setSetting(array $settings){
 		$this->Settings = array_merge($this->Settings, $settings);
 	}
 
-	public function removeSetting($settingname){
+	public function removeSetting(string $settingname){
 		if(isset($this->Settings[$settingname])){
 			unset($this->Settings[$settingname]);
 		}
 	}
 
-	public function cleanSetting($settingname){
+	public function cleanSetting(string $settingname){
 		unset($this->Settings[$settingname]);
 	}
 
@@ -175,7 +183,7 @@ class DesktopPlayer extends Player{
 		$this->usedChunks = [];
 	}
 
-	public function bigBrother_authenticate($uuid, $onlineModeData = null){
+	public function bigBrother_authenticate(string $uuid, array $onlineModeData = null){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
 			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
@@ -189,7 +197,7 @@ class DesktopPlayer extends Player{
 
 			$this->bigBrother_status = 1;
 
-			if($onlineModeData !== null and is_array($onlineModeData)){
+			if($onlineModeData !== null){
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
@@ -280,7 +288,7 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function bigBrother_handleAuthentication($plugin, $username, $onlineMode = false){
+	public function bigBrother_handleAuthentication(BigBrother $plugin, string $username, bool $onlineMode = false){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_username = $username;
 			if($onlineMode === true){
@@ -298,7 +306,11 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function getProfile($username){
+	/**
+	 * @param string $username
+	 * @return array|bool|null
+	 */
+	public function getProfile(string $username){
 		$profile = json_decode(Utils::getURL("https://api.mojang.com/users/profiles/minecraft/".$username), true);
 		if(!is_array($profile)){
 			return false;
@@ -312,7 +324,7 @@ class DesktopPlayer extends Player{
 		return $info;
 	}
 
-	public function getAuthenticateOnline($username, $hash){
+	public function getAuthenticateOnline(string $username, string $hash){
 		$result = json_decode(Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$username."&serverId=".$hash, 5), true);
 		if(is_array($result) and isset($result["id"])){
 			$this->bigBrother_authenticate($result["id"], $result["properties"]);
@@ -321,7 +333,11 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function getSkinImage($url){
+	/**
+	 * @param string $url
+	 * @return string|bool|null
+	 */
+	public function getSkinImage(string $url){
 		if(extension_loaded("gd")){
 			$image = imagecreatefrompng($url);
 
@@ -372,6 +388,9 @@ class DesktopPlayer extends Player{
 		return false;
 	}
 
+	/**
+	 * @override
+	 */
 	public function handleDataPacket(DataPacket $packet){
 		if($this->connected === false){
 			return;

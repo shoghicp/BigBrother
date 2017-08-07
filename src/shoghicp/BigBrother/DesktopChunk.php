@@ -28,24 +28,40 @@
 namespace shoghicp\BigBrother;
 
 use pocketmine\level\Level;
+use pocketmine\level\format\io\LevelProvider;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
-class DesktopChunk{
-	private $player, $chunkX, $chunkZ, $provider, $groundup, $bitmap, $biomes, $data;
 
-	public function __construct(DesktopPlayer $player, $chunkX, $chunkZ){
+class DesktopChunk{
+	/** @var DesktopPlayer */
+	private $player;
+	/** @var int */
+	private $chunkX;
+	/** @var int */
+	private $chunkZ;
+	/** @var LevelProvider */
+	private  $provider;
+	/** @var bool */
+	private $groundup;
+	/** @var int */
+	private $bitmap;
+	/** @var string */
+	private $biomes;
+	/** @var string */
+	private $data;
+
+	public function __construct(DesktopPlayer $player, int $chunkX, int $chunkZ){
 		$this->player = $player;
 		$this->chunkX = $chunkX;
 		$this->chunkZ = $chunkZ;
 		$this->provider = $player->getLevel()->getProvider();
 		$this->groundup = true;
 		$this->bitmap = 0;
-		$this->biomes = null;
 		$this->data = $this->generateChunk();
 	}
 
-	public function generateChunk(){
+	public function generateChunk() : string{
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
 
@@ -120,23 +136,19 @@ class DesktopChunk{
 		return $payload;
 	}
 
-	public function isGroundUp(){
+	public function isGroundUp() : bool{
 		return $this->groundup;
 	}
 
-	public function getBitMapData(){
+	public function getBitMapData() : int{
 		return $this->bitmap;
 	}
 
-	public function getBiomesData(){
+	public function getBiomesData() : string{
 		return $this->biomes;
 	}
 
-	public function getChunkData(){
-		if(isset($this->data)){
-			return $this->data;
-		}
-		return null;
+	public function getChunkData() : string{
+		return $this->data;
 	}
-
 }
