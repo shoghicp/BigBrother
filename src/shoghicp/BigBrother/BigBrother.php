@@ -44,6 +44,7 @@ use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenSignEditorPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use shoghicp\BigBrother\utils\AES;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -73,10 +74,23 @@ class BigBrother extends PluginBase implements Listener{
 		$this->saveResource("alex.yml", false);
 		$this->reloadConfig();
 
-		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
-		if($this->onlineMode and !function_exists("mcrypt_generic_init")){
-			$this->onlineMode = false;
-			$this->getLogger()->notice("no mcrypt detected, online-mode has been disabled. Try using the latest PHP binaries");
+		$this->onlineMode = (bool)$this->getConfig()->get("online-mode");
+
+		$aes = new AES();
+		switch($aes->getEngine()){
+			case AES::ENGINE_OPENSSL:
+				$this->getLogger()->info("Use openssl as AES encryption engine.");
+			case AES::ENGINE_MCRYPT:
+				$this->getLogger()->warning("Use obsolete mcrypt for AES encryption. Try to install openssl extension instead!!");
+			break;
+			case AES::ENGINE_INTERNAL:
+				$this->getLogger()->warning("Use phpseclib internal engine for AES encryption, this may impact on performance. To improve them, try to install openssl extension.");
+			break;
+		}
+
+		$this->rsa = new RSA();
+		if(CRYPT_RSA_MODE === RSA::MODE_INTERNAL){
+			$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.\n");
 		}
 
 		if(!$this->getConfig()->exists("motd")){
@@ -86,7 +100,6 @@ class BigBrother extends PluginBase implements Listener{
 
 		if(Info::CURRENT_PROTOCOL === 113){
 			$this->translator = new Translator();
-			$this->rsa = new RSA();
 
 			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
 
