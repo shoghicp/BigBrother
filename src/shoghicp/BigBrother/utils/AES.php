@@ -27,69 +27,179 @@
 
 namespace shoghicp\BigBrother\utils;
 
-class AES{
+use phpseclib\Crypt\Rijndael;
 
-	/** @var string */
-	private $key;
-	/** @var int */
-	private $keyLength;
+class AES extends Rijndael{
 
-	/** @var string */
-	private $IV;
-	/** @var int */
-	private $IVLength;
+	const MODE_CFB8 = 38;
 
-	/** @var resource */
-	private $enc;
-	/** @var resource */
-	private $dec;
-
-	/** @var string */
-	private $mode;
-	/** @var string */
-	private $algorithm;
-
-	function __construct(int $bits, string $mode, int $blockSize){
-		$this->algorithm = "rijndael-".$bits;
-		$this->mode = strtolower($mode);
-		$mcrypt = mcrypt_module_open($this->algorithm, "", $this->mode, "");
-		$this->IVLength = mcrypt_enc_get_iv_size($mcrypt);
-		mcrypt_module_close($mcrypt);
-		$this->keyLength = $bits >> 3;
-		$this->setKey();
-		$this->setIV();
-		$this->init();
-	}
-
-	public function init(){
-		if(is_resource($this->enc)){
-			mcrypt_generic_deinit($this->enc);
-			mcrypt_module_close($this->enc);
+	/**
+	 * @override
+	 */
+	public function __construct(int $mode = self::MODE_CFB8){
+		parent::__construct($mode);
+		if($mode === self::MODE_CFB8){
+			$this->mode = $mode;
+			$this->paddable = false;
 		}
-		$this->enc = mcrypt_module_open($this->algorithm, "", $this->mode, "");
-		mcrypt_generic_init($this->enc, $this->key, $this->IV);
+	}
 
-		if(is_resource($this->dec)){
-			mcrypt_generic_deinit($this->dec);
-			mcrypt_module_close($this->dec);
+	/**
+	 * @override
+	 */
+	function _setupMcrypt(){
+		switch($this->mode){
+			case self::MODE_CFB8:
+				$this->_clearBuffers();
+				$this->enchanged = $this->dechanged = true;
+
+				if(!isset($this->enmcrypt)){
+					$this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_CFB, '');
+					$this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_CFB, '');
+				}
+			break;
+			default:
+				parent::_setupMcrypt();
+			break;
 		}
-		$this->dec = mcrypt_module_open($this->algorithm, "", $this->mode, "");
-		mcrypt_generic_init($this->dec, $this->key, $this->IV);
 	}
 
-	public function setKey(string $key = ""){
-		$this->key = str_pad($key, $this->keyLength, "\x00", STR_PAD_RIGHT);
+	/**
+	 * @return string
+	 * @override
+	 */
+	function _openssl_translate_mode(){
+		switch($this->mode){
+			case self::MODE_CFB8:
+				return "cfb8";
+			default:
+				return parent::_openssl_translate_mode();
+		}
 	}
 
-	public function setIV(string $IV = ""){
-		$this->IV = str_pad($IV, $this->IVLength, "\x00", STR_PAD_RIGHT);
+
+	/**
+	 * @param string $plain text to encrypt
+	 * @return string encrypted text
+	 * @override
+	 */
+	public function encrypt($plain){
+		switch(true){
+			case $this->engine === self::ENGINE_OPENSSL and $this->mode === self::MODE_CFB8:
+				if($this->paddable){
+					$plain = $this->_pad($plain);
+				}
+
+				if($this->changed){
+					$this->_clearBuffers();
+					$this->changed = false;
+				}
+
+				$cipher = openssl_encrypt($plain, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->encryptIV);
+				$length = strlen($cipher);
+
+				if($this->continuousBuffer){
+					if($length >= $this->block_size){
+						$this->encryptIV = substr($cipher, -$this->block_size);
+					}else{
+						$this->encryptIV = substr($this->encryptIV, $length -$this->block_size) . substr($cipher, -$length);
+					}
+				}
+			break;
+			case $this->engine === self::ENGINE_INTERNAL and $this->mode === self::MODE_CFB8:
+				if($this->paddable){
+					$plain = $this->_pad($plain);
+				}
+
+				if ($this->changed) {
+					$this->_setup();
+					$this->changed = false;
+				}
+
+				$cipher = '';
+				$length = strlen($plain);
+				$vector = $this->encryptIV;
+
+				for($i=0; $i<$length; ++$i){
+					$cipher .= substr($plain, $i, 1) ^ $this->_encryptBlock($vector);
+					$vector  = substr($vector, 1, $this->block_size - 1) . substr($cipher, -1);
+				}
+
+				if($this->continuousBuffer){
+					if($length >= $this->block_size){
+						$this->encryptIV = substr($cipher, -$this->block_size);
+					}else{
+						$this->encryptIV = substr($this->encryptIV, $length -$this->block_size) . substr($cipher, -$length);
+					}
+				}
+			break;
+			default:
+				$cipher = parent::encrypt($plain);
+			break;
+		}
+
+		return $cipher;
 	}
 
-	public function encrypt(string $plaintext) : string{
-		return mcrypt_generic($this->enc, $plaintext);
-	}
+	/**
+	 * @param string $cipher text to decrypt
+	 * @return string decrypted text
+	 * @override
+	 */
+	public function decrypt($cipher){
+		switch(true){
+			case $this->engine === self::ENGINE_OPENSSL and $this->mode === self::MODE_CFB8:
+				if($this->paddable){
+					$cipher = str_pad($cipher, strlen($cipher) + ($this->block_size - strlen($cipher)) % $this->block_size, chr(0));
+				}
 
-	public function decrypt(string $ciphertext) : string{
-		return mdecrypt_generic($this->dec, $ciphertext);
+				if($this->changed){
+					$this->_clearBuffers();
+					$this->changed = false;
+				}
+
+				$plain = openssl_decrypt($cipher, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->decryptIV);
+
+				if($this->continuousBuffer){
+					if(($length = strlen($cipher)) >= $this->block_size){
+						$this->decryptIV = substr($cipher, -$this->block_size);
+					}else{
+						$this->decryptIV = substr($this->decryptIV, $length -$this->block_size) . substr($cipher, -$length);
+					}
+				}
+			break;
+			case $this->engine === self::ENGINE_INTERNAL and $this->mode === self::MODE_CFB8:
+				if($this->paddable){
+					$cipher = str_pad($cipher, strlen($cipher) + ($this->block_size - strlen($cipher)) % $this->block_size, chr(0));
+				}
+
+				if($this->changed) {
+					$this->_setup();
+					$this->changed = false;
+				}
+
+				$plain = '';
+				$length = strlen($cipher);
+				$vector = $this->decryptIV;
+
+				for($i=0; $i<$length; ++$i){
+					$plain .= substr($cipher, $i, 1) ^ $this->_encryptBlock($vector);
+					$vector = substr($vector, 1, $this->block_size - 1) . substr($cipher, $i, 1);
+				}
+
+				if($this->continuousBuffer){
+					if($length >= $this->block_size){
+						$this->decryptIV = substr($cipher, -$this->block_size);
+					}else{
+						$this->decryptIV = substr($this->decryptIV, $length -$this->block_size) . substr($cipher, -$length);
+					}
+				}
+			break;
+			default:
+				$plain = parent::decrypt($cipher);
+			break;
+		}
+
+		return $plain;
 	}
 }
