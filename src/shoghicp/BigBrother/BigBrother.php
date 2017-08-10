@@ -90,7 +90,7 @@ class BigBrother extends PluginBase implements Listener{
 
 		$this->rsa = new RSA();
 		if(CRYPT_RSA_MODE === RSA::MODE_INTERNAL){
-			$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.\n");
+			$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
 		}
 
 		if(!$this->getConfig()->exists("motd")){
