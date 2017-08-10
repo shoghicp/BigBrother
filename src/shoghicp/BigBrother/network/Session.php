@@ -49,7 +49,7 @@ class Session{
 	/** @var AES */
 	protected $aes;
 	/** @var bool */
-	protected $hasCrypto = false;
+	protected $encryptionEnabled = false;
 
 	/** @var ?int */
 	private $threshold = null;
@@ -75,7 +75,7 @@ class Session{
 	}
 
 	public function write(string $data){
-		if($this->hasCrypto){
+		if($this->encryptionEnabled){
 			@fwrite($this->socket, $this->aes->encrypt($data));
 		}else{
 			@fwrite($this->socket, $data);
@@ -83,7 +83,7 @@ class Session{
 	}
 
 	public function read(int $len) : string{
-		if($this->hasCrypto){
+		if($this->encryptionEnabled){
 			$data = @fread($this->socket, $len);
 			if(strlen($data) > 0){
 				return $this->aes->decrypt($data);
@@ -104,12 +104,12 @@ class Session{
 	}
 
 	public function enableEncryption(string $secret){
-		$this->aes = new AES(128, "CFB", 8);
+		$this->aes = new AES();
+		$this->aes->enableContinuousBuffer();
 		$this->aes->setKey($secret);
 		$this->aes->setIV($secret);
-		$this->aes->init();
 
-		$this->hasCrypto = true;
+		$this->encryptionEnabled = true;
 	}
 
 	public function writePacket(Packet $packet){
