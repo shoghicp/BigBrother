@@ -161,7 +161,6 @@ class ServerThread extends \Thread{
 	}
 
 	public function pushMainToThreadPacket(string $str){
-		assert($this->internalQueue instanceof \ArrayAccess);
 		$this->internalQueue[] = $str;
 		@fwrite($this->externalSocket, "\xff", 1); //Notify
 	}
@@ -170,12 +169,10 @@ class ServerThread extends \Thread{
 	 * @return string|null
 	 */
 	public function readMainToThreadPacket(){
-		assert($this->internalQueue instanceof \ArrayAccess);
 		return $this->internalQueue->shift();
 	}
 
 	public function pushThreadToMainPacket(string $str){
-		assert($this->internalQueue instanceof \ArrayAccess);
 		$this->externalQueue[] = $str;
 	}
 
@@ -183,7 +180,6 @@ class ServerThread extends \Thread{
 	 * @return string|null
 	 */
 	public function readThreadToMainPacket(){
-		assert($this->externalQueue instanceof \ArrayAccess);
 		return $this->externalQueue->shift();
 	}
 
