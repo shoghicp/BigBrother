@@ -74,7 +74,9 @@ class BigBrother extends PluginBase implements Listener{
 		$this->saveResource("alex.yml", false);
 		$this->reloadConfig();
 
-		$this->onlineMode = (bool)$this->getConfig()->get("online-mode");
+		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
+
+		
 
 		$aes = new AES();
 		switch($aes->getEngine()){

@@ -1190,6 +1190,8 @@ class Translator{
 						}
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
+					case LevelEventPacket::EVENT_BLOCK_START_BREAK:
+					case LevelEventPacket::EVENT_BLOCK_STOP_BREAK:
 					break;
 					default:
 						echo "LevelEventPacket: ".$packet->evid."\n";
@@ -1262,22 +1264,42 @@ class Translator{
 			case Info::ENTITY_EVENT_PACKET:
 				switch($packet->event){
 					case EntityEventPacket::HURT_ANIMATION:
+						$packets = [];
+
 						$pk = new EntityStatusPacket();
 						$pk->status = 2;
 						$pk->eid = $packet->entityRuntimeId;
+						$packets[] = $pk;
 
-						//TODO: sound
+						$pk = new NamedSoundEffectPacket();
+						$pk->category = 0;
+						$pk->x = $player->getX();
+						$pk->y = $player->getY();
+						$pk->z = $player->getZ();
+						$pk->volume = 0.5;
+						$pk->pitch = 1.0;
+						$pk->name = "entity.player.hurt";//TODO: mob
+						$packets[] = $pk;
 
-						return $pk;
+						return $packets;
 					break;
 					case EntityEventPacket::DEATH_ANIMATION:
 						$pk = new EntityStatusPacket();
 						$pk->status = 3;
 						$pk->eid = $packet->entityRuntimeId;
+						$packets[] = $pk;
 
-						//TODO: sound
+						$pk = new NamedSoundEffectPacket();
+						$pk->category = 0;
+						$pk->x = $player->getX();
+						$pk->y = $player->getY();
+						$pk->z = $player->getZ();
+						$pk->volume = 0.5;
+						$pk->pitch = 1.0;
+						$pk->name = "entity.player.death";//TODO: mob
+						$packets[] = $pk;
 
-						return $pk;
+						return $packets;
 					break;
 					case EntityEventPacket::RESPAWN:
 						//unused
@@ -1345,7 +1367,7 @@ class Translator{
 									$pk = new BossBarPacket();
 									$pk->uuid = $player->getSetting("BossBar")[1];//Temporary
 									$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
-									//$pk->health = $entry->getValue();//
+									//$pk->health = $entry->getValue();//TODO
 									$pk->health = 1;
 								}
 							}else{

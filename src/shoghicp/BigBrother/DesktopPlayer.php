@@ -291,7 +291,7 @@ class DesktopPlayer extends Player{
 	public function bigBrother_handleAuthentication(BigBrother $plugin, string $username, bool $onlineMode = false){
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_username = $username;
-			if($onlineMode === true){
+			if($onlineMode){
 				$pk = new EncryptionRequestPacket();
 				$pk->serverID = "";
 				$pk->publicKey = $plugin->getASN1PublicKey();
