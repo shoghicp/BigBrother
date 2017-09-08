@@ -47,7 +47,15 @@ class AdvancementsPacket extends OutboundPacket{
 
 		$this->putVarInt(count($this->advancements));
 		foreach($this->advancements as $advancement){
-			$this->putByte($advancement > 0);
+			$this->putByte($advancement[0][0] > 0);
+			if($advancement[0]){
+				//put id
+			}
+			$this->putByte($advancement[1][0] > 0);
+			$this->putVarInt(count($advancement[2]));
+			//foreach
+			$this->putVarInt(count($advancement[3]));
+			//foreach
 			//TODO
 		}
 	}

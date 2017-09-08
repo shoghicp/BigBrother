@@ -34,6 +34,8 @@ use pocketmine\entity\Projectile;
 use pocketmine\event\TimingsHandler;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\Tag;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\utils\BinaryStream;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
@@ -475,6 +477,7 @@ class ConvertUtils{
 
 			$nbt = $stream->getBuffer();
 		}else{
+			$nbt = "";
 			//TODO
 		}
 	}
@@ -495,6 +498,145 @@ class ConvertUtils{
 			case Item::PUMPKIN:
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
+			break;
+			case Item::SPAWN_EGG:
+				if($iscomputer){
+					switch($itemdamage){
+						case 10://Chicken
+							$type = "chicken";
+						break;
+						case 11://Cow
+							$type = "cow";
+						break;
+						case 12://Pig
+							$type = "pig";
+						break;
+						case 13://Sheep
+							$type = "sheep";
+						break;
+						case 14://Wolf
+							$type = "wolf";
+						break;
+						case 15://Villager
+							$type = "villager";
+						break;
+						case 16://Mooshroom
+							$type = "cow";
+						break;
+						case 17://Squid
+							$type = "squid";
+						break;
+						case 18://Rabbit
+							$type = "rabbit";
+						break;
+						case 19://Bat
+							$type = "bat";
+						break;
+						case 20://IronGolem
+							$type = "iron_golem";
+						break;
+						case 21://SnowGolem (Snowman)
+							$type = "snowman";
+						break;
+						case 22://Ocelot
+							$type = "cat";
+						break;
+						case 23://Horse
+							$type = "horse";
+						break;
+						case 28://PolarBear
+							$type = "polar_bear";
+						break;
+						case 32://Zombie
+							$type = "zombie";
+						break;
+						case 33://Creeper
+							$type = "creeper";
+						break;
+						case 34://Skeleton
+							$type = "skeleton";
+						break;
+						case 35://Spider
+							$type = "spider";
+						break;
+						case 36://PigZombie
+							$type = "zombie_pigman";
+						break;
+						case 37://Slime
+							$type = "slime";
+						break;
+						case 38://Enderman
+							$type = "enderman";
+						break;
+						case 39://Silverfish
+							$type = "silverfish";
+						break;
+						case 40://CaveSpider
+							$type = "spider";
+						break;
+						case 41://Ghast
+							$type = "ghast";
+						break;
+						case 42://LavaSlime
+							$type = "magmacube";
+						break;
+						case 43://Blaze
+							$type = "blaze";
+						break;
+						case 44://ZombieVillager
+							$type = "zombie_village";
+						break;
+						case 45://Witch
+							$type = "witch";
+						break;
+						case 46://Stray
+							$type = "stray";
+						break;
+						case 47://Husk
+							$type = "husk";
+						break;
+						case 48://WitherSkeleton
+							$type = "wither_skeleton";
+						break;
+						case 49://Guardian
+							$type = "guardian";
+						break;
+						case 50://ElderGuardian
+							$type = "elder_guardian";
+						break;
+						case 53://EnderDragon
+							$type = "enderdragon";
+						break;
+						case 54://Shulker
+							$type = "shulker";
+						break;
+						default:
+							$type = "";
+						break;
+					}
+
+					if($type !== ""){
+						$nbt = new NBT(NBT::LITTLE_ENDIAN);
+						$nbt->setData(new CompoundTag("", [
+							new CompoundTag("EntityTag", [
+								new StringTag("id", "minecraft:".$type),
+							])
+						]));
+						$itemnbt = $nbt->write();
+					}
+				}else{
+					$entitytag = "";
+
+					//TODO
+
+					switch($entitytag){
+						default:
+							$itemdamage = 0;
+						break;
+					}
+
+					$itemnbt = "";
+				}
 			break;
 			default:
 				if($iscomputer){
@@ -612,6 +754,7 @@ class ConvertUtils{
 				case Human::DATA_FUSE_LENGTH:
 					$newdata[6] = [1, $d[1]];
 				break;
+				case Human::DATA_VARIANT:
 				case Human::DATA_PLAYER_FLAGS:
 				case Human::DATA_PLAYER_BED_POSITION:
 				case Human::DATA_LEAD_HOLDER_EID:

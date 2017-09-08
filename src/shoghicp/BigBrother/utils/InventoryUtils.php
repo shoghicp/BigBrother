@@ -40,6 +40,7 @@ use pocketmine\item\Item;
 use pocketmine\inventory\InventoryHolder;
 
 use shoghicp\BigBrother\BigBrother;
+use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetSlotPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\WindowItemsPacket;
@@ -51,8 +52,9 @@ class InventoryUtils{
 	private $windowInfo = [];
 	private $craftInfoData = [];
 	private $windowData = [
-		//0 =>
-
+		WindowTypes::CONTAINER => [],
+		WindowTypes::WORKBENCH => [],
+		WindowTypes::FURNACE => [],
 	];
 	private $playerHeldItem = null;
 	private $playerHeldItemSlot = -1;
@@ -467,7 +469,15 @@ class InventoryUtils{
 
 		var_dump($packet);
 
-		return null;
+		$accepted = false;
+
+		$pk = new ConfirmTransactionPacket();
+		$pk->windowID = $packet->windowID;
+		$pk->actionNumber = $packet->actionNumber;
+		$pk->accepted = $accepted;
+		$packets[] = $pk;
+
+		return $packets;
 	}
 
 	public function onCreativeInventoryAction($packet){

@@ -710,123 +710,163 @@ class Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
+				$player->bigBrother_addEntityList($packet->entityRuntimeId, "player");
+
 				return $packets;
 
 			case Info::ADD_ENTITY_PACKET:
 				$packets = [];
 
 				$isobject = false;
+				$type = "generic";
+				$data = 1;
 
 				switch($packet->type){
 					case 10://Chicken
+						$type = "chicken";
 						$packet->type = 93;
 					break;
 					case 11://Cow
+						$type = "cow";
 						$packet->type = 92;
 					break;
 					case 12://Pig
+						$type = "pig";
 						$packet->type = 90;
 					break;
 					case 13://Sheep
+						$type = "sheep";
 						$packet->type = 91;
 					break;
 					case 14://Wolf
+						$type = "wolf";
 						$packet->type = 95;
 					break;
 					case 15://Villager
+						$type = "villager";
 						$packet->type = 120;
 					break;
 					case 16://Mooshroom
+						$type = "cow";
 						$packet->type = 96;
 					break;
 					case 17://Squid
+						$type = "squid";
 						$packet->type = 94;
 					break;
 					case 18://Rabbit
+						$type = "rabbit";
 						$packet->type = 101;
 					break;
 					case 19://Bat
+						$type = "bat";
 						$packet->type = 65;
 					break;
 					case 20://IronGolem
+						$type = "iron_golem";
 						$packet->type = 99;
 					break;
 					case 21://SnowGolem (Snowman)
+						$type = "snowman";
 						$packet->type = 97;
 					break;
 					case 22://Ocelot
+						$type = "cat";
 						$packet->type = 98;
 					break;
 					case 23://Horse
+						$type = "horse";
 						$packet->type = 100;
 					break;
 					case 28://PolarBear
+						$type = "polar_bear";
 						$packet->type = 102;
 					break;
 					case 32://Zombie
+						$type = "zombie";
 						$packet->type = 54;
 					break;
 					case 33://Creeper
+						$type = "creeper";
 						$packet->type = 50;
 					break;
 					case 34://Skeleton
+						$type = "skeleton";
 						$packet->type = 51;
 					break;
 					case 35://Spider
+						$type = "spider";
 						$packet->type = 52;
 					break;
 					case 36://PigZombie
+						$type = "zombie_pigman";
 						$packet->type = 57;
 					break;
 					case 37://Slime
+						$type = "slime";
 						$packet->type = 55;
 					break;
 					case 38://Enderman
+						$type = "enderman";
 						$packet->type = 58;
 					break;
 					case 39://Silverfish
+						$type = "silverfish";
 						$packet->type = 60;
 					break;
 					case 40://CaveSpider
+						$type = "spider";
 						$packet->type = 59;
 					break;
 					case 41://Ghast
+						$type = "ghast";
 						$packet->type = 56;
 					break;
 					case 42://LavaSlime
+						$type = "magmacube";
 						$packet->type = 62;
 					break;
 					case 43://Blaze
+						$type = "blaze";
 						$packet->type = 61;
 					break;
 					case 44://ZombieVillager
+						$type = "zombie_village";
 						$packet->type = 27;
 					break;
 					case 45://Witch
+						$type = "witch";
 						$packet->type = 66;
 					break;
 					case 46://Stray
+						$type = "stray";
 						$packet->type = 6;
 					break;
 					case 47://Husk
+						$type = "husk";
 						$packet->type = 23;
 					break;
 					case 48://WitherSkeleton
+						$type = "wither_skeleton";
 						$packet->type = 5;
 					break;
 					case 49://Guardian
+						$type = "guardian";
 						$packet->type = 68;
 					break;
 					case 50://ElderGuardian
+						$type = "elder_guardian";
 						$packet->type = 4;
 					break;
 					/*case 52://Wither (Skull)
 						//Spawn Object
 					break;*/
 					case 53://EnderDragon
+						$type = "enderdragon";
 						$packet->type = 63;
 					break;
 					case 54://Shulker
+						$type = "shulker";
 						$packet->type = 69;
 					break;
 					/*case 64://Item
@@ -841,6 +881,7 @@ class Translator{
 						//Spawn Object
 						$isobject = true;
 						$packet->type = 70;
+						$data = $packet->metadata[2][1];//block data
 					break;
 					/*case 68://ThrownExpBottle
 						//Spawn Object
@@ -932,7 +973,7 @@ class Translator{
 					$pk->z = $packet->z;
 					$pk->yaw = 0;
 					$pk->pitch = 0;
-					$pk->data = 1;
+					$pk->data = $data;
 					$pk->velocityX = 0;
 					$pk->velocityY = 0;
 					$pk->velocityZ = 0;
@@ -960,11 +1001,15 @@ class Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
+				$player->bigBrother_addEntityList($packet->entityRuntimeId, $type);
+
 				return $packets;
 
 			case Info::REMOVE_ENTITY_PACKET:
 				$pk = new DestroyEntitiesPacket();
 				$pk->ids[] = $packet->entityUniqueId;
+
+				$player->bigBrother_removeEntityList($packet->entityUniqueId);
 				return $pk;
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
@@ -1011,19 +1056,12 @@ class Translator{
 				if($packet->entityRuntimeId === $player->getId()){//TODO
 					return null;
 				}else{
-					if(($entity = $player->getLevel()->getEntity($packet->entityRuntimeId)) instanceof Living){
-						$eyeheight = $entity->getEyeHeight();
-					}else{
-						$eyeheight = 0;
-					}
-
-
 					$packets = [];
 
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->entityRuntimeId;
 					$pk->x = $packet->x;
-					$pk->y = $packet->y - $eyeheight;
+					$pk->y = $packet->y;//TODO: some entity $baseOffset.....
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
@@ -1264,6 +1302,8 @@ class Translator{
 			case Info::ENTITY_EVENT_PACKET:
 				switch($packet->event){
 					case EntityEventPacket::HURT_ANIMATION:
+						$type = $player->bigBrother_getEntityList($packet->entityRuntimeId);
+
 						$packets = [];
 
 						$pk = new EntityStatusPacket();
@@ -1278,12 +1318,16 @@ class Translator{
 						$pk->z = $player->getZ();
 						$pk->volume = 0.5;
 						$pk->pitch = 1.0;
-						$pk->name = "entity.player.hurt";//TODO: mob
+						$pk->name = "entity.".$type.".hurt";
 						$packets[] = $pk;
 
 						return $packets;
 					break;
 					case EntityEventPacket::DEATH_ANIMATION:
+						$type = $player->bigBrother_getEntityList($packet->entityRuntimeId);
+
+						$packets = [];
+
 						$pk = new EntityStatusPacket();
 						$pk->status = 3;
 						$pk->eid = $packet->entityRuntimeId;
@@ -1296,7 +1340,7 @@ class Translator{
 						$pk->z = $player->getZ();
 						$pk->volume = 0.5;
 						$pk->pitch = 1.0;
-						$pk->name = "entity.player.death";//TODO: mob
+						$pk->name = "entity.".$type.".death";
 						$packets[] = $pk;
 
 						return $packets;
@@ -1556,25 +1600,17 @@ class Translator{
 				return null;
 
 			case Info::CONTAINER_OPEN_PACKET:
-				$pk = $player->getInventoryUtils()->onWindowOpen($packet);
-
-				return $pk;
+				return $player->getInventoryUtils()->onWindowOpen($packet);
 
 			case Info::CONTAINER_CLOSE_PACKET:
-				$pk = $player->getInventoryUtils()->onWindowClose(true, $packet);
-
-				return $pk;
+				return $player->getInventoryUtils()->onWindowClose(true, $packet);
 
 			case Info::CONTAINER_SET_SLOT_PACKET:
-				$pk = $player->getInventoryUtils()->onWindowSetSlot($packet);
-
-				return $pk;
+				return $player->getInventoryUtils()->onWindowSetSlot($packet);
 			break;
 
 			case Info::CONTAINER_SET_CONTENT_PACKET:
-				$pk = $player->getInventoryUtils()->onWindowSetContent($packet);
-
-				return $pk;
+				return $player->getInventoryUtils()->onWindowSetContent($packet);
 
 			case Info::CRAFTING_DATA_PACKET:
 				$player->getInventoryUtils()->setCraftInfoData($packet->entries);
@@ -1663,6 +1699,7 @@ class Translator{
 
 						foreach($packet->entries as $entry){
 							if(isset($playerlist[$entry[0]->toString()])){
+								//change name
 								continue;
 							}
 

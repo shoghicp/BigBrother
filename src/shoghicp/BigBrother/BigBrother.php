@@ -76,8 +76,6 @@ class BigBrother extends PluginBase implements Listener{
 
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
 
-		
-
 		$aes = new AES();
 		switch($aes->getEngine()){
 			case AES::ENGINE_OPENSSL:

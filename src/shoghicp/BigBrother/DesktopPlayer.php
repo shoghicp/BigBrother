@@ -73,6 +73,8 @@ class DesktopPlayer extends Player{
 	private $bigbrother_clientId;
 	/** @var int */
 	private $bigBrother_dimension;
+	/** @var array */
+	private $bigBrother_entitylist = [];
 	/** @var InventoryUtils */
 	private $inventoryutils;
 	/** @var array */
@@ -86,7 +88,6 @@ class DesktopPlayer extends Player{
 		$this->plugin = $plugin;
 		$this->bigbrother_clientId = $clientID;
 		parent::__construct($interface, $clientID, $address, $port);
-		$this->setRemoveFormat(false);// Color Code TODO: remove it?
 		$this->inventoryutils = new InventoryUtils($this);
 	}
 
@@ -116,6 +117,25 @@ class DesktopPlayer extends Player{
 		}
 		$this->bigBrother_dimension = $dimension;
 		return $dimension;
+	}
+
+	public function bigBrother_addEntityList(int $eid, string $entitytype){
+		if(!isset($this->bigBrother_entitylist[$eid])){
+			$this->bigBrother_entitylist[$eid] = $entitytype;
+		}
+	}
+
+	public function bigBrother_getEntityList(int $eid) : string{
+		if(isset($this->bigBrother_entitylist[$eid])){
+			return $this->bigBrother_entitylist[$eid];
+		}
+		return "generic";
+	}
+
+	public function bigBrother_removeEntityList(int $eid){
+		if(isset($this->bigBrother_entitylist[$eid])){
+			unset($this->bigBrother_entitylist[$eid]);
+		}
 	}
 
 	public function bigBrother_getStatus() : int{
