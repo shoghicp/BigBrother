@@ -33,9 +33,20 @@ use pocketmine\entity\Human;
 use pocketmine\entity\Projectile;
 use pocketmine\event\TimingsHandler;
 use pocketmine\nbt\NBT;
-use pocketmine\nbt\tag\Tag;
+use pocketmine\nbt\tag\ByteArrayTag;
+use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\DoubleTag;
+use pocketmine\nbt\tag\EndTag;
+use pocketmine\nbt\tag\FloatTag;
+use pocketmine\nbt\tag\IntArrayTag;
+use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\LongTag;
+use pocketmine\nbt\tag\NamedTag;
+use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\nbt\tag\Tag;
 use pocketmine\utils\BinaryStream;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
@@ -477,8 +488,82 @@ class ConvertUtils{
 
 			$nbt = $stream->getBuffer();
 		}else{
-			$nbt = "";
-			//TODO
+			$stream = new BinaryStream($nbt);
+			
+			$type = $stream->getByte();
+			if($type !== NBT::TAG_End){
+				$name = $stream->get($stream->getShort());
+			}
+
+			switch($type){
+				case NBT::TAG_End: //No named tag
+					$nbt = new EndTag();
+				break;
+				case NBT::TAG_Byte:
+					$nbt = new ByteTag($name, $stream->getByte());
+				break;
+				case NBT::TAG_Short:
+					$nbt = new ShortTag($name, $stream->getShort());
+				break;
+				case NBT::TAG_Int:
+					$nbt = new IntTag($name, $stream->getInt());
+				break;
+				case NBT::TAG_Long:
+					$nbt = new LongTag($name, $stream->getLong());
+				break;
+				case NBT::TAG_Float:
+					$nbt = new FloatTag($name, $stream->getFloat());
+				break;
+				case NBT::TAG_Double:
+					$nbt = new DoubleTag($name, unpack("d", $stream->get(4)));
+				break;
+				case NBT::TAG_ByteArray:
+					$nbt = new ByteArrayTag($name, $stream->get($stream->getInt()));
+				break;
+				case NBT::TAG_String:
+					$nbt = new StringTag($name, $stream->get($stream->getShort()));
+				break;
+				case NBT::TAG_List:
+					$id = $stream->getByte();
+					$count = $stream->getInt();
+
+					$tags = [];
+					for($i = 0; $i < $count and !$stream->feof(); $i++){
+						$tag = substr($nbt, $stream->getOffset());
+						self::convertNBTData(false, $tag);
+
+						$checktag = clone $tag;
+						self::convertNBTData(true, $checktag);
+						$stream->offset += strlen($checktag);
+
+						if($tag instanceof NamedTag and $tag->getName() !== ""){
+							$tags[] = $tag;
+						}
+					}
+
+					$nbt = new ListTag($name, $tags);
+				break;
+				case NBT::TAG_Compound:
+					$tags = [];
+					do{
+						$tag = substr($nbt, $stream->getOffset());
+						self::convertNBTData(false, $tag);
+
+						$checktag = clone $tag;
+						self::convertNBTData(true, $checktag);
+						$stream->offset += strlen($checktag);;
+
+						if($tag instanceof NamedTag and $tag->getName() !== ""){
+							$tags[] = $tag;
+						}
+					}while(!($tag instanceof EndTag) and !$stream->feof());
+
+					$nbt = new CompoundTag($name, $tags);
+				break;
+				case NBT::TAG_IntArray:
+					$nbt = new IntArrayTag($name, unpack("N*", ...$stream->get($stream->getInt())));
+				break;
+			}
 		}
 	}
 
@@ -626,10 +711,121 @@ class ConvertUtils{
 					}
 				}else{
 					$entitytag = "";
-
-					//TODO
+					if($itemnbt !== ""){
+						if($itemnbt->getType() === NBT::TAG_Compound){
+							$entitytag = $itemnbt["EntityTag"]["id"];
+						}
+					}
 
 					switch($entitytag){
+						case "minecraft:chicken":
+							$itemdamage = 10;
+						break;
+						case "minecraft:cow":
+							$itemdamage = 11;
+						break;
+						case "minecraft:pig":
+							$itemdamage = 12;
+						break;
+						case "minecraft:sheep":
+							$itemdamage = 13;
+						break;
+						case "minecraft:wolf":
+							$itemdamage = 14;
+						break;
+						case "minecraft:villager":
+							$itemdamage = 15;
+						break;
+						case "minecraft:cow":
+							$itemdamage = 16;
+						break;
+						case "minecraft:squid":
+							$itemdamage = 17;
+						break;
+						case "minecraft:rabbit":
+							$itemdamage = 18;
+						break;
+						case "minecraft:bat":
+							$itemdamage = 19;
+						break;
+						case "minecraft:iron_golem":
+							$itemdamage = 20;
+						break;
+						case "minecraft:snowman":
+							$itemdamage = 21;
+						break;
+						case "minecraft:cat":
+							$itemdamage = 22;
+						break;
+						case "minecraft:horse":
+							$itemdamage = 23;
+						break;
+						case "minecraft:polar_bear":
+							$itemdamage = 28;
+						break;
+						case "minecraft:zombie":
+							$itemdamage = 32;
+						break;
+						case "minecraft:creeper":
+							$itemdamage = 33;
+						break;
+						case "minecraft:skeleton":
+							$itemdamage = 34;
+						break;
+						case "minecraft:spider":
+							$itemdamage = 35;
+						break;
+						case "minecraft:zombie_pigman":
+							$itemdamage = 36;
+						break;
+						case "minecraft:slime":
+							$itemdamage = 37;
+						break;
+						case "minecraft:enderman":
+							$itemdamage = 38;
+						break;
+						case "minecraft:silverfish":
+							$itemdamage = 39;
+						break;
+						case "minecraft:spider":
+							$itemdamage = 40;
+						break;
+						case "minecraft:ghast":
+							$itemdamage = 41;
+						break;
+						case "minecraft:magmacube":
+							$itemdamage = 42;
+						break;
+						case "minecraft:blaze":
+							$itemdamage = 43;
+						break;
+						case "minecraft:zombie_village":
+							$itemdamage = 44;
+						break;
+						case "minecraft:witch":
+							$itemdamage = 45;
+						break;
+						case "minecraft:stray":
+							$itemdamage = 46;
+						break;
+						case "minecraft:husk":
+							$itemdamage = 47;
+						break;
+						case "minecraft:wither_skeleton":
+							$itemdamage = 48;
+						break;
+						case "minecraft:guardian":
+							$itemdamage = 49;
+						break;
+						case "minecraft:elder_guardian":
+							$itemdamage = 50;
+						break;
+						case "minecraft:enderdragon":
+							$itemdamage = 53;
+						break;
+						case "minecraft:shulker":
+							$itemdamage = 54;
+						break;
 						default:
 							$itemdamage = 0;
 						break;
@@ -809,6 +1005,11 @@ class ComputerItem{
 		$this->id = $id;
 		$this->damage = $damage;
 		$this->count = $count;
+
+		if($nbt instanceof EndTag){
+			$nbt = "";
+		}
+
 		$this->nbt = $nbt;
 	}
 

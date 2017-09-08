@@ -1699,7 +1699,7 @@ class Translator{
 
 						foreach($packet->entries as $entry){
 							if(isset($playerlist[$entry[0]->toString()])){
-								//change name
+								//TODO: change name
 								continue;
 							}
 

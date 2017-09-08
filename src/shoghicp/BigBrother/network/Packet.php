@@ -40,7 +40,7 @@ abstract class Packet extends \stdClass{
 	/** @var int */
 	protected $offset = 0;
 
-	protected function get(int $len) : string{
+	protected function get($len) : string{
 		if($len < 0){
 			$this->offset = strlen($this->buffer) - 1;
 
