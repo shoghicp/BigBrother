@@ -544,7 +544,29 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
-				if($player->getInventory()->getItemInHand()->getId() !== Item::BOW){
+				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+				$blockReplace = $blockClicked->getSide($packet->direction);
+
+				$headY = ((int) floor($player->getY())) + 1;
+				$legY = (int) floor($player->getY());
+
+				$allow = false;
+				if($blockReplace->getY() !== $headY and $blockReplace->getY() !== $legY){//I think that client bug
+					$allow = true;
+				}
+
+				$allowItemId = [//TODO: must add item
+					Item::FLINT_STEEL,
+					Item::PAINTING,
+					Item::SPAWN_EGG,
+					Item::BUCKET,
+				];
+
+				if(!$allow and in_array($player->getInventory()->getItemInHand()->getId(), $allowItemId)){
+					$allow = true;
+				}
+
+				if($allow){
 					$pk = new UseItemPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y;
