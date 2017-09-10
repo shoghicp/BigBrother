@@ -544,7 +544,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
-				if($player->getInventory()->getItemInHand()->canBePlaced()){
+				if($player->getInventory()->getItemInHand()->getId() !== Item::BOW){
 					$pk = new UseItemPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y;
