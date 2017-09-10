@@ -38,6 +38,7 @@ use shoghicp\BigBrother\network\Info; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\AdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\EnchantItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\TeleportConfirmPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\AnimatePacket;
@@ -278,6 +279,9 @@ class ProtocolInterface implements SourceInterface{
 					break;
 				case InboundPacket::ENTITY_ACTION_PACKET:
 					$pk = new EntityActionPacket();
+					break;
+				case InboundPacket::ADVANCEMENT_TAB_PACKET:
+					$pk = new AdvancementTabPacket();
 					break;
 				case InboundPacket::HELD_ITEM_CHANGE_PACKET:
 					$pk = new HeldItemChangePacket();

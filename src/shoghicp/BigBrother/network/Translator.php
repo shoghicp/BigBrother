@@ -494,6 +494,11 @@ class Translator{
 
 				return null;
 
+			case InboundPacket::ADVANCEMENT_TAB_PACKET:
+
+
+				return null;
+
 			case InboundPacket::HELD_ITEM_CHANGE_PACKET:
 				$slot = $player->getInventory()->getHotbarSlotIndex($packet->selectedSlot);
 				$item = $player->getInventory()->getItem($slot);
@@ -543,7 +548,7 @@ class Translator{
 				$pk->entityRuntimeId = $player->getId();
 				return $pk;
 
-			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
+			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET://TODO: Simple Code
 				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 				$blockReplace = $blockClicked->getSide($packet->direction);
 

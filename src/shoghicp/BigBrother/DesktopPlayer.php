@@ -30,6 +30,7 @@ namespace shoghicp\BigBrother;
 use pocketmine\Player;
 use pocketmine\event\Timings;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
@@ -45,10 +46,12 @@ use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginSuccessPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\AdvancementsPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\TitlePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\InventoryUtils;
@@ -176,6 +179,49 @@ class DesktopPlayer extends Player{
 		unset($this->Settings[$settingname]);
 	}
 
+	public function sendAdvancements(){
+		$json = [];
+		$json["translate"] = "advancements.story.root.title";
+		$title = json_encode($json);
+
+		$json = [];
+		$json["translate"] = "advancements.story.root.description";
+		$description = json_encode($json);
+
+		$pk = new AdvancementsPacket();
+		$pk->advancements = [
+			[
+				"minecraft:story/root",
+				[
+					false,
+				],
+				[
+					true,
+					$title,
+					$description,
+					Item::get(Item::GRASS),
+					0,
+					[
+						1,
+						"minecraft:textures/blocks/stone.png"
+					],
+					0,
+					0
+				],
+				[],
+				[],
+			]
+		];
+		$pk->identifiers = [];
+		$pk->progress = [];
+		$this->putRawPacket($pk);
+
+		/*$pk = new SelectAdvancementTabPacket();
+		$pk->hasTab = true;
+		$pk->tabId = "minecraft:story/root";
+		$this->putRawPacket($pk);*/
+	}
+
 	public function bigBrother_respawn(){
 		$pk = new PlayerPositionAndLookPacket();
 		$pk->x = $this->getX();
@@ -294,6 +340,8 @@ class DesktopPlayer extends Player{
 			$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
 			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
 			$this->putRawPacket($pk);
+
+			$this->sendAdvancements();
 		}
 	}
 

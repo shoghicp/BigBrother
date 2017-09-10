@@ -36,6 +36,8 @@ class AdvancementsPacket extends OutboundPacket{
 	/** @var array */
 	public $advancements = [];
 	/** @var array */
+	public $identifiers = [];
+	/** @var array */
 	public $progress = [];
 
 	public function pid(){
@@ -44,19 +46,56 @@ class AdvancementsPacket extends OutboundPacket{
 
 	public function encode(){
 		$this->putByte($this->doClear > 0);
-
 		$this->putVarInt(count($this->advancements));
 		foreach($this->advancements as $advancement){
-			$this->putByte($advancement[0][0] > 0);
-			if($advancement[0]){
-				//put id
+			$this->putString($advancement[0]);//id
+			$this->putByte($advancement[1][0] > 0);//has parent
+			if($advancement[1][0]){
+				$this->putString($advancement[1][1]);//parent id
 			}
-			$this->putByte($advancement[1][0] > 0);
-			$this->putVarInt(count($advancement[2]));
-			//foreach
-			$this->putVarInt(count($advancement[3]));
-			//foreach
-			//TODO
+			$this->putByte($advancement[2][0] > 0);//has display
+			if($advancement[2][0]){
+				echo "aaaa\n";
+				$this->putString($advancement[2][1]);//title
+				$this->putString($advancement[2][2]);//description
+				$this->putSlot($advancement[2][3]);//icon (item)
+				$this->putVarInt($advancement[2][4]);// frame type
+				$this->putInt($advancement[2][5][0]);// flag
+				if(($advancement[2][5][0] & 0x01) > 0){
+					$this->putString($advancement[2][5][1]);
+				}
+				$this->putFloat($advancement[2][6]);// x coord
+				$this->putFloat($advancement[2][7]);// z coord
+			}
+			$this->putVarInt(count($advancement[3]));//criteria
+			foreach($advancement[3] as $criteria){
+				$this->putString($criteria[0]);//key
+				//value but void
+			}
+			$this->putVarInt(count($advancement[4]));
+			foreach($advancement[4] as $requirements){//Requirements
+				$this->putVarInt(count($requirements));
+				foreach($requirements as $requirement){
+					$this->putString($requirement);
+				}
+			}
 		}
+		$this->putVarInt(count($this->identifiers));
+		/*foreach($this->identifiers as $identifier){
+			$this->putString($identifier);
+		}*/
+		$this->putVarInt(count($this->progress));
+		/*foreach($this->progress as $progressdata){
+			$this->putString($progressdata[0]);//id
+			$this->putVarInt(count($progressdata[1]));//Criteria size
+			foreach($progressdata[1] as $criterion){
+				$this->putString($criterion[0]);
+				$this->putByte($criterion[1][0] > 0);
+				if($criterion[1][0]){
+					$this->putLong($criterion[1][1]);//time
+				}
+			}
+		}*/
+		var_dump($this);
 	}
 }
