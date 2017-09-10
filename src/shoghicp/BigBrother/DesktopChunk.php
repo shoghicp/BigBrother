@@ -82,8 +82,8 @@ class DesktopChunk{
 
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
-					$data = "";
 
+					$data = "";
 					for($x = 0; $x < 16; ++$x){
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
@@ -104,6 +104,8 @@ class DesktopChunk{
 							$chunkdata .= strrev($data);
 							$blocklightdata .= str_repeat("\xff", 4);
 							$skylightdata .= str_repeat("\xff", 4);
+							$blocklight = "";
+							$skylight = "";
 							$data = "";
 						}
 					}

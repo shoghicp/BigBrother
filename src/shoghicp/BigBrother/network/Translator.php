@@ -544,7 +544,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
-				if($packet->direction !== 255){
+				if($player->getInventory()->getItemInHand()->canBePlaced()){
 					$pk = new UseItemPacket();
 					$pk->x = $packet->x;
 					$pk->y = $packet->y;
@@ -561,8 +561,6 @@ class Translator{
 					$pk->slot = $player->getInventory()->getHeldItemSlot();
 
 					return $pk;
-				}else{
-					echo "PlayerBlockPlacementPacket: ".$packet->direction."\n";
 				}
 
 				return null;
