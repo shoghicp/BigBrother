@@ -94,6 +94,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ScoreboardObjectivePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ServerDifficultyPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SoundEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnMobPacket;
@@ -163,20 +164,20 @@ class Translator{
 						$pk->face = 0;
 						return $pk;
 					break;
-					case 1:
+					/*case 1:
 						$statistic = [];
 						$statistic[] = ["achievement.openInventory", 1];//
 						foreach($player->achievements as $achievement => $count){
 							$statistic[] = ["achievement.".$achievement, $count];
 						}
 
-						//TODO: stat https://gist.github.com/thinkofdeath/a1842c21a0cf2e1fb5e0
+						//TODO: stat https://gist.github.com/Alvin-LB/8d0d13db00b3c00fd0e822a562025eff
 
 						$pk = new StatisticsPacket();
 						$pk->count = count($statistic);//TODO stat
 						$pk->statistic = $statistic;
 						$player->putRawPacket($pk);
-					break;
+					break;*/
 					default:
 						echo "ClientStatusPacket: ".$packet->actionID."\n";
 					break;
@@ -495,7 +496,12 @@ class Translator{
 				return null;
 
 			case InboundPacket::ADVANCEMENT_TAB_PACKET:
-
+				if($packet->status === 0){
+					$pk = new SelectAdvancementTabPacket();
+					$pk->hasTab = true;
+					$pk->tabId = $packet->tabId;
+					$player->putRawPacket($pk);
+				}
 
 				return null;
 
@@ -654,7 +660,9 @@ class Translator{
 
 			case Info::TEXT_PACKET:
 				if($packet->message === "chat.type.achievement"){
-					return null;//TODO
+					//TODO
+
+					return null;
 				}else{
 					$pk = new ChatPacket();
 					$pk->message = BigBrother::toJSON($packet->message, $packet->source, $packet->type, $packet->parameters);

@@ -55,7 +55,6 @@ class AdvancementsPacket extends OutboundPacket{
 			}
 			$this->putByte($advancement[2][0] > 0);//has display
 			if($advancement[2][0]){
-				echo "aaaa\n";
 				$this->putString($advancement[2][1]);//title
 				$this->putString($advancement[2][2]);//description
 				$this->putSlot($advancement[2][3]);//icon (item)
@@ -81,21 +80,20 @@ class AdvancementsPacket extends OutboundPacket{
 			}
 		}
 		$this->putVarInt(count($this->identifiers));
-		/*foreach($this->identifiers as $identifier){
+		foreach($this->identifiers as $identifier){
 			$this->putString($identifier);
-		}*/
+		}
 		$this->putVarInt(count($this->progress));
-		/*foreach($this->progress as $progressdata){
+		foreach($this->progress as $progressdata){
 			$this->putString($progressdata[0]);//id
 			$this->putVarInt(count($progressdata[1]));//Criteria size
 			foreach($progressdata[1] as $criterion){
-				$this->putString($criterion[0]);
-				$this->putByte($criterion[1][0] > 0);
+				$this->putString($criterion[0]);//criyeria id
+				$this->putByte($criterion[1][0] > 0);//
 				if($criterion[1][0]){
 					$this->putLong($criterion[1][1]);//time
 				}
 			}
-		}*/
-		var_dump($this);
+		}
 	}
 }

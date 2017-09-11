@@ -27,6 +27,7 @@
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\Achievement;
 use pocketmine\Player;
 use pocketmine\event\Timings;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -179,26 +180,18 @@ class DesktopPlayer extends Player{
 		unset($this->Settings[$settingname]);
 	}
 
-	public function sendAdvancements(){
-		$json = [];
-		$json["translate"] = "advancements.story.root.title";
-		$title = json_encode($json);
-
-		$json = [];
-		$json["translate"] = "advancements.story.root.description";
-		$description = json_encode($json);
-
+	public function sendAdvancements($first = false){
 		$pk = new AdvancementsPacket();
 		$pk->advancements = [
 			[
-				"minecraft:story/root",
+				"pocketmine:advancements/root",
 				[
-					false,
+					false
 				],
 				[
 					true,
-					$title,
-					$description,
+					BigBrother::toJSON("Welcome to PocketMine-MP Server!"),
+					BigBrother::toJSON("Join to PocketMine-MP Server with Minecraft"),
 					Item::get(Item::GRASS),
 					0,
 					[
@@ -209,17 +202,19 @@ class DesktopPlayer extends Player{
 					0
 				],
 				[],
-				[],
+				[]
 			]
 		];
 		$pk->identifiers = [];
 		$pk->progress = [];
 		$this->putRawPacket($pk);
 
-		/*$pk = new SelectAdvancementTabPacket();
-		$pk->hasTab = true;
-		$pk->tabId = "minecraft:story/root";
-		$this->putRawPacket($pk);*/
+		if($first){
+			$pk = new SelectAdvancementTabPacket();
+			$pk->hasTab = true;
+			$pk->tabId = "pocketmine:advancements/root";
+			$this->putRawPacket($pk);
+		}
 	}
 
 	public function bigBrother_respawn(){
@@ -341,7 +336,7 @@ class DesktopPlayer extends Player{
 			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
 			$this->putRawPacket($pk);
 
-			$this->sendAdvancements();
+			$this->sendAdvancements(true);
 		}
 	}
 

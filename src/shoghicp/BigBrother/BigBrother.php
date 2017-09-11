@@ -35,7 +35,6 @@ use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat;
-use pocketmine\Achievement;
 
 use phpseclib\Crypt\RSA;
 use shoghicp\BigBrother\network\Info as MCInfo;
@@ -100,8 +99,6 @@ class BigBrother extends PluginBase implements Listener{
 
 		if(Info::CURRENT_PROTOCOL === 113){
 			$this->translator = new Translator();
-
-			Achievement::add("openInventory", "Taking Inventory"); //this for DesktopPlayer
 
 			$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
