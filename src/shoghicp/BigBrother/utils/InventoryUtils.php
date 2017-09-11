@@ -301,7 +301,7 @@ class InventoryUtils{
 	}
 
 	public function onWindowClick($packet){
-		$changeData = ["PE" => [], "PC" => []];
+		$changeData = [];
 
 		//$item = ;
 		//$heldItem = ;
@@ -318,6 +318,8 @@ class InventoryUtils{
 							$item->setCount((($item->getCount() - 1) / 2) + 1);
 							//$item->getCount() / 2);
 						}*/
+
+
 					break;
 					case 1://Right mouse click
 
@@ -459,11 +461,7 @@ class InventoryUtils{
 			$this->onCraft();
 		}
 
-		foreach($changeData["PE"] as $slotdata){
-			# code...
-		}
-
-		foreach($changeData["PC"] as $slotdata){
+		foreach($changeData as $slotdata){
 			# code...
 		}
 

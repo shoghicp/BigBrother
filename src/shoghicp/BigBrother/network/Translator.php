@@ -123,8 +123,7 @@ class Translator{
 	 */
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
-			case InboundPacket::TELEPORT_CONFIRM_PACKET:
-				//Confirm
+			case InboundPacket::TELEPORT_CONFIRM_PACKET://Confirm
 				return null;
 
 			case InboundPacket::TAB_COMPLETE_PACKET:
@@ -143,21 +142,7 @@ class Translator{
 					case 0:
 						$pk = new PlayerActionPacket();
 						$pk->entityRuntimeId = $player->getId();
-
-						$reflect = new \ReflectionClass($pk);
-						$found = false;
-						foreach($reflect->getConstants() as $constantname => $value){
-							if($constantname === "ACTION_RESPAWN"){
-								$pk->action = PlayerActionPacket::ACTION_RESPAWN;//for PocketMine-MP
-								$found = true;
-								break;
-							}
-						}
-
-						if(!$found){
-							$pk->action = PlayerActionPacket::ACTION_SPAWN_SAME_DIMENSION;
-						}
-
+						$pk->action = PlayerActionPacket::ACTION_RESPAWN;
 						$pk->x = 0;
 						$pk->y = 0;
 						$pk->z = 0;
@@ -195,8 +180,7 @@ class Translator{
 
 				return null;
 
-			case InboundPacket::CONFIRM_TRANSACTION_PACKET:
-				//Confirm
+			case InboundPacket::CONFIRM_TRANSACTION_PACKET://Confirm
 				return null;
 
 			case InboundPacket::CLICK_WINDOW_PACKET:
