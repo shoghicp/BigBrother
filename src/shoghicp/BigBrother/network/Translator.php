@@ -147,6 +147,7 @@ class Translator{
 						$pk->y = 0;
 						$pk->z = 0;
 						$pk->face = 0;
+
 						return $pk;
 					break;
 					/*case 1:
