@@ -144,18 +144,10 @@ class Translator{
 						$pk = new PlayerActionPacket();
 						$pk->entityRuntimeId = $player->getId();
 
-						$reflect = new \ReflectionClass($pk);
-						$found = false;
-						foreach($reflect->getConstants() as $constantname => $value){
-							if($constantname === "ACTION_RESPAWN"){
-								$pk->action = PlayerActionPacket::ACTION_RESPAWN;//for PocketMine-MP
-								$found = true;
-								break;
-							}
-						}
-
-						if(!$found){
-							$pk->action = PlayerActionPacket::ACTION_SPAWN_SAME_DIMENSION;
+						if(defined($constant_name = get_class($pk) . "::ACTION_RESPAWN")){
+							$pk->action = constant($constant_name);//for PocketMine-MP
+						}else{
+							$pk->action = constant(get_class($pk) . "::ACTION_SPAWN_SAME_DIMENSION");
 						}
 
 						$pk->x = 0;
