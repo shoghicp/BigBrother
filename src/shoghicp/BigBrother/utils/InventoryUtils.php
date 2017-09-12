@@ -144,6 +144,7 @@ class InventoryUtils{
 		$pk->slots = $slots;
 
 		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => $slots];
+		var_dump($this->windowInfo);
 
 		return $pk;
 	}
@@ -303,8 +304,10 @@ class InventoryUtils{
 	public function onWindowClick($packet){
 		$changeData = [];
 
-		//$item = ;
+		$item = $packet->clickedItem;
 		//$heldItem = ;
+
+		$accepted = false;
 
 		switch($packet->mode){
 			case 0:
@@ -322,7 +325,9 @@ class InventoryUtils{
 
 					break;
 					case 1://Right mouse click
+						$accepted = true;
 
+						list($this->playerHeldItem, $item) = [$item, $player->playerHeldItem];//reverse
 					break;
 					default:
 						echo "[InventoryUtils] UnknownButtonType: ".$packet->mode." : ".$packet->button."\n";
@@ -461,19 +466,27 @@ class InventoryUtils{
 			$this->onCraft();
 		}
 
-		foreach($changeData as $slotdata){
+		/*foreach($changeData as $slotdata){
 			# code...
-		}
+		}*/
 
 		var_dump($packet);
 
-		$accepted = false;
+		$packets = [];
+		if($accepted){
+			$pk = new ContainerSetSlotPacket();
+			$pk->windowid = $packet->windowID;
+			$pk->item = $packet->item;
+			$pk->slot = $packet->slot;
+
+			$packets[] = $pk;
+		}
 
 		$pk = new ConfirmTransactionPacket();
 		$pk->windowID = $packet->windowID;
 		$pk->actionNumber = $packet->actionNumber;
 		$pk->accepted = $accepted;
-		$packets[] = $pk;
+		$this->player->putRawPacket($pk);
 
 		return $packets;
 	}

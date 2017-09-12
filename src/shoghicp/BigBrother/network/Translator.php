@@ -539,19 +539,24 @@ class Translator{
 				$pk->entityRuntimeId = $player->getId();
 				return $pk;
 
-			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET://TODO: Simple Code
+			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
 				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 				$blockReplace = $blockClicked->getSide($packet->direction);
 
 				$headY = ((int) floor($player->getY())) + 1;
 				$legY = (int) floor($player->getY());
+				$disallow = [
+					$player->getFloorX().":".$legY.":".$player->getFloorZ(),
+					$player->getFloorX().":".$headY.":".$player->getFloorZ()
+				];
+				$check = $blockReplace->getX().":".$blockReplace->getY().":".$blockReplace->getZ();
 
 				$allow = false;
-				if($blockReplace->getY() !== $headY and $blockReplace->getY() !== $legY){//I think that client bug
+				if(!in_array($check, $disallow)){
 					$allow = true;
 				}
 
-				$allowItemId = [//TODO: must add item
+				$allowItemId = [
 					Item::FLINT_STEEL,
 					Item::PAINTING,
 					Item::SPAWN_EGG,
