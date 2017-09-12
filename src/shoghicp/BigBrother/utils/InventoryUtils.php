@@ -212,6 +212,12 @@ class InventoryUtils{
 			case ContainerIds::HOTBAR:
 			break;
 			default:
+				if(isset($this->windowInfo[$packet->windowid])){//TODO
+					$pk->item = $packet->item;
+					$pk->slot = $packet->slot;
+
+					return $pk;
+				}
 				echo "[InventoryUtils] ContainerSetSlotPacket: 0x".bin2hex(chr($packet->windowid))."\n";
 			break;
 		}
@@ -302,10 +308,7 @@ class InventoryUtils{
 	}
 
 	public function onWindowClick($packet){
-		$changeData = [];
-
 		$item = $packet->clickedItem;
-		//$heldItem = ;
 
 		$accepted = false;
 
@@ -313,21 +316,22 @@ class InventoryUtils{
 			case 0:
 				switch($packet->button){
 					case 0://Left mouse click
-						/*if($packet->item->getCount() % 2 === 0){
-							$item = clone $packet->item;
-							$item->setCount($item->getCount() / 2);
+						$accepted = true;
+
+						if($item->getCount() % 2 === 0){
+							$this->playerHeldItem = clone $item;
+							$this->playerHeldItem->setCount($item->getCount() / 2);
+
 							$item->setCount($item->getCount() / 2);
 						}else{
-							$item->setCount((($item->getCount() - 1) / 2) + 1);
-							//$item->getCount() / 2);
-						}*/
-
-
+							$item->setCount($item->getCount() / 2);
+							$this->playerHeldItem->setCount((($item->getCount() - 1) / 2) + 1);
+						}
 					break;
 					case 1://Right mouse click
 						$accepted = true;
 
-						list($this->playerHeldItem, $item) = [$item, $player->playerHeldItem];//reverse
+						list($this->playerHeldItem, $item) = [$item, $this->playerHeldItem];//reverse
 					break;
 					default:
 						echo "[InventoryUtils] UnknownButtonType: ".$packet->mode." : ".$packet->button."\n";
@@ -466,18 +470,21 @@ class InventoryUtils{
 			$this->onCraft();
 		}
 
-		/*foreach($changeData as $slotdata){
-			# code...
-		}*/
-
 		var_dump($packet);
 
 		$packets = [];
 		if($accepted){
 			$pk = new ContainerSetSlotPacket();
 			$pk->windowid = $packet->windowID;
-			$pk->item = $packet->item;
+			$pk->item = $item;
 			$pk->slot = $packet->slot;
+
+			if($packet->windowID !== ContainerIds::INVENTORY){
+				if($pk->slot > $this->windowInfo[$packet->windowID]["slots"]){
+					$pk->windowID = ContainerIds::INVENTORY;
+					$pk->slot -= $this->windowInfo[$packet->windowID]["slots"];
+				}
+			}
 
 			$packets[] = $pk;
 		}

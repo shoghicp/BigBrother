@@ -31,7 +31,6 @@ use pocketmine\Achievement;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\entity\Entity;
-use pocketmine\entity\Living;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
@@ -1079,12 +1078,30 @@ class Translator{
 				if($packet->entityRuntimeId === $player->getId()){//TODO
 					return null;
 				}else{
+					$baseOffset = 0;
+					$entity = $player->getLevel()->getEntity($packet->entityRuntimeId);
+					if($entity instanceof Entity){
+						switch($entity::NETWORK_ID){
+							case -1://Player
+								$baseOffset = 1.62;
+							break;
+							case 64://Item
+								$baseOffset = 0.125;
+							break;
+							case 65://PrimedTNT
+							case 66://FallingSand
+								$baseOffset = 0.49;
+							break;
+						}
+					}
+
+
 					$packets = [];
 
 					$pk = new EntityTeleportPacket();
 					$pk->eid = $packet->entityRuntimeId;
 					$pk->x = $packet->x;
-					$pk->y = $packet->y;//TODO: some entity $baseOffset.....
+					$pk->y = $packet->y - $baseOffset;
 					$pk->z = $packet->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
@@ -1649,13 +1666,21 @@ class Translator{
 				$nbt->read($packet->namedtag, false, true);
 				$nbt = $nbt->getData();
 
-				switch($nbt["id"]){
+				switch($nbt["id"]){//TODO: add type
 					case Tile::CHEST:
 						$pk->actionID = 7;
 						$pk->namedtag = $nbt;
 					break;
 					case Tile::SIGN:
 						$pk->actionID = 9;
+						$pk->namedtag = $nbt;
+					break;
+					case Tile::SKULL:
+						$pk->actionID = 4;
+						$pk->namedtag = $nbt;
+					break;
+					case Tile::BED:
+						$pk->actionID = 11;
 						$pk->namedtag = $nbt;
 					break;
 					default:
