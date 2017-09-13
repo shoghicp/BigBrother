@@ -303,7 +303,7 @@ class ProtocolInterface implements SourceInterface{
 					break;
 				default:
 					if(\pocketmine\DEBUG > 3){
-						echo "[Receive][Interface] 0x".bin2hex(chr($pid))."\n"; //Debug
+						echo "[Receive][Interface] 0x".bin2hex(chr($pid))." Not implemented\n"; //Debug
 					}
 					return;
 			}

@@ -34,11 +34,13 @@ use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
+use pocketmine\level\particle\Particle;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\EntityEventPacket;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\InteractPacket;
@@ -72,6 +74,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ParticlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\TabComletePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockActionPacket;
@@ -88,6 +91,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\EntityMetadataPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityPropertiesPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ExplosionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\JoinGamePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerListPacket;
@@ -1160,7 +1164,7 @@ class Translator{
 				$pk->blockMeta = $packet->blockData;
 				return $pk;
 
-			/*case Info::ADD_PAINTING_PACKET://Bug
+			case Info::ADD_PAINTING_PACKET:
 				$pk = new SpawnPaintingPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->uuid = UUID::fromRandom()->toBinary();
@@ -1170,16 +1174,84 @@ class Translator{
 				$pk->z = $packet->z;
 				$pk->direction = $packet->direction;
 
-				return $pk;*/
+				return $pk;
+
+			case Info::EXPLODE_PACKET:
+				$pk = new ExplosionPacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->radius = $packet->radius;
+				$pk->records = $packet->records;
+				$pk->motionX = 0;
+				$pk->motionY = 0;
+				$pk->motionZ = 0;
+
+				return $pk;
+
+			case Info::LEVEL_SOUND_EVENT_PACKET:
+				$issoundeffect = false;
+
+				switch($packet->sound){
+					case LevelSoundEventPacket::SOUND_EXPLODE:
+						$issoundeffect = true;
+						$category = 0;
+
+						$name = "entity.generic.explode";
+					break;
+					case LevelSoundEventPacket::SOUND_CHEST_OPEN:
+						$issoundeffect = true;
+						$category = 1;
+
+						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+						if($blockId === 130){
+							$name = "block.enderchest.open";
+						}else{
+							$name = "block.chest.open";
+						}
+					break;
+					case LevelSoundEventPacket::SOUND_CHEST_CLOSED:
+						$issoundeffect = true;
+						$category = 1;
+
+						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+						if($blockId === 130){
+							$name = "block.enderchest.close";
+						}else{
+							$name = "block.chest.close";
+						}
+					break;
+					case LevelSoundEventPacket::SOUND_PLACE:
+					break;
+					default:
+						echo "LevelSoundEventPacket: ".$packet->sound."\n";
+						return null;
+					break;
+				}
+
+				if($issoundeffect){
+					$pk = new NamedSoundEffectPacket();
+					$pk->category = $category;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->volume = 0.5;
+					$pk->pitch = $packet->pitch;
+					$pk->name = $name;
+				}
+
+				return $pk;
 
 			case Info::LEVEL_EVENT_PACKET://TODO
 				$issoundeffect = false;
-
-				if($packet->evid & LevelEventPacket::EVENT_ADD_PARTICLE_MASK){
-					$packet->evid &= ~LevelEventPacket::EVENT_ADD_PARTICLE_MASK;
-				}
+				$isparticle = false;
 
 				switch($packet->evid){
+					case LevelEventPacket::EVENT_SOUND_IGNITE:
+						$issoundeffect = true;
+						$category = 0;
+						$name = "entity.tnt.primed";
+					break;
 					case LevelEventPacket::EVENT_SOUND_SHOOT:
 						$issoundeffect = true;
 						$category = 0;
@@ -1267,6 +1339,11 @@ class Translator{
 							break;
 						}
 					break;
+					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_HUGE_EXPLODE_SEED:
+						$isparticle = true;
+
+						$id = 2;
+					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
 					case LevelEventPacket::EVENT_BLOCK_START_BREAK:
 					case LevelEventPacket::EVENT_BLOCK_STOP_BREAK:
@@ -1287,6 +1364,18 @@ class Translator{
 					$pk->volume = 0.5;
 					$pk->pitch = 1.0;
 					$pk->name = $name;
+				}elseif($isparticle){
+					$pk = new ParticlePacket();
+					$pk->id = $id;
+					$pk->longDistance = false;
+					$pk->x = $packet->x;
+					$pk->y = $packet->y;
+					$pk->z = $packet->z;
+					$pk->offsetX = 0;
+					$pk->offsetY = 0;
+					$pk->offsetZ = 0;
+					$pk->data = $packet->data;//TODO: check it
+					$pk->count = 1;
 				}else{
 					$pk = new EffectPacket();
 					$pk->effectId = $packet->evid;
@@ -1300,8 +1389,6 @@ class Translator{
 				return $pk;
 
 			case Info::BLOCK_EVENT_PACKET:
-				$packets = [];
-
 				$pk = new BlockActionPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
@@ -1309,35 +1396,8 @@ class Translator{
 				$pk->actionID = $packet->case1;
 				$pk->actionParam = $packet->case2;
 				$pk->blockType = $blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
-				$packets[] = $pk;
 
-				if($packet->case1 === 1){
-					$pk = new NamedSoundEffectPacket();
-					$pk->category = 1;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
-					$pk->volume = 0.5;
-					$pk->pitch = 1.0;
-
-					if($packet->case2 >= 1){
-						if($blockId === 130){
-							$pk->name = "block.enderchest.open";
-						}else{
-							$pk->name = "block.chest.open";
-						}
-					}else{
-						if($blockId === 130){
-							$pk->name = "block.enderchest.close";
-						}else{
-							$pk->name = "block.chest.close";
-						}
-					}
-
-					$packets[] = $pk;
-				}
-
-				return $packets;
+				return $pk;
 
 			case Info::ENTITY_EVENT_PACKET:
 				switch($packet->event){
