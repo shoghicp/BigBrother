@@ -58,7 +58,7 @@ abstract class OutboundPacket extends Packet{
 	const PLAY_DISCONNECT_PACKET = 0x1a;
 	const ENTITY_STATUS_PACKET = 0x1b;
 	const EXPLOSION_PACKET = 0x1c;
-	//TODO UNLOAD_CHUNK_PACKET = 0x1d;
+	const UNLOAD_CHUNK_PACKET = 0x1d;
 	const CHANGE_GAME_STATE_PACKET = 0x1e;
 	const KEEP_ALIVE_PACKET = 0x1f;
 	const CHUNK_DATA_PACKET = 0x20;

@@ -53,6 +53,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\TitlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\UnloadChunkPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\InventoryUtils;
@@ -215,6 +216,16 @@ class DesktopPlayer extends Player{
 			$pk->tabId = "pocketmine:advancements/root";
 			$this->putRawPacket($pk);
 		}
+	}
+
+	private function unloadChunk(int $x, int $z, Level $level = null){
+		parent::unloadChunk($x, $z, $level);
+
+		$pk = new UnloadChunkPacket();
+		$pk->chunkX = $x;
+		$pk->chunkZ = $z;
+
+		$this->putRawPacket($pk);
 	}
 
 	public function bigBrother_respawn(){
