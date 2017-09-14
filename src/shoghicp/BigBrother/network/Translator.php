@@ -1221,7 +1221,8 @@ class Translator{
 							$name = "block.chest.close";
 						}
 					break;
-					case LevelSoundEventPacket::SOUND_PLACE:
+					case LevelSoundEventPacket::SOUND_PLACE://unused
+						return null;
 					break;
 					default:
 						echo "LevelSoundEventPacket: ".$packet->sound."\n";

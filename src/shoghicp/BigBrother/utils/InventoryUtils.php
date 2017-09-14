@@ -98,23 +98,23 @@ class InventoryUtils{
 		switch($packet->type){
 			case WindowTypes::CONTAINER:
 				$type = "minecraft:chest";
-				$title = "Chest";
+				$title = "chest";
 			break;
 			case WindowTypes::WORKBENCH:
 				$type = "minecraft:crafting_table";
-				$title = "Crafting Table";
+				$title = "crafting";
 			break;
 			case WindowTypes::FURNACE:
 				$type = "minecraft:furnace";
-				$title = "Furnace";
+				$title = "furnace";
 			break;
 			case WindowTypes::ENCHANTMENT:
 				$type = "minecraft:enchanting_table";
-				$title = "Enchant";
+				$title = "enchant";
 			break;
 			case WindowTypes::ANVIL:
 				$type = "minecraft:anvil";
-				$title = "Anvil";
+				$title = "repair";
 			break;
 			default://TODO: http://wiki.vg/Inventory#Windows
 				echo "[InventoryUtils] ContainerOpenPacket: ".$packet->type."\n";
@@ -131,16 +131,19 @@ class InventoryUtils{
 		if(($tile = $this->player->getLevel()->getTile(new Vector3((int)$packet->x, (int)$packet->y, (int)$packet->z))) instanceof Tile){
 			if($tile instanceof TileEnderChest){
 				$slots = $this->player->getEnderChestInventory()->getSize();
-				$title = "Ender Chest";
+				$title = "enderchest";
 			}elseif($tile instanceof InventoryHolder){
 				$slots = $tile->getInventory()->getSize();
+				if($title === "chest" and $slots === 54){
+					$title = "chestDouble";
+				}
 			}
 		}
 
 		$pk = new OpenWindowPacket();
 		$pk->windowID = $packet->windowid;
 		$pk->inventoryType = $type;
-		$pk->windowTitle = BigBrother::toJSON($title);
+		$pk->windowTitle = json_encode(["translate" => "container.".$title]);
 		$pk->slots = $slots;
 
 		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => $slots];
@@ -498,7 +501,14 @@ class InventoryUtils{
 			if($packet->windowID !== ContainerIds::INVENTORY){
 				if($pk->slot >= $this->windowInfo[$packet->windowID]["slots"]){
 					$pk->windowid = ContainerIds::INVENTORY;
-					$pk->slot = ($pk->slot - $this->windowInfo[$packet->windowID]["slots"]) + 9;
+
+					if($pk->slot >= 36 and $pk->slot < 45){
+						$slots = 0;
+					}else{
+						$slots = 9;
+					}
+
+					$pk->slot = ($pk->slot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
 				}
 			}
 
