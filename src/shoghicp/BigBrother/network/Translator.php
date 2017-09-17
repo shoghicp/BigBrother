@@ -103,10 +103,8 @@ use shoghicp\BigBrother\network\protocol\Play\Server\SoundEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPlayerPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPaintingPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\StatisticsPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\SetPassengersPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\RemoveEntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\TimeUpdatePacket;
@@ -542,7 +540,7 @@ class Translator{
 				$pk->entityRuntimeId = $player->getId();
 				return $pk;
 
-			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
+			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET://TODO: must fix it 
 				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 				$blockReplace = $blockClicked->getSide($packet->direction);
 
@@ -1162,17 +1160,6 @@ class Translator{
 				$pk->z = $packet->z;
 				$pk->blockId = $packet->blockId;
 				$pk->blockMeta = $packet->blockData;
-				return $pk;
-
-			case Info::ADD_PAINTING_PACKET:
-				$pk = new SpawnPaintingPacket();
-				$pk->eid = $packet->entityRuntimeId;
-				$pk->uuid = UUID::fromRandom()->toBinary();
-				$pk->title = $packet->title;
-				$pk->x = $packet->x;
-				$pk->y = $packet->y;
-				$pk->z = $packet->z;
-				$pk->direction = $packet->direction;
 
 				return $pk;
 
@@ -1660,12 +1647,6 @@ class Translator{
 				$pk->velocityZ = $packet->motionZ;
 				return $pk;
 
-			/*case Info::SET_ENTITY_LINK_PACKET://TODO
-				$pk = new SetPassengersPacket();
-				$pk->eid = $packet->from;
-				$pk->passengers = [$packet->to];
-				return $pk;*/
-
 			case Info::SET_HEALTH_PACKET:
 				$pk = new UpdateHealthPacket();
 				$pk->health = $packet->health;//TODO: Default Value
@@ -1727,10 +1708,29 @@ class Translator{
 				$nbt->read($packet->namedtag, false, true);
 				$nbt = $nbt->getData();
 
-				switch($nbt["id"]){//TODO: add type
+				switch($nbt["id"]){
 					case Tile::CHEST:
+					case Tile::ENCHANT_TABLE:
+					case Tile::FURNACE:
 						$pk->actionID = 7;
 						$pk->namedtag = $nbt;
+					break;
+					case Tile::FLOWER_POT:
+						$pk->actionID = 5;
+
+						$nbt->Item = $nbt->item;
+						$nbt->Item->setName("Item");
+						unset($nbt["item"]);
+
+						$nbt->Data = $nbt->mData;
+						$nbt->Data->setName("Data");
+						unset($nbt["mData"]);
+
+						$pk->namedtag = $nbt;
+					break;
+					case Tile::ITEM_FRAME:
+						//TODO: Convert Item Frame block to its entity.
+						return null;
 					break;
 					case Tile::SIGN:
 						$pk->actionID = 9;
@@ -1779,7 +1779,7 @@ class Translator{
 			case Info::FULL_CHUNK_DATA_PACKET:
 				$blockEntities = [];
 				foreach($player->getLevel()->getChunkTiles($packet->chunkX, $packet->chunkZ) as $tile){
-					$blockEntities[] = $tile->getSpawnCompound();
+					$blockEntities[] = clone $tile->getSpawnCompound();
 				}
 
 				$chunk = new DesktopChunk($player, $packet->chunkX, $packet->chunkZ);

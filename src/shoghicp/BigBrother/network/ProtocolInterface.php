@@ -97,8 +97,12 @@ class ProtocolInterface implements SourceInterface{
 		$this->server = $server;
 		$this->translator = $translator;
 		$this->threshold = $threshold;
-		$this->thread = new ServerThread($server->getLogger(), $server->getLoader(), $plugin->getPort(), $plugin->getIp(), $plugin->getMotd(), $plugin->getDataFolder()."server-icon.png");
+		$this->thread = new ServerThread($server->getLogger(), $server->getLoader(), $plugin->getPort(), $plugin->getIp(), $plugin->getMotd(), $plugin->getDataFolder()."server-icon.png", false);
 		$this->sessions = new \SplObjectStorage();
+	}
+
+	public function start(){
+		$this->thread->start();
 	}
 
 	public function emergencyShutdown(){

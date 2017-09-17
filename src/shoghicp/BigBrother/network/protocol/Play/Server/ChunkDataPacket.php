@@ -30,6 +30,7 @@ namespace shoghicp\BigBrother\network\protocol\Play\Server;
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 use pocketmine\nbt\NBT;
+use pocketmine\tile\Tile;
 
 class ChunkDataPacket extends OutboundPacket{
 
@@ -66,8 +67,17 @@ class ChunkDataPacket extends OutboundPacket{
 			$this->put($this->payload);
 		}
 		$this->putVarInt(count($this->blockEntities));
-
 		foreach($this->blockEntities as $blockEntity){
+			if($blockEntity["id"] === Tile::FLOWER_POT){
+				$blockEntity->Item = $blockEntity->item;
+				$blockEntity->Item->setName("Item");
+				unset($blockEntity["item"]);
+
+				$blockEntity->Data = $blockEntity->mData;
+				$blockEntity->Data->setName("Data");
+				unset($blockEntity["mData"]);
+			}
+
 			ConvertUtils::convertNBTData(true, $blockEntity);
 			$this->put($blockEntity);
 		}

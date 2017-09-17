@@ -66,7 +66,7 @@ class ServerThread extends \Thread{
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null){
+	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null, bool $autoStart = true){
 		$this->port = $port;
 		if($port < 1 or $port > 65536){
 			throw new \Exception("Invalid port range");
@@ -99,7 +99,9 @@ class ServerThread extends \Thread{
 		$this->externalSocket = $sockets[1];
 		stream_set_blocking($this->externalSocket, false);
 
-		$this->start();
+		if($autoStart){
+			$this->start();
+		}
 	}
 
 	protected function addDependency(array &$loadPaths, \ReflectionClass $dep){

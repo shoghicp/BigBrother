@@ -147,7 +147,6 @@ class InventoryUtils{
 		$pk->slots = $slots;
 
 		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => $slots];
-		var_dump($this->windowInfo);
 
 		return $pk;
 	}
