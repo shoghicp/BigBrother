@@ -930,12 +930,20 @@ class ConvertUtils{
 						//$flags |= 0x20;
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_SILENT)) > 0){
-						$newdata[4] = [6, true];
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_CAN_SHOW_NAMETAG)) > 0){
+						$newdata[3] = [6, true];
+					}
+
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_ALWAYS_SHOW_NAMETAG)) > 0){
+						$newdata[3] = [6, true];
 					}
 
 					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_IMMOBILE)) > 0){
 						//$newdata[11] = [0, true];
+					}
+
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_SILENT)) > 0){
+						$newdata[4] = [6, true];
 					}
 
 					$newdata[0] = [0, $flags];
@@ -945,9 +953,8 @@ class ConvertUtils{
 				break;
 				case Human::DATA_NAMETAG://Custom name
 					$newdata[2] = [3, str_replace("\n", "", $d[1])];//TODO
-					$newdata[3] = [6, true];
 				break;
-				case Human::DATA_FUSE_LENGTH:
+				case Human::DATA_FUSE_LENGTH://TNT
 					$newdata[6] = [1, $d[1]];
 				break;
 				case Human::DATA_VARIANT:

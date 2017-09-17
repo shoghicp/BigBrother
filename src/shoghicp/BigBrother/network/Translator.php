@@ -235,12 +235,26 @@ class Translator{
 				return null;
 
 			case InboundPacket::PLAYER_PACKET:
-				$player->setSetting(["onGround" => $packet->onGround]);
 				$player->onGround = $packet->onGround;
 				return null;
 
 			case InboundPacket::PLAYER_POSITION_PACKET:
+				if($player->isImmobile()){
+					$pk = new PlayerPositionAndLookPacket();
+					$pk->x = $player->x;
+					$pk->y = $player->y;
+					$pk->z = $player->z;
+					$pk->yaw = $player->yaw;
+					$pk->pitch = $player->pitch;
+					$pk->onGround = $player->isOnGround();
+					
+					$player->putRawPacket($pk);
+
+					return null;
+				}
+
 				$packets = [];
+
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y + $player->getEyeHeight();
@@ -264,7 +278,22 @@ class Translator{
 				return $packets;
 
 			case InboundPacket::PLAYER_POSITION_AND_LOOK_PACKET:
+				if($player->isImmobile()){
+					$pk = new PlayerPositionAndLookPacket();
+					$pk->x = $player->x;
+					$pk->y = $player->y;
+					$pk->z = $player->z;
+					$pk->yaw = $player->yaw;
+					$pk->pitch = $player->pitch;
+					$pk->onGround = $player->isOnGround();
+					
+					$player->putRawPacket($pk);
+
+					return null;
+				}
+
 				$packets = [];
+
 				$pk = new MovePlayerPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y + $player->getEyeHeight();
@@ -288,6 +317,20 @@ class Translator{
 				return $packets;
 
 			case InboundPacket::PLAYER_LOOK_PACKET:
+				if($player->isImmobile()){
+					$pk = new PlayerPositionAndLookPacket();
+					$pk->x = $player->x;
+					$pk->y = $player->y;
+					$pk->z = $player->z;
+					$pk->yaw = $player->yaw;
+					$pk->pitch = $player->pitch;
+					$pk->onGround = $player->isOnGround();
+					
+					$player->putRawPacket($pk);
+
+					return null;
+				}
+
 				$pk = new MovePlayerPacket();
 				$pk->x = $player->x;
 				$pk->y = $player->y + $player->getEyeHeight();
