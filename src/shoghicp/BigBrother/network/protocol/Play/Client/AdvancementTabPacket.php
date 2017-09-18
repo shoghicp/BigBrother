@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -35,11 +37,11 @@ class AdvancementTabPacket extends InboundPacket{
 	public $status;
 	public $tabId;
 
-	public function pid(){
+	public function pid() : int{
 		return self::ADVANCEMENT_TAB_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->status = $this->getVarInt();
 		if($this->status === 0){
 			$this->tabId = $this->getString();

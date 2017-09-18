@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -45,11 +47,11 @@ class PlayerAbilitiesPacket extends InboundPacket{
 	/** @var float */
 	public $walkingSpeed;
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLAYER_ABILITIES_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$flags = $this->getByte();
 
 		$this->damageDisabled = ($flags & 0x08) !== 0;

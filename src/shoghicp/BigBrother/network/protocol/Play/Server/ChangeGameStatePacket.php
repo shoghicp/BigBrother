@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class ChangeGameStatePacket extends OutboundPacket{
 	/** @var float */
 	public $value;
 
-	public function pid(){
+	public function pid() : int{
 		return self::CHANGE_GAME_STATE_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putByte($this->reason);
 		$this->putFloat($this->value);
 	}

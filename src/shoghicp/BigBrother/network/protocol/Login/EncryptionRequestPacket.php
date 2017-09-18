@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Login;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -38,11 +40,11 @@ class EncryptionRequestPacket extends OutboundPacket{
 	/** @var string */
 	public $verifyToken;
 
-	public function pid(){
+	public function pid() : int{
 		return self::ENCRYPTION_REQUEST_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putString($this->serverID);
 		$this->putVarInt(strlen($this->publicKey));
 		$this->put($this->publicKey);

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -56,11 +58,11 @@ class SpawnObjectPacket extends OutboundPacket{
 	/** @var float */
 	public $velocityZ;
 
-	public function pid(){
+	public function pid() : int{
 		return self::SPAWN_OBJECT_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		assert($this->yaw >= 0 and $this->yaw < 360);
 		assert($this->pitch >= 0 and $this->pitch < 360);
 

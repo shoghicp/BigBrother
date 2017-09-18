@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -40,11 +42,11 @@ class EntityVelocityPacket extends OutboundPacket{
 	/** @var float */
 	public $velocityZ;
 
-	public function pid(){
+	public function pid() : int{
 		return self::ENTITY_VELOCITY_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putShort((int)round($this->velocityX * 8000));
 		$this->putShort((int)round($this->velocityY * 8000));

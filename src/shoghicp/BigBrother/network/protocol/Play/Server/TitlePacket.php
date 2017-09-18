@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -42,11 +44,11 @@ class TitlePacket extends OutboundPacket{
 	/** @var string|int[] */
 	public $data = null;
 
-	public function pid(){
+	public function pid() : int{
 		return self::TITLE_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putVarInt($this->actionID);
 		switch($this->actionID){
 			case self::TYPE_SET_TITLE:

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 abstract class OutboundPacket extends Packet{
@@ -120,7 +122,7 @@ abstract class OutboundPacket extends Packet{
 	/**
 	 * @deprecated
 	 */
-	protected final function decode(){
+	protected final function decode() : void{
 		throw new \ErrorException(get_class($this) . " is subclass of OutboundPacket: don't call decode() method");
 	}
 }

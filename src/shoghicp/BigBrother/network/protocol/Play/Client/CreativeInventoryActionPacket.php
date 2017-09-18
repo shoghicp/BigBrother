@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -37,11 +39,11 @@ class CreativeInventoryActionPacket extends InboundPacket{
 	/** @var Item */
 	public $item;
 
-	public function pid(){
+	public function pid() : int{
 		return self::CREATIVE_INVENTORY_ACTION_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->slot = $this->getShort();
 		$this->item = $this->getSlot();
 	}

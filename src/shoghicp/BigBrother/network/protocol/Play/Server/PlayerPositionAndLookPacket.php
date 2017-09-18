@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -46,11 +48,11 @@ class PlayerPositionAndLookPacket extends OutboundPacket{
 	/** @var int */
 	public $teleportId = 0;
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLAYER_POSITION_AND_LOOK_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);

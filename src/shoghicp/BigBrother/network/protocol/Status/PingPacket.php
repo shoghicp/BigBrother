@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Status;
 
 use shoghicp\BigBrother\network\Packet;
@@ -34,15 +36,15 @@ class PingPacket extends Packet{
 	/** @var int */
 	public $time;
 
-	public function pid(){
+	public function pid() : int{
 		return 0x01;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putLong($this->time);
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->time = $this->getLong();
 	}
 }

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 abstract class InboundPacket extends Packet{
@@ -72,7 +74,7 @@ abstract class InboundPacket extends Packet{
 	/**
 	 * @deprecated
 	 */
-	protected final function encode(){
+	protected final function encode() : void{
 		throw new \ErrorException(get_class($this) . " is subclass of InboundPacket: don't call encode() method");
 	}
 }

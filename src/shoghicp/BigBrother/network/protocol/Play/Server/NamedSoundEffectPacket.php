@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -46,11 +48,11 @@ class NamedSoundEffectPacket extends OutboundPacket{
 	/** @var float */
 	public $pitch;
 
-	public function pid(){
+	public function pid() : int{
 		return self::NAMED_SOUND_EFFECT_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putString($this->name);
 		$this->putVarInt($this->category);
 		$this->putInt($this->x * 8);

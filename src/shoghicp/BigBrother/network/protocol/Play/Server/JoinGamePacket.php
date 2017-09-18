@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -46,11 +48,11 @@ class JoinGamePacket extends OutboundPacket{
 	/** @var bool */
 	public $reducedDebugInfo = false;
 
-	public function pid(){
+	public function pid() : int{
 		return self::JOIN_GAME_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putInt($this->eid);
 		$this->putByte($this->gamemode);
 		$this->putInt($this->dimension);

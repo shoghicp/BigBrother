@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -36,11 +38,11 @@ class PluginMessagePacket extends InboundPacket{
 	/** @var string[] */
 	public $data = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLUGIN_MESSAGE_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->channel = $this->getString();
 		switch($this->channel){
 			case "REGISTER":

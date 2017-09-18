@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -43,11 +45,11 @@ class UpdateBlockEntityPacket extends OutboundPacket{
 	/** @var string */
 	public $namedtag = "";
 
-	public function pid(){
+	public function pid() : int{
 		return self::UPDATE_BLOCK_ENTITY_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putByte($this->actionID);
 

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Login;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class LoginSuccessPacket extends OutboundPacket{
 	/** @var string */
 	public $name;
 
-	public function pid(){
+	public function pid() : int{
 		return self::LOGIN_SUCCESS_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putString($this->uuid);
 		$this->putString($this->name);
 	}

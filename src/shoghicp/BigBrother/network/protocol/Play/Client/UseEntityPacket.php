@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -46,11 +48,11 @@ class UseEntityPacket extends InboundPacket{
 	/** @var int */
 	public $hand;
 
-	public function pid(){
+	public function pid() : int{
 		return self::USE_ENTITY_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->target = $this->getVarInt();
 		$this->type = $this->getVarInt();
 		if($this->type === 2){

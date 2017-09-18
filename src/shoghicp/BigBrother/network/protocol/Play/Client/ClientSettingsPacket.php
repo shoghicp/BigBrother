@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -44,11 +46,11 @@ class ClientSettingsPacket extends InboundPacket{
 	/** @var int */
 	public $mainHand;
 
-	public function pid(){
+	public function pid() : int{
 		return self::CLIENT_SETTINGS_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->lang = $this->getString();
 		$this->view = $this->getByte();
 		$this->chatMode = $this->getByte();

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -52,11 +54,11 @@ class BossBarPacket extends OutboundPacket{
 	/** @var int */
 	public $flags;
 
-	public function pid(){
+	public function pid() : int{
 		return self::BOSS_BAR_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->put($this->uuid);
 		$this->putVarInt($this->actionID);
 		switch($this->actionID){

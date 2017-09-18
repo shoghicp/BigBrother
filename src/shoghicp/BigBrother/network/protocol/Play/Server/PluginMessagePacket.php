@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class PluginMessagePacket extends OutboundPacket{
 	/** @var array */
 	public $data = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLUGIN_MESSAGE_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putString($this->channel);
 		//TODO
 	}

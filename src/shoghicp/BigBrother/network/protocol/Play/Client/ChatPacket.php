@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -34,11 +36,11 @@ class ChatPacket extends InboundPacket{
 	/** @var string */
 	public $message;
 
-	public function pid(){
+	public function pid() : int{
 		return self::CHAT_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->message = $this->getString();
 	}
 }

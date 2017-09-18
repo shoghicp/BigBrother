@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -40,11 +42,11 @@ class UseBedPacket extends OutboundPacket{
 	/** @var int */
 	public $bedZ;
 
-	public function pid(){
+	public function pid() : int{
 		return self::USE_BED_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putPosition($this->bedX, $this->bedY, $this->bedZ);
 	}

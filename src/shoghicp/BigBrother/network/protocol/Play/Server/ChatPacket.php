@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class ChatPacket extends OutboundPacket{
 	/** @var int */
 	public $position = 0; //0 = chat, 1 = system message, 2 = action bar
 
-	public function pid(){
+	public function pid() : int{
 		return self::CHAT_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putString($this->message);
 		$this->putByte($this->position);
 	}

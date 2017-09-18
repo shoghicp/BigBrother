@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -38,11 +40,11 @@ class PlayerLookPacket extends InboundPacket{
 	/** @var bool */
 	public $onGround;
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLAYER_LOOK_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->yaw = $this->getFloat();
 		$this->pitch = $this->getFloat();
 		$this->onGround = $this->getByte() > 0;

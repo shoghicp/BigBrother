@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -42,11 +44,11 @@ class PlayerDiggingPacket extends InboundPacket{
 	/** @var int */
 	public $face;
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLAYER_DIGGING_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->status = $this->getVarInt();
 		$this->getPosition($this->x, $this->y, $this->z);
 		$this->face = $this->getByte();

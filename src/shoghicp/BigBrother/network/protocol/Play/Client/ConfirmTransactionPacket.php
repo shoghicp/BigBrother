@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -38,11 +40,11 @@ class ConfirmTransactionPacket extends InboundPacket{
 	/** @var bool */
 	public $accepted;
 
-	public function pid(){
+	public function pid() : int{
 		return self::CONFIRM_TRANSACTION_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->windowID = $this->getByte();
 		$this->actionNumber = $this->getShort();
 		$this->accepted = $this->getByte() > 0;

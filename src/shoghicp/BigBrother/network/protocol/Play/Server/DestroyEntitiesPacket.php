@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -34,11 +36,11 @@ class DestroyEntitiesPacket extends OutboundPacket{
 	/** @var int[] */
 	public $ids = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::DESTROY_ENTITIES_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putVarInt(count($this->ids));
 		foreach($this->ids as $id){
 			$this->putVarInt($id);

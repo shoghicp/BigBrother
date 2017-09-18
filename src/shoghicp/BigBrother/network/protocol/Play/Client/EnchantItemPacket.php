@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -36,11 +38,11 @@ class EnchantItemPacket extends InboundPacket{
 	/** @var int */
 	public $enchantment;
 
-	public function pid(){
+	public function pid() : int{
 		return self::ENCHANT_ITEM_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->windowID = $this->getByte();
 		$this->enchantment = $this->getByte();
 	}

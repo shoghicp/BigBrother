@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\item\Item;
@@ -65,7 +67,7 @@ abstract class Packet extends \stdClass{
 		return Binary::readInt($this->get(4));
 	}
 
-	protected function getPosition(int &$x=null, int &$y=null, int &$z=null){
+	protected function getPosition(int &$x=null, int &$y=null, int &$z=null) : void{
 		$long = $this->getLong();
 		$x = $long >> 38;
 		$y = ($long >> 26) & 0xFFF;
@@ -102,7 +104,7 @@ abstract class Packet extends \stdClass{
 		}
 	}
 
-	protected function putSlot(Item $item){
+	protected function putSlot(Item $item) : void{
 		ConvertUtils::convertItemData(true, $item);
 
 		if($item->getID() === 0){
@@ -149,61 +151,61 @@ abstract class Packet extends \stdClass{
 		return !isset($this->buffer{$this->offset});
 	}
 
-	protected function put(string $str){
+	protected function put(string $str) : void{
 		$this->buffer .= $str;
 	}
 
-	protected function putLong(int $v){
+	protected function putLong(int $v) : void{
 		$this->buffer .= Binary::writeLong($v);
 	}
 
-	protected function putInt(int $v){
+	protected function putInt(int $v) : void{
 		$this->buffer .= Binary::writeInt($v);
 	}
 
-	protected function putPosition(int $x, int $y, int $z){
+	protected function putPosition(int $x, int $y, int $z) : void{
 		$long = (($x & 0x3FFFFFF) << 38) | (($y & 0xFFF) << 26) | ($z & 0x3FFFFFF);
 		$this->putLong($long);
 	}
 
-	protected function putFloat(float $v){
+	protected function putFloat(float $v) : void{
 		$this->buffer .= Binary::writeFloat($v);
 	}
 
-	protected function putDouble(float $v){
+	protected function putDouble(float $v) : void{
 		$this->buffer .= Binary::writeDouble($v);
 	}
 
-	protected function putShort(int $v){
+	protected function putShort(int $v) : void{
 		$this->buffer .= Binary::writeShort($v);
 	}
 
-	protected function putTriad(int $v){
+	protected function putTriad(int $v) : void{
 		$this->buffer .= Binary::writeTriad($v);
 	}
 
-	protected function putLTriad(int $v){
+	protected function putLTriad(int $v) : void{
 		$this->buffer .= strrev(Binary::writeTriad($v));
 	}
 
-	protected function putByte(int $v){
+	protected function putByte(int $v) : void{
 		$this->buffer .= chr($v);
 	}
 
-	protected function putString(string $v){
+	protected function putString(string $v) : void{
 		$this->putVarInt(strlen($v));
 		$this->put($v);
 	}
 
-	protected function putVarInt(int $v){
+	protected function putVarInt(int $v) : void{
 		$this->buffer .= Binary::writeComputerVarInt($v);
 	}
 
-	public abstract function pid();
+	public abstract function pid() : int;
 
-	protected abstract function encode();
+	protected abstract function encode() : void;
 
-	protected abstract function decode();
+	protected abstract function decode() : void;
 
 	public function write() : string{
 		$this->buffer = "";
@@ -212,7 +214,7 @@ abstract class Packet extends \stdClass{
 		return Binary::writeComputerVarInt($this->pid()) . $this->buffer;
 	}
 
-	public function read(string $buffer, int $offset = 0){
+	public function read(string $buffer, int $offset = 0) : void{
 		$this->buffer = $buffer;
 		$this->offset = $offset;
 		$this->decode();

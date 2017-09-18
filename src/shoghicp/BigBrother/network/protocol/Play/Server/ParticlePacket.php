@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -54,11 +56,11 @@ class ParticlePacket extends OutboundPacket{
 	/** @var array */
 	public $addData = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::PARTICLE_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putInt($this->id);
 		$this->putByte($this->longDistance > 0);
 		$this->putFloat($this->x);

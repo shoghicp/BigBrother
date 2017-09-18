@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -49,11 +51,11 @@ class ChunkDataPacket extends OutboundPacket{
 	/** @var array */
 	public $blockEntities = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::CHUNK_DATA_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
 		$this->putByte($this->groundUp ? 1 : 0);

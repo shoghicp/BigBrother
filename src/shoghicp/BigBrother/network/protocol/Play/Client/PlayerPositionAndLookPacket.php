@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -44,11 +46,11 @@ class PlayerPositionAndLookPacket extends InboundPacket{
 	/** @var bool */
 	public $onGround;
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLAYER_POSITION_AND_LOOK_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->x = $this->getDouble();
 		$this->y = $this->getDouble();
 		$this->z = $this->getDouble();

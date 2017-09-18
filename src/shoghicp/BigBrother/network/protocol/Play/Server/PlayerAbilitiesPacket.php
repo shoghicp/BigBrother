@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -45,11 +47,11 @@ class PlayerAbilitiesPacket extends OutboundPacket{
 	/** @var float */
 	public $walkingSpeed;
 
-	public function pid(){
+	public function pid() : int{
 		return self::PLAYER_ABILITIES_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$flags = 0;
 		if($this->isCreative){
 			$flags |= 0b1;

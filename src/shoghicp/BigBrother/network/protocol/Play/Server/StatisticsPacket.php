@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class StatisticsPacket extends OutboundPacket{
 	/** @var array */
 	public $statistic = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::STATISTICS_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putVarInt($this->count);
 		foreach($this->statistic as $statistic){
 			$this->putString($statistic[0]);

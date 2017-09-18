@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class EntityPropertiesPacket extends OutboundPacket{
 	/** @var array */
 	public $entries = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::ENTITY_PROPERTIES_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putInt(count($this->entries));
 		foreach($this->entries as $entry){

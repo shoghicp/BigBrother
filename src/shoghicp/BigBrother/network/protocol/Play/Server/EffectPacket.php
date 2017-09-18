@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -44,11 +46,11 @@ class EffectPacket extends OutboundPacket{
 	/** @var bool */
 	public $disableRelativeVolume;
 
-	public function pid(){
+	public function pid() : int{
 		return self::EFFECT_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putInt($this->effectId);
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putInt($this->data);

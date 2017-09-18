@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Login;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -36,11 +38,11 @@ class EncryptionResponsePacket extends InboundPacket{
 	/** @var string */
 	public $verifyToken;
 
-	public function pid(){
+	public function pid() : int{
 		return self::ENCRYPTION_RESPONSE_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->sharedSecret = $this->get($this->getVarInt());
 		$this->verifyToken = $this->get($this->getVarInt());
 	}

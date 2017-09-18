@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -36,11 +38,11 @@ class EntityStatusPacket extends OutboundPacket{
 	/** @var int */
 	public $status;
 
-	public function pid(){
+	public function pid() : int{
 		return self::ENTITY_STATUS_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putInt($this->eid);
 		$this->putByte($this->status);
 	}

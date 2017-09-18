@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -40,11 +42,11 @@ class AdvancementsPacket extends OutboundPacket{
 	/** @var array */
 	public $progress = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::ADVANCEMENTS_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putByte($this->doClear > 0);
 		$this->putVarInt(count($this->advancements));
 		foreach($this->advancements as $advancement){

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Client;
 
 use shoghicp\BigBrother\network\InboundPacket;
@@ -44,11 +46,11 @@ class TabCompletePacket extends InboundPacket{
 	/** @var int */
 	public $z;
 
-	public function pid(){
+	public function pid() : int{
 		return self::TAB_COMPLETE_PACKET;
 	}
 
-	public function decode(){
+	public function decode() : void{
 		$this->text = $this->getString();
 		$this->assumeCommand = (bool) $this->getByte();
 		$this->hasPosition = (bool) $this->getByte();

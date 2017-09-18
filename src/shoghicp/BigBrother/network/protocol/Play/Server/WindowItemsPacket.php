@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
@@ -37,11 +39,11 @@ class WindowItemsPacket extends OutboundPacket{
 	/** @var Item[] */
 	public $items = [];
 
-	public function pid(){
+	public function pid() : int{
 		return self::WINDOW_ITEMS_PACKET;
 	}
 
-	public function encode(){
+	public function encode() : void{
 		$this->putByte($this->windowID);
 		$this->putShort(count($this->items));
 		foreach($this->items as $item){
