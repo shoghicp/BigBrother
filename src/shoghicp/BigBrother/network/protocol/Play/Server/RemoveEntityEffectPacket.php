@@ -42,7 +42,7 @@ class RemoveEntityEffectPacket extends OutboundPacket{
 		return self::REMOVE_ENTITY_EFFECT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putByte($this->effectId);
 	}

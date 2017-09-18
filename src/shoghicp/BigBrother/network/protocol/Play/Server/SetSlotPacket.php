@@ -45,7 +45,7 @@ class SetSlotPacket extends OutboundPacket{
 		return self::SET_SLOT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->windowID);
 		$this->putShort($this->slot);
 		$this->putSlot($this->item);

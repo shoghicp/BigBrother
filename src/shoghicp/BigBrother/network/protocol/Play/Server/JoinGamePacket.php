@@ -52,7 +52,7 @@ class JoinGamePacket extends OutboundPacket{
 		return self::JOIN_GAME_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putInt($this->eid);
 		$this->putByte($this->gamemode);
 		$this->putInt($this->dimension);

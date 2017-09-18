@@ -42,7 +42,7 @@ class StatisticsPacket extends OutboundPacket{
 		return self::STATISTICS_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->count);
 		foreach($this->statistic as $statistic){
 			$this->putString($statistic[0]);

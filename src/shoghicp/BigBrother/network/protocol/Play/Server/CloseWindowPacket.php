@@ -40,7 +40,7 @@ class CloseWindowPacket extends OutboundPacket{
 		return self::CLOSE_WINDOW_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->windowID);
 	}
 }

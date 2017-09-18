@@ -40,11 +40,11 @@ class PingPacket extends Packet{
 		return 0x01;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putLong($this->time);
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->time = $this->getLong();
 	}
 }

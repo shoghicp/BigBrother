@@ -44,7 +44,7 @@ class EncryptionRequestPacket extends OutboundPacket{
 		return self::ENCRYPTION_REQUEST_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->serverID);
 		$this->putVarInt(strlen($this->publicKey));
 		$this->put($this->publicKey);

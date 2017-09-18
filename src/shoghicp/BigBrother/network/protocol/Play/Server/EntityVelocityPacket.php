@@ -46,7 +46,7 @@ class EntityVelocityPacket extends OutboundPacket{
 		return self::ENTITY_VELOCITY_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putShort((int)round($this->velocityX * 8000));
 		$this->putShort((int)round($this->velocityY * 8000));

@@ -46,7 +46,7 @@ class RespawnPacket extends OutboundPacket{
 		return self::RESPAWN_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putInt($this->dimension);
 		$this->putByte($this->difficulty);
 		$this->putByte($this->gamemode);

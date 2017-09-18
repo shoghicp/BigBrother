@@ -42,7 +42,7 @@ class TimeUpdatePacket extends OutboundPacket{
 		return self::TIME_UPDATE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putLong($this->age);
 		$this->putLong($this->time);
 	}

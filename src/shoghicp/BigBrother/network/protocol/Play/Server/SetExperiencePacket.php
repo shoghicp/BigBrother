@@ -44,7 +44,7 @@ class SetExperiencePacket extends OutboundPacket{
 		return self::SET_EXPERIENCE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putFloat($this->experience);
 		$this->putVarInt($this->level);
 		$this->putVarInt($this->totalexperience);

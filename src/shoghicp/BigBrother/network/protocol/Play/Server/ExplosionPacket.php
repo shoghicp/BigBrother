@@ -54,7 +54,7 @@ class ExplosionPacket extends OutboundPacket{
 		return self::EXPLOSION_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putFloat($this->x);
 		$this->putFloat($this->y);
 		$this->putFloat($this->z);

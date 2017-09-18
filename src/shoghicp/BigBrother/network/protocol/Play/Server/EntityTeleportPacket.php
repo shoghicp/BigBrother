@@ -51,7 +51,7 @@ class EntityTeleportPacket extends OutboundPacket{
 		return self::ENTITY_TELEPORT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		assert($this->yaw >= 0 and $this->yaw < 360);
 		assert($this->pitch >= 0 and $this->pitch < 360);
 

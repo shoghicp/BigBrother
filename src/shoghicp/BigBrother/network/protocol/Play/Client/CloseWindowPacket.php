@@ -40,7 +40,7 @@ class CloseWindowPacket extends InboundPacket{
 		return self::CLOSE_WINDOW_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->windowID = $this->getByte();
 	}
 }

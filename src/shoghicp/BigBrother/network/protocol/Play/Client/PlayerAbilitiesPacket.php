@@ -51,7 +51,7 @@ class PlayerAbilitiesPacket extends InboundPacket{
 		return self::PLAYER_ABILITIES_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$flags = $this->getByte();
 
 		$this->damageDisabled = ($flags & 0x08) !== 0;

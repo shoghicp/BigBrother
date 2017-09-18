@@ -51,7 +51,7 @@ class PlayerAbilitiesPacket extends OutboundPacket{
 		return self::PLAYER_ABILITIES_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$flags = 0;
 		if($this->isCreative){
 			$flags |= 0b1;

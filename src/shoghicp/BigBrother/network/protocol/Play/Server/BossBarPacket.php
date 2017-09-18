@@ -58,7 +58,7 @@ class BossBarPacket extends OutboundPacket{
 		return self::BOSS_BAR_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->put($this->uuid);
 		$this->putVarInt($this->actionID);
 		switch($this->actionID){

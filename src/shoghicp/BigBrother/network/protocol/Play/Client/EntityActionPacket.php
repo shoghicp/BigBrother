@@ -44,7 +44,7 @@ class EntityActionPacket extends InboundPacket{
 		return self::ENTITY_ACTION_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->eid = $this->getVarInt();
 		$this->actionID = $this->getVarInt();
 		$this->jumpboost = $this->getVarInt();

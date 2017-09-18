@@ -48,7 +48,7 @@ class PlayerDiggingPacket extends InboundPacket{
 		return self::PLAYER_DIGGING_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->status = $this->getVarInt();
 		$this->getPosition($this->x, $this->y, $this->z);
 		$this->face = $this->getByte();

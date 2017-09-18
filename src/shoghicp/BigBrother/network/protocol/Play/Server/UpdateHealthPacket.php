@@ -44,7 +44,7 @@ class UpdateHealthPacket extends OutboundPacket{
 		return self::UPDATE_HEALTH_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putFloat($this->health);
 		$this->putVarInt($this->food);
 		$this->putFloat($this->saturation);

@@ -43,7 +43,7 @@ class WindowItemsPacket extends OutboundPacket{
 		return self::WINDOW_ITEMS_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->windowID);
 		$this->putShort(count($this->items));
 		foreach($this->items as $item){

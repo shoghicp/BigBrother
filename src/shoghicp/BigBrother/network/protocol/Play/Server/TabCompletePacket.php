@@ -40,7 +40,7 @@ class TabCompletePacket extends OutboundPacket{
 		return self::TAB_COMPLETE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt(count($this->matches));
 		foreach($this->matches as $match){
 			$this->putString($match);

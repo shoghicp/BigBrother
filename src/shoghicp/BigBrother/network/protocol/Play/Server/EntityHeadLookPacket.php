@@ -42,7 +42,7 @@ class EntityHeadLookPacket extends OutboundPacket{
 		return self::ENTITY_HEAD_LOOK_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		assert($this->yaw >= 0 and $this->yaw < 360);
 
 		$this->putVarInt($this->eid);

@@ -40,7 +40,7 @@ class KeepAlivePacket extends InboundPacket{
 		return self::KEEP_ALIVE_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->id = $this->getLong();
 	}
 }

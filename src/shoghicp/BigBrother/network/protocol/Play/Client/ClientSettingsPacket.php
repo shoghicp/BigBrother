@@ -50,7 +50,7 @@ class ClientSettingsPacket extends InboundPacket{
 		return self::CLIENT_SETTINGS_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->lang = $this->getString();
 		$this->view = $this->getByte();
 		$this->chatMode = $this->getByte();

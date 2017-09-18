@@ -50,7 +50,7 @@ class BlockActionPacket extends OutboundPacket{
 		return self::BLOCK_ACTION_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putByte($this->actionID);
 		$this->putByte($this->actionParam);

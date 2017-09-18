@@ -42,7 +42,7 @@ class AnimatePacket extends OutboundPacket{
 		return self::ANIMATE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putByte($this->actionID);
 	}

@@ -40,7 +40,7 @@ class LoginDisconnectPacket extends OutboundPacket{
 		return self::LOGIN_DISCONNECT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->reason);
 	}
 }

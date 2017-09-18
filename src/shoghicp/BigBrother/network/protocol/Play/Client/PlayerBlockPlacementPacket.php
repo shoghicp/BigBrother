@@ -54,7 +54,7 @@ class PlayerBlockPlacementPacket extends InboundPacket{
 		return self::PLAYER_BLOCK_PLACEMENT_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->getPosition($this->x, $this->y, $this->z);
 		$this->direction = $this->getVarInt();
 		$this->hand = $this->getVarInt();

@@ -52,7 +52,7 @@ class NamedSoundEffectPacket extends OutboundPacket{
 		return self::NAMED_SOUND_EFFECT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->name);
 		$this->putVarInt($this->category);
 		$this->putInt($this->x * 8);

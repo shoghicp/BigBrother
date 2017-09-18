@@ -48,7 +48,7 @@ class TitlePacket extends OutboundPacket{
 		return self::TITLE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->actionID);
 		switch($this->actionID){
 			case self::TYPE_SET_TITLE:

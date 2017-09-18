@@ -41,7 +41,7 @@ class AdvancementTabPacket extends InboundPacket{
 		return self::ADVANCEMENT_TAB_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->status = $this->getVarInt();
 		if($this->status === 0){
 			$this->tabId = $this->getString();

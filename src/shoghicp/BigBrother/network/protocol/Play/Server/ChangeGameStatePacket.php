@@ -42,7 +42,7 @@ class ChangeGameStatePacket extends OutboundPacket{
 		return self::CHANGE_GAME_STATE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->reason);
 		$this->putFloat($this->value);
 	}

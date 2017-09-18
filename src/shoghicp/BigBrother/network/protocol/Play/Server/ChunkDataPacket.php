@@ -55,7 +55,7 @@ class ChunkDataPacket extends OutboundPacket{
 		return self::CHUNK_DATA_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
 		$this->putByte($this->groundUp ? 1 : 0);

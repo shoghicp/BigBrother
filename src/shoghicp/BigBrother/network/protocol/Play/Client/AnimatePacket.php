@@ -40,7 +40,7 @@ class AnimatePacket extends InboundPacket{
 		return self::ANIMATE_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->hand = $this->getVarInt();
 	}
 }

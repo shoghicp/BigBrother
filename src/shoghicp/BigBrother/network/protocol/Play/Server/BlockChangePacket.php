@@ -48,7 +48,7 @@ class BlockChangePacket extends OutboundPacket{
 		return self::BLOCK_CHANGE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putVarInt(($this->blockId << 4) | ($this->blockMeta & 15));
 	}

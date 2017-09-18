@@ -52,7 +52,7 @@ class UseEntityPacket extends InboundPacket{
 		return self::USE_ENTITY_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->target = $this->getVarInt();
 		$this->type = $this->getVarInt();
 		if($this->type === 2){

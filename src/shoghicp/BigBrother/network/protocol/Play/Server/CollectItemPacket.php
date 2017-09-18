@@ -44,7 +44,7 @@ class CollectItemPacket extends OutboundPacket{
 		return self::COLLECT_ITEM_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->target);
 		$this->putVarInt($this->eid);
 		$this->putVarInt($this->itemCount);

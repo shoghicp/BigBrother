@@ -46,7 +46,7 @@ class UseBedPacket extends OutboundPacket{
 		return self::USE_BED_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putPosition($this->bedX, $this->bedY, $this->bedZ);
 	}

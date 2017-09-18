@@ -40,7 +40,7 @@ class ClientStatusPacket extends InboundPacket{
 		return self::CLIENT_STATUS_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->actionID = $this->getVarInt();
 	}
 }

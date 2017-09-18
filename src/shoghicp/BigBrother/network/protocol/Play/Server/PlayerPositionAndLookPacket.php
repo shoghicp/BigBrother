@@ -52,7 +52,7 @@ class PlayerPositionAndLookPacket extends OutboundPacket{
 		return self::PLAYER_POSITION_AND_LOOK_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);

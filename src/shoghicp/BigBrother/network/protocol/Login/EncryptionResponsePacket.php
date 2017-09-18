@@ -42,7 +42,7 @@ class EncryptionResponsePacket extends InboundPacket{
 		return self::ENCRYPTION_RESPONSE_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->sharedSecret = $this->get($this->getVarInt());
 		$this->verifyToken = $this->get($this->getVarInt());
 	}

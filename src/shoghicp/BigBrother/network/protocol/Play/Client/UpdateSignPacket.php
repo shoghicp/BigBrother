@@ -52,7 +52,7 @@ class UpdateSignPacket extends InboundPacket{
 		return self::UPDATE_SIGN_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->getPosition($this->x, $this->y, $this->z);
 		$this->line1 = $this->getString();
 		$this->line2 = $this->getString();

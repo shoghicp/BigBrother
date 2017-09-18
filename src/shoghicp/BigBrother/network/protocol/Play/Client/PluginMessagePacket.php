@@ -42,7 +42,7 @@ class PluginMessagePacket extends InboundPacket{
 		return self::PLUGIN_MESSAGE_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->channel = $this->getString();
 		switch($this->channel){
 			case "REGISTER":

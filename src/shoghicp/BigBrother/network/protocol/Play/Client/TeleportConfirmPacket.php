@@ -40,7 +40,7 @@ class TeleportConfirmPacket extends InboundPacket{
 		return self::TELEPORT_CONFIRM_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->teleportId = $this->getVarInt();
 	}
 }

@@ -55,7 +55,7 @@ class SpawnPlayerPacket extends OutboundPacket{
 		return self::SPAWN_PLAYER_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		assert($this->yaw >= 0 and $this->yaw < 360);
 		assert($this->pitch >= 0 and $this->pitch < 360);
 

@@ -42,7 +42,7 @@ class UnloadChunkPacket extends OutboundPacket{
 		return self::UNLOAD_CHUNK_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
 	}

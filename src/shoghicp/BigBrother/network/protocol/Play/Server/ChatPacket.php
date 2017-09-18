@@ -42,7 +42,7 @@ class ChatPacket extends OutboundPacket{
 		return self::CHAT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->message);
 		$this->putByte($this->position);
 	}

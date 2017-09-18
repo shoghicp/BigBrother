@@ -48,7 +48,7 @@ class OpenWindowPacket extends OutboundPacket{
 		return self::OPEN_WINDOW_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->windowID);
 		$this->putString($this->inventoryType);
 		$this->putString($this->windowTitle);

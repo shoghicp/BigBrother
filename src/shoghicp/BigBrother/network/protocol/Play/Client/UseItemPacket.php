@@ -40,7 +40,7 @@ class UseItemPacket extends InboundPacket{
 		return self::USE_ITEM_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->hand = $this->getVarInt();
 	}
 }

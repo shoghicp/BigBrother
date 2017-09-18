@@ -42,7 +42,7 @@ class EnchantItemPacket extends InboundPacket{
 		return self::ENCHANT_ITEM_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->windowID = $this->getByte();
 		$this->enchantment = $this->getByte();
 	}

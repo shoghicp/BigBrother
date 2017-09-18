@@ -49,7 +49,7 @@ class UpdateBlockEntityPacket extends OutboundPacket{
 		return self::UPDATE_BLOCK_ENTITY_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putByte($this->actionID);
 

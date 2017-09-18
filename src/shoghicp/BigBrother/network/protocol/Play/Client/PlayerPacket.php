@@ -40,7 +40,7 @@ class PlayerPacket extends InboundPacket{
 		return self::PLAYER_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->onGround = (bool) $this->getByte();
 	}
 }

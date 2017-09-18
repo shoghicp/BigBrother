@@ -50,7 +50,7 @@ class EffectPacket extends OutboundPacket{
 		return self::EFFECT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putInt($this->effectId);
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putInt($this->data);

@@ -46,7 +46,7 @@ class AdvancementsPacket extends OutboundPacket{
 		return self::ADVANCEMENTS_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->doClear > 0);
 		$this->putVarInt(count($this->advancements));
 		foreach($this->advancements as $advancement){

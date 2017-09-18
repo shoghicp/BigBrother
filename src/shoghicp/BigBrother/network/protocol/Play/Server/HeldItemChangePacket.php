@@ -40,7 +40,7 @@ class HeldItemChangePacket extends OutboundPacket{
 		return self::HELD_ITEM_CHANGE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->selectedSlot);
 	}
 }

@@ -43,7 +43,7 @@ class CreativeInventoryActionPacket extends InboundPacket{
 		return self::CREATIVE_INVENTORY_ACTION_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->slot = $this->getShort();
 		$this->item = $this->getSlot();
 	}

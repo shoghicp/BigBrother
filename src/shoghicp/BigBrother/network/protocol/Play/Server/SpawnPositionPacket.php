@@ -44,7 +44,7 @@ class SpawnPositionPacket extends OutboundPacket{
 		return self::SPAWN_POSITION_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putPosition($this->spawnX, $this->spawnY, $this->spawnZ);
 	}
 }

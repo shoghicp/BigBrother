@@ -50,7 +50,7 @@ class PlayerPositionAndLookPacket extends InboundPacket{
 		return self::PLAYER_POSITION_AND_LOOK_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->x = $this->getDouble();
 		$this->y = $this->getDouble();
 		$this->z = $this->getDouble();

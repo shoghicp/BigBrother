@@ -42,7 +42,7 @@ class LoginSuccessPacket extends OutboundPacket{
 		return self::LOGIN_SUCCESS_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->uuid);
 		$this->putString($this->name);
 	}

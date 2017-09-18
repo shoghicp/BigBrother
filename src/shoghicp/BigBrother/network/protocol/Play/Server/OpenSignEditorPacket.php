@@ -44,7 +44,7 @@ class OpenSignEditorPacket extends OutboundPacket{
 		return self::OPEN_SIGN_EDITOR_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putPosition($this->x, $this->y, $this->z);
 	}
 }

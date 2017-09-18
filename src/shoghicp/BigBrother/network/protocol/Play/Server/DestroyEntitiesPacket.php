@@ -40,7 +40,7 @@ class DestroyEntitiesPacket extends OutboundPacket{
 		return self::DESTROY_ENTITIES_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt(count($this->ids));
 		foreach($this->ids as $id){
 			$this->putVarInt($id);

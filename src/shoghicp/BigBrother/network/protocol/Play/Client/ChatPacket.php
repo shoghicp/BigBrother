@@ -40,7 +40,7 @@ class ChatPacket extends InboundPacket{
 		return self::CHAT_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->message = $this->getString();
 	}
 }

@@ -40,7 +40,7 @@ class ServerDifficultyPacket extends OutboundPacket{
 		return self::SERVER_DIFFICULTY_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putByte($this->difficulty);
 	}
 }

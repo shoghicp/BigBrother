@@ -50,7 +50,7 @@ class TabCompletePacket extends InboundPacket{
 		return self::TAB_COMPLETE_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->text = $this->getString();
 		$this->assumeCommand = (bool) $this->getByte();
 		$this->hasPosition = (bool) $this->getByte();

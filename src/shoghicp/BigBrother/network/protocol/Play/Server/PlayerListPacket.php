@@ -46,7 +46,7 @@ class PlayerListPacket extends OutboundPacket{
 		return self::PLAYER_LIST_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->actionID);
 		$this->putVarInt(count($this->players));
 		foreach($this->players as $player){

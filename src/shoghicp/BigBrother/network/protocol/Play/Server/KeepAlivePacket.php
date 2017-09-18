@@ -40,7 +40,12 @@ class KeepAlivePacket extends OutboundPacket{
 		return self::KEEP_ALIVE_PACKET;
 	}
 
+<<<<<<< HEAD
 	public function encode() : void{
 		$this->putLong($this->id);
+=======
+	protected function encode() : void{
+		$this->putVarInt($this->id);
+>>>>>>> 18de5e8... fix access modifier of encode() / decode() methods of Packet class family
 	}
 }

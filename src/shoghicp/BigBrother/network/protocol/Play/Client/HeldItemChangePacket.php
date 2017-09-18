@@ -40,7 +40,7 @@ class HeldItemChangePacket extends InboundPacket{
 		return self::HELD_ITEM_CHANGE_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->selectedSlot = $this->getShort();
 	}
 }

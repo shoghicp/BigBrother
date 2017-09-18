@@ -42,7 +42,7 @@ class PluginMessagePacket extends OutboundPacket{
 		return self::PLUGIN_MESSAGE_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->channel);
 		//TODO
 	}

@@ -40,7 +40,7 @@ class LoginStartPacket extends InboundPacket{
 		return self::LOGIN_START_PACKET;
 	}
 
-	public function decode() : void{
+	protected function decode() : void{
 		$this->name = $this->getString();
 	}
 }

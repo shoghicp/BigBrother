@@ -40,7 +40,7 @@ class PlayDisconnectPacket extends OutboundPacket{
 		return self::PLAY_DISCONNECT_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putString($this->reason);
 	}
 }

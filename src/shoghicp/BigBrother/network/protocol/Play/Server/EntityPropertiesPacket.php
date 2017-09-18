@@ -42,7 +42,7 @@ class EntityPropertiesPacket extends OutboundPacket{
 		return self::ENTITY_PROPERTIES_PACKET;
 	}
 
-	public function encode() : void{
+	protected function encode() : void{
 		$this->putVarInt($this->eid);
 		$this->putInt(count($this->entries));
 		foreach($this->entries as $entry){
