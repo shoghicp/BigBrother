@@ -59,12 +59,12 @@ use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\DesktopChunk;
-use shoghicp\BigBrother\network\Info as CInfo; //Computer Edition
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\InboundPacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
@@ -175,9 +175,9 @@ class Translator{
 				$player->setSetting([
 					"Lang" => $packet->lang,
 					"View" => $packet->view,
-					"ChatMode" => $packet->chatmode,
-					"ChatColor" => $packet->chatcolor,
-					"SkinSettings" => $packet->skinsetting,
+					"ChatMode" => $packet->chatMode,
+					"ChatColor" => $packet->chatColor,
+					"SkinSettings" => $packet->skinSetting,
 				]);
 
 				return null;
@@ -583,54 +583,23 @@ class Translator{
 				$pk->entityRuntimeId = $player->getId();
 				return $pk;
 
-			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET://TODO: must fix it 
-				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
-				$blockReplace = $blockClicked->getSide($packet->direction);
+			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
+				$pk = new UseItemPacket();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->blockId = $player->getInventory()->getItemInHand()->getId();
+				$pk->face = $packet->direction;
+				$pk->item = $player->getInventory()->getItemInHand();
+				$pk->fx = $packet->cursorX;
+				$pk->fy = $packet->cursorY;
+				$pk->fz = $packet->cursorZ;
+				$pk->posX = $player->getX();
+				$pk->posY = $player->getY();
+				$pk->posZ = $player->getZ();
+				$pk->slot = $player->getInventory()->getHeldItemSlot();
 
-				$headY = ((int) floor($player->getY())) + 1;
-				$legY = (int) floor($player->getY());
-				$disallow = [
-					$player->getFloorX().":".$legY.":".$player->getFloorZ(),
-					$player->getFloorX().":".$headY.":".$player->getFloorZ()
-				];
-				$check = $blockReplace->getX().":".$blockReplace->getY().":".$blockReplace->getZ();
-
-				$allow = false;
-				if(!in_array($check, $disallow)){
-					$allow = true;
-				}
-
-				$allowItemId = [
-					Item::FLINT_STEEL,
-					Item::PAINTING,
-					Item::SPAWN_EGG,
-					Item::BUCKET,
-				];
-
-				if(!$allow and in_array($player->getInventory()->getItemInHand()->getId(), $allowItemId)){
-					$allow = true;
-				}
-
-				if($allow){
-					$pk = new UseItemPacket();
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
-					$pk->blockId = $player->getInventory()->getItemInHand()->getId();
-					$pk->face = $packet->direction;
-					$pk->item = $player->getInventory()->getItemInHand();
-					$pk->fx = $packet->cursorX;
-					$pk->fy = $packet->cursorY;
-					$pk->fz = $packet->cursorZ;
-					$pk->posX = $player->getX();
-					$pk->posY = $player->getY();
-					$pk->posZ = $player->getZ();
-					$pk->slot = $player->getInventory()->getHeldItemSlot();
-
-					return $pk;
-				}
-
-				return null;
+				return $pk;
 
 			case InboundPacket::USE_ITEM_PACKET:
 				$pk = new UseItemPacket();
@@ -1233,8 +1202,8 @@ class Translator{
 						$issoundeffect = true;
 						$category = 1;
 
-						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
-						if($blockId === 130){
+						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+						if($blockId === Block::ENDER_CHEST){
 							$name = "block.enderchest.open";
 						}else{
 							$name = "block.chest.open";
@@ -1244,8 +1213,8 @@ class Translator{
 						$issoundeffect = true;
 						$category = 1;
 
-						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
-						if($blockId === 130){
+						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+						if($blockId === Block::ENDER_CHEST){
 							$name = "block.enderchest.close";
 						}else{
 							$name = "block.chest.close";

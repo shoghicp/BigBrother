@@ -39,6 +39,6 @@ class KeepAlivePacket extends OutboundPacket{
 	}
 
 	public function encode(){
-		$this->putVarInt($this->id);
+		$this->putLong($this->id);
 	}
 }

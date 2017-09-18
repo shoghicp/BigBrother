@@ -188,8 +188,8 @@ class Session{
 				}
 				$data = [
 					"version" => [
-						"name" => Info::VERSION,
-						"protocol" => Info::PROTOCOL
+						"name" => ServerManager::VERSION,
+						"protocol" => ServerManager::PROTOCOL
 					],
 					"players" => [
 						"max" => $this->manager->getServerData()["MaxPlayers"],
@@ -226,13 +226,13 @@ class Session{
 					$this->status = 1;
 				}elseif($nextState === 2){
 					$this->status = -1;
-					if($protocol < Info::PROTOCOL){
+					if($protocol < ServerManager::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".Info::VERSION);
+						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".ServerManager::VERSION);
 						$this->writePacket($packet);
-					}elseif($protocol > Info::PROTOCOL){
+					}elseif($protocol > ServerManager::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".Info::VERSION);
+						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".ServerManager::VERSION);
 						$this->writePacket($packet);
 					}else{
 						$this->manager->openSession($this);

@@ -37,7 +37,7 @@ use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat;
 
 use phpseclib\Crypt\RSA;
-use shoghicp\BigBrother\network\Info as MCInfo;
+use shoghicp\BigBrother\network\ServerManager;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
@@ -114,7 +114,7 @@ class BigBrother extends PluginBase implements Listener{
 				$this->rsa->loadKey($this->privateKey);
 			}
 
-			$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".MCInfo::VERSION);
+			$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".ServerManager::VERSION);
 
 			$disable = true;
 			foreach($this->getServer()->getNetwork()->getInterfaces() as $interface){

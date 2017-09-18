@@ -34,8 +34,6 @@ use pocketmine\Player;
 use pocketmine\utils\MainLogger;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
-use shoghicp\BigBrother\network\Info; //Computer Edition
-use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
 use shoghicp\BigBrother\network\protocol\Login\LoginStartPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\AdvancementTabPacket;

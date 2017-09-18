@@ -39,6 +39,6 @@ class KeepAlivePacket extends InboundPacket{
 	}
 
 	public function decode(){
-		$this->id = $this->getVarInt();
+		$this->id = $this->getLong();
 	}
 }

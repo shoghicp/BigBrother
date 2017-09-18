@@ -32,13 +32,13 @@ use shoghicp\BigBrother\network\InboundPacket;
 class PlayerAbilitiesPacket extends InboundPacket{
 
 	/** @var bool */
-	public $damageDisabled;
+	public $damageDisabled = false;
 	/** @var bool */
-	public $canFly;
+	public $canFly = false;
 	/** @var bool */
 	public $isFlying = false;
 	/** @var bool */
-	public $isCreative;
+	public $isCreative = false;
 
 	/** @var float */
 	public $flyingSpeed;
@@ -50,35 +50,12 @@ class PlayerAbilitiesPacket extends InboundPacket{
 	}
 
 	public function decode(){
-		$flags = base_convert((string)$this->getByte(), 10, 2);
-		if(strlen($flags) !== 8){
-			$flags = str_repeat("0", 8 - strlen($flags)).$flags;
-		}
-		$flags = intval($flags);
+		$flags = $this->getByte();
 
-		if(($flags & 0x08) !== 0){
-			$this->damageDisabled = true;
-		}else{
-			$this->damageDisabled = false;
-		}
-
-		if(($flags & 0x04) !== 0){
-			$this->canFly = true;
-		}else{
-			$this->canFly = false;
-		}
-
-		if(($flags & 0x02) !== 0){
-			$this->isFlying = true;
-		}else{
-			$this->isFlying = false;
-		}
-
-		if(($flags & 0x01) !== 0){
-			$this->isCreative = true;
-		}else{
-			$this->isCreative = false;
-		}
+		$this->damageDisabled = ($flags & 0x08) !== 0;
+		$this->canFly = ($flags & 0x04) !== 0;
+		$this->isFlying = ($flags & 0x02) !== 0;
+		$this->isCreative = ($flags & 0x01) !== 0;
 
 		$this->flyingSpeed = $this->getFloat();
 		$this->walkingSpeed = $this->getFloat();
