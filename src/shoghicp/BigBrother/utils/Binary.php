@@ -100,7 +100,7 @@ class Binary extends \pocketmine\utils\Binary{
 						$nbt->read($item->getCompoundTag());
 						$nbt = $nbt->getData();
 
-						$m .= $ConvertUtils::convertNBTDataFromPEtoPC($nbt);
+						$m .= ConvertUtils::convertNBTDataFromPEtoPC($nbt);
 					}
 				break;
 				case 6://Boolean
