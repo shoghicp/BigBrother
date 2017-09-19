@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 use shoghicp\BigBrother\utils\Binary;
@@ -154,17 +156,23 @@ class ServerManager{
 		$this->process();
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getServerData() : array{
 		return $this->serverdata;
 	}
 
-	public function shutdown(){
+	public function shutdown() : void{
 		$this->thread->shutdown();
 		usleep(50000); //Sleep for 1 tick
 		//$this->thread->kill();
 	}
 
-	protected function processPacket(){
+	/**
+	 * @return bool false if there is no packet to process else true
+	 */
+	protected function processPacket() : bool{
 		@fread($this->fp, 1);
 		if(strlen($packet = $this->thread->readMainToThreadPacket()) > 0){
 			$pid = ord($packet{0});
@@ -248,20 +256,31 @@ class ServerManager{
 		return false;
 	}
 
-	public function sendPacket(int $id, string $buffer){
+	/**
+	 * @param int    $id
+	 * @param string $buffer
+	 */
+	public function sendPacket(int $id, string $buffer) : void{
 		$this->thread->pushThreadToMainPacket(chr(self::PACKET_SEND_PACKET) . Binary::writeInt($id) . $buffer);
 	}
 
-	public function openSession(Session $session){
+	/**
+	 * @param Session $session
+	 */
+	public function openSession(Session $session) : void{
 		$data = chr(self::PACKET_OPEN_SESSION) . Binary::writeInt($session->getID()) . chr(strlen($session->getAddress())) . $session->getAddress() . Binary::writeShort($session->getPort());
 		$this->thread->pushThreadToMainPacket($data);
 	}
 
-	protected function closeSession(int $id, int $flag){
+	/**
+	 * @param int $id
+	 * @param int $flag
+	 */
+	protected function closeSession(int $id, int $flag) : void{
 		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id).Binary::writeInt($flag));
 	}
 
-	private function process(){
+	private function process() : void{
 		while($this->shutdown !== true){
 			$sockets = $this->sockets;
 			$write = null;
@@ -297,7 +316,7 @@ class ServerManager{
 	/**
 	 * @param resource $s
 	 */
-	protected function findSocket($s){
+	protected function findSocket($s) : void{
 		foreach($this->sockets as $identifier => $socket){
 			if($identifier > 0 and $socket === $s){
 				$this->sessions[$identifier]->process();
@@ -306,7 +325,10 @@ class ServerManager{
 		}
 	}
 
-	public function close(Session $session){
+	/**
+	 * @param Session $session
+	 */
+	public function close(Session $session) : void{
 		$identifier = $session->getID();
 		fclose($this->sockets[$identifier]);
 		unset($this->sockets[$identifier]);

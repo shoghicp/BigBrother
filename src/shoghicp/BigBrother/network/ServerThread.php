@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 class ServerThread extends \Thread{
@@ -104,6 +106,10 @@ class ServerThread extends \Thread{
 		}
 	}
 
+	/**
+	 * @param array            &$loadPaths
+	 * @param \ReflectionClass $dep
+	 */
 	protected function addDependency(array &$loadPaths, \ReflectionClass $dep){
 		if($dep->getFileName() !== false){
 			$loadPaths[$dep->getName()] = $dep->getFileName();
@@ -118,6 +124,9 @@ class ServerThread extends \Thread{
 		}
 	}
 
+	/**
+	 * @return bool true if this thread state is shutdown
+	 */
 	public function isShutdown() : bool{
 		return $this->shutdown === true;
 	}
@@ -126,43 +135,52 @@ class ServerThread extends \Thread{
 		$this->shutdown = true;
 	}
 
+	/**
+	 * @return int port
+	 */
 	public function getPort() : int{
 		return $this->port;
 	}
 
+	/**
+	 * @return string interface
+	 */
 	public function getInterface() : string{
 		return $this->interface;
 	}
 
 	/**
-	 * @return \ThreadedLogger
+	 * @return \ThreadedLogger logger
 	 */
 	public function getLogger() : \ThreadedLogger{
 		return $this->logger;
 	}
 
 	/**
-	 * @return \Threaded
+	 * @return \Threaded external queue
 	 */
 	public function getExternalQueue() : \Threaded{
 		return $this->externalQueue;
 	}
 
 	/**
-	 * @return \Threaded
+	 * @return \Threaded internal queue
 	 */
 	public function getInternalQueue() : \Threaded{
 		return $this->internalQueue;
 	}
 
 	/**
-	 * @return resource
+	 * @return resource internal socket
 	 */
 	public function getInternalSocket(){
 		return $this->internalSocket;
 	}
 
-	public function pushMainToThreadPacket(string $str){
+	/**
+	 * @param string $str
+	 */
+	public function pushMainToThreadPacket(string $str) : string{
 		$this->internalQueue[] = $str;
 		@fwrite($this->externalSocket, "\xff", 1); //Notify
 	}
@@ -170,27 +188,33 @@ class ServerThread extends \Thread{
 	/**
 	 * @return string|null
 	 */
-	public function readMainToThreadPacket(){
+	public function readMainToThreadPacket() : ?string{
 		return $this->internalQueue->shift();
 	}
 
-	public function pushThreadToMainPacket(string $str){
+	/**
+	 * @param string $str
+	 */
+	public function pushThreadToMainPacket(string $str) : void{
 		$this->externalQueue[] = $str;
 	}
 
 	/**
 	 * @return string|null
 	 */
-	public function readThreadToMainPacket(){
+	public function readThreadToMainPacket() : ?string{
 		return $this->externalQueue->shift();
 	}
 
-	public function shutdownHandler(){
+	public function shutdownHandler() : void{
 		if($this->shutdown !== true){
 			$this->getLogger()->emergency("[ServerThread #". \Thread::getCurrentThreadId() ."] ServerThread crashed!");
 		}
 	}
 
+	/**
+	 * @override
+	 */
 	public function run(){
 		//Load removed dependencies, can't use require_once()
 		foreach($this->loadPaths as $name => $path){

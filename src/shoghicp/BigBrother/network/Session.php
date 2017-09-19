@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\utils\TextFormat;
@@ -56,8 +58,8 @@ class Session{
 
 	/**
 	 * @param ServerManager $manager
-	 * @param int $identifier
-	 * @param resource $socket
+	 * @param int           $identifier
+	 * @param resource      $socket
 	 */
 	public function __construct(ServerManager $manager, int $identifier, $socket){
 		$this->manager = $manager;
@@ -69,12 +71,18 @@ class Session{
 		$this->address = substr($addr, 0, $final);
 	}
 
-	public function setCompression(int $threshold){
+	/**
+	 * @param int $threshold
+	 */
+	public function setCompression(int $threshold) : void{
 		$this->writeRaw(Binary::writeComputerVarInt(0x03) . Binary::writeComputerVarInt($threshold >= 0 ? $threshold : -1));
 		$this->threshold = $threshold === -1 ? null : $threshold;
 	}
 
-	public function write(string $data){
+	/**
+	 * @param string $data
+	 */
+	public function write(string $data) : void{
 		if($this->encryptionEnabled){
 			@fwrite($this->socket, $this->aes->encrypt($data));
 		}else{
@@ -82,6 +90,10 @@ class Session{
 		}
 	}
 
+	/**
+	 * @param int $len
+	 * @return string data read from socket
+	 */
 	public function read(int $len) : string{
 		if($this->encryptionEnabled){
 			$data = @fread($this->socket, $len);
@@ -95,15 +107,24 @@ class Session{
 		}
 	}
 
+	/**
+	 * @return string address
+	 */
 	public function getAddress() : string{
 		return $this->address;
 	}
 
+	/**
+	 * @return int port
+	 */
 	public function getPort() : int{
 		return $this->port;
 	}
 
-	public function enableEncryption(string $secret){
+	/**
+	 * @param string $secret
+	 */
+	public function enableEncryption(string $secret) : void{
 		$this->aes = new AES();
 		$this->aes->enableContinuousBuffer();
 		$this->aes->setKey($secret);
@@ -112,7 +133,10 @@ class Session{
 		$this->encryptionEnabled = true;
 	}
 
-	public function writePacket(Packet $packet){
+	/**
+	 * @param Packet $packet
+	 */
+	public function writePacket(Packet $packet) : void{
 		$data = $packet->write();
 		if($this->threshold === null){
 			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
@@ -129,7 +153,10 @@ class Session{
 		}
 	}
 
-	public function writeRaw(string $data){
+	/**
+	 * @param string $data
+	 */
+	public function writeRaw(string $data) : void{
 		if($this->threshold === null){
 			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
 		}else{
@@ -145,7 +172,7 @@ class Session{
 		}
 	}
 
-	public function process(){
+	public function process() : void{
 		$length = Binary::readVarIntSession($this);
 		if($length === false or $this->status === -1){
 			$this->close("Connection closed");
@@ -247,11 +274,17 @@ class Session{
 		}
 	}
 
+	/**
+	 * @return int identifier
+	 */
 	public function getID() : int{
 		return $this->identifier;
 	}
 
-	public function close(string $reason = ""){
+	/**
+	 * @param string $reason
+	 */
+	public function close(string $reason = "") : void{
 		$this->manager->close($this);
 	}
 }

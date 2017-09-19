@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -90,6 +92,12 @@ class ProtocolInterface implements SourceInterface{
 	/** @var int */
 	private $threshold;
 
+	/**
+	 * @param BigBrother $plugin
+	 * @param Server     $server
+	 * @param Translator $translator
+	 * @param int        $threshold
+	 */
 	public function __construct(BigBrother $plugin, Server $server, Translator $translator, int $threshold){
 		$this->plugin = $plugin;
 		$this->server = $server;
@@ -99,18 +107,31 @@ class ProtocolInterface implements SourceInterface{
 		$this->sessions = new \SplObjectStorage();
 	}
 
+	/**
+	 * @override
+	 */
 	public function start(){
 		$this->thread->start();
 	}
 
+	/**
+	 * @override
+	 */
 	public function emergencyShutdown(){
 		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_EMERGENCY_SHUTDOWN));
 	}
 
+	/**
+	 * @override
+	 */
 	public function shutdown(){
 		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
 	}
 
+	/**
+	 * @param string $name
+	 * @override
+	 */
 	public function setName(string $name){
 		$info = $this->plugin->getServer()->getQueryInformation();
 		$value = [
@@ -121,6 +142,9 @@ class ProtocolInterface implements SourceInterface{
 		$this->thread->pushMainToThreadPacket($buffer);
 	}
 
+	/**
+	 * @param int $identifier
+	 */
 	public function closeSession(int $identifier){
 		if(isset($this->sessionsPlayers[$identifier])){
 			$player = $this->sessionsPlayers[$identifier];
@@ -129,6 +153,11 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @param Player $player
+	 * @param string $reason
+	 * @override
+	 */
 	public function close(Player $player, string $reason = "unknown reason"){
 		if(isset($this->sessions[$player])){
 			$identifier = $this->sessions[$player];
@@ -140,6 +169,10 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @param int    $target
+	 * @param Packet $packet
+	 */
 	protected function sendPacket(int $target, Packet $packet){
 		if(\pocketmine\DEBUG > 3){
 			$id = bin2hex(chr($packet->pid()));
@@ -152,6 +185,9 @@ class ProtocolInterface implements SourceInterface{
 		$this->thread->pushMainToThreadPacket($data);
 	}
 
+	/**
+	 * @param DesktopPlayer $player
+	 */
 	public function setCompression(DesktopPlayer $player){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
@@ -160,6 +196,10 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param string        $secret
+	 */
 	public function enableEncryption(DesktopPlayer $player, string $secret){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
@@ -168,6 +208,10 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param Packet        $packet
+	 */
 	public function putRawPacket(DesktopPlayer $player, Packet $packet){
 		if(isset($this->sessions[$player])){
 			$target = $this->sessions[$player];
@@ -175,6 +219,15 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @param Player     $player
+	 * @param DataPacket $packet
+	 * @param bool       $needACK
+	 * @param bool       $immediate
+	 *
+	 * @return int|null identifier if $needAck === false else null
+	 * @override
+	 */
 	public function putPacket(Player $player, DataPacket $packet, bool $needACK = false, bool $immediate = true){
 		$id = 0;
 		if($needACK){
@@ -197,6 +250,10 @@ class ProtocolInterface implements SourceInterface{
 		return $id;
 	}
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param Packet        $packet
+	 */
 	protected function receivePacket(DesktopPlayer $player, Packet $packet){
 		$packets = $this->translator->interfaceToServer($player, $packet);
 		if($packets !== null){
@@ -210,6 +267,10 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param string        $payload
+	 */
 	protected function handlePacket(DesktopPlayer $player, string $payload){
 		if(\pocketmine\DEBUG > 3){
 			$id = bin2hex(chr(ord($payload{0})));
@@ -327,6 +388,10 @@ class ProtocolInterface implements SourceInterface{
 		}
 	}
 
+	/**
+	 * @return bool
+	 * @override
+	 */
 	public function process() : bool{
 		if(count($this->identifiers) > 0){
 			foreach($this->identifiers as $id => $player){
@@ -345,7 +410,6 @@ class ProtocolInterface implements SourceInterface{
 					$payload = substr($buffer, $offset);
 					try{
 						$this->handlePacket($this->sessionsPlayers[$id], $payload);
-
 					}catch(\Exception $e){
 						if(\pocketmine\DEBUG > 1){
 							$logger = $this->server->getLogger();

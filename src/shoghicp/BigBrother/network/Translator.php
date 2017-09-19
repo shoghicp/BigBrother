@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\Achievement;
@@ -247,7 +249,7 @@ class Translator{
 					$pk->yaw = $player->yaw;
 					$pk->pitch = $player->pitch;
 					$pk->onGround = $player->isOnGround();
-					
+
 					$player->putRawPacket($pk);
 
 					return null;
@@ -286,7 +288,7 @@ class Translator{
 					$pk->yaw = $player->yaw;
 					$pk->pitch = $player->pitch;
 					$pk->onGround = $player->isOnGround();
-					
+
 					$player->putRawPacket($pk);
 
 					return null;
@@ -325,7 +327,7 @@ class Translator{
 					$pk->yaw = $player->yaw;
 					$pk->pitch = $player->pitch;
 					$pk->onGround = $player->isOnGround();
-					
+
 					$player->putRawPacket($pk);
 
 					return null;
