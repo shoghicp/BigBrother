@@ -549,7 +549,7 @@ class ConvertUtils{
 				$nbt = new CompoundTag($name, $tags);
 			break;
 			case NBT::TAG_IntArray:
-				$nbt = new IntArrayTag($name, unpack("N*", ...$stream->get($stream->getInt())));
+				$nbt = new IntArrayTag($name, unpack("N*", $stream->get($stream->getInt()*4)));
 			break;
 		}
 
