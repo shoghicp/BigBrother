@@ -43,7 +43,7 @@ class SelectAdvancementTabPacket extends OutboundPacket{
 	}
 
 	protected function encode() : void{
-		$this->putByte($this->hasTab > 0);
+		$this->putByte($this->hasTab > 0 ? 1 : 0);
 		if($this->hasTab){
 			$this->putString($this->tabId);
 		}

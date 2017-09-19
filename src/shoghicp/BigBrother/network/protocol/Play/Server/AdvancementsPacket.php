@@ -91,7 +91,7 @@ class AdvancementsPacket extends OutboundPacket{
 			$this->putVarInt(count($progressdata[1]));//Criteria size
 			foreach($progressdata[1] as $criterion){
 				$this->putString($criterion[0]);//criyeria id
-				$this->putByte($criterion[1][0] > 0);//
+				$this->putByte($criterion[1][0] > 0 ? 1 : 0);//
 				if($criterion[1][0]){
 					$this->putLong($criterion[1][1]);//time
 				}

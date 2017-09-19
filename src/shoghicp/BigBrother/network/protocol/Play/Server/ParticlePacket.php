@@ -62,7 +62,7 @@ class ParticlePacket extends OutboundPacket{
 
 	protected function encode() : void{
 		$this->putInt($this->id);
-		$this->putByte($this->longDistance > 0);
+		$this->putByte($this->longDistance > 0 ? 1 : 0);
 		$this->putFloat($this->x);
 		$this->putFloat($this->y);
 		$this->putFloat($this->z);
