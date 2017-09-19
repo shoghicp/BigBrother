@@ -180,7 +180,7 @@ class ServerThread extends \Thread{
 	/**
 	 * @param string $str
 	 */
-	public function pushMainToThreadPacket(string $str) : string{
+	public function pushMainToThreadPacket(string $str) : void{
 		$this->internalQueue[] = $str;
 		@fwrite($this->externalSocket, "\xff", 1); //Notify
 	}

@@ -31,6 +31,7 @@ namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use pocketmine\nbt\tag\Tag;
 
 class UpdateBlockEntityPacket extends OutboundPacket{
 
@@ -42,8 +43,8 @@ class UpdateBlockEntityPacket extends OutboundPacket{
 	public $z;
 	/** @var int */
 	public $actionID;
-	/** @var string */
-	public $namedtag = "";
+	/** @var Tag */
+	public $namedtag;
 
 	public function pid() : int{
 		return self::UPDATE_BLOCK_ENTITY_PACKET;
