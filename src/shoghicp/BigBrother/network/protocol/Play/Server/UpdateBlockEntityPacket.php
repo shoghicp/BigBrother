@@ -52,8 +52,6 @@ class UpdateBlockEntityPacket extends OutboundPacket{
 	protected function encode() : void{
 		$this->putPosition($this->x, $this->y, $this->z);
 		$this->putByte($this->actionID);
-
-		ConvertUtils::convertNBTData(true, $this->namedtag);
-		$this->put($this->namedtag);
+		$this->put(ConvertUtils::convertNBTDataFromPEtoPC($this->namedtag));
 	}
 }

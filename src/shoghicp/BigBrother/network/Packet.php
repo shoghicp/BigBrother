@@ -94,8 +94,7 @@ abstract class Packet extends \stdClass{
 			$damage = $this->getShort();
 			$nbt = $this->get(true);
 
-			ConvertUtils::convertNBTData(false, $nbt);
-
+			$nbt = ConvertUtils::convertNBTDataFromPCtoPE($nbt);
 			$item = new ComputerItem($itemId, $damage, $count, $nbt);
 
 			ConvertUtils::convertItemData(false, $item);
@@ -118,8 +117,7 @@ abstract class Packet extends \stdClass{
 			$nbt->read($item->getCompoundTag());
 			$nbt = $nbt->getData();
 
-			ConvertUtils::convertNBTData(true, $nbt);
-			$this->put($nbt);
+			$this->put(ConvertUtils::convertNBTDataFromPEtoPC($nbt));
 		}
 	}
 

@@ -80,8 +80,7 @@ class ChunkDataPacket extends OutboundPacket{
 				unset($blockEntity["mData"]);
 			}
 
-			ConvertUtils::convertNBTData(true, $blockEntity);
-			$this->put($blockEntity);
+			$this->put(ConvertUtils::convertNBTDataFromPEtoPC($blockEntity));
 		}
 	}
 }
