@@ -48,6 +48,7 @@ use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\Tag;
 use pocketmine\utils\BinaryStream;
+use pocketmine\utils\Binary;
 use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 
@@ -430,7 +431,7 @@ class ConvertUtils{
 				$stream->putFloat($nbt->getValue());
 			break;
 			case NBT::TAG_Double:
-				$stream->put(pack("d", $nbt->getValue()));
+				$stream->put(Binary::writeDouble($nbt->getValue()));
 			break;
 			case NBT::TAG_ByteArray:
 				$stream->putInt(strlen($nbt->getValue()));
@@ -510,7 +511,7 @@ class ConvertUtils{
 				$nbt = new FloatTag($name, $stream->getFloat());
 			break;
 			case NBT::TAG_Double:
-				$nbt = new DoubleTag($name, unpack("d", $stream->get(4)));
+				$nbt = new DoubleTag($name, Binary::readDouble($stream->get(8)));
 			break;
 			case NBT::TAG_ByteArray:
 				$nbt = new ByteArrayTag($name, $stream->get($stream->getInt()));
