@@ -205,9 +205,9 @@ class InventoryUtils{
 
 			unset($this->windowInfo[$packet->windowid]);
 		}else{
-			if($packet->windowID !== ContainerIds::INVENTORY){//Player Inventory
+			if($packet->windowid !== ContainerIds::INVENTORY){//Player Inventory
 				$pk = new ContainerClosePacket();
-				$pk->windowid = $packet->windowID;
+				$pk->windowid = $packet->windowid;
 			}else{
 				return null;
 			}
