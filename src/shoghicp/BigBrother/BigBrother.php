@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother;
 
 use pocketmine\plugin\PluginBase;
@@ -53,17 +55,24 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var RSA */
 	protected $rsa;
 
+	/** @var string */
 	protected $privateKey;
 
+	/** @var string */
 	protected $publicKey;
 
+	/** @var bool */
 	protected $onlineMode;
 
 	/** @var Translator */
 	protected $translator;
 
+	/** @var DesktopPlayer[] */
 	protected static $playerList = [];
 
+	/**
+	 * @override
+	 */
 	public function onEnable(){
 		ConvertUtils::init();
 
@@ -132,16 +141,25 @@ class BigBrother extends PluginBase implements Listener{
 		}
 	}
 
-	public function getIp(){
-		return $this->getConfig()->get("interface");
+	/**
+	 * @return string ip address
+	 */
+	public function getIp() : string{
+		return (string)$this->getConfig()->get("interface");
 	}
 
-	public function getPort(){
-		return (int) $this->getConfig()->get("port");
+	/**
+	 * @return int port
+	 */
+	public function getPort() : int{
+		return (int)$this->getConfig()->get("port");
 	}
 
-	public function getMotd(){
-		return (string) $this->getConfig()->get("motd");
+	/**
+	 * @return string motd
+	 */
+	public function getMotd() : string{
+		return (string)$this->getConfig()->get("motd");
 	}
 
 	/**
@@ -151,15 +169,22 @@ class BigBrother extends PluginBase implements Listener{
 		return $this->onlineMode;
 	}
 
-	public function getASN1PublicKey(){
+	/**
+	 * @return string ASN1 Public Key
+	 */
+	public function getASN1PublicKey() : string{
 		$key = explode("\n", $this->publicKey);
 		array_pop($key);
 		array_shift($key);
 		return base64_decode(implode(array_map("trim", $key)));
 	}
 
-	public function decryptBinary($secret){
-		return $this->rsa->decrypt($secret);
+	/**
+	 * @param string $cipher cipher text
+	 * @return string plain text
+	 */
+	public function decryptBinary($cipher) : string{
+		return $this->rsa->decrypt($cipher);
 	}
 
 	/**
@@ -167,7 +192,7 @@ class BigBrother extends PluginBase implements Listener{
 	 *
 	 * @priority NORMAL
 	 */
-	public function onRespawn(PlayerRespawnEvent $event){
+	public function onRespawn(PlayerRespawnEvent $event) : void{
 		$player = $event->getPlayer();
 		if($player instanceof DesktopPlayer and $player->getHealth() === 0){
 			$pk = new RespawnPacket();
@@ -186,7 +211,7 @@ class BigBrother extends PluginBase implements Listener{
 	 *
 	 * @priority NORMAL
 	 */
-	public function onPlace(BlockPlaceEvent $event){
+	public function onPlace(BlockPlaceEvent $event) : void{
 		$player = $event->getPlayer();
 		$block = $event->getBlock();
 		if($player instanceof DesktopPlayer){
@@ -217,7 +242,14 @@ class BigBrother extends PluginBase implements Listener{
 		}
 	}
 
-	public static function toJSON($message, $source = "", $type = 1, $parameters = null){
+	/**
+	 * @param ?string $message
+	 * @param ?string $source
+	 * @param int     $type
+	 * @param ?array  $parameters
+	 * @return string
+	 */
+	public static function toJSON(?string $message, ?string $source = "", int $type = 1, ?array $parameters = null) : string{
 		if($source === null){
 			$source = "";
 		}
@@ -247,7 +279,7 @@ class BigBrother extends PluginBase implements Listener{
 					$with = &$result;
 				}
 
-				if(count($parameters) > 0){
+				if($parameters !== null && count($parameters) > 0){
 					if($with["translate"] === "commands.gamemode.success.self"){//Patch :(
 						$parameters = [$parameters[2]];
 					}elseif($with["translate"] === "commands.gamemode.success.other"){
@@ -268,7 +300,7 @@ class BigBrother extends PluginBase implements Listener{
 				}
 
 				if($with["translate"] === "gameMode.changed"){//Patch :(
-					if(count($parameters) > 0){
+					if($parameters !== null && count($parameters) > 0){
 						$with["with"][] = ["translate" => str_replace("%", "", $parameters[0])];
 					}else{
 						$with["with"][] = ["text" => "select gamemode"];
@@ -293,22 +325,27 @@ class BigBrother extends PluginBase implements Listener{
 		return $result;
 	}
 
-	public static function addPlayerList(DesktopPlayer $player){
+	/**
+	 * @param DesktopPlayer $player
+	 */
+	public static function addPlayerList(DesktopPlayer $player) : void{
 		self::$playerList[$player->getName()] = $player;
 	}
 
-	public static function removePlayerList(DesktopPlayer $player){
+	/**
+	 * @param DesktopPlayer $player
+	 */
+	public static function removePlayerList(DesktopPlayer $player) : void{
 		if(isset(self::$playerList[$player->getName()])){
 			unset(self::$playerList[$player->getName()]);
 		}
 	}
 
-	public static function getPlayerList($username){
-		if(isset(self::$playerList[$username])){
-			return self::$playerList[$username];
-		}
-
-		return null;
+	/**
+	 * @param string $username
+	 * @return DesktopPlayer|null corresponding player when username equals $username else null
+	 */
+	public static function getPlayerList(string $username) : ?DesktopPlayer{
+		return self::$playerList[$username] ?? null;
 	}
-
 }

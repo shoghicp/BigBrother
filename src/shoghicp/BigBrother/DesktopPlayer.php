@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother;
 
 use pocketmine\Achievement;
@@ -78,7 +80,7 @@ class DesktopPlayer extends Player{
 	private $bigbrother_clientId;
 	/** @var int */
 	private $bigBrother_dimension;
-	/** @var array */
+	/** @var string[] */
 	private $bigBrother_entitylist = [];
 	/** @var InventoryUtils */
 	private $inventoryutils;
@@ -89,6 +91,13 @@ class DesktopPlayer extends Player{
 	/** @var BigBrother */
 	protected $plugin;
 
+	/**
+	 * @param SourceInterface $interface
+	 * @param string          $clientID
+	 * @param string          $address
+	 * @param int             $port
+	 * @param BigBrother      $plugin
+	 */
 	public function __construct(SourceInterface $interface, string $clientID, string $address, int $port, BigBrother $plugin){
 		$this->plugin = $plugin;
 		$this->bigbrother_clientId = $clientID;
@@ -96,18 +105,31 @@ class DesktopPlayer extends Player{
 		$this->inventoryutils = new InventoryUtils($this);
 	}
 
+	/**
+	 * @return InventoryUtils
+	 */
 	public function getInventoryUtils() : InventoryUtils{
 		return $this->inventoryutils;
 	}
 
-	public function dropItemNaturally($item){
+	/**
+	 * @param Item $item
+	 */
+	public function dropItemNaturally(Item $item) : void{
 		$this->getLevel()->dropItem($this->add(0, 1.3, 0), $item, $this->getDirectionVector()->multiply(0.4), 40);
 	}
 
+	/**
+	 * @return int dimension
+	 */
 	public function bigBrother_getDimension() : int{
 		return $this->bigBrother_dimension;
 	}
 
+	/**
+	 * @param int $level_dimension
+	 * @return int dimension of pc version converted from $level_dimension
+	 */
 	public function bigBrother_getDimensionPEToPC(int $level_dimension) : int{
 		switch($level_dimension){
 			case 0://Overworld
@@ -124,12 +146,20 @@ class DesktopPlayer extends Player{
 		return $dimension;
 	}
 
-	public function bigBrother_addEntityList(int $eid, string $entitytype){
+	/**
+	 * @param int    $eid
+	 * @param string $entitytype
+	 */
+	public function bigBrother_addEntityList(int $eid, string $entitytype) : void{
 		if(!isset($this->bigBrother_entitylist[$eid])){
 			$this->bigBrother_entitylist[$eid] = $entitytype;
 		}
 	}
 
+	/**
+	 * @param int $eid
+	 * @return string
+	 */
 	public function bigBrother_getEntityList(int $eid) : string{
 		if(isset($this->bigBrother_entitylist[$eid])){
 			return $this->bigBrother_entitylist[$eid];
@@ -137,51 +167,85 @@ class DesktopPlayer extends Player{
 		return "generic";
 	}
 
-	public function bigBrother_removeEntityList(int $eid){
+	/**
+	 * @param int $eid
+	 */
+	public function bigBrother_removeEntityList(int $eid) : void{
 		if(isset($this->bigBrother_entitylist[$eid])){
 			unset($this->bigBrother_entitylist[$eid]);
 		}
 	}
 
+	/**
+	 * @return int status
+	 */
 	public function bigBrother_getStatus() : int{
 		return $this->bigBrother_status;
 	}
 
+	/**
+	 * @return array properties
+	 */
 	public function bigBrother_getProperties() : array{
 		return $this->bigBrother_properties;
 	}
 
+	/**
+	 * @return string uuid
+	 */
 	public function bigBrother_getUniqueId() : string{
 		return $this->bigBrother_uuid;
 	}
 
+	/**
+	 * @return string formatted uuid
+	 */
 	public function bigBrother_getformatedUUID() : string{
 		return $this->bigBrother_formatedUUID;
 	}
 
+	/**
+	 * @return array settings
+	 */
 	public function getSettings() : array{
 		return $this->Settings;
 	}
 
+	/**
+	 * @param string $settingname
+	 * @return
+	 */
 	public function getSetting(string $settingname){
 		return $this->Settings[$settingname] ?? false;
 	}
 
-	public function setSetting(array $settings){
+	/**
+	 * @param array $settings
+	 */
+	public function setSetting(array $settings) : void{
 		$this->Settings = array_merge($this->Settings, $settings);
 	}
 
-	public function removeSetting(string $settingname){
+	/**
+	 * @param string $settingname
+	 */
+	public function removeSetting(string $settingname) : void{
 		if(isset($this->Settings[$settingname])){
 			unset($this->Settings[$settingname]);
 		}
 	}
 
-	public function cleanSetting(string $settingname){
+	/**
+	 * @param string $settingname
+	 */
+	public function cleanSetting(string $settingname) : void{
 		unset($this->Settings[$settingname]);
 	}
 
-	public function sendAdvancements($first = false){
+	/**
+	 * @param bool $first
+	 */
+	public function sendAdvancements(bool $first = false) : void{
 		$pk = new AdvancementsPacket();
 		$pk->advancements = [
 			[
@@ -218,7 +282,14 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	private function unloadChunk(int $x, int $z, Level $level = null){
+	/**
+	 * TODO note that this method overriding parent private method!!
+	 * @param int    $x
+	 * @param int    $z
+	 * @param ?Level $level
+	 * @override
+	 */
+	private function unloadChunk(int $x, int $z, ?Level $level = null){
 		parent::unloadChunk($x, $z, $level);
 
 		$pk = new UnloadChunkPacket();
@@ -228,7 +299,7 @@ class DesktopPlayer extends Player{
 		$this->putRawPacket($pk);
 	}
 
-	public function bigBrother_respawn(){
+	public function bigBrother_respawn() : void{
 		$pk = new PlayerPositionAndLookPacket();
 		$pk->x = $this->getX();
 		$pk->y = $this->getY();
@@ -255,7 +326,11 @@ class DesktopPlayer extends Player{
 		$this->usedChunks = [];
 	}
 
-	public function bigBrother_authenticate(string $uuid, array $onlineModeData = null){
+	/**
+	 * @param string $uuid
+	 * @param ?array $onlineModeData
+	 */
+	public function bigBrother_authenticate(string $uuid, ?array $onlineModeData = null) : void{
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
 			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
@@ -274,6 +349,7 @@ class DesktopPlayer extends Player{
 			}
 
 			$skin = false;
+			$skindata = null;
 			foreach($this->bigBrother_properties as $property){
 				if($property["name"] === "textures"){
 					$skindata = json_decode(base64_decode($property["value"]), true);
@@ -297,7 +373,7 @@ class DesktopPlayer extends Player{
 				}
 				$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
 			}else{
-				if(!isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
+				if($skindata !== null && !isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
 					$pk->skinId = "Standard_Custom";
 				}else{
 					$pk->skinId = "Standard_CustomSlim";
@@ -351,7 +427,11 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function bigBrother_processAuthentication(BigBrother $plugin, EncryptionResponsePacket $packet){
+	/**
+	 * @param BigBrother $plugin
+	 * @param EncryptionResponsePacket $packet
+	 */
+	public function bigBrother_processAuthentication(BigBrother $plugin, EncryptionResponsePacket $packet) : void{
 		$this->bigBrother_secret = $plugin->decryptBinary($packet->sharedSecret);
 		$token = $plugin->decryptBinary($packet->verifyToken);
 		$this->interface->enableEncryption($this, $this->bigBrother_secret);
@@ -362,7 +442,12 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	public function bigBrother_handleAuthentication(BigBrother $plugin, string $username, bool $onlineMode = false){
+	/**
+	 * @param BigBrother $plugin
+	 * @param string $username
+	 * @param bool $onlineMode
+	 */
+	public function bigBrother_handleAuthentication(BigBrother $plugin, string $username, bool $onlineMode = false) : void{
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_username = $username;
 			if($onlineMode){
@@ -398,7 +483,11 @@ class DesktopPlayer extends Player{
 		return $info;
 	}
 
-	public function getAuthenticateOnline(string $username, string $hash){
+	/**
+	 * @param string $username
+	 * @param string $hash
+	 */
+	public function getAuthenticateOnline(string $username, string $hash) : void{
 		$result = json_decode(Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$username."&serverId=".$hash, 5), true);
 		if(is_array($result) and isset($result["id"])){
 			$this->bigBrother_authenticate($result["id"], $result["properties"]);
@@ -409,7 +498,7 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * @param string $url
-	 * @return string|bool|null
+	 * @return string|bool|null sking image
 	 */
 	public function getSkinImage(string $url){
 		if(extension_loaded("gd")){
@@ -463,6 +552,7 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
+	 * @param DataPacket $packet
 	 * @override
 	 */
 	public function handleDataPacket(DataPacket $packet){
@@ -481,7 +571,10 @@ class DesktopPlayer extends Player{
 		$timings->stopTiming();
 	}
 
-	public function putRawPacket(Packet $packet){
+	/**
+	 * @param Packet $packet
+	 */
+	public function putRawPacket(Packet $packet) : void{
 		$this->interface->putRawPacket($this, $packet);
 	}
 }

@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother;
 
 use pocketmine\level\Level;
@@ -51,6 +53,11 @@ class DesktopChunk{
 	/** @var string */
 	private $data;
 
+	/**
+	 * @param DesktopPlayer $player
+	 * @param int           $chunkX
+	 * @param int           $chunkZ
+	 */
 	public function __construct(DesktopPlayer $player, int $chunkX, int $chunkZ){
 		$this->player = $player;
 		$this->chunkX = $chunkX;
@@ -61,6 +68,9 @@ class DesktopChunk{
 		$this->data = $this->generateChunk();
 	}
 
+	/**
+	 * @return string generated chunk data
+	 */
 	public function generateChunk() : string{
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
@@ -138,18 +148,30 @@ class DesktopChunk{
 		return $payload;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isGroundUp() : bool{
 		return $this->groundup;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getBitMapData() : int{
 		return $this->bitmap;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getBiomesData() : string{
 		return $this->biomes;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getChunkData() : string{
 		return $this->data;
 	}

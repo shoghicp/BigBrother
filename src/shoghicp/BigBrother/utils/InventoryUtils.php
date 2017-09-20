@@ -25,10 +25,16 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\utils;
 
+use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
+use pocketmine\network\mcpe\protocol\ContainerSetContentPacket;
+use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\WindowTypes;
 
@@ -40,30 +46,50 @@ use pocketmine\item\Item;
 use pocketmine\inventory\InventoryHolder;
 
 use shoghicp\BigBrother\BigBrother;
+use shoghicp\BigBrother\DesktopPlayer;
+use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetSlotPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\WindowItemsPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CollectItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClickWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CreativeInventoryActionPacket;
 
 class InventoryUtils{
+
+	/** @var DesktopPlayer */
 	private $player;
+	/** @var array */
 	private $windowInfo = [];
+	/** @var array */
 	private $craftInfoData = [];
+
+	/** @var array */
 	private $windowData = [
 		WindowTypes::CONTAINER => [],
 		WindowTypes::WORKBENCH => [],
 		WindowTypes::FURNACE => [],
 	];
+
+	/** @var Item */
 	private $playerHeldItem = null;
+	/** @var int */
 	private $playerHeldItemSlot = -1;
+	/** @var Item[] */
 	private $playerCraftSlot = [];
+	/** @var Item[] */
 	private $playerArmorSlot = [];
+	/** @var Item[] */
 	private $playerInventorySlot = [];
+	/** @var Item[] */
 	private $playerHotbarSlot = [];
 
-	public function __construct($player){
+	/**
+	 * @param DesktopPlayer $player
+	 */
+	public function __construct(DesktopPlayer $player){
 		$this->player = $player;
 
 		$this->playerCraftSlot = array_fill(0, 5, Item::get(Item::AIR));
@@ -73,9 +99,11 @@ class InventoryUtils{
 		$this->playerHeldItem = Item::get(Item::AIR);
 	}
 
-	/* easy call function */
-
-	public function getInventory(array $items){
+	/**
+	 * @param Item[] $items
+	 * @return Item[]
+	 */
+	public function getInventory(array $items) : array{
 		foreach($this->playerInventorySlot as $item){
 			$items[] = $item;
 		}
@@ -83,7 +111,11 @@ class InventoryUtils{
 		return $items;
 	}
 
-	public function getHotbar(array $items){
+	/**
+	 * @param Item[] $items
+	 * @return Item[]
+	 */
+	public function getHotbar(array $items) : array{
 		foreach($this->playerHotbarSlot as $item){
 			$items[] = $item;
 		}
@@ -91,9 +123,11 @@ class InventoryUtils{
 		return $items;
 	}
 
-
-
-	public function onWindowOpen($packet){
+	/**
+	 * @param ContainerOpenPacket $packet
+	 * @return OutboundPacket|null
+	 */
+	public function onWindowOpen(ContainerOpenPacket $packet) : ?OutboundPacket{
 		$type = "";
 		switch($packet->type){
 			case WindowTypes::CONTAINER:
@@ -151,7 +185,12 @@ class InventoryUtils{
 		return $pk;
 	}
 
-	public function onWindowClose($isserver, $packet){
+	/**
+	 * @param bool $isserver
+	 * @param ContainerClosePacket $packet
+	 * @return OutboundPacket|null
+	 */
+	public function onWindowClose(bool $isserver, ContainerClosePacket $packet) : ?OutboundPacket{
 		foreach($this->playerCraftSlot as $num => $item){
 			$this->player->dropItemNaturally($item);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
@@ -177,7 +216,11 @@ class InventoryUtils{
 		return $pk;
 	}
 
-	public function onWindowSetSlot($packet){
+	/**
+	 * @param ContainerSetSlotPacket $packet
+	 * @return OutboundPacket|null
+	 */
+	public function onWindowSetSlot(ContainerSetSlotPacket $packet) : ?OutboundPacket{
 		$pk = new SetSlotPacket();
 		$pk->windowID = $packet->windowid;
 
@@ -228,7 +271,13 @@ class InventoryUtils{
 		return null;
 	}
 
-	public function onWindowSetContent($packet){
+	/**
+	 * @param ContainerSetContentPacket $packet
+	 * @return OutboundPacket[]
+	 */
+	public function onWindowSetContent(ContainerSetContentPacket $packet) : array{
+		$packets = [];
+
 		switch($packet->windowid){
 			case ContainerIds::INVENTORY:
 				$pk = new WindowItemsPacket();
@@ -270,11 +319,9 @@ class InventoryUtils{
 				$this->playerInventorySlot = $inventory;
 				$this->playerHotbarSlot = $hotbar;
 
-				return $pk;
+				$packets[] = $pk;
 			break;
 			case ContainerIds::ARMOR:
-				$packets = [];
-
 				foreach($packet->slots as $slot => $item){
 					$pk = new SetSlotPacket();
 					$pk->windowID = ContainerIds::INVENTORY;
@@ -285,8 +332,6 @@ class InventoryUtils{
 				}
 
 				$this->playerArmorSlot = $packet->slots;
-
-				return $packets;
 			break;
 			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
@@ -301,17 +346,21 @@ class InventoryUtils{
 					$pk->items = $this->getInventory($pk->items);
 					$pk->items = $this->getHotbar($pk->items);
 
-					return $pk;
+					$packets[] = $pk;
 				}
 
 				echo "[InventoryUtils] ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
 			break;
 		}
 
-		return null;
+		return $packets;
 	}
 
-	public function onWindowClick($packet){
+	/**
+	 * @param ClickWindowPacket $packet
+	 * @return DataPacket[]
+	 */
+	public function onWindowClick(ClickWindowPacket $packet) : array{
 		$item = $packet->clickedItem;
 
 		$accepted = false;
@@ -523,7 +572,11 @@ class InventoryUtils{
 		return $packets;
 	}
 
-	public function onCreativeInventoryAction($packet){
+	/**
+	 * @param CreativeInventoryActionPacket $packet
+	 * @return DataPacket|null
+	 */
+	public function onCreativeInventoryAction(CreativeInventoryActionPacket $packet) : ?DataPacket{
 		if($packet->slot === 65535){
 			foreach($this->player->getInventory()->getContents() as $slot => $item){
 				if($item->equals($packet->item, true, true)){
@@ -557,10 +610,16 @@ class InventoryUtils{
 		return null;
 	}
 
-	public function onTakeItemEntity($packet){
+	/**
+	 * @param TakeItemEntityPacket $packet
+	 * @return OutboundPacket|null
+	 */
+	public function onTakeItemEntity(TakeItemEntityPacket $packet) : ?OutboundPacket{
 		$itemCount = 1;
 		$item = Item::get(0);
-		if(($entity = $this->player->getLevel()->getEntity($packet->target)) instanceof ItemEntity){
+
+		$entity = $this->player->getLevel()->getEntity($packet->target);
+		if($entity instanceof ItemEntity){
 			$item = $entity->getItem();
 			$itemCount = $item->getCount();
 		}
@@ -600,12 +659,14 @@ class InventoryUtils{
 		return null;
 	}
 
-	public function onCraft(){
-
+	public function onCraft() : void{
+		//TODO implement me!!
 	}
 
-	public function setCraftInfoData($craftInfoData){
+	/**
+	 * @param array $craftInfoData
+	 */
+	public function setCraftInfoData(array $craftInfoData) : void{
 		$this->craftInfoData = $craftInfoData;
 	}
-
 }
