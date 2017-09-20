@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\utils;
 
 use pocketmine\item\Item;
@@ -53,9 +55,12 @@ use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{
+	/** @var TimingsHandler */
 	private static $timingConvertItem;
+	/** @var TimingsHandler */
 	private static $timingConvertBlock;
 
+	/** @var array */
 	private static $idlist = [
 		//************** ITEMS ***********//
 		[
@@ -360,13 +365,57 @@ class ConvertUtils{
 		],
 		*/
 	];
+
+	/** @var array */
 	private static $idlistIndex = [
 		[/* Index for PE => PC */],
 		[/* Index for PC => PE */],
 	];
 
+	/** @var array */
+	private static $spawnEggList = [
+		10 => "minecraft:chicken",
+		11 => "minecraft:cow",
+		12 => "minecraft:pig",
+		13 => "minecraft:sheep",
+		14 => "minecraft:wolf",
+		15 => "minecraft:villager",
+		16 => "minecraft:cow",
+		17 => "minecraft:squid",
+		18 => "minecraft:rabbit",
+		19 => "minecraft:bat",
+		20 => "minecraft:iron_golem",
+		21 => "minecraft:snowman",
+		22 => "minecraft:cat",
+		23 => "minecraft:horse",
+		28 => "minecraft:polar_bear",
+		32 => "minecraft:zombie",
+		33 => "minecraft:creeper",
+		34 => "minecraft:skeleton",
+		35 => "minecraft:spider",
+		36 => "minecraft:zombie_pigman",
+		37 => "minecraft:slime",
+		38 => "minecraft:enderman",
+		39 => "minecraft:silverfish",
+		40 => "minecraft:spider",
+		41 => "minecraft:ghast",
+		42 => "minecraft:magmacube",
+		43 => "minecraft:blaze",
+		44 => "minecraft:zombie_village",
+		45 => "minecraft:witch",
+		46 => "minecraft:stray",
+		47 => "minecraft:husk",
+		48 => "minecraft:wither_skeleton",
+		49 => "minecraft:guardian",
+		50 => "minecraft:elder_guardian",
+		53 => "minecraft:enderdragon",
+		54 => "minecraft:shulker",
+	];
 
-	public static function init(){
+	/** @var array */
+	private static $reverseSpawnEggList;
+
+	public static function init() : void{
 		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
 		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
 
@@ -385,19 +434,27 @@ class ConvertUtils{
 				self::$idlistIndex[1][$entry[1][0]] = [$entry];
 			}
 		}
+
+		self::$reverseSpawnEggList = array_flip(self::$spawnEggList);
 	}
 
-	public static function convertNBTDataFromPEtoPC(Tag $nbt, bool $convert = false) : ?string{
+	/**
+	 * @param Tag  $nbt
+	 * @param bool $convert
+	 * @return string converted nbt tag data
+	 */
+	public static function convertNBTDataFromPEtoPC(Tag $nbt, bool $convert = false) : string{
 		$stream = new BinaryStream();
 		$stream->putByte($nbt->getType());
 
-		if($nbt->getType() !== NBT::TAG_End){
+		if($nbt instanceof NamedTag){
 			$stream->putShort(strlen($nbt->getName()));
 			$stream->put($nbt->getName());
 		}
 
 		switch($nbt->getType()){
 			case NBT::TAG_Compound:
+				assert($nbt instanceof CompoundTag);
 				foreach($nbt as $tag){
 					if($nbt["id"] === Tile::SIGN){
 						if($tag->getType() === NBT::TAG_String){
@@ -448,29 +505,24 @@ class ConvertUtils{
 				}
 			break;
 			case NBT::TAG_List:
-				$id = null;
+				assert($nbt instanceof ListTag);
+
+				$count = count($nbt);
+				$type = $nbt[0]->getType();
+
 				foreach($nbt as $tag){
 					if($tag instanceof Tag){
-						if(!isset($id)){
-							$id = $tag->getType();
-						}elseif($id !== $tag->getType()){
-							return null;
+						if($type !== $tag->getType()){
+							throw new \UnexpectedValueException("ListTag must consists of tags which types are the same");
 						}
 					}
 				}
 
-				$stream->putByte($id);
+				$stream->putByte($type);
+				$stream->putInt($count);
 
-				$tags = [];
 				foreach($nbt as $tag){
-					if($tag instanceof Tag){
-						$tags[] = $tag;
-					}
-				}
-				$stream->putInt(count($tags));
-
-				foreach($tags as $tag){
-					$stream->put(self::convertNBTDataFromPCtoPE($tag));
+					$stream->put(self::convertNBTDataFromPEtoPC($tag));
 				}
 			break;
 			case NBT::TAG_IntArray:
@@ -482,85 +534,90 @@ class ConvertUtils{
 		return $stream->getBuffer();
 	}
 
+	/**
+	 * @param string $buffer
+	 * @return CompoundTag|Tag|null
+	 */
 	public static function convertNBTDataFromPCtoPE(string $buffer) : ?Tag{
 		$stream = new BinaryStream($buffer);
 		$nbt = null;
 
 		$type = $stream->getByte();
-		if($type !== NBT::TAG_End){
+		if($type === NBT::TAG_End){
+			$nbt = new EndTag();
+		}else{
 			$name = $stream->get($stream->getShort());
-		}
+			switch($type){
+				case NBT::TAG_Byte:
+					$nbt = new ByteTag($name, $stream->getByte());
+				break;
+				case NBT::TAG_Short:
+					$nbt = new ShortTag($name, $stream->getShort());
+				break;
+				case NBT::TAG_Int:
+					$nbt = new IntTag($name, $stream->getInt());
+				break;
+				case NBT::TAG_Long:
+					$nbt = new LongTag($name, $stream->getLong());
+				break;
+				case NBT::TAG_Float:
+					$nbt = new FloatTag($name, $stream->getFloat());
+				break;
+				case NBT::TAG_Double:
+					$nbt = new DoubleTag($name, Binary::readDouble($stream->get(8)));
+				break;
+				case NBT::TAG_ByteArray:
+					$nbt = new ByteArrayTag($name, $stream->get($stream->getInt()));
+				break;
+				case NBT::TAG_String:
+					$nbt = new StringTag($name, $stream->get($stream->getShort()));
+				break;
+				case NBT::TAG_List:
+					$id = $stream->getByte();
+					$count = $stream->getInt();
 
-		switch($type){
-			case NBT::TAG_End: //No named tag
-				$nbt = new EndTag();
-			break;
-			case NBT::TAG_Byte:
-				$nbt = new ByteTag($name, $stream->getByte());
-			break;
-			case NBT::TAG_Short:
-				$nbt = new ShortTag($name, $stream->getShort());
-			break;
-			case NBT::TAG_Int:
-				$nbt = new IntTag($name, $stream->getInt());
-			break;
-			case NBT::TAG_Long:
-				$nbt = new LongTag($name, $stream->getLong());
-			break;
-			case NBT::TAG_Float:
-				$nbt = new FloatTag($name, $stream->getFloat());
-			break;
-			case NBT::TAG_Double:
-				$nbt = new DoubleTag($name, Binary::readDouble($stream->get(8)));
-			break;
-			case NBT::TAG_ByteArray:
-				$nbt = new ByteArrayTag($name, $stream->get($stream->getInt()));
-			break;
-			case NBT::TAG_String:
-				$nbt = new StringTag($name, $stream->get($stream->getShort()));
-			break;
-			case NBT::TAG_List:
-				$id = $stream->getByte();
-				$count = $stream->getInt();
+					$tags = [];
+					for($i = 0; $i < $count and !$stream->feof(); $i++){
+						$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
+						$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
 
-				$tags = [];
-				for($i = 0; $i < $count and !$stream->feof(); $i++){
-					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
-					$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
-
-					if($tag instanceof NamedTag and $tag->getName() !== ""){
-						$tags[] = $tag;
+						if($tag instanceof NamedTag and $tag->getName() !== ""){
+							$tags[] = $tag;
+						}
 					}
-				}
 
-				$nbt = new ListTag($name, $tags);
-			break;
-			case NBT::TAG_Compound:
-				$tags = [];
-				do{
-					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
-					$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
+					$nbt = new ListTag($name, $tags);
+				break;
+				case NBT::TAG_Compound:
+					$tags = [];
+					do{
+						$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
+						$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
 
-					if($tag instanceof NamedTag and $tag->getName() !== ""){
-						$tags[] = $tag;
-					}
-				}while(!($tag instanceof EndTag) and !$stream->feof());
+						if($tag instanceof NamedTag and $tag->getName() !== ""){
+							$tags[] = $tag;
+						}
+					}while(!($tag instanceof EndTag) and !$stream->feof());
 
-				$nbt = new CompoundTag($name, $tags);
-			break;
-			case NBT::TAG_IntArray:
-				$nbt = new IntArrayTag($name, unpack("N*", $stream->get($stream->getInt()*4)));
-			break;
+					$nbt = new CompoundTag($name, $tags);
+				break;
+				case NBT::TAG_IntArray:
+					$nbt = new IntArrayTag($name, unpack("N*", $stream->get($stream->getInt()*4)));
+				break;
+			}
 		}
 
 		return $nbt;
 	}
 
-	/*
-	 * $iscomputer = true is PE => PC
-	 * $iscomputer = false is PC => PE
+	/**
+	 * Convert item data from PE => PC when $iscomputer is set to true,
+	 * else convert item data opposite way.
+	 *
+	 * @param bool $iscomputer
+	 * @param Item &$item
 	 */
-	public static function convertItemData($iscomputer, &$item){
+	public static function convertItemData(bool $iscomputer, Item &$item) : void{
 		self::$timingConvertItem->startTiming();
 
 		$itemid = $item->getId();
@@ -575,251 +632,22 @@ class ConvertUtils{
 			break;
 			case Item::SPAWN_EGG:
 				if($iscomputer){
-					switch($itemdamage){
-						case 10://Chicken
-							$type = "chicken";
-						break;
-						case 11://Cow
-							$type = "cow";
-						break;
-						case 12://Pig
-							$type = "pig";
-						break;
-						case 13://Sheep
-							$type = "sheep";
-						break;
-						case 14://Wolf
-							$type = "wolf";
-						break;
-						case 15://Villager
-							$type = "villager";
-						break;
-						case 16://Mooshroom
-							$type = "cow";
-						break;
-						case 17://Squid
-							$type = "squid";
-						break;
-						case 18://Rabbit
-							$type = "rabbit";
-						break;
-						case 19://Bat
-							$type = "bat";
-						break;
-						case 20://IronGolem
-							$type = "iron_golem";
-						break;
-						case 21://SnowGolem (Snowman)
-							$type = "snowman";
-						break;
-						case 22://Ocelot
-							$type = "cat";
-						break;
-						case 23://Horse
-							$type = "horse";
-						break;
-						case 28://PolarBear
-							$type = "polar_bear";
-						break;
-						case 32://Zombie
-							$type = "zombie";
-						break;
-						case 33://Creeper
-							$type = "creeper";
-						break;
-						case 34://Skeleton
-							$type = "skeleton";
-						break;
-						case 35://Spider
-							$type = "spider";
-						break;
-						case 36://PigZombie
-							$type = "zombie_pigman";
-						break;
-						case 37://Slime
-							$type = "slime";
-						break;
-						case 38://Enderman
-							$type = "enderman";
-						break;
-						case 39://Silverfish
-							$type = "silverfish";
-						break;
-						case 40://CaveSpider
-							$type = "spider";
-						break;
-						case 41://Ghast
-							$type = "ghast";
-						break;
-						case 42://LavaSlime
-							$type = "magmacube";
-						break;
-						case 43://Blaze
-							$type = "blaze";
-						break;
-						case 44://ZombieVillager
-							$type = "zombie_village";
-						break;
-						case 45://Witch
-							$type = "witch";
-						break;
-						case 46://Stray
-							$type = "stray";
-						break;
-						case 47://Husk
-							$type = "husk";
-						break;
-						case 48://WitherSkeleton
-							$type = "wither_skeleton";
-						break;
-						case 49://Guardian
-							$type = "guardian";
-						break;
-						case 50://ElderGuardian
-							$type = "elder_guardian";
-						break;
-						case 53://EnderDragon
-							$type = "enderdragon";
-						break;
-						case 54://Shulker
-							$type = "shulker";
-						break;
-						default:
-							$type = "";
-						break;
-					}
-
-					if($type !== ""){
-						$nbt = new NBT(NBT::LITTLE_ENDIAN);
-						$nbt->setData(new CompoundTag("", [
+					if($type = self::$spawnEggList[$itemdamage] ?? false){
+						$itemnbt = new CompoundTag("", [
 							new CompoundTag("EntityTag", [
-								new StringTag("id", "minecraft:".$type),
+								new StringTag("id", $type),
 							])
-						]));
-						$itemnbt = $nbt->write();
+						]);
 					}
 				}else{
 					$entitytag = "";
-					if($itemnbt !== ""){
+					if($itemnbt !== null){
 						if($itemnbt->getType() === NBT::TAG_Compound){
 							$entitytag = $itemnbt["EntityTag"]["id"];
 						}
 					}
 
-					switch($entitytag){
-						case "minecraft:chicken":
-							$itemdamage = 10;
-						break;
-						case "minecraft:cow":
-							$itemdamage = 11;
-						break;
-						case "minecraft:pig":
-							$itemdamage = 12;
-						break;
-						case "minecraft:sheep":
-							$itemdamage = 13;
-						break;
-						case "minecraft:wolf":
-							$itemdamage = 14;
-						break;
-						case "minecraft:villager":
-							$itemdamage = 15;
-						break;
-						case "minecraft:cow":
-							$itemdamage = 16;
-						break;
-						case "minecraft:squid":
-							$itemdamage = 17;
-						break;
-						case "minecraft:rabbit":
-							$itemdamage = 18;
-						break;
-						case "minecraft:bat":
-							$itemdamage = 19;
-						break;
-						case "minecraft:iron_golem":
-							$itemdamage = 20;
-						break;
-						case "minecraft:snowman":
-							$itemdamage = 21;
-						break;
-						case "minecraft:cat":
-							$itemdamage = 22;
-						break;
-						case "minecraft:horse":
-							$itemdamage = 23;
-						break;
-						case "minecraft:polar_bear":
-							$itemdamage = 28;
-						break;
-						case "minecraft:zombie":
-							$itemdamage = 32;
-						break;
-						case "minecraft:creeper":
-							$itemdamage = 33;
-						break;
-						case "minecraft:skeleton":
-							$itemdamage = 34;
-						break;
-						case "minecraft:spider":
-							$itemdamage = 35;
-						break;
-						case "minecraft:zombie_pigman":
-							$itemdamage = 36;
-						break;
-						case "minecraft:slime":
-							$itemdamage = 37;
-						break;
-						case "minecraft:enderman":
-							$itemdamage = 38;
-						break;
-						case "minecraft:silverfish":
-							$itemdamage = 39;
-						break;
-						case "minecraft:spider":
-							$itemdamage = 40;
-						break;
-						case "minecraft:ghast":
-							$itemdamage = 41;
-						break;
-						case "minecraft:magmacube":
-							$itemdamage = 42;
-						break;
-						case "minecraft:blaze":
-							$itemdamage = 43;
-						break;
-						case "minecraft:zombie_village":
-							$itemdamage = 44;
-						break;
-						case "minecraft:witch":
-							$itemdamage = 45;
-						break;
-						case "minecraft:stray":
-							$itemdamage = 46;
-						break;
-						case "minecraft:husk":
-							$itemdamage = 47;
-						break;
-						case "minecraft:wither_skeleton":
-							$itemdamage = 48;
-						break;
-						case "minecraft:guardian":
-							$itemdamage = 49;
-						break;
-						case "minecraft:elder_guardian":
-							$itemdamage = 50;
-						break;
-						case "minecraft:enderdragon":
-							$itemdamage = 53;
-						break;
-						case "minecraft:shulker":
-							$itemdamage = 54;
-						break;
-						default:
-							$itemdamage = 0;
-						break;
-					}
-
+					$itemdamage = self::$reverseSpawnEggList[$entitytag] ?? 0;
 					$itemnbt = "";
 				}
 			break;
@@ -857,11 +685,15 @@ class ConvertUtils{
 		self::$timingConvertItem->stopTiming();
 	}
 
-	/*
-	 * $iscomputer = true is PE => PC
-	 * $iscomputer = false is PC => PE
+	/**
+	 * Convert block data from PE => PC when $iscomputer is set to true,
+	 * else convert block data opposite way.
+	 *
+	 * @param bool $iscomputer
+	 * @param int  &$blockid to convert
+	 * @param int  &$blockdata to convert
 	 */
-	public static function convertBlockData($iscomputer, &$blockid, &$blockdata){
+	public static function convertBlockData(bool $iscomputer, int &$blockid, int &$blockdata) : void{
 		self::$timingConvertBlock->startTiming();
 
 		switch($blockid){
@@ -895,7 +727,11 @@ class ConvertUtils{
 		self::$timingConvertBlock->stopTiming();
 	}
 
-	public static function convertPEToPCMetadata(array $olddata){
+	/**
+	 * @param array $olddata
+	 * @return array converted
+	 */
+	public static function convertPEToPCMetadata(array $olddata) : array{
 		$newdata = [];
 
 		foreach($olddata as $bottom => $d){
@@ -973,9 +809,13 @@ class ConvertUtils{
 	 * Why Mojang change the order of flag bits?
 	 * Why Mojang change the directions??
 	 *
+	 * @param bool $iscomputer
+	 * @param int &$blockid
+	 * @param int &$blockdata
+	 *
 	 * #blamemojang
 	 */
-	private static function convertTrapdoor(bool $iscomputer, int &$blockid, int &$blockdata){
+	private static function convertTrapdoor(bool $iscomputer, int &$blockid, int &$blockdata) : void{
 		//swap bits
 		$blockdata ^= (($blockdata & 0x04) << 1);
 		$blockdata ^= (($blockdata & 0x08) >> 1);
@@ -994,35 +834,15 @@ class ConvertUtils{
 }
 
 
-class ComputerItem{
-	public $id = 0, $damage = 0, $count = 0, $nbt = "";
-
-	public function __construct($id = 0, $damage = 0, $count = 1, $nbt = ""){
-		$this->id = $id;
-		$this->damage = $damage;
-		$this->count = $count;
-
-		if($nbt instanceof EndTag){
-			$nbt = "";
-		}
-
-		$this->nbt = $nbt;
+class ComputerItem extends Item{
+	/**
+	 * @param int                $id
+	 * @param int                $meta
+	 * @param int                $count
+	 * @param CompoundTag|string $tag
+	 */
+	public function __construct(int $id = 0, int $meta = 0, int $count = 1, $tag = ""){
+		parent::__construct($id, $meta);
+		$this->setCompoundTag($tag instanceof EndTag ? "" : $tag);
 	}
-
-	public function getID(){
-		return $this->id;
-	}
-
-	public function getDamage(){
-		return $this->damage;
-	}
-
-	public function getCount(){
-		return $this->count;
-	}
-
-	public function getCompoundTag(){
-		return $this->nbt;
-	}
-
 }
