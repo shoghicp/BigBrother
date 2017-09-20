@@ -25,6 +25,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace shoghicp\BigBrother\utils;
 
 use phpseclib\Crypt\Rijndael;
@@ -34,6 +36,7 @@ class AES extends Rijndael{
 	const MODE_CFB8 = 38;
 
 	/**
+	 * @param int $mode
 	 * @override
 	 */
 	public function __construct(int $mode = self::MODE_CFB8){
@@ -45,6 +48,7 @@ class AES extends Rijndael{
 	}
 
 	/**
+	 * TODO this method overrides private Base::_setupMcrypt() method
 	 * @override
 	 */
 	function _setupMcrypt(){
@@ -65,6 +69,7 @@ class AES extends Rijndael{
 	}
 
 	/**
+	 * TODO this method override private Base::_openssl_translate_mode()
 	 * @return string
 	 * @override
 	 */
@@ -79,6 +84,7 @@ class AES extends Rijndael{
 
 
 	/**
+	 * TODO this method override internal Base::encrypt() method
 	 * @param string $plain text to encrypt
 	 * @return string encrypted text
 	 * @override
@@ -142,6 +148,7 @@ class AES extends Rijndael{
 	}
 
 	/**
+	 * TODO this method override internal Base::decrypt() method
 	 * @param string $cipher text to decrypt
 	 * @return string decrypted text
 	 * @override
