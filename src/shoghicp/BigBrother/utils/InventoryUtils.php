@@ -53,8 +53,9 @@ use shoghicp\BigBrother\network\protocol\Play\Server\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetSlotPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\WindowItemsPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CollectItemPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket as ServerCloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ClickWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CloseWindowPacket as ClientCloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\CreativeInventoryActionPacket;
 
 class InventoryUtils{
@@ -190,7 +191,7 @@ class InventoryUtils{
 	 * @param ContainerClosePacket $packet
 	 * @return OutboundPacket|null
 	 */
-	public function onWindowClose(bool $isserver, ContainerClosePacket $packet) : ?OutboundPacket{
+	public function onWindowCloseFromPCtoPE(ClientCloseWindowPacket $packet) : ?ContainerClosePacket{
 		foreach($this->playerCraftSlot as $num => $item){
 			$this->player->dropItemNaturally($item);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
@@ -199,19 +200,34 @@ class InventoryUtils{
 		$this->player->dropItemNaturally($this->playerHeldItem);
 		$this->playerHeldItem = Item::get(Item::AIR);
 
-		if($isserver){
-			$pk = new CloseWindowPacket();
-			$pk->windowID = $packet->windowid;
+		if($packet->windowID !== ContainerIds::INVENTORY){//Player Inventory
+			$pk = new ContainerClosePacket();
+			$pk->windowid = $packet->windowID;
 
-			unset($this->windowInfo[$packet->windowid]);
-		}else{
-			if($packet->windowid !== ContainerIds::INVENTORY){//Player Inventory
-				$pk = new ContainerClosePacket();
-				$pk->windowid = $packet->windowid;
-			}else{
-				return null;
-			}
+			return $pk;
 		}
+
+		return null;
+	}
+
+	/**
+	 * @param bool $isserver
+	 * @param ContainerClosePacket $packet
+	 * @return OutboundPacket|null
+	 */
+	public function onWindowCloseFromPEtoPC(ContainerClosePacket $packet) : CloseWindowPacket{
+		foreach($this->playerCraftSlot as $num => $item){
+			$this->player->dropItemNaturally($item);
+			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
+		}
+
+		$this->player->dropItemNaturally($this->playerHeldItem);
+		$this->playerHeldItem = Item::get(Item::AIR);
+
+		$pk = new ServerCloseWindowPacket();
+		$pk->windowID = $packet->windowid;
+
+		unset($this->windowInfo[$packet->windowid]);
 
 		return $pk;
 	}

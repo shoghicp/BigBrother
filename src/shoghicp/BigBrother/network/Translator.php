@@ -193,7 +193,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::CLOSE_WINDOW_PACKET:
-				$pk = $player->getInventoryUtils()->onWindowClose(false, $packet);
+				$pk = $player->getInventoryUtils()->onWindowCloseFromPCtoPE($packet);
 
 				return $pk;
 
@@ -665,27 +665,25 @@ class Translator{
 
 			case Info::TEXT_PACKET:
 				if($packet->message === "chat.type.achievement"){
-					//TODO
+					$packet->message = "chat.type.advancement.task";
+				}
 
-					return null;
-				}else{
-					$pk = new ChatPacket();
-					$pk->message = BigBrother::toJSON($packet->message, $packet->source, $packet->type, $packet->parameters);
-					switch($packet->type){
-						case TextPacket::TYPE_CHAT:
-						case TextPacket::TYPE_TRANSLATION:
-						case TextPacket::TYPE_WHISPER:
-						case TextPacket::TYPE_RAW:
-							$pk->position = 0;
-							break;
-						case TextPacket::TYPE_SYSTEM:
-							$pk->position = 1;
-							break;
-						case TextPacket::TYPE_POPUP:
-						case TextPacket::TYPE_TIP:
-							$pk->position = 2;
-							break;
-					}
+				$pk = new ChatPacket();
+				$pk->message = BigBrother::toJSON($packet->message, $packet->source, $packet->type, $packet->parameters);
+				switch($packet->type){
+					case TextPacket::TYPE_CHAT:
+					case TextPacket::TYPE_TRANSLATION:
+					case TextPacket::TYPE_WHISPER:
+					case TextPacket::TYPE_RAW:
+						$pk->position = 0;
+						break;
+					case TextPacket::TYPE_SYSTEM:
+						$pk->position = 1;
+						break;
+					case TextPacket::TYPE_POPUP:
+					case TextPacket::TYPE_TIP:
+						$pk->position = 2;
+						break;
 				}
 
 				return $pk;
@@ -1234,9 +1232,9 @@ class Translator{
 				if($issoundeffect){
 					$pk = new NamedSoundEffectPacket();
 					$pk->category = $category;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
+					$pk->x = (int) $packet->x;
+					$pk->y = (int) $packet->y;
+					$pk->z = (int) $packet->z;
 					$pk->volume = 0.5;
 					$pk->pitch = $packet->pitch;
 					$pk->name = $name;
@@ -1360,9 +1358,9 @@ class Translator{
 				if($issoundeffect){
 					$pk = new NamedSoundEffectPacket();
 					$pk->category = $category;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
+					$pk->x = (int) $packet->x;
+					$pk->y = (int) $packet->y;
+					$pk->z = (int) $packet->z;
 					$pk->volume = 0.5;
 					$pk->pitch = 1.0;
 					$pk->name = $name;
@@ -1370,9 +1368,9 @@ class Translator{
 					$pk = new ParticlePacket();
 					$pk->id = $id;
 					$pk->longDistance = false;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
+					$pk->x = (int) $packet->x;
+					$pk->y = (int) $packet->y;
+					$pk->z = (int) $packet->z;
 					$pk->offsetX = 0;
 					$pk->offsetY = 0;
 					$pk->offsetZ = 0;
@@ -1381,9 +1379,9 @@ class Translator{
 				}else{
 					$pk = new EffectPacket();
 					$pk->effectId = $packet->evid;
-					$pk->x = $packet->x;
-					$pk->y = $packet->y;
-					$pk->z = $packet->z;
+					$pk->x = (int) $packet->x;
+					$pk->y = (int) $packet->y;
+					$pk->z = (int) $packet->z;
 					$pk->data = $packet->data;
 					$pk->disableRelativeVolume = false;
 				}
@@ -1415,9 +1413,9 @@ class Translator{
 
 						$pk = new NamedSoundEffectPacket();
 						$pk->category = 0;
-						$pk->x = $player->getX();
-						$pk->y = $player->getY();
-						$pk->z = $player->getZ();
+						$pk->x = (int) $player->getX();
+						$pk->y = (int) $player->getY();
+						$pk->z = (int) $player->getZ();
 						$pk->volume = 0.5;
 						$pk->pitch = 1.0;
 						$pk->name = "entity.".$type.".hurt";
@@ -1437,9 +1435,9 @@ class Translator{
 
 						$pk = new NamedSoundEffectPacket();
 						$pk->category = 0;
-						$pk->x = $player->getX();
-						$pk->y = $player->getY();
-						$pk->z = $player->getZ();
+						$pk->x = (int) $player->getX();
+						$pk->y = (int) $player->getY();
+						$pk->z = (int) $player->getZ();
 						$pk->volume = 0.5;
 						$pk->pitch = 1.0;
 						$pk->name = "entity.".$type.".death";
@@ -1505,7 +1503,7 @@ class Translator{
 							if($packet->entityRuntimeId === $player->getId()){
 								$pk = new UpdateHealthPacket();
 								$pk->health = $entry->getValue();//TODO: Defalut Value
-								$pk->food = $player->getFood();//TODO: Default Value
+								$pk->food = (int) $player->getFood();//TODO: Default Value
 								$pk->saturation = $player->getSaturation();//TODO: Default Value
 
 							}elseif($player->getSetting("BossBar") !== false){
@@ -1664,7 +1662,7 @@ class Translator{
 			case Info::SET_HEALTH_PACKET:
 				$pk = new UpdateHealthPacket();
 				$pk->health = $packet->health;//TODO: Default Value
-				$pk->food = $player->getFood();//TODO: Default Value
+				$pk->food = (int) $player->getFood();//TODO: Default Value
 				$pk->saturation = $player->getSaturation();//TODO: Default Value
 				return $pk;
 
@@ -1699,7 +1697,7 @@ class Translator{
 				return $player->getInventoryUtils()->onWindowOpen($packet);
 
 			case Info::CONTAINER_CLOSE_PACKET:
-				return $player->getInventoryUtils()->onWindowClose(true, $packet);
+				return $player->getInventoryUtils()->onWindowCloseFromPEtoPC($packet);
 
 			case Info::CONTAINER_SET_SLOT_PACKET:
 				return $player->getInventoryUtils()->onWindowSetSlot($packet);

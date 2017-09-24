@@ -399,7 +399,7 @@ class ProtocolInterface implements SourceInterface{
 			}
 		}
 
-		while(strlen($buffer = $this->thread->readThreadToMainPacket()) > 0){
+		while(is_string($buffer = $this->thread->readThreadToMainPacket())){
 			$offset = 1;
 			$pid = ord($buffer{0});
 

@@ -104,7 +104,7 @@ class Binary extends \pocketmine\utils\Binary{
 					}
 				break;
 				case 6://Boolean
-					$m .= self::writeByte($d[1]);
+					$m .= self::writeByte($d[1] ? 1 : 0);
 				break;
 				case 7://Rotation
 					$m .= self::writeFloat($d[1][0]);

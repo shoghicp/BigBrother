@@ -632,7 +632,7 @@ class ConvertUtils{
 			break;
 			case Item::SPAWN_EGG:
 				if($iscomputer){
-					if($type = self::$spawnEggList[$itemdamage] ?? false){
+					if($type = self::$spawnEggList[$itemdamage] ?? ""){
 						$itemnbt = new CompoundTag("", [
 							new CompoundTag("EntityTag", [
 								new StringTag("id", $type),
@@ -641,7 +641,10 @@ class ConvertUtils{
 					}
 				}else{
 					$entitytag = "";
-					if($itemnbt !== null){
+					if($itemnbt !== ""){
+						$nbt = new NBT();
+						$nbt->read($itemnbt, true);
+						$itemnbt = $nbt->getData();
 						if($itemnbt->getType() === NBT::TAG_Compound){
 							$entitytag = $itemnbt["EntityTag"]["id"];
 						}

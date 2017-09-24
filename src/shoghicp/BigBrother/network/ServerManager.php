@@ -174,7 +174,7 @@ class ServerManager{
 	 */
 	protected function processPacket() : bool{
 		@fread($this->fp, 1);
-		if(strlen($packet = $this->thread->readMainToThreadPacket()) > 0){
+		if(is_string($packet = $this->thread->readMainToThreadPacket())){
 			$pid = ord($packet{0});
 
 			$buffer = substr($packet, 1);
