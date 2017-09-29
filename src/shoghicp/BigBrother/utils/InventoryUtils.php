@@ -32,8 +32,9 @@ namespace shoghicp\BigBrother\utils;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
-use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
-use pocketmine\network\mcpe\protocol\ContainerSetContentPacket;
+use pocketmine\network\mcpe\protocol\InventorySlotPacket;
+use pocketmine\network\mcpe\protocol\InventoryContentPacket;
+use pocketmine\network\mcpe\protocol\ContainerSetDataPacket;
 use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\WindowTypes;
@@ -52,6 +53,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetSlotPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\WindowItemsPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\WindowPropertyPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CollectItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\CloseWindowPacket as ServerCloseWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ClickWindowPacket;
@@ -66,14 +68,6 @@ class InventoryUtils{
 	private $windowInfo = [];
 	/** @var array */
 	private $craftInfoData = [];
-
-	/** @var array */
-	private $windowData = [
-		WindowTypes::CONTAINER => [],
-		WindowTypes::WORKBENCH => [],
-		WindowTypes::FURNACE => [],
-	];
-
 	/** @var Item */
 	private $playerHeldItem = null;
 	/** @var int */
@@ -155,7 +149,7 @@ class InventoryUtils{
 				echo "[InventoryUtils] ContainerOpenPacket: ".$packet->type."\n";
 
 				$pk = new ContainerClosePacket();
-				$pk->windowid = $packet->windowid;
+				$pk->windowId = $packet->windowId;
 				$this->player->handleDataPacket($pk);
 
 				return null;
@@ -176,12 +170,12 @@ class InventoryUtils{
 		}
 
 		$pk = new OpenWindowPacket();
-		$pk->windowID = $packet->windowid;
+		$pk->windowID = $packet->windowId;
 		$pk->inventoryType = $type;
 		$pk->windowTitle = json_encode(["translate" => "container.".$title]);
 		$pk->slots = $slots;
 
-		$this->windowInfo[$packet->windowid] = ["type" => $packet->type, "slots" => $slots];
+		$this->windowInfo[$packet->windowId] = ["type" => $packet->type, "slots" => $slots, "items" => []];
 
 		return $pk;
 	}
@@ -202,7 +196,7 @@ class InventoryUtils{
 
 		if($packet->windowID !== ContainerIds::INVENTORY){//Player Inventory
 			$pk = new ContainerClosePacket();
-			$pk->windowid = $packet->windowID;
+			$pk->windowId = $packet->windowID;
 
 			return $pk;
 		}
@@ -215,7 +209,7 @@ class InventoryUtils{
 	 * @param ContainerClosePacket $packet
 	 * @return OutboundPacket|null
 	 */
-	public function onWindowCloseFromPEtoPC(ContainerClosePacket $packet) : CloseWindowPacket{
+	public function onWindowCloseFromPEtoPC(ContainerClosePacket $packet) : ServerCloseWindowPacket{
 		foreach($this->playerCraftSlot as $num => $item){
 			$this->player->dropItemNaturally($item);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
@@ -225,37 +219,36 @@ class InventoryUtils{
 		$this->playerHeldItem = Item::get(Item::AIR);
 
 		$pk = new ServerCloseWindowPacket();
-		$pk->windowID = $packet->windowid;
+		$pk->windowID = $packet->windowId;
 
-		unset($this->windowInfo[$packet->windowid]);
+		unset($this->windowInfo[$packet->windowId]);
 
 		return $pk;
 	}
 
 	/**
-	 * @param ContainerSetSlotPacket $packet
+	 * @param InventorySlotPacket $packet
 	 * @return OutboundPacket|null
 	 */
-	public function onWindowSetSlot(ContainerSetSlotPacket $packet) : ?OutboundPacket{
+	public function onWindowSetSlot(InventorySlotPacket $packet) : ?OutboundPacket{
 		$pk = new SetSlotPacket();
-		$pk->windowID = $packet->windowid;
+		$pk->windowID = $packet->windowId;
 
-		switch($packet->windowid){
+		switch($packet->windowId){
 			case ContainerIds::INVENTORY:
 				$pk->item = $packet->item;
 
-				if($packet->slot >= 0 and $packet->slot < $this->player->getInventory()->getHotbarSize()){
-					$pk->slot = $packet->slot + 36;
+				if($packet->inventorySlot >= 0 and $packet->inventorySlot < $this->player->getInventory()->getHotbarSize()){
+					$pk->slot = $packet->inventorySlot + 36;
 
-					$pk2 = new ContainerSetSlotPacket();//link hotbar in item
-					$pk2->windowid = ContainerIds::HOTBAR;
-					$pk2->slot = $packet->slot + 9;
-					$pk2->hotbarSlot = $packet->slot;
+					$pk2 = new InventorySlotPacket();//link hotbar in item
+					$pk2->windowId = ContainerIds::HOTBAR;
+					$pk2->inventorySlot = $packet->inventorySlot + 9;
 					$pk2->item = $packet->item;
 					$this->player->handleDataPacket($pk2);
-				}elseif($packet->slot >= $this->player->getInventory()->getHotbarSize() and $packet->slot < $this->player->getInventory()->getSize()){
-					$pk->slot = $packet->slot;
-				}elseif($packet->slot >= $this->player->getInventory()->getSize() and $packet->slot < $this->player->getInventory()->getSize() + 4){
+				}elseif($packet->inventorySlot >= $this->player->getInventory()->getHotbarSize() and $packet->inventorySlot < $this->player->getInventory()->getSize()){
+					$pk->slot = $packet->inventorySlot;
+				}elseif($packet->inventorySlot >= $this->player->getInventory()->getSize() and $packet->inventorySlot < $this->player->getInventory()->getSize() + 4){
 					// ignore this packet (this packet is not needed because this is duplicated packet)
 					$pk = null;
 				}
@@ -265,7 +258,7 @@ class InventoryUtils{
 			case ContainerIds::ARMOR:
 				$pk->windowID = ContainerIds::INVENTORY;
 				$pk->item = $packet->item;
-				$pk->slot = $packet->slot + 5;
+				$pk->slot = $packet->inventorySlot + 5;
 
 				return $pk;
 			break;
@@ -273,31 +266,83 @@ class InventoryUtils{
 			case ContainerIds::HOTBAR:
 			break;
 			default:
-				if(isset($this->windowInfo[$packet->windowid])){//TODO
+				if(isset($this->windowInfo[$packet->windowId])){//TODO
 					$pk->item = $packet->item;
-					$pk->slot = $packet->slot;
+					$pk->slot = $packet->inventorySlot;
 
 					var_dump($packet);
 
 					return $pk;
 				}
-				echo "[InventoryUtils] ContainerSetSlotPacket: 0x".bin2hex(chr($packet->windowid))."\n";
+				echo "[InventoryUtils] InventorySlotPacket: 0x".bin2hex(chr($packet->windowId))."\n";
 			break;
 		}
 		return null;
 	}
 
 	/**
-	 * @param ContainerSetContentPacket $packet
+	 * @param ContainerSetDataPacket $packet
 	 * @return OutboundPacket[]
 	 */
-	public function onWindowSetContent(ContainerSetContentPacket $packet) : array{
+	public function onWindowSetData(ContainerSetDataPacket $packet) : array{
+		if(!isset($this->windowInfo[$packet->windowId])){
+			echo "[InventoryUtils] ContainerSetDataPacket: 0x".bin2hex(chr($packet->windowId))."\n";
+		}
+
+		$packets = [];
+		switch($this->windowInfo[$packet->windowId]["type"]){
+			case WindowTypes::FURNACE:
+				switch($packet->property){
+					case 0://Smelting
+						$pk = new WindowPropertyPacket();
+						$pk->windowID = $packet->windowId;
+						$pk->property = 3;
+						$pk->value = 200;//changed?
+						$packets[] = $pk;
+
+						$pk = new WindowPropertyPacket();
+						$pk->windowID = $packet->windowId;
+						$pk->property = 2;
+						$pk->value = $packet->value;
+						$packets[] = $pk;
+					break;
+					case 1://Fire icon
+						$pk = new WindowPropertyPacket();
+						$pk->windowID = $packet->windowId;
+						$pk->property = 1;
+						$pk->value = 200;//changed?
+						$packets[] = $pk;
+
+						$pk = new WindowPropertyPacket();
+						$pk->windowID = $packet->windowId;
+						$pk->property = 0;
+						$pk->value = $packet->value;
+						$packets[] = $pk;
+					break;
+					default:
+						echo "[InventoryUtils] ContainerSetDataPacket: 0x".bin2hex(chr($packet->windowId))."\n";
+					break;
+				}
+			break;
+			default:
+				echo "[InventoryUtils] ContainerSetDataPacket: 0x".bin2hex(chr($packet->windowId))."\n";
+			break;
+		}
+
+		return $packets;
+	}
+
+	/**
+	 * @param InventoryContentPacket $packet
+	 * @return OutboundPacket[]
+	 */
+	public function onWindowSetContent(InventoryContentPacket $packet) : array{
 		$packets = [];
 
-		switch($packet->windowid){
+		switch($packet->windowId){
 			case ContainerIds::INVENTORY:
 				$pk = new WindowItemsPacket();
-				$pk->windowID = $packet->windowid;
+				$pk->windowID = $packet->windowId;
 
 				for($i = 0; $i < 5; ++$i){
 					$pk->items[] = Item::get(Item::AIR, 0, 0);//Craft
@@ -307,7 +352,7 @@ class InventoryUtils{
 					$pk->items[] = Item::get(Item::AIR, 0, 0);//Armor
 				}
 
-				$hotbar = [];
+				/*$hotbar = [];
 				foreach($packet->hotbar as $num => $hotbarslot){
 					if($hotbarslot === -1){
 						$packet->hotbar[$num] = $hotbarslot = $num + $this->player->getInventory()->getHotbarSize();
@@ -328,6 +373,12 @@ class InventoryUtils{
 
 				foreach($hotbar as $item){
 					$pk->items[] = $item;//hotbar
+				}*/
+
+				$hotbar = [];
+				$inventory = [];
+				for($i = 0; $i < $this->player->getInventory()->getSize(); $i++){
+					$pk->items[] = $packet->items[$i];
 				}
 
 				$pk->items[] = Item::get(Item::AIR, 0, 0);//offhand
@@ -338,7 +389,7 @@ class InventoryUtils{
 				$packets[] = $pk;
 			break;
 			case ContainerIds::ARMOR:
-				foreach($packet->slots as $slot => $item){
+				foreach($packet->items as $slot => $item){
 					$pk = new SetSlotPacket();
 					$pk->windowID = ContainerIds::INVENTORY;
 					$pk->item = $item;
@@ -347,17 +398,19 @@ class InventoryUtils{
 					$packets[] = $pk;
 				}
 
-				$this->playerArmorSlot = $packet->slots;
+				$this->playerArmorSlot = $packet->items;
 			break;
 			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
 			break;
 			default:
-				if(isset($this->windowInfo[$packet->windowid])){
+				if(isset($this->windowInfo[$packet->windowId])){
 					$pk = new WindowItemsPacket();
-					$pk->windowID = $packet->windowid;
+					$pk->windowID = $packet->windowId;
 
-					$pk->items = $packet->slots;
+					$pk->items = $packet->items;
+
+					//var_dump($packet->slots);
 
 					$pk->items = $this->getInventory($pk->items);
 					$pk->items = $this->getHotbar($pk->items);
@@ -365,7 +418,7 @@ class InventoryUtils{
 					$packets[] = $pk;
 				}
 
-				echo "[InventoryUtils] ContainerSetContentPacket: 0x".bin2hex(chr($packet->windowid))."\n";
+				echo "[InventoryUtils] InventoryContentPacket: 0x".bin2hex(chr($packet->windowId))."\n";
 			break;
 		}
 
@@ -557,14 +610,14 @@ class InventoryUtils{
 
 		$packets = [];
 		if($accepted){
-			$pk = new ContainerSetSlotPacket();
-			$pk->windowid = $packet->windowID;
+			$pk = new InventorySlotPacket();
+			$pk->windowId = $packet->windowID;
 			$pk->item = $item;
 			$pk->slot = $packet->slot;
 
 			if($packet->windowID !== ContainerIds::INVENTORY){
 				if($pk->slot >= $this->windowInfo[$packet->windowID]["slots"]){
-					$pk->windowid = ContainerIds::INVENTORY;
+					$pk->windowId = ContainerIds::INVENTORY;
 
 					if($pk->slot >= 36 and $pk->slot < 45){
 						$slots = 0;
@@ -606,14 +659,14 @@ class InventoryUtils{
 
 			return null;
 		}else{
-			$pk = new ContainerSetSlotPacket();
+			$pk = new InventorySlotPacket();
 			$pk->item = $packet->item;
 
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
-				$pk->windowid = ContainerIds::ARMOR;
+				$pk->windowId = ContainerIds::ARMOR;
 				$pk->slot = $packet->slot - 5;
 			}else{//Inventory
-				$pk->windowid = ContainerIds::INVENTORY;
+				$pk->windowId = ContainerIds::INVENTORY;
 
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
 					$pk->slot = $packet->slot - 36;
@@ -658,8 +711,8 @@ class InventoryUtils{
 				$i = clone $item;
 			}
 
-			$pk = new ContainerSetSlotPacket();
-			$pk->windowid = ContainerIds::INVENTORY;
+			$pk = new InventorySlotPacket();
+			$pk->windowId = ContainerIds::INVENTORY;
 			$pk->slot = $slot;
 			$pk->item = $i;
 			$this->player->handleDataPacket($pk);

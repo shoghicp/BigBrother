@@ -356,7 +356,10 @@ class ConvertUtils{
 			[207, -1], [212, -1] //Frosted Ice
 		],
 		[
-			[245, -1], [61, -1] //Stonecutter - To avoid problems, it's now a simple furnace
+			[4, -1], [4, -1] //For Stonecutter
+		],
+		[
+			[245, -1], [4, -1] //Stonecutter - To avoid problems, it's now a stone block
 		],
 		//******************************//
 		/*

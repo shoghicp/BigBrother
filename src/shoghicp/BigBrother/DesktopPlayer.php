@@ -79,7 +79,7 @@ class DesktopPlayer extends Player{
 	/** @var string */
 	private $bigbrother_clientId;
 	/** @var int */
-	private $bigBrother_dimension;
+	private $bigBrother_dimension = 0;
 	/** @var string[] */
 	private $bigBrother_entitylist = [];
 	/** @var InventoryUtils */
@@ -299,6 +299,56 @@ class DesktopPlayer extends Player{
 		$this->putRawPacket($pk);
 	}
 
+	/**
+	 * @override
+	 */
+	public function onVerifyCompleted(LoginPacket $packet, bool $isValid, bool $isAuthenticated) : void{
+		parent::onVerifyCompleted($packet, true, true);
+
+		BigBrother::addPlayerList($this);
+
+		$pk = new ResourcePackClientResponsePacket();
+		$pk->status = ResourcePackClientResponsePacket::STATUS_COMPLETED;
+		$this->handleDataPacket($pk);
+
+		$pk = new RequestChunkRadiusPacket();
+		$pk->radius = 8;
+		$this->handleDataPacket($pk);
+
+		$pk = new KeepAlivePacket();
+		$pk->id = mt_rand();
+		$this->putRawPacket($pk);
+
+		$pk = new PlayerListPacket();
+		$pk->actionID = PlayerListPacket::TYPE_ADD;
+		$pk->players[] = [
+			UUID::fromString($this->bigBrother_formatedUUID)->toBinary(),
+			$this->bigBrother_username,
+			$this->bigBrother_properties,
+			$this->getGamemode(),
+			0,
+			true,
+			BigBrother::toJSON($this->bigBrother_username)
+		];
+		$this->putRawPacket($pk);
+
+		$playerlist = [];
+		$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = $this->bigBrother_username;
+		$this->setSetting(["PlayerList" => $playerlist]);
+
+		$pk = new TitlePacket(); //for Set SubTitle
+		$pk->actionID = TitlePacket::TYPE_SET_TITLE;
+		$pk->data = TextFormat::toJSON("");
+		$this->putRawPacket($pk);
+
+		$pk = new TitlePacket();
+		$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
+		$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
+		$this->putRawPacket($pk);
+
+		$this->sendAdvancements(true);
+	}
+
 	public function bigBrother_respawn() : void{
 		$pk = new PlayerPositionAndLookPacket();
 		$pk->x = $this->getX();
@@ -380,50 +430,9 @@ class DesktopPlayer extends Player{
 				}
 				$pk->skin = $skin;
 			}
+			$pk->chainData = ["chain" => []];
+			$pk->clientDataJwt = "eyJ4NXUiOiJNSFl3RUFZSEtvWkl6ajBDQVFZRks0RUVBQ0lEWWdBRThFTGtpeHlMY3dsWnJ5VVFjdTFUdlBPbUkyQjd2WDgzbmRuV1JVYVhtNzR3RmZhNWZcL2x3UU5UZnJMVkhhMlBtZW5wR0k2SmhJTVVKYVdacmptTWo5ME5vS05GU05CdUtkbThyWWlYc2ZhejNLMzZ4XC8xVTI2SHBHMFp4S1wvVjFWIn0.W10.QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB";
 			$this->handleDataPacket($pk);
-
-			BigBrother::addPlayerList($this);
-
-			$pk = new RequestChunkRadiusPacket();
-			$pk->radius = 8;
-			$this->handleDataPacket($pk);
-
-			$pk = new ResourcePackClientResponsePacket();
-			$pk->status = ResourcePackClientResponsePacket::STATUS_COMPLETED;
-			$this->handleDataPacket($pk);
-
-			$pk = new KeepAlivePacket();
-			$pk->id = mt_rand();
-			$this->putRawPacket($pk);
-
-			$pk = new PlayerListPacket();
-			$pk->actionID = PlayerListPacket::TYPE_ADD;
-			$pk->players[] = [
-				UUID::fromString($this->bigBrother_formatedUUID)->toBinary(),
-				$this->bigBrother_username,
-				$this->bigBrother_properties,
-				$this->getGamemode(),
-				0,
-				true,
-				BigBrother::toJSON($this->bigBrother_username)
-			];
-			$this->putRawPacket($pk);
-
-			$playerlist = [];
-			$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = $this->bigBrother_username;
-			$this->setSetting(["PlayerList" => $playerlist]);
-
-			$pk = new TitlePacket(); //for Set SubTitle
-			$pk->actionID = TitlePacket::TYPE_SET_TITLE;
-			$pk->data = TextFormat::toJSON("");
-			$this->putRawPacket($pk);
-
-			$pk = new TitlePacket();
-			$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
-			$pk->data = TextFormat::toJSON(TextFormat::YELLOW . TextFormat::BOLD . "This is a beta version of BigBrother.");
-			$this->putRawPacket($pk);
-
-			$this->sendAdvancements(true);
 		}
 	}
 

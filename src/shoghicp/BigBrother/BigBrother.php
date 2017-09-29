@@ -106,7 +106,7 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		if(Info::CURRENT_PROTOCOL === 113){
+		if(Info::CURRENT_PROTOCOL === 137){
 			$this->translator = new Translator();
 
 			$this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -249,15 +249,7 @@ class BigBrother extends PluginBase implements Listener{
 	 * @param ?array  $parameters
 	 * @return string
 	 */
-	public static function toJSON(?string $message, ?string $source = "", int $type = 1, ?array $parameters = null) : string{
-		if($source === null){
-			$source = "";
-		}
-
-		if($message === null){
-			$message = "";
-		}
-
+	public static function toJSON(?string $message, ?string $source = "", int $type = 1, ?array $parameters = []) : string{
 		$message = $source.$message;
 		$result = json_decode(TextFormat::toJSON($message), true);
 
@@ -279,31 +271,11 @@ class BigBrother extends PluginBase implements Listener{
 					$with = &$result;
 				}
 
-				if($parameters !== null && count($parameters) > 0){
-					if($with["translate"] === "commands.gamemode.success.self"){//Patch :(
-						$parameters = [$parameters[2]];
-					}elseif($with["translate"] === "commands.gamemode.success.other"){
-						if(count($parameters) === 2){
-							$parameters = [$parameters[0], $parameters[1]];
-						}else{
-							$parameters = [$parameters[1], $parameters[2]];
-						}
-					}
-
-					foreach($parameters as $parameter){
-						if(strpos($parameter, "%") !== false){
-							$with["with"][] = ["translate" => str_replace("%", "", $parameter)];
-						}else{
-							$with["with"][] = ["text" => $parameter];
-						}
-					}
-				}
-
-				if($with["translate"] === "gameMode.changed"){//Patch :(
-					if($parameters !== null && count($parameters) > 0){
-						$with["with"][] = ["translate" => str_replace("%", "", $parameters[0])];
+				foreach($parameters as $parameter){
+					if(strpos($parameter, "%") !== false){
+						$with["with"][] = ["translate" => str_replace("%", "", $parameter)];
 					}else{
-						$with["with"][] = ["text" => "select gamemode"];
+						$with["with"][] = ["text" => $parameter];
 					}
 				}
 			break;

@@ -43,15 +43,15 @@ class DesktopChunk{
 	/** @var int */
 	private $chunkZ;
 	/** @var LevelProvider */
-	private  $provider;
+	private $provider;
 	/** @var bool */
-	private $groundup;
+	private $groundUp;
 	/** @var int */
-	private $bitmap;
+	private $bitMap;
 	/** @var string */
 	private $biomes;
 	/** @var string */
-	private $data;
+	private $chunkData;
 
 	/**
 	 * @param DesktopPlayer $player
@@ -63,15 +63,16 @@ class DesktopChunk{
 		$this->chunkX = $chunkX;
 		$this->chunkZ = $chunkZ;
 		$this->provider = $player->getLevel()->getProvider();
-		$this->groundup = true;
-		$this->bitmap = 0;
-		$this->data = $this->generateChunk();
+		$this->groundUp = true;
+		$this->bitMap = 0;
+
+		$this->generateChunk();
 	}
 
 	/**
 	 * @return string generated chunk data
 	 */
-	public function generateChunk() : string{
+	public function generateChunk() : void{
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
 
@@ -81,7 +82,7 @@ class DesktopChunk{
 				continue;
 			}
 
-			$this->bitmap |= 0x01 << $num;
+			$this->bitMap |= 0x01 << $num;
 
 			$palette = [];
 			$bitsperblock = 8;
@@ -89,7 +90,6 @@ class DesktopChunk{
 			$chunkdata = "";
 			$blocklightdata = "";
 			$skylightdata = "";
-
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
 
@@ -115,7 +115,6 @@ class DesktopChunk{
 							$blocklightdata .= str_repeat("\xff", 4);
 							$skylightdata .= str_repeat("\xff", 4);
 							$blocklight = "";
-							$skylight = "";
 							$data = "";
 						}
 					}
@@ -126,7 +125,7 @@ class DesktopChunk{
 			$payload .= Binary::writeByte($bitsperblock).Binary::writeComputerVarInt(count($palette));
 
 			/* Palette */
-			foreach($palette as $num => $value){
+			foreach($palette as $value){
 				$payload .= Binary::writeComputerVarInt($value);
 			}
 
@@ -145,21 +144,21 @@ class DesktopChunk{
 			}
 		}
 
-		return $payload;
+		$this->chunkData = $payload;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isGroundUp() : bool{
-		return $this->groundup;
+		return $this->groundUp;
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getBitMapData() : int{
-		return $this->bitmap;
+		return $this->bitMap;
 	}
 
 	/**
@@ -173,6 +172,6 @@ class DesktopChunk{
 	 * @return string
 	 */
 	public function getChunkData() : string{
-		return $this->data;
+		return $this->chunkData;
 	}
 }
