@@ -80,6 +80,7 @@ class BigBrother extends PluginBase implements Listener{
 		$this->saveResource("server-icon.png", false);
 		$this->saveResource("steve.yml", false);
 		$this->saveResource("alex.yml", false);
+		$this->saveResource("openssl.cnf", false);
 		$this->reloadConfig();
 
 		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
@@ -88,6 +89,7 @@ class BigBrother extends PluginBase implements Listener{
 		switch($aes->getEngine()){
 			case AES::ENGINE_OPENSSL:
 				$this->getLogger()->info("Use openssl as AES encryption engine.");
+			break;
 			case AES::ENGINE_MCRYPT:
 				$this->getLogger()->warning("Use obsolete mcrypt for AES encryption. Try to install openssl extension instead!!");
 			break;
@@ -96,9 +98,16 @@ class BigBrother extends PluginBase implements Listener{
 			break;
 		}
 
+
 		$this->rsa = new RSA();
-		if(constant("CRYPT_RSA_MODE") === RSA::MODE_INTERNAL){
-			$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
+		switch(constant("CRYPT_RSA_MODE")){
+			case RSA::MODE_OPENSSL:
+				$this->rsa->configFile = $this->getDataFolder() . "openssl.cnf";
+				$this->getLogger()->info("Use openssl as RSA encryption engine.");
+			break;
+			case RSA::MODE_INTERNAL:
+				$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
+			break;
 		}
 
 		if(!$this->getConfig()->exists("motd")){
