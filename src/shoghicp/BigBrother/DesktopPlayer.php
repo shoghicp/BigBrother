@@ -284,9 +284,9 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * TODO note that this method overriding parent private method!!
-	 * @param int    $x
-	 * @param int    $z
-	 * @param ?Level $level
+	 * @param int        $x
+	 * @param int        $z
+	 * @param Level|null $level
 	 * @override
 	 */
 	private function unloadChunk(int $x, int $z, ?Level $level = null){
@@ -377,8 +377,8 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param string $uuid
-	 * @param ?array $onlineModeData
+	 * @param string     $uuid
+	 * @param array|null $onlineModeData
 	 */
 	public function bigBrother_authenticate(string $uuid, ?array $onlineModeData = null) : void{
 		if($this->bigBrother_status === 0){

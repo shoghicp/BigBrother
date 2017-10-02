@@ -252,10 +252,10 @@ class BigBrother extends PluginBase implements Listener{
 	}
 
 	/**
-	 * @param ?string $message
-	 * @param ?string $source
-	 * @param int     $type
-	 * @param ?array  $parameters
+	 * @param string|null $message
+	 * @param string|null $source
+	 * @param int         $type
+	 * @param array|null  $parameters
 	 * @return string
 	 */
 	public static function toJSON(?string $message, ?string $source = "", int $type = 1, ?array $parameters = []) : string{
