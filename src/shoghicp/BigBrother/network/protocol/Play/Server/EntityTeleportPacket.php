@@ -61,6 +61,6 @@ class EntityTeleportPacket extends OutboundPacket{
 		$this->putDouble($this->z);
 		$this->putByte((int)round($this->yaw * 256 / 360));//TODO make sure
 		$this->putByte((int)round($this->pitch * 256 / 360));//TODO make sure
-		$this->putByte($this->onGround ? 1 : 0);
+		$this->putBool($this->onGround);
 	}
 }

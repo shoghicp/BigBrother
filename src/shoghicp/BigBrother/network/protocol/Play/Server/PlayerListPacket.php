@@ -60,23 +60,23 @@ class PlayerListPacket extends OutboundPacket{
 						$this->putString($peropetrydata["name"]); //Name
 						$this->putString($peropetrydata["value"]); //Value
 						if(isset($peropetrydata["signature"])){
-							$this->putByte(1); //Is Signed
+							$this->putBool(true); //Is Signed
 							$this->putString($peropetrydata["signature"]); //Peropetry
 						}else{
-							$this->putByte(0); //Is Signed
+							$this->putBool(false); //Is Signed
 						}
 					}
 
 					$this->putVarInt($player[3]); //Gamemode
 					$this->putVarInt($player[4]); //Ping
-					$this->putByte($player[5] ? 1 : 0); //has Display name
+					$this->putBool($player[5]); //has Display name
 					if($player[5] === true){
 						$this->putString($player[6]); //Display name
 					}
 					break;
 				case self::TYPE_UPDATE_NAME:
 					$this->put($player[0]);//UUID
-					$this->putByte($player[1] ? 1 : 0); //has Display name
+					$this->putBool($player[1]); //has Display name
 					$this->putString($player[2]);//Display name
 					break;
 				case self::TYPE_REMOVE:

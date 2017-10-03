@@ -47,15 +47,15 @@ class AdvancementsPacket extends OutboundPacket{
 	}
 
 	protected function encode() : void{
-		$this->putByte($this->doClear ? 1 : 0);
+		$this->putBool($this->doClear);
 		$this->putVarInt(count($this->advancements));
 		foreach($this->advancements as $advancement){
 			$this->putString($advancement[0]);//id
-			$this->putByte($advancement[1][0] ? 1 : 0);//has parent
+			$this->putBool($advancement[1][0]);//has parent
 			if($advancement[1][0]){
 				$this->putString($advancement[1][1]);//parent id
 			}
-			$this->putByte($advancement[2][0] ? 1 : 0);//has display
+			$this->putBool($advancement[2][0]);//has display
 			if($advancement[2][0]){
 				$this->putString($advancement[2][1]);//title
 				$this->putString($advancement[2][2]);//description
@@ -91,7 +91,7 @@ class AdvancementsPacket extends OutboundPacket{
 			$this->putVarInt(count($progressdata[1]));//Criteria size
 			foreach($progressdata[1] as $criterion){
 				$this->putString($criterion[0]);//criyeria id
-				$this->putByte($criterion[1][0] > 0 ? 1 : 0);//
+				$this->putBool($criterion[1][0]);//
 				if($criterion[1][0]){
 					$this->putLong($criterion[1][1]);//time
 				}

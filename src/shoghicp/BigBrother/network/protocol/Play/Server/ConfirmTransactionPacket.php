@@ -47,6 +47,6 @@ class ConfirmTransactionPacket extends OutboundPacket{
 	protected function encode() : void{
 		$this->putByte($this->windowID);
 		$this->putShort($this->actionNumber);
-		$this->putByte($this->accepted > 0 ? 1 : 0);
+		$this->putBool($this->accepted);
 	}
 }

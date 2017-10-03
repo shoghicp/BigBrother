@@ -133,6 +133,10 @@ abstract class Packet extends \stdClass{
 		return Binary::readTriad(strrev($this->get(3)));
 	}
 
+	protected function getBool() : bool{
+		return $this->get(1) !== "\x00";
+	}
+
 	protected function getByte() : int{
 		return ord($this->buffer{$this->offset++});
 	}
@@ -184,6 +188,10 @@ abstract class Packet extends \stdClass{
 
 	protected function putLTriad(int $v) : void{
 		$this->buffer .= strrev(Binary::writeTriad($v));
+	}
+
+	protected function putBool(bool $v) : void{
+		$this->buffer .= ($v ? "\x01" : "\x00");
 	}
 
 	protected function putByte(int $v) : void{

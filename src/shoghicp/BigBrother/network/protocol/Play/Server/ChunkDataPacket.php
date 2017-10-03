@@ -40,7 +40,7 @@ class ChunkDataPacket extends OutboundPacket{
 	public $chunkX;
 	/** @var int */
 	public $chunkZ;
-	/** @var int */
+	/** @var boolean */
 	public $groundUp;
 	/** @var int */
 	public $primaryBitmap;
@@ -58,7 +58,7 @@ class ChunkDataPacket extends OutboundPacket{
 	protected function encode() : void{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
-		$this->putByte($this->groundUp ? 1 : 0);
+		$this->putBool($this->groundUp);
 		$this->putVarInt($this->primaryBitmap);
 		if($this->groundUp){
 			$this->putVarInt(strlen($this->payload.$this->biomes));
