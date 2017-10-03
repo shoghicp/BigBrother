@@ -192,7 +192,7 @@ class BigBrother extends PluginBase implements Listener{
 	 * @param string $cipher cipher text
 	 * @return string plain text
 	 */
-	public function decryptBinary($cipher) : string{
+	public function decryptBinary(string $cipher) : string{
 		return $this->rsa->decrypt($cipher);
 	}
 
