@@ -82,6 +82,72 @@ class AES extends Rijndael{
 		}
 	}
 
+	/**
+	 * TODO this method override private Base::_createInlineCryptFunction() method
+	 * @param array $cipher_code
+	 * @return string
+	 */
+	public function _createInlineCryptFunction($cipher_code){
+		if($this->mode === self::MODE_CFB8){
+			$block_size = $this->block_size;
+
+			$init_crypt    = isset($cipher_code['init_crypt'])    ? $cipher_code['init_crypt']    : '';
+			$init_encrypt  = isset($cipher_code['init_encrypt'])  ? $cipher_code['init_encrypt']  : '';
+			$encrypt_block = $cipher_code['encrypt_block'];
+
+			$encrypt = $init_encrypt . '
+				$_ciphertext = "";
+				$_len = strlen($_text);
+				$_iv = $self->encryptIV;
+
+				for ($_i = 0; $_i < $_len; ++$_i) {
+					$in = $_iv;
+					'.$encrypt_block.'
+					$_ciphertext .= ($_c = $_text[$_i] ^ $in);
+					$_iv = substr($_iv, 1, '.$block_size.' - 1) . $_c;
+				}
+
+				if ($self->continuousBuffer) {
+					if ($_len >= '.$block_size.') {
+						$self->encryptIV = substr($_ciphertext, -'.$block_size.');
+					} else {
+						$self->encryptIV = substr($self->encryptIV, $_len - '.$block_size.') . substr($_ciphertext, -$_len);
+					}
+				}
+
+				return $_ciphertext;
+			';
+
+			$decrypt = $init_encrypt . '
+				$_plaintext = "";
+				$_len = strlen($_text);
+				$_iv = $self->decryptIV;
+
+				for ($_i = 0; $_i < $_len; ++$_i) {
+					$in = $_iv;
+					'.$encrypt_block.'
+					$_plaintext .= $_text[$_i] ^ $in;
+					$_iv = substr($_iv, 1, '.$block_size.' - 1) . $_text[$_i];
+				}
+
+				if ($self->continuousBuffer) {
+					if ($_len >= '.$block_size.') {
+						$self->decryptIV = substr($_text, -'.$block_size.');
+					} else {
+						$self->decryptIV = substr($self->decryptIV, $_len - '.$block_size.') . substr($_text, -$_len);
+					}
+				}
+
+				return $_plaintext;
+			';
+
+			$inline = create_function('$_action, &$self, $_text', $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }');
+		} else {
+			$inline = parent::_createInlineCryptFunction($cipher_code);
+		}
+
+		return $inline;
+	}
 
 	/**
 	 * TODO this method override internal Base::encrypt() method
@@ -122,6 +188,11 @@ class AES extends Rijndael{
 					$this->changed = false;
 				}
 
+				if($this->use_inline_crypt){
+					$inline = $this->inline_crypt;
+					return $inline('encrypt', $this, $plain);
+				}
+
 				$cipher = '';
 				$length = strlen($plain);
 				$vector = $this->encryptIV;
@@ -146,7 +217,6 @@ class AES extends Rijndael{
 
 		return $cipher;
 	}
-
 	/**
 	 * TODO this method override internal Base::decrypt() method
 	 * @param string $cipher text to decrypt
@@ -183,6 +253,11 @@ class AES extends Rijndael{
 				if($this->changed) {
 					$this->_setup();
 					$this->changed = false;
+				}
+
+				if($this->use_inline_crypt){
+					$inline = $this->inline_crypt;
+					return $inline('decrypt', $this, $cipher);
 				}
 
 				$plain = '';
