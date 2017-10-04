@@ -31,7 +31,6 @@ namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
-use pocketmine\nbt\NBT;
 use pocketmine\tile\Tile;
 
 class ChunkDataPacket extends OutboundPacket{
