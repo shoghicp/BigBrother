@@ -913,8 +913,13 @@ class Translator{
 						$isobject = true;
 						$packet->type = 70;
 
-						//TODO: convert blockdata
-						$data = $packet->metadata[2][1];//block data
+						$block = $packet->metadata[2][1];//block data
+						$blockId = $block >> 8;
+						$blockDamage = $block & 0xff;
+
+						ConvertUtils::convertBlockData(true, $blockId, $blockDamage);
+
+						$data = $blockId | ($blockDamage << 12);
 					break;
 					/*case 68://ThrownExpBottle
 						//Spawn Object
@@ -1342,7 +1347,13 @@ class Translator{
 						$id = 2;
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
-						//TODO: convert blockdata
+						$block = $packet->data;//block data
+						$blockId = $block >> 8;
+						$blockDamage = $block & 0xff;
+
+						ConvertUtils::convertBlockData(true, $blockId, $blockDamage);
+
+						$packet->data = $blockId | ($blockDamage << 12);
 					break;
 					case LevelEventPacket::EVENT_BLOCK_START_BREAK:
 						return null;
