@@ -48,8 +48,8 @@ class EntityVelocityPacket extends OutboundPacket{
 
 	protected function encode() : void{
 		$this->putVarInt($this->eid);
-		$this->putShort((int)round($this->velocityX * 8000));
-		$this->putShort((int)round($this->velocityY * 8000));
-		$this->putShort((int)round($this->velocityZ * 8000));
+		$this->putShort((int) round($this->velocityX * 8000));
+		$this->putShort((int) round($this->velocityY * 8000));
+		$this->putShort((int) round($this->velocityZ * 8000));
 	}
 }
