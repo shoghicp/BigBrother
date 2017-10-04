@@ -33,7 +33,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class SelectAdvancementTabPacket extends OutboundPacket{
 
-	/** @var boolean */
+	/** @var bool */
 	public $hasTab = false;
 	/** @var string */
 	public $tabId = "";

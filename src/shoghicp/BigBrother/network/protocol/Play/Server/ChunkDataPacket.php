@@ -39,7 +39,7 @@ class ChunkDataPacket extends OutboundPacket{
 	public $chunkX;
 	/** @var int */
 	public $chunkZ;
-	/** @var boolean */
+	/** @var bool */
 	public $groundUp;
 	/** @var int */
 	public $primaryBitmap;

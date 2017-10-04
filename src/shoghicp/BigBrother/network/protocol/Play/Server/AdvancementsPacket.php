@@ -33,7 +33,7 @@ use shoghicp\BigBrother\network\OutboundPacket;
 
 class AdvancementsPacket extends OutboundPacket{
 
-	/** @var boolean */
+	/** @var bool */
 	public $doClear = false;
 	/** @var array */
 	public $advancements = [];

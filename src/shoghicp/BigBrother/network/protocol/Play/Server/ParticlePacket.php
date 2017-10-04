@@ -35,7 +35,7 @@ class ParticlePacket extends OutboundPacket{
 
 	/** @var int */
 	public $id;
-	/** @var boolean */
+	/** @var bool */
 	public $longDistance = false;
 	/** @var float */
 	public $x;
