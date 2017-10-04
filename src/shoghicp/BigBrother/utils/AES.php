@@ -198,8 +198,8 @@ class AES extends Rijndael{
 				$vector = $this->encryptIV;
 
 				for($i=0; $i<$length; ++$i){
-					$cipher .= substr($plain, $i, 1) ^ $this->_encryptBlock($vector);
-					$vector  = substr($vector, 1, $this->block_size - 1) . substr($cipher, -1);
+					$cipher .= ($c = $plain[$i] ^ $this->_encryptBlock($vector));
+					$vector  = substr($vector, 1, $this->block_size - 1) . $c;
 				}
 
 				if($this->continuousBuffer){
@@ -265,8 +265,8 @@ class AES extends Rijndael{
 				$vector = $this->decryptIV;
 
 				for($i=0; $i<$length; ++$i){
-					$plain .= substr($cipher, $i, 1) ^ $this->_encryptBlock($vector);
-					$vector = substr($vector, 1, $this->block_size - 1) . substr($cipher, $i, 1);
+					$plain .= $cipher[$i] ^ $this->_encryptBlock($vector);
+					$vector = substr($vector, 1, $this->block_size - 1) . $cipher[$i];
 				}
 
 				if($this->continuousBuffer){
