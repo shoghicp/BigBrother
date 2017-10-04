@@ -914,8 +914,8 @@ class Translator{
 						$packet->type = 70;
 
 						$block = $packet->metadata[2][1];//block data
-						$blockId = $block >> 8;
-						$blockDamage = $block & 0xff;
+						$blockId = $block & 0xff;
+						$blockDamage = $block >> 8;
 
 						ConvertUtils::convertBlockData(true, $blockId, $blockDamage);
 
@@ -1348,8 +1348,8 @@ class Translator{
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
 						$block = $packet->data;//block data
-						$blockId = $block >> 8;
-						$blockDamage = $block & 0xff;
+						$blockId = $block & 0xff;
+						$blockDamage = $block >> 8;
 
 						ConvertUtils::convertBlockData(true, $blockId, $blockDamage);
 
@@ -1398,6 +1398,8 @@ class Translator{
 					$pk->data = $packet->data;
 					$pk->disableRelativeVolume = false;
 				}
+
+				var_dump($pk);
 
 				return $pk;
 
