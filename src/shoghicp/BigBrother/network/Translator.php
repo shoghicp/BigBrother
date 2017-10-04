@@ -1399,8 +1399,6 @@ class Translator{
 					$pk->disableRelativeVolume = false;
 				}
 
-				var_dump($pk);
-
 				return $pk;
 
 			case Info::BLOCK_EVENT_PACKET:
