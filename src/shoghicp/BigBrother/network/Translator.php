@@ -71,6 +71,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket
 use shoghicp\BigBrother\network\protocol\Play\Server\ParticlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\BlockBreakAnimationPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChangeGameStatePacket;
@@ -348,6 +349,8 @@ class Translator{
 
 							return $pk;
 						}else{
+							$player->setSetting(["BreakPosition" => [new Vector3($packet->x, $packet->y, $packet->z), $packet->face]]);
+
 							$packets = [];
 
 							$pk = new PlayerActionPacket();
@@ -390,6 +393,8 @@ class Translator{
 						}
 					break;
 					case 1:
+						$player->removeSetting("BreakPosition");
+
 						$pk = new PlayerActionPacket();
 						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
@@ -397,11 +402,15 @@ class Translator{
 						$pk->y = $packet->y;
 						$pk->z = $packet->z;
 						$pk->face = $packet->face;
+
 						return $pk;
 					break;
 					case 2:
 						if($player->getGamemode() !== 1){
+							$player->removeSetting("BreakPosition");
+
 							$packets = [];
+
 							$pk = new PlayerActionPacket();
 							$pk->entityRuntimeId = $player->getId();
 							$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
@@ -581,6 +590,24 @@ class Translator{
 				$pk = new AnimatePacket();
 				$pk->action = 1;
 				$pk->entityRuntimeId = $player->getId();
+
+				if($player->lastBreak !== PHP_INT_MAX){
+					$packets = [$pk];
+
+					if(($pos = $player->getSetting("BreakPosition")) !== null){
+						$pk = new PlayerActionPacket();
+						$pk->entityRuntimeId = $player->getId();
+						$pk->action = PlayerActionPacket::ACTION_CONTINUE_BREAK;
+						$pk->x = $pos[0]->x;
+						$pk->y = $pos[0]->y;
+						$pk->z = $pos[0]->z;
+						$pk->face = $pos[1];
+						$packets[] = $pk;
+					}
+
+					return $packets;
+				}
+
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
@@ -1204,7 +1231,7 @@ class Translator{
 						$issoundeffect = true;
 						$category = 1;
 
-						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+						$blockId = $player->getLevel()->getBlock($packet->position)->getId();
 						if($blockId === Block::ENDER_CHEST){
 							$name = "block.enderchest.open";
 						}else{
@@ -1215,7 +1242,7 @@ class Translator{
 						$issoundeffect = true;
 						$category = 1;
 
-						$blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
+						$blockId = $player->getLevel()->getBlock($packet->position)->getId();
 						if($blockId === Block::ENDER_CHEST){
 							$name = "block.enderchest.close";
 						}else{
@@ -1287,7 +1314,7 @@ class Translator{
 						$issoundeffect = true;
 						$category = 0;
 
-						$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+						$block = $player->getLevel()->getBlock($packet->position);
 
 						switch($block->getId()){
 							case Block::WOODEN_DOOR_BLOCK:
@@ -1355,10 +1382,18 @@ class Translator{
 
 						$packet->data = $blockId | ($blockDamage << 12);
 					break;
+					case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
+						//TODO: BreakAnimation
+
+						return null;
+					break;
 					case LevelEventPacket::EVENT_BLOCK_START_BREAK:
+						//TODO: set BreakTime
 						return null;
 					break;
 					case LevelEventPacket::EVENT_BLOCK_STOP_BREAK:
+						//TODO: remove BreakTime
+
 						return null;
 					break;
 					default:
@@ -1387,7 +1422,7 @@ class Translator{
 					$pk->offsetX = 0;
 					$pk->offsetY = 0;
 					$pk->offsetZ = 0;
-					$pk->data = $packet->data;//TODO: check it
+					$pk->data = $packet->data;
 					$pk->count = 1;
 				}else{
 					$pk = new EffectPacket();

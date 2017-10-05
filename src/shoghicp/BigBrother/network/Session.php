@@ -255,11 +255,11 @@ class Session{
 					$this->status = -1;
 					if($protocol < ServerManager::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated client!".TextFormat::RESET."\n\nPlease use ".ServerManager::VERSION);
+						$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_client", "with" => [["text" => ServerManager::VERSION]]]);
 						$this->writePacket($packet);
 					}elseif($protocol > ServerManager::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
-						$packet->reason = TextFormat::toJSON(TextFormat::BOLD . "Outdated server!".TextFormat::RESET."\n\nI'm using ".ServerManager::VERSION);
+						$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_server", "with" => [["text" => ServerManager::VERSION]]]);
 						$this->writePacket($packet);
 					}else{
 						$this->manager->openSession($this);
