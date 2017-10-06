@@ -67,9 +67,6 @@ class DesktopChunk{
 		$this->generateChunk();
 	}
 
-	/**
-	 * @return string generated chunk data
-	 */
 	public function generateChunk() : void{
 		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
