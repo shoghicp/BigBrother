@@ -91,6 +91,7 @@ class AES extends Rijndael{
 	 * TODO this method override private Base::_createInlineCryptFunction() method
 	 * @param array $cipher_code
 	 * @return string
+	 * @override
 	 */
 	public function _createInlineCryptFunction($cipher_code){
 		$inline = null;
@@ -228,6 +229,7 @@ class AES extends Rijndael{
 
 		return $cipher;
 	}
+
 	/**
 	 * TODO this method override internal Base::decrypt() method
 	 * @param string $cipher text to decrypt
