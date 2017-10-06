@@ -62,8 +62,9 @@ class AES extends Rijndael{
 				$this->enchanged = $this->dechanged = true;
 
 				if(!isset($this->enmcrypt)){
-					$this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_CFB, '');
-					$this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_CFB, '');
+					$mode = constant("MCRYPT_MODE_CFB");
+					$this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mode, '');
+					$this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mode, '');
 				}
 			break;
 			default:
