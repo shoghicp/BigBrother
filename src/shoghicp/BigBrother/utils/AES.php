@@ -45,6 +45,10 @@ class AES extends Rijndael{
 			$this->mode = $mode;
 			$this->paddable = false;
 		}
+
+		if($this->use_inline_crypt !== false){
+			$this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0', '>=') or function_exists('create_function');
+		}
 	}
 
 	/**
@@ -88,6 +92,8 @@ class AES extends Rijndael{
 	 * @return string
 	 */
 	public function _createInlineCryptFunction($cipher_code){
+		$inline = null;
+
 		if($this->mode === self::MODE_CFB8){
 			$block_size = $this->block_size;
 
@@ -141,9 +147,13 @@ class AES extends Rijndael{
 				return $_plaintext;
 			';
 
-			$inline = create_function('$_action, &$self, $_text', $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }');
+			if(version_compare(PHP_VERSION, '5.3.0', '>=')){
+				$inline = eval('return function($_action, &$self, $_text){' . $init_crypt . 'if ($_action) {' . $encrypt . '} else {' . $decrypt . '}};');
+			}else{
+				$inline = @create_function('$_action, &$self, $_text', $init_crypt . 'if ($_action) {' . $encrypt . '} else {' . $decrypt . '};');
+			}
 		} else {
-			$inline = parent::_createInlineCryptFunction($cipher_code);
+			$this->use_inline_crypt = false;
 		}
 
 		return $inline;
@@ -190,7 +200,7 @@ class AES extends Rijndael{
 
 				if($this->use_inline_crypt){
 					$inline = $this->inline_crypt;
-					return $inline('encrypt', $this, $plain);
+					return $inline(true, $this, $plain);
 				}
 
 				$cipher = '';
@@ -257,7 +267,7 @@ class AES extends Rijndael{
 
 				if($this->use_inline_crypt){
 					$inline = $this->inline_crypt;
-					return $inline('decrypt', $this, $cipher);
+					return $inline(false, $this, $cipher);
 				}
 
 				$plain = '';
