@@ -142,20 +142,15 @@ class Translator{
 
 						return $pk;
 					break;
-					/*case 1:
-						$statistic = [];
-						$statistic[] = ["achievement.openInventory", 1];//
-						foreach($player->achievements as $achievement => $count){
-							$statistic[] = ["achievement.".$achievement, $count];
-						}
-
+					case 1:
 						//TODO: stat https://gist.github.com/Alvin-LB/8d0d13db00b3c00fd0e822a562025eff
+						$statistic = [];
 
 						$pk = new StatisticsPacket();
-						$pk->count = count($statistic);//TODO stat
+						$pk->count = count($statistic);
 						$pk->statistic = $statistic;
 						$player->putRawPacket($pk);
-					break;*/
+					break;
 					default:
 						echo "ClientStatusPacket: ".$packet->actionID."\n";
 					break;
