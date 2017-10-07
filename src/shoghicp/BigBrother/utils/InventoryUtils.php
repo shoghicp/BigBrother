@@ -613,7 +613,7 @@ class InventoryUtils{
 			$pk = new InventorySlotPacket();
 			$pk->windowId = $packet->windowID;
 			$pk->item = $item;
-			$pk->slot = $packet->slot;
+			$pk->inventorySlot = $packet->slot;
 
 			if($packet->windowID !== ContainerIds::INVENTORY){
 				if($pk->slot >= $this->windowInfo[$packet->windowID]["slots"]){
@@ -625,7 +625,7 @@ class InventoryUtils{
 						$slots = 9;
 					}
 
-					$pk->slot = ($pk->slot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
+					$pk->inventorySlot = ($pk->slot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
 				}
 			}
 
@@ -664,14 +664,14 @@ class InventoryUtils{
 
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
 				$pk->windowId = ContainerIds::ARMOR;
-				$pk->slot = $packet->slot - 5;
+				$pk->inventorySlot = $packet->slot - 5;
 			}else{//Inventory
 				$pk->windowId = ContainerIds::INVENTORY;
 
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
-					$pk->slot = $packet->slot - 36;
+					$pk->inventorySlot = $packet->slot - 36;
 				}else{
-					$pk->slot = $packet->slot;
+					$pk->inventorySlot = $packet->slot;
 				}
 			}
 			return $pk;
@@ -713,7 +713,7 @@ class InventoryUtils{
 
 			$pk = new InventorySlotPacket();
 			$pk->windowId = ContainerIds::INVENTORY;
-			$pk->slot = $slot;
+			$pk->inventorySlot = $slot;
 			$pk->item = $i;
 			$this->player->handleDataPacket($pk);
 

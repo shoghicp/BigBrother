@@ -29,21 +29,19 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother;
 
-use pocketmine\Achievement;
 use pocketmine\Player;
 use pocketmine\event\Timings;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Item;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\level\Level;
 use pocketmine\utils\Utils;
-use pocketmine\utils\UUID;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
@@ -52,7 +50,6 @@ use shoghicp\BigBrother\network\protocol\Login\LoginSuccessPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AdvancementsPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerListPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\TitlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UnloadChunkPacket;
@@ -85,7 +82,12 @@ class DesktopPlayer extends Player{
 	/** @var InventoryUtils */
 	private $inventoryutils;
 	/** @var array */
-	protected $Settings = [];
+	private $bigBrother_clientSetting = [];
+	/** @var array */
+	private $bigBrother_pluginMessageList = [];
+	/** @var Vectior3 */
+	private $bigBrother_breakPosition = [];
+
 	/** @var ProtocolInterface */
 	protected $interface;
 	/** @var BigBrother */
@@ -102,6 +104,8 @@ class DesktopPlayer extends Player{
 		$this->plugin = $plugin;
 		$this->bigbrother_clientId = $clientID;
 		parent::__construct($interface, $clientID, $address, $port);
+
+		$this->bigBrother_breakPosition = [new Vector3(0, 0, 0), 0];
 		$this->inventoryutils = new InventoryUtils($this);
 	}
 
@@ -177,6 +181,49 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
+	 * @return array
+	 */
+	public function bigBrother_getClientSetting() : array{
+		return $this->bigBrother_clientSetting;
+	}
+
+	/**
+	 * @param array $clientSetting
+	 */
+	public function bigBrother_setClientSetting(array $clientSetting = []) : void{
+		$this->bigBrother_clientSetting = $clientSetting;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function bigBrother_getPluginMessageList() : array{
+		return $this->bigBrother_pluginMessageList;
+	}
+
+	/**
+	 * @param string $channel
+	 * @param array  $data
+	 */
+	public function bigBrother_setPluginMessageList(string $channel = "", array $data = []) : void{
+		$this->bigBrother_pluginMessageList[$channel] = $data;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function bigBrother_getBreakPosition() : array{
+		return $this->bigBrother_breakPosition;
+	}
+
+	/**
+	 * @param array $position
+	 */
+	public function bigBrother_setBreakPosition(array $positionData = []) : void{
+		$this->bigBrother_breakPosition = $positionData;
+	}
+
+	/**
 	 * @return int status
 	 */
 	public function bigBrother_getStatus() : int{
@@ -202,44 +249,6 @@ class DesktopPlayer extends Player{
 	 */
 	public function bigBrother_getformatedUUID() : string{
 		return $this->bigBrother_formatedUUID;
-	}
-
-	/**
-	 * @return array settings
-	 */
-	public function getSettings() : array{
-		return $this->Settings;
-	}
-
-	/**
-	 * @param string $settingname
-	 * @return
-	 */
-	public function getSetting(string $settingname){
-		return $this->Settings[$settingname] ?? false;
-	}
-
-	/**
-	 * @param array $settings
-	 */
-	public function setSetting(array $settings) : void{
-		$this->Settings = array_merge($this->Settings, $settings);
-	}
-
-	/**
-	 * @param string $settingname
-	 */
-	public function removeSetting(string $settingname) : void{
-		if(isset($this->Settings[$settingname])){
-			unset($this->Settings[$settingname]);
-		}
-	}
-
-	/**
-	 * @param string $settingname
-	 */
-	public function cleanSetting(string $settingname) : void{
-		unset($this->Settings[$settingname]);
 	}
 
 	/**
@@ -305,8 +314,6 @@ class DesktopPlayer extends Player{
 	public function onVerifyCompleted(LoginPacket $packet, bool $isValid, bool $isAuthenticated) : void{
 		parent::onVerifyCompleted($packet, true, true);
 
-		BigBrother::addPlayerList($this);
-
 		$pk = new ResourcePackClientResponsePacket();
 		$pk->status = ResourcePackClientResponsePacket::STATUS_COMPLETED;
 		$this->handleDataPacket($pk);
@@ -318,23 +325,6 @@ class DesktopPlayer extends Player{
 		$pk = new KeepAlivePacket();
 		$pk->id = mt_rand();
 		$this->putRawPacket($pk);
-
-		$pk = new PlayerListPacket();
-		$pk->actionID = PlayerListPacket::TYPE_ADD;
-		$pk->players[] = [
-			UUID::fromString($this->bigBrother_formatedUUID)->toBinary(),
-			$this->bigBrother_username,
-			$this->bigBrother_properties,
-			$this->getGamemode(),
-			0,
-			true,
-			BigBrother::toJSON($this->bigBrother_username)
-		];
-		$this->putRawPacket($pk);
-
-		$playerlist = [];
-		$playerlist[UUID::fromString($this->bigBrother_formatedUUID)->toString()] = $this->bigBrother_username;
-		$this->setSetting(["PlayerList" => $playerlist]);
 
 		$pk = new TitlePacket(); //for Set SubTitle
 		$pk->actionID = TitlePacket::TYPE_SET_TITLE;

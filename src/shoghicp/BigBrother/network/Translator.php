@@ -38,6 +38,7 @@ use pocketmine\math\Vector3;
 use pocketmine\level\particle\Particle;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
+use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\EntityEventPacket;
@@ -158,7 +159,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::CLIENT_SETTINGS_PACKET:
-				$player->setSetting([
+				$player->bigBrother_setClientSetting([
 					"Lang" => $packet->lang,
 					"View" => $packet->view,
 					"ChatMode" => $packet->chatMode,
@@ -184,10 +185,10 @@ class Translator{
 			case InboundPacket::PLUGIN_MESSAGE_PACKET:
 				switch($packet->channel){
 					case "REGISTER"://Mods Register
-						$player->setSetting(["Channels" => $packet->data]);
+						$player->bigBrother_setPluginMessageList("Channels", $packet->data);
 					break;
 					case "MC|Brand": //ServerType
-						$player->setSetting(["ServerType" => $packet->data]);
+						$player->bigBrother_setPluginMessageList("ServerType", $packet->data);
 					break;
 					default:
 						echo "PluginChannel: ".$packet->channel."\n";
@@ -322,8 +323,10 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_ABILITIES_PACKET:
-				$player->setSetting(["isFlying" => $packet->isFlying]);
-				return null;
+				$pk = new AdventureSettingsPacket();
+				$pk->setFlag(AdventureSettingsPacket::FLYING, $packet->isFlying);
+
+				return $pk;
 
 			case InboundPacket::PLAYER_DIGGING_PACKET:
 				switch($packet->status){
@@ -344,7 +347,7 @@ class Translator{
 
 							return $pk;
 						}else{
-							$player->setSetting(["BreakPosition" => [new Vector3($packet->x, $packet->y, $packet->z), $packet->face]]);
+							$player->bigBrother_setBreakPosition([new Vector3($packet->x, $packet->y, $packet->z), $packet->face]);
 
 							$packets = [];
 
@@ -388,7 +391,7 @@ class Translator{
 						}
 					break;
 					case 1:
-						$player->removeSetting("BreakPosition");
+						$player->bigBrother_setBreakPosition([new Vector3(0, 0, 0), 0]);
 
 						$pk = new PlayerActionPacket();
 						$pk->entityRuntimeId = $player->getId();
@@ -402,7 +405,7 @@ class Translator{
 					break;
 					case 2:
 						if($player->getGamemode() !== 1){
-							$player->removeSetting("BreakPosition");
+							$player->bigBrother_setBreakPosition([new Vector3(0, 0, 0), 0]);
 
 							$packets = [];
 
@@ -589,7 +592,8 @@ class Translator{
 				if($player->lastBreak !== PHP_INT_MAX){
 					$packets = [$pk];
 
-					if(($pos = $player->getSetting("BreakPosition")) !== null){
+					$pos = $player->bigBrother_setBreakPosition();
+					if(!$pos->equals(new Vector3(0, 0, 0))){
 						$pk = new PlayerActionPacket();
 						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_CONTINUE_BREAK;
@@ -668,8 +672,6 @@ class Translator{
 				return null;
 
 			case Info::DISCONNECT_PACKET:
-				BigBrother::removePlayerList($player);
-
 				if($player->bigBrother_getStatus() === 0){
 					$pk = new LoginDisconnectPacket();
 					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
@@ -1548,14 +1550,14 @@ class Translator{
 								$pk->food = (int) $player->getFood();//TODO: Default Value
 								$pk->saturation = $player->getSaturation();//TODO: Default Value
 
-							}elseif($player->getSetting("BossBar") !== false){
+							/*}elseif($player->getSetting("BossBar") !== false){
 								if($packet->entityRuntimeId === $player->getSetting("BossBar")[0]){
 									$pk = new BossBarPacket();
 									$pk->uuid = $player->getSetting("BossBar")[1];//Temporary
 									$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
 									//$pk->health = $entry->getValue();//TODO
 									$pk->health = 1;
-								}
+								}*/
 							}else{
 								$pk = new EntityMetadataPacket();
 								$pk->eid = $packet->entityRuntimeId;
@@ -1656,7 +1658,7 @@ class Translator{
 			case Info::SET_ENTITY_DATA_PACKET:
 				$packets = [];
 
-				if($player->getSetting("BossBar") !== false){
+				/*if($player->getSetting("BossBar") !== false){
 					if($packet->entityRuntimeId === $player->getSetting("BossBar")[0]){
 						if(isset($packet->metadata[Entity::DATA_NAMETAG])){
 							$title = str_replace("\n", "", $packet->metadata[Entity::DATA_NAMETAG][1]);
@@ -1671,7 +1673,7 @@ class Translator{
 
 						$packets[] = $pk;
 					}
-				}
+				}*/
 
 				if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
 					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION][1];
@@ -1858,20 +1860,11 @@ class Translator{
 					case 0://Add
 						$pk->actionID = PlayerListPacket::TYPE_ADD;
 
-						if(!($playerlist = $player->getSetting("PlayerList"))){
-							$playerlist = [];
-						}
-
 						foreach($packet->entries as $entry){
-							if(isset($playerlist[$entry->uuid->toString()])){
-								//TODO: change name
-								continue;
-							}
+							$playerdata = $player->getServer()->getLoggedInPlayers()[$entry->uuid->toBinary()];
 
-							$pkplayer = BigBrother::getPlayerList(TextFormat::clean($entry->username));
-							if($pkplayer instanceof DesktopPlayer){
-								$properties = $pkplayer->bigBrother_getProperties();
-								$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
+							if($playerdata instanceof DesktopPlayer){
+								$properties = $playerdata->bigBrother_getProperties();
 							}else{
 								//TODO: Skin Problem
 								$value = [//Dummy Data
@@ -1891,65 +1884,38 @@ class Translator{
 										"value" => base64_encode(json_encode($value)),
 									]
 								];
-
-								$uuid = $entry->uuid->toBinary();
 							}
 
 							$pk->players[] = [
-								$uuid,
+								$entry->uuid->toBinary(),
 								TextFormat::clean($entry->username),
 								$properties,
-								0,//TODO: Gamemode
+								$playerdata->getGamemode(),
 								0,
 								true,
 								BigBrother::toJSON($entry->username)
 							];
-
-							$playerlist[$entry->uuid->toString()] = TextFormat::clean($entry->username);
 						}
-
-						$player->setSetting(["PlayerList" => $playerlist]);
 					break;
 					case 1://Remove
 						$pk->actionID = PlayerListPacket::TYPE_REMOVE;
 
-						if(!($playerlist = $player->getSetting("PlayerList"))){
-							$playerlist = [];
-						}
-
 						foreach($packet->entries as $entry){
-							if(isset($playerlist[$entry->uuid->toString()])){
-
-								$pkplayer = BigBrother::getPlayerList($playerlist[$entry->uuid->toString()]);
-								if($pkplayer instanceof DesktopPlayer){
-									$uuid = UUID::fromString($pkplayer->bigBrother_getformatedUUID())->toBinary();
-								}else{
-									$uuid = $entry->uuid->toBinary();
-								}
-
-								unset($playerlist[$entry->uuid->toString()]);
-							}else{
-								$uuid = $entry->uuid->toBinary();
-							}
-
-
 							$pk->players[] = [
-								$uuid,
+								$entry->uuid->toBinary(),
 							];
 						}
-
-						$player->setSetting(["PlayerList" => $playerlist]);
 					break;
 				}
 
 				return $pk;
 
-			case Info::BOSS_EVENT_PACKET:
+			/*case Info::BOSS_EVENT_PACKET:
 				$pk = new BossBarPacket();
 
 				switch($packet->type){
 					case 0:
-						if($player->getSetting("BossBar") !== false){//PE is Update
+						/*if($player->getSetting("BossBar") !== false){//PE is Update
 							return null;
 						}
 
@@ -1978,7 +1944,7 @@ class Translator{
 						return $pk;
 					break;
 					case 1:
-						if($player->getSetting("BossBar") === false){
+						/*if($player->getSetting("BossBar") === false){
 							return null;
 						}
 
@@ -1993,7 +1959,7 @@ class Translator{
 						echo "BossEventPacket: ".$packet->type."\n";
 					break;
 				}
-				return null;
+				return null;*/
 
 			case 0xfe: //Info::BATCH_PACKET
 				$packets = [];

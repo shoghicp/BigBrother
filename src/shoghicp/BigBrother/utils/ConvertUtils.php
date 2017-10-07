@@ -232,6 +232,12 @@ class ConvertUtils{
 		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
 		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
 
+		//reset all index
+		self::$idlistIndex = [
+			[/* PE => PC */],
+			[/* PC => PE */]
+		];
+
 		foreach(self::$idlist as $entry){
 			//append index (PE => PC)
 			if(isset(self::$idlistIndex[0][$entry[0][0]])){
@@ -579,7 +585,7 @@ class ConvertUtils{
 						$newdata[3] = [6, true];
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_IMMOBILE)) > 0){
+					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
 						//$newdata[11] = [0, true];
 					}
 

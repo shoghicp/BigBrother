@@ -67,9 +67,6 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var Translator */
 	protected $translator;
 
-	/** @var DesktopPlayer[] */
-	protected static $playerList = [];
-
 	/**
 	 * @override
 	 */
@@ -97,7 +94,6 @@ class BigBrother extends PluginBase implements Listener{
 				$this->getLogger()->warning("Use phpseclib internal engine for AES encryption, this may impact on performance. To improve them, try to install openssl extension.");
 			break;
 		}
-
 
 		$this->rsa = new RSA();
 		switch(constant("CRYPT_RSA_MODE")){
@@ -272,7 +268,7 @@ class BigBrother extends PluginBase implements Listener{
 					$result["translate"] = "chat.type.admin";
 
 					$result["with"][] = ["text" => substr($message, 1, strpos($message, ":") - 1)];
-					$result["with"][] = ["translate" => preg_replace('/[^0-9a-zA-Z.]/', '', substr($message, strpos($message, "%") === false ? 0 : strpos($message, "%")))];
+					$result["with"][] = ["translate" => preg_replace("/[^0-9a-zA-Z.]/", "", substr($message, strpos($message, "%") === false ? 0 : strpos($message, "%")))];
 
 					$with = &$result["with"][1];
 				}else{
@@ -307,27 +303,4 @@ class BigBrother extends PluginBase implements Listener{
 		return $result;
 	}
 
-	/**
-	 * @param DesktopPlayer $player
-	 */
-	public static function addPlayerList(DesktopPlayer $player) : void{
-		self::$playerList[$player->getName()] = $player;
-	}
-
-	/**
-	 * @param DesktopPlayer $player
-	 */
-	public static function removePlayerList(DesktopPlayer $player) : void{
-		if(isset(self::$playerList[$player->getName()])){
-			unset(self::$playerList[$player->getName()]);
-		}
-	}
-
-	/**
-	 * @param string $username
-	 * @return DesktopPlayer|null corresponding player when username equals $username else null
-	 */
-	public static function getPlayerList(string $username) : ?DesktopPlayer{
-		return self::$playerList[$username] ?? null;
-	}
 }
