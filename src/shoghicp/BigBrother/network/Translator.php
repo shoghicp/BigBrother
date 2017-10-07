@@ -1384,7 +1384,6 @@ class Translator{
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
 						//TODO: BreakAnimation
-
 						return null;
 					break;
 					case LevelEventPacket::EVENT_BLOCK_START_BREAK:

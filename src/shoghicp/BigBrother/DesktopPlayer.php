@@ -398,7 +398,7 @@ class DesktopPlayer extends Player{
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
-			$skin = false;
+			$skin = "";
 			$skindata = null;
 			foreach($this->bigBrother_properties as $property){
 				if($property["name"] === "textures"){
@@ -415,20 +415,23 @@ class DesktopPlayer extends Player{
 			$pk->clientUUID = $this->bigBrother_formatedUUID;
 			$pk->clientId = crc32($this->bigbrother_clientId);
 			$pk->serverAddress = "127.0.0.1:25565";
-			if($skin === null or $skin === false){
+			$pk->clientData["SkinGeometryName"] = "";//TODO
+			$pk->clientData["SkinGeometry"] = "";//TODO
+			$pk->clientData["CapeData"] = "";//TODO
+			if($skin === ""){
 				if($this->plugin->getConfig()->get("skin-slim")){
-					$pk->skinId = "Standard_Custom";
+					$pk->clientData["SkinId"] = "Standard_Custom";
 				}else{
-					$pk->skinId = "Standard_CustomSlim";
+					$pk->clientData["SkinId"] = "Standard_CustomSlim";
 				}
-				$pk->skin = file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml"));
+				$pk->clientData["SkinData"] = base64_encode(file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml")));
 			}else{
 				if($skindata !== null && !isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
-					$pk->skinId = "Standard_Custom";
+					$pk->clientData["SkinId"] = "Standard_Custom";
 				}else{
-					$pk->skinId = "Standard_CustomSlim";
+					$pk->clientData["SkinId"] = "Standard_CustomSlim";
 				}
-				$pk->skin = $skin;
+				$pk->clientData["SkinData"] = base64_encode($skin);
 			}
 			$pk->chainData = ["chain" => []];
 			$pk->clientDataJwt = "eyJ4NXUiOiJNSFl3RUFZSEtvWkl6ajBDQVFZRks0RUVBQ0lEWWdBRThFTGtpeHlMY3dsWnJ5VVFjdTFUdlBPbUkyQjd2WDgzbmRuV1JVYVhtNzR3RmZhNWZcL2x3UU5UZnJMVkhhMlBtZW5wR0k2SmhJTVVKYVdacmptTWo5ME5vS05GU05CdUtkbThyWWlYc2ZhejNLMzZ4XC8xVTI2SHBHMFp4S1wvVjFWIn0.W10.QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB";
@@ -507,9 +510,9 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * @param string $url
-	 * @return string|bool|null sking image
+	 * @return string sking image
 	 */
-	public function getSkinImage(string $url){
+	public function getSkinImage(string $url) : string{
 		if(extension_loaded("gd")){
 			$image = imagecreatefrompng($url);
 
@@ -530,7 +533,7 @@ class DesktopPlayer extends Player{
 					}
 					$colors[] = $y_array;
 				}
-				$skin = null;
+				$skin = "";
 				foreach($colors as $width){
 					foreach($width as $height){
 						$alpha = 0;
@@ -557,7 +560,7 @@ class DesktopPlayer extends Player{
 				return $skin;
 			}
 		}
-		return false;
+		return "";
 	}
 
 	/**

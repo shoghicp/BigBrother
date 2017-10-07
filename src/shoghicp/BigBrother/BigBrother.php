@@ -112,6 +112,7 @@ class BigBrother extends PluginBase implements Listener{
 
 		if(!$this->getConfig()->exists("motd")){
 			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
+			$this->getPluginLoader()->disablePlugin($this);
 			return;
 		}
 
