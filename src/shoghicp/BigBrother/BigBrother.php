@@ -272,7 +272,7 @@ class BigBrother extends PluginBase implements Listener{
 					$result["translate"] = "chat.type.admin";
 
 					$result["with"][] = ["text" => substr($message, 1, strpos($message, ":") - 1)];
-					$result["with"][] = ["translate" => preg_replace('/[^0-9a-zA-Z.]/', '', substr($message, strpos($message, "%")))];
+					$result["with"][] = ["translate" => preg_replace('/[^0-9a-zA-Z.]/', '', substr($message, strpos($message, "%") === false ? 0 : strpos($message, "%")))];
 
 					$with = &$result["with"][1];
 				}else{
