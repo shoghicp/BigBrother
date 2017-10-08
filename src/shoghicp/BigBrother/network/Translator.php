@@ -592,8 +592,8 @@ class Translator{
 				if($player->lastBreak !== PHP_INT_MAX){
 					$packets = [$pk];
 
-					$pos = $player->bigBrother_setBreakPosition();
-					if(!$pos->equals(new Vector3(0, 0, 0))){
+					$pos = $player->bigBrother_getBreakPosition();
+					if(!$pos[0]->equals(new Vector3(0, 0, 0))){
 						$pk = new PlayerActionPacket();
 						$pk->entityRuntimeId = $player->getId();
 						$pk->action = PlayerActionPacket::ACTION_CONTINUE_BREAK;
@@ -630,14 +630,14 @@ class Translator{
 				$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
 				$pk->trData = new \stdClass();
 				$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_AIR;
-				$pk->trData->x = $packet->x;
-				$pk->trData->y = $packet->y;
-				$pk->trData->z = $packet->z;
+				$pk->trData->x = 0;
+				$pk->trData->y = 0;
+				$pk->trData->z = 0;
 				$pk->trData->face = -1;
 				$pk->trData->hotbarSlot = $player->getInventory()->getHeldItemIndex();
 				$pk->trData->itemInHand = $player->getInventory()->getItemInHand();
 				$pk->trData->playerPos = new Vector3($player->getX(), $player->getY(), $player->getZ());
-				$pk->trData->clickPos = new Vector3($packet->x, $packet->y, $packet->z);
+				$pk->trData->clickPos = new Vector3(0, 0, 0);
 
 				return $pk;
 

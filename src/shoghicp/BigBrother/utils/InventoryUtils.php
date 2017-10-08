@@ -32,11 +32,13 @@ namespace shoghicp\BigBrother\utils;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
-use pocketmine\network\mcpe\protocol\InventorySlotPacket;
-use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\ContainerSetDataPacket;
+use pocketmine\network\mcpe\protocol\InventoryContentPacket;
+use pocketmine\network\mcpe\protocol\InventorySlotPacket;
+use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\WindowTypes;
 
 use pocketmine\entity\Item as ItemEntity;
@@ -240,12 +242,6 @@ class InventoryUtils{
 
 				if($packet->inventorySlot >= 0 and $packet->inventorySlot < $this->player->getInventory()->getHotbarSize()){
 					$pk->slot = $packet->inventorySlot + 36;
-
-					$pk2 = new InventorySlotPacket();//link hotbar in item
-					$pk2->windowId = ContainerIds::HOTBAR;
-					$pk2->inventorySlot = $packet->inventorySlot + 9;
-					$pk2->item = $packet->item;
-					$this->player->handleDataPacket($pk2);
 				}elseif($packet->inventorySlot >= $this->player->getInventory()->getHotbarSize() and $packet->inventorySlot < $this->player->getInventory()->getSize()){
 					$pk->slot = $packet->inventorySlot;
 				}elseif($packet->inventorySlot >= $this->player->getInventory()->getSize() and $packet->inventorySlot < $this->player->getInventory()->getSize() + 4){
@@ -352,32 +348,14 @@ class InventoryUtils{
 					$pk->items[] = Item::get(Item::AIR, 0, 0);//Armor
 				}
 
-				/*$hotbar = [];
-				foreach($packet->hotbar as $num => $hotbarslot){
-					if($hotbarslot === -1){
-						$packet->hotbar[$num] = $hotbarslot = $num + $this->player->getInventory()->getHotbarSize();
-					}
-
-					$hotbarslot -= $this->player->getInventory()->getHotbarSize();
-					$hotbar[] = $packet->slots[$hotbarslot];
-				}
-
-				$inventory = [];
-				for($i = 0; $i < $this->player->getInventory()->getSize(); $i++){
-					$hotbarslot = $i + $this->player->getInventory()->getHotbarSize();
-					if(!in_array($hotbarslot, $packet->hotbar)){
-						$pk->items[] = $packet->slots[$i];
-						$inventory[] = $packet->slots[$i];
-					}
-				}
-
-				foreach($hotbar as $item){
-					$pk->items[] = $item;//hotbar
-				}*/
-
 				$hotbar = [];
 				$inventory = [];
 				for($i = 0; $i < $this->player->getInventory()->getSize(); $i++){
+					if($i >= 0 and $i < $this->player->getInventory()->getHotbarSize()){
+						$hotbar[] = $packet->items[$i];
+					}else{
+						$inventory[] = $packet->items[$i];
+					}
 					$pk->items[] = $packet->items[$i];
 				}
 
@@ -610,24 +588,34 @@ class InventoryUtils{
 
 		$packets = [];
 		if($accepted){
-			$pk = new InventorySlotPacket();
-			$pk->windowId = $packet->windowID;
-			$pk->item = $item;
-			$pk->inventorySlot = $packet->slot;
+			$action = new NetworkInventoryAction();
+			$action->sourceType = NetworkInventoryAction::SOURCE_CONTAINER;
+			$action->windowId = $packet->windowID;
+			$action->inventorySlot = $packet->slot;
+			$action->newItem = $item;
 
 			if($packet->windowID !== ContainerIds::INVENTORY){
 				if($pk->slot >= $this->windowInfo[$packet->windowID]["slots"]){
-					$pk->windowId = ContainerIds::INVENTORY;
+					$action->windowId = ContainerIds::INVENTORY;
 
-					if($pk->slot >= 36 and $pk->slot < 45){
+					if($action->inventorySlot >= 36 and $action->inventorySlot < 45){
 						$slots = 0;
 					}else{
 						$slots = 9;
 					}
 
-					$pk->inventorySlot = ($pk->slot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
+					$action->inventorySlot = ($action->inventorySlot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
+					$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
+				}else{
+					$action->oldItem = $this->windowInfo[$packet->windowId]["items"][$action->inventorySlot];
 				}
+			}else{
+				$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
 			}
+
+			$pk = new InventoryTransactionPacket();
+			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
+			$pk->actions[] = $action;
 
 			$packets[] = $pk;
 		}
@@ -646,6 +634,7 @@ class InventoryUtils{
 	 * @return DataPacket|null
 	 */
 	public function onCreativeInventoryAction(CreativeInventoryActionPacket $packet) : ?DataPacket{
+
 		if($packet->slot === 65535){
 			foreach($this->player->getInventory()->getContents() as $slot => $item){
 				if($item->equals($packet->item, true, true)){
@@ -659,21 +648,51 @@ class InventoryUtils{
 
 			return null;
 		}else{
-			$pk = new InventorySlotPacket();
-			$pk->item = $packet->item;
+			$action = new NetworkInventoryAction();
+			$action->sourceType = NetworkInventoryAction::SOURCE_CONTAINER;
 
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
-				$pk->windowId = ContainerIds::ARMOR;
-				$pk->inventorySlot = $packet->slot - 5;
-			}else{//Inventory
-				$pk->windowId = ContainerIds::INVENTORY;
+				$action->windowId = ContainerIds::ARMOR;
+				$action->inventorySlot = $packet->slot - 5;
+				$action->oldItem = $this->player->getInventory()->getItem(36 + $packet->slot);
+				$action->newItem = $packet->item;
+			}else{
+				$action->windowId = ContainerIds::INVENTORY;
 
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
-					$pk->inventorySlot = $packet->slot - 36;
+					$action->inventorySlot = $packet->slot - 36;
 				}else{
-					$pk->inventorySlot = $packet->slot;
+					$action->inventorySlot = $packet->slot;
 				}
+
+				$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
+				$action->newItem = $packet->item;
 			}
+
+			$pk = new InventoryTransactionPacket();
+			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
+			$pk->actions[] = $action;
+
+			if($this->player->getInventory()->getItem($action->inventorySlot)->getId() !== Item::AIR){
+				$action = new NetworkInventoryAction();
+				$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
+				$action->windowId = -1;
+				$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_DELETE_ITEM;
+				$action->oldItem = Item::get(Item::AIR);
+				$action->newItem = $this->player->getInventory()->getItem($action->inventorySlot);
+
+				$pk->actions[] = $action;
+			}
+
+			$action = new NetworkInventoryAction();
+			$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
+			$action->windowId = -1;
+			$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_CREATE_ITEM;
+			$action->oldItem = $packet->item;
+			$action->newItem = Item::get(Item::AIR);
+
+			$pk->actions[] = $action;
+
 			return $pk;
 		}
 		return null;
@@ -694,29 +713,6 @@ class InventoryUtils{
 		}
 
 		if($this->player->getInventory()->canAddItem($item)){
-			$emptyslot = $this->player->getInventory()->firstEmpty();
-
-			$slot = -1;
-			for($index = 0; $index < $this->player->getInventory()->getSize(); ++$index){
-				$i = $this->player->getInventory()->getItem($index);
-				if($i->equals($item) and $item->getCount() < $item->getMaxStackSize()){
-					$slot = $index;
-					$i->setCount($i->getCount() + 1);
-					break;
-				}
-			}
-
-			if($slot === -1){
-				$slot = $emptyslot;
-				$i = clone $item;
-			}
-
-			$pk = new InventorySlotPacket();
-			$pk->windowId = ContainerIds::INVENTORY;
-			$pk->inventorySlot = $slot;
-			$pk->item = $i;
-			$this->player->handleDataPacket($pk);
-
 			$pk = new CollectItemPacket();
 			$pk->eid = $packet->eid;
 			$pk->target = $packet->target;
