@@ -275,12 +275,31 @@ class DesktopPlayer extends Player{
 					0,
 					0
 				],
-				[],
-				[]
+				[
+					["hasjoined"],
+				],
+				[
+					[
+						"hasjoined"
+					]
+				]
 			]
 		];
 		$pk->identifiers = [];
-		$pk->progress = [];
+		$pk->progress = [
+			[
+				"pocketmine:advancements/root",
+				[
+					[
+						"hasjoined",
+						[
+							true,
+							time()
+						]
+					]
+				]
+			]
+		];
 		$this->putRawPacket($pk);
 
 		if($first){
