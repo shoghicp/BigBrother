@@ -355,8 +355,12 @@ class InventoryUtils{
 						$hotbar[] = $packet->items[$i];
 					}else{
 						$inventory[] = $packet->items[$i];
+						$pk->items[] = $packet->items[$i];
 					}
-					$pk->items[] = $packet->items[$i];
+				}
+
+				foreach($hotbar as $item){
+					$pk->items[] = $item;
 				}
 
 				$pk->items[] = Item::get(Item::AIR, 0, 0);//offhand
@@ -610,6 +614,9 @@ class InventoryUtils{
 					$action->oldItem = $this->windowInfo[$packet->windowId]["items"][$action->inventorySlot];
 				}
 			}else{
+				if($action->inventorySlot >= 36 and $action->inventorySlot < 45){
+					$action->inventorySlot -= 36;
+				}
 				$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
 			}
 
@@ -634,7 +641,6 @@ class InventoryUtils{
 	 * @return DataPacket|null
 	 */
 	public function onCreativeInventoryAction(CreativeInventoryActionPacket $packet) : ?DataPacket{
-
 		if($packet->slot === 65535){
 			foreach($this->player->getInventory()->getContents() as $slot => $item){
 				if($item->equals($packet->item, true, true)){
@@ -654,7 +660,7 @@ class InventoryUtils{
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
 				$action->windowId = ContainerIds::ARMOR;
 				$action->inventorySlot = $packet->slot - 5;
-				$action->oldItem = $this->player->getInventory()->getItem(36 + $packet->slot);
+				$action->oldItem = $oldItem = $this->player->getInventory()->getItem(36 + $packet->slot);
 				$action->newItem = $packet->item;
 			}else{
 				$action->windowId = ContainerIds::INVENTORY;
@@ -665,7 +671,7 @@ class InventoryUtils{
 					$action->inventorySlot = $packet->slot;
 				}
 
-				$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
+				$action->oldItem = $oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
 				$action->newItem = $packet->item;
 			}
 
@@ -673,25 +679,27 @@ class InventoryUtils{
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
 			$pk->actions[] = $action;
 
-			if($this->player->getInventory()->getItem($action->inventorySlot)->getId() !== Item::AIR){
+			if($oldItem->getId() !== Item::AIR and !$oldItem->equals($packet->item, true, true)){
 				$action = new NetworkInventoryAction();
 				$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
 				$action->windowId = -1;
 				$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_DELETE_ITEM;
 				$action->oldItem = Item::get(Item::AIR);
-				$action->newItem = $this->player->getInventory()->getItem($action->inventorySlot);
+				$action->newItem = $oldItem;
 
 				$pk->actions[] = $action;
 			}
 
-			$action = new NetworkInventoryAction();
-			$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
-			$action->windowId = -1;
-			$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_CREATE_ITEM;
-			$action->oldItem = $packet->item;
-			$action->newItem = Item::get(Item::AIR);
+			if(!$oldItem->equals($packet->item, true, true)){
+				$action = new NetworkInventoryAction();
+				$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
+				$action->windowId = -1;
+				$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_CREATE_ITEM;
+				$action->oldItem = $packet->item;
+				$action->newItem = Item::get(Item::AIR);
 
-			$pk->actions[] = $action;
+				$pk->actions[] = $action;
+			}
 
 			return $pk;
 		}

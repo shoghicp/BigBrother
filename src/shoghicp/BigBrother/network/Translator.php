@@ -324,6 +324,7 @@ class Translator{
 
 			case InboundPacket::PLAYER_ABILITIES_PACKET:
 				$pk = new AdventureSettingsPacket();
+				$pk->entityUniqueId = $player->getId();
 				$pk->setFlag(AdventureSettingsPacket::FLYING, $packet->isFlying);
 
 				return $pk;
