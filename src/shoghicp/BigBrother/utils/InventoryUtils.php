@@ -599,7 +599,7 @@ class InventoryUtils{
 			$action->newItem = $item;
 
 			if($packet->windowID !== ContainerIds::INVENTORY){
-				if($pk->slot >= $this->windowInfo[$packet->windowID]["slots"]){
+				if($action->inventorySlot >= $this->windowInfo[$packet->windowID]["slots"]){
 					$action->windowId = ContainerIds::INVENTORY;
 
 					if($action->inventorySlot >= 36 and $action->inventorySlot < 45){
@@ -611,7 +611,7 @@ class InventoryUtils{
 					$action->inventorySlot = ($action->inventorySlot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
 					$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
 				}else{
-					$action->oldItem = $this->windowInfo[$packet->windowId]["items"][$action->inventorySlot];
+					$action->oldItem = $this->windowInfo[$packet->windowID]["items"][$action->inventorySlot];
 				}
 			}else{
 				if($action->inventorySlot >= 36 and $action->inventorySlot < 45){
