@@ -289,7 +289,7 @@ class InventoryUtils{
 		switch($this->windowInfo[$packet->windowId]["type"]){
 			case WindowTypes::FURNACE:
 				switch($packet->property){
-					case 0://Smelting
+					case ContainerSetDataPacket::PROPERTY_FURNACE_TICK_COUNT://Smelting
 						$pk = new WindowPropertyPacket();
 						$pk->windowID = $packet->windowId;
 						$pk->property = 3;
@@ -302,11 +302,11 @@ class InventoryUtils{
 						$pk->value = $packet->value;
 						$packets[] = $pk;
 					break;
-					case 1://Fire icon
+					case ContainerSetDataPacket::PROPERTY_FURNACE_LIT_TIME://Fire icon
 						$pk = new WindowPropertyPacket();
 						$pk->windowID = $packet->windowId;
 						$pk->property = 1;
-						$pk->value = 200;//changed?
+						$pk->value = 200;//TODO: changed?
 						$packets[] = $pk;
 
 						$pk = new WindowPropertyPacket();
@@ -598,7 +598,7 @@ class InventoryUtils{
 			$inventorySlot = $packet->slot;
 
 			if($windowId !== ContainerIds::INVENTORY){
-				if($inventorySlot >= $this->windowInfo[$windowId]["slots"]){
+				if($inventorySlot >= $this->windowInfo[$packet->windowID]["slots"]){
 					$windowId = ContainerIds::INVENTORY;
 
 					if($inventorySlot >= 36 and $inventorySlot < 45){
@@ -607,10 +607,10 @@ class InventoryUtils{
 						$slots = 9;
 					}
 
-					$inventorySlot = ($inventorySlot - $this->windowInfo[$windowId]["slots"]) + $slots;
+					$inventorySlot = ($inventorySlot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
 					$oldItem = $this->player->getInventory()->getItem($inventorySlot);
 				}else{
-					$oldItem = $this->windowInfo[$windowId]["items"][$inventorySlot];
+					$oldItem = $this->windowInfo[$packet->windowID]["items"][$inventorySlot];
 				}
 			}else{
 				if($inventorySlot >= 36 and $inventorySlot < 45){
