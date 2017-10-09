@@ -406,6 +406,7 @@ class ConvertUtils{
 					}
 
 					$nbt = new ListTag($name, $tags);
+					$nbt->setTagType($id);
 				break;
 				case NBT::TAG_Compound:
 					$tags = [];
@@ -521,7 +522,7 @@ class ConvertUtils{
 		switch($blockid){
 			case Block::WOODEN_TRAPDOOR:
 			case Block::IRON_TRAPDOOR:
-				self::convertTrapdoor($iscomputer, $blockid, $blockdata);
+				self::convertTrapdoor($blockdata);
 			break;
 			default:
 				if($iscomputer){
@@ -631,13 +632,11 @@ class ConvertUtils{
 	 * Why Mojang change the order of flag bits?
 	 * Why Mojang change the directions??
 	 *
-	 * @param bool $iscomputer
-	 * @param int &$blockid
 	 * @param int &$blockdata
 	 *
 	 * #blamemojang
 	 */
-	private static function convertTrapdoor(bool $iscomputer, int &$blockid, int &$blockdata) : void{
+	private static function convertTrapdoor(int &$blockdata) : void{
 		//swap bits
 		$blockdata ^= (($blockdata & 0x04) << 1);
 		$blockdata ^= (($blockdata & 0x08) >> 1);
@@ -665,6 +664,7 @@ class ComputerItem extends Item{
 	 */
 	public function __construct(int $id = 0, int $meta = 0, int $count = 1, $tag = ""){
 		parent::__construct($id, $meta);
+		$this->setCount($count);
 		$this->setCompoundTag($tag instanceof EndTag ? "" : $tag);
 	}
 }

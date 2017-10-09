@@ -226,19 +226,6 @@ class InventoryUtils{
 		return $pk;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/**
 	 * @param InventorySlotPacket $packet
 	 * @return OutboundPacket|null
