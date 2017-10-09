@@ -159,7 +159,7 @@ class InventoryUtils{
 		}
 
 		$slots = 0;
-		if(($tile = $this->player->getLevel()->getTile(new Vector3((int)$packet->x, (int)$packet->y, (int)$packet->z))) instanceof Tile){
+		if(($tile = $this->player->getLevel()->getTile(new Vector3((int) $packet->x, (int) $packet->y, (int) $packet->z))) instanceof Tile){
 			if($tile instanceof TileEnderChest){
 				$slots = $this->player->getEnderChestInventory()->getSize();
 				$title = "enderchest";
@@ -183,17 +183,16 @@ class InventoryUtils{
 	}
 
 	/**
-	 * @param bool $isserver
-	 * @param ContainerClosePacket $packet
-	 * @return OutboundPacket|null
+	 * @param ClientCloseWindowPacket $packet
+	 * @return ContainerClosePacket|null
 	 */
 	public function onWindowCloseFromPCtoPE(ClientCloseWindowPacket $packet) : ?ContainerClosePacket{
 		foreach($this->playerCraftSlot as $num => $item){
-			$this->player->dropItemNaturally($item);
+			$this->player->dropItem($item);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
 		}
 
-		$this->player->dropItemNaturally($this->playerHeldItem);
+		$this->player->dropItem($this->playerHeldItem);
 		$this->playerHeldItem = Item::get(Item::AIR);
 
 		if($packet->windowID !== ContainerIds::INVENTORY){//Player Inventory
@@ -207,17 +206,16 @@ class InventoryUtils{
 	}
 
 	/**
-	 * @param bool $isserver
 	 * @param ContainerClosePacket $packet
-	 * @return OutboundPacket|null
+	 * @return ServerCloseWindowPacket|null
 	 */
 	public function onWindowCloseFromPEtoPC(ContainerClosePacket $packet) : ServerCloseWindowPacket{
 		foreach($this->playerCraftSlot as $num => $item){
-			$this->player->dropItemNaturally($item);
+			$this->player->dropItem($item);
 			$this->playerCraftSlot[$num] = Item::get(Item::AIR);
 		}
 
-		$this->player->dropItemNaturally($this->playerHeldItem);
+		$this->player->dropItem($this->playerHeldItem);
 		$this->playerHeldItem = Item::get(Item::AIR);
 
 		$pk = new ServerCloseWindowPacket();
@@ -227,6 +225,19 @@ class InventoryUtils{
 
 		return $pk;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/**
 	 * @param InventorySlotPacket $packet
@@ -265,6 +276,8 @@ class InventoryUtils{
 				if(isset($this->windowInfo[$packet->windowId])){//TODO
 					$pk->item = $packet->item;
 					$pk->slot = $packet->inventorySlot;
+
+					$this->windowInfo[$packet->windowID]["items"][$packet->inventorySlot] = $packet->item;
 
 					var_dump($packet);
 
@@ -391,6 +404,8 @@ class InventoryUtils{
 					$pk->windowID = $packet->windowId;
 
 					$pk->items = $packet->items;
+
+					$this->windowInfo[$packet->windowID]["items"] = $packet->items;
 
 					//var_dump($packet->slots);
 
@@ -592,33 +607,33 @@ class InventoryUtils{
 
 		$packets = [];
 		if($accepted){
-			$action = new NetworkInventoryAction();
-			$action->sourceType = NetworkInventoryAction::SOURCE_CONTAINER;
-			$action->windowId = $packet->windowID;
-			$action->inventorySlot = $packet->slot;
-			$action->newItem = $item;
+			$windowId = $packet->windowID;
+			$inventorySlot = $packet->slot;
 
-			if($packet->windowID !== ContainerIds::INVENTORY){
-				if($action->inventorySlot >= $this->windowInfo[$packet->windowID]["slots"]){
-					$action->windowId = ContainerIds::INVENTORY;
+			if($windowId !== ContainerIds::INVENTORY){
+				if($inventorySlot >= $this->windowInfo[$windowId]["slots"]){
+					$windowId = ContainerIds::INVENTORY;
 
-					if($action->inventorySlot >= 36 and $action->inventorySlot < 45){
+					if($inventorySlot >= 36 and $inventorySlot < 45){
 						$slots = 0;
 					}else{
 						$slots = 9;
 					}
 
-					$action->inventorySlot = ($action->inventorySlot - $this->windowInfo[$packet->windowID]["slots"]) + $slots;
-					$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
+					$inventorySlot = ($inventorySlot - $this->windowInfo[$windowId]["slots"]) + $slots;
+					$oldItem = $this->player->getInventory()->getItem($inventorySlot);
 				}else{
-					$action->oldItem = $this->windowInfo[$packet->windowID]["items"][$action->inventorySlot];
+					$oldItem = $this->windowInfo[$windowId]["items"][$inventorySlot];
 				}
 			}else{
-				if($action->inventorySlot >= 36 and $action->inventorySlot < 45){
-					$action->inventorySlot -= 36;
+				if($inventorySlot >= 36 and $inventorySlot < 45){
+					$inventorySlot -= 36;
 				}
-				$action->oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
+
+				$oldItem = $this->player->getInventory()->getItem($inventorySlot);
 			}
+
+			$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, $windowId, $inventorySlot, $oldItem, $item);
 
 			$pk = new InventoryTransactionPacket();
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
@@ -642,63 +657,49 @@ class InventoryUtils{
 	 */
 	public function onCreativeInventoryAction(CreativeInventoryActionPacket $packet) : ?DataPacket{
 		if($packet->slot === 65535){
-			foreach($this->player->getInventory()->getContents() as $slot => $item){
-				if($item->equals($packet->item, true, true)){
-					$this->player->getInventory()->setItem($slot, Item::get(Item::AIR));
-					break;
-				}
-			}
-
 			// TODO check if item in the packet is not illegal
-			$this->player->dropItemNaturally($packet->item);
+			$this->player->dropItem($packet->item);
 
 			return null;
 		}else{
-			$action = new NetworkInventoryAction();
-			$action->sourceType = NetworkInventoryAction::SOURCE_CONTAINER;
-
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
-				$action->windowId = ContainerIds::ARMOR;
-				$action->inventorySlot = $packet->slot - 5;
-				$action->oldItem = $oldItem = $this->player->getInventory()->getItem(36 + $packet->slot);
-				$action->newItem = $packet->item;
-			}else{
-				$action->windowId = ContainerIds::INVENTORY;
+				$inventorySlot = $packet->slot - 5;
+				$oldItem = $this->player->getInventory()->getItem(36 + $packet->slot);
+				$newItem = $packet->item;
 
+				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::ARMOR, $inventorySlot, $oldItem, $newItem);
+			}else{
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
-					$action->inventorySlot = $packet->slot - 36;
+					$inventorySlot = $packet->slot - 36;
 				}else{
-					$action->inventorySlot = $packet->slot;
+					$inventorySlot = $packet->slot;
 				}
 
-				$action->oldItem = $oldItem = $this->player->getInventory()->getItem($action->inventorySlot);
-				$action->newItem = $packet->item;
+				$oldItem = $this->player->getInventory()->getItem($inventorySlot);
+				$newItem = $packet->item;
+
+				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $inventorySlot, $oldItem, $newItem);
 			}
 
 			$pk = new InventoryTransactionPacket();
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
 			$pk->actions[] = $action;
 
-			if($oldItem->getId() !== Item::AIR and !$oldItem->equals($packet->item, true, true)){
-				$action = new NetworkInventoryAction();
-				$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
-				$action->windowId = -1;
-				$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_DELETE_ITEM;
-				$action->oldItem = Item::get(Item::AIR);
-				$action->newItem = $oldItem;
+			if($oldItem->getId() !== Item::AIR and !$oldItem->equals($newItem, true, true)){
+				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CREATIVE, -1, NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_DELETE_ITEM, Item::get(Item::AIR), $oldItem);
 
 				$pk->actions[] = $action;
 			}
 
-			if(!$oldItem->equals($packet->item, true, true)){
-				$action = new NetworkInventoryAction();
-				$action->sourceType = NetworkInventoryAction::SOURCE_CREATIVE;
-				$action->windowId = -1;
-				$action->inventorySlot = NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_CREATE_ITEM;
-				$action->oldItem = $packet->item;
-				$action->newItem = Item::get(Item::AIR);
+			if($newItem->getId() !== Item::AIR and !$oldItem->equals($newItem, true, true)){
+				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CREATIVE, -1, NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_CREATE_ITEM, $newItem, Item::get(Item::AIR));
 
 				$pk->actions[] = $action;
+			}
+
+			if($newItem->getId() === Item::AIR){
+				$dropItem = $this->player->getInventory()->getItem($inventorySlot);
+				$this->player->dropItem($dropItem);
 			}
 
 			return $pk;
@@ -742,4 +743,24 @@ class InventoryUtils{
 	public function setCraftInfoData(array $craftInfoData) : void{
 		$this->craftInfoData = $craftInfoData;
 	}
+
+	/**
+	 * @param int  $sourceType
+	 * @param int  $windowId
+	 * @param int  $inventorySlot
+	 * @param Item $oldItem
+	 * @param Item $newItem
+	 * @return NetworkInventoryAction
+	 */
+	public function addNetworkInventoryAction(int $sourceType, int $windowId, int $inventorySlot, Item $oldItem, Item $newItem) : NetworkInventoryAction{
+		$action = new NetworkInventoryAction();
+		$action->sourceType = $sourceType;
+		$action->windowId = $windowId;
+		$action->inventorySlot = $inventorySlot;
+		$action->oldItem = $oldItem;
+		$action->newItem = $newItem;
+
+		return $action;
+	}
+
 }

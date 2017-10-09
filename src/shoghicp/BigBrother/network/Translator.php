@@ -452,7 +452,7 @@ class Translator{
 						}
 
 						$player->getInventory()->setItemInHand($item);
-						$player->dropItemNaturally($dropItem);
+						$player->dropItem($dropItem);
 
 						return null;
 					break;
@@ -1091,9 +1091,9 @@ class Translator{
 				$pk->yaw = 0;
 				$pk->pitch = 0;
 				$pk->data = 1;
-				$pk->velocityX = $packet->motion->x;
-				$pk->velocityY = $packet->motion->y;
-				$pk->velocityZ = $packet->motion->z;
+				$pk->velocityX = 0;
+				$pk->velocityY = 0;
+				$pk->velocityZ = 0;
 				$packets[] = $pk;
 
 				$pk = new EntityMetadataPacket();
