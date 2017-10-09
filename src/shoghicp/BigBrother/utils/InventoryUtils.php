@@ -264,7 +264,7 @@ class InventoryUtils{
 					$pk->item = $packet->item;
 					$pk->slot = $packet->inventorySlot;
 
-					$this->windowInfo[$packet->windowID]["items"][$packet->inventorySlot] = $packet->item;
+					$this->windowInfo[$packet->windowId]["items"][$packet->inventorySlot] = $packet->item;
 
 					var_dump($packet);
 
@@ -392,7 +392,7 @@ class InventoryUtils{
 
 					$pk->items = $packet->items;
 
-					$this->windowInfo[$packet->windowID]["items"] = $packet->items;
+					$this->windowInfo[$packet->windowId]["items"] = $packet->items;
 
 					//var_dump($packet->slots);
 
