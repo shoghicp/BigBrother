@@ -458,7 +458,11 @@ class Translator{
 					case 4:
 						if($packet->status === 4){
 							$item = $player->getInventory()->getItemInHand();
-							$item->setCount($item->getCount() - 1);
+							if($item->getCount() === 1){
+								$item = Item::get(Item::AIR);
+							}else{
+								$item->setCount($item->getCount() - 1);
+							}
 
 							$dropItem = $player->getInventory()->getItemInHand();
 							$dropItem->setCount(1);
@@ -737,7 +741,7 @@ class Translator{
 				$pk->eid = $packet->entityUniqueId;
 				$pk->gamemode = $packet->playerGamemode;
 				$pk->dimension = $player->bigBrother_getDimensionPEToPC($packet->dimension);
-				$pk->difficulty = $player->getServer()->getDifficulty();
+				$pk->difficulty = $packet->difficulty;
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
 				$pk->levelType = "default";
 				$packets[] = $pk;

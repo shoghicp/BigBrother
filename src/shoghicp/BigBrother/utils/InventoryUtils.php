@@ -350,8 +350,8 @@ class InventoryUtils{
 
 				$hotbar = [];
 				$inventory = [];
-				for($i = 0; $i < $this->player->getInventory()->getSize(); $i++){
-					if($i >= 0 and $i < $this->player->getInventory()->getHotbarSize()){
+				for($i = 0; $i < count($packet->items); $i++){
+					if($i >= 0 and $i < 9){
 						$hotbar[] = $packet->items[$i];
 					}else{
 						$inventory[] = $packet->items[$i];
@@ -429,6 +429,7 @@ class InventoryUtils{
 					case 1://Right mouse click
 						$accepted = true;
 
+						//TODO: check Item Count
 						if($this->playerHeldItem->getId() === Item::AIR){
 							if($item->getCount() % 2 === 0){
 								$this->playerHeldItem = clone $item;
@@ -644,8 +645,26 @@ class InventoryUtils{
 	 */
 	public function onCreativeInventoryAction(CreativeInventoryActionPacket $packet) : ?DataPacket{
 		if($packet->slot === 65535){
-			// TODO check if item in the packet is not illegal
-			$this->player->dropItem($packet->item);
+			$dropItem = Item::get(Item::AIR);
+
+			foreach($this->player->getInventory()->getContents() as $slot => $item){
+				if($item->equalsExact($packet->item)){
+					if($item->getCount() === 1){
+						$item = Item::get(Item::AIR);
+						$dropItem = clone $packet->item;
+						$dropItem->setCount(1);
+					}else{
+						$item->setCount($item->getCount() - 1);
+						$dropItem = clone $packet->item;
+						$dropItem->setCount(1);
+					}
+					
+					$this->player->getInventory()->setItem($slot, $item);
+					break;
+				}
+			}
+
+			$this->player->dropItem($dropItem);
 
 			return null;
 		}else{
@@ -672,21 +691,16 @@ class InventoryUtils{
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
 			$pk->actions[] = $action;
 
-			if($oldItem->getId() !== Item::AIR and !$oldItem->equals($newItem, true, true)){
+			if($oldItem->getId() !== Item::AIR and !$oldItem->equalsExact($newItem)){
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CREATIVE, -1, NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_DELETE_ITEM, Item::get(Item::AIR), $oldItem);
 
 				$pk->actions[] = $action;
 			}
 
-			if($newItem->getId() !== Item::AIR and !$oldItem->equals($newItem, true, true)){
+			if($newItem->getId() !== Item::AIR and !$oldItem->equalsExact($newItem)){
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CREATIVE, -1, NetworkInventoryAction::ACTION_MAGIC_SLOT_CREATIVE_CREATE_ITEM, $newItem, Item::get(Item::AIR));
 
 				$pk->actions[] = $action;
-			}
-
-			if($newItem->getId() === Item::AIR){
-				$dropItem = $this->player->getInventory()->getItem($inventorySlot);
-				$this->player->dropItem($dropItem);
 			}
 
 			return $pk;
