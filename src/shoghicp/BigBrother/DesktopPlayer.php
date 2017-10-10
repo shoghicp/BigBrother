@@ -210,7 +210,7 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param array $position
+	 * @param array $positionData
 	 */
 	public function bigBrother_setBreakPosition(array $positionData = []) : void{
 		$this->bigBrother_breakPosition = $positionData;

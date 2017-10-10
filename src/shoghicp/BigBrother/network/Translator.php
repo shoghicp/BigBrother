@@ -197,19 +197,35 @@ class Translator{
 				return null;
 
 			case InboundPacket::USE_ENTITY_PACKET:
-				$pk = new InteractPacket();
-				$pk->target = $packet->target;
+				if($packet->type === 2){//interact at
+					$pk = new InteractPacket();
+					$pk->target = $packet->target;
+					$pk->action = InteractPacket::ACTION_MOUSEOVER;
+					$pk->x = 0;
+					$pk->y = 0;
+					$pk->z = 0;
+				}else{
+					$pk = new InventoryTransactionPacket();
+					$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY;
+					$pk->trData = new \stdClass();
+					$pk->trData->entityRuntimeId = $packet->target;
+					$pk->trData->hotbarSlot = $player->getInventory()->getHeldItemIndex();
+					$pk->trData->itemInHand = $player->getInventory()->getItemInHand();
+					$pk->trData->vector1 = new Vector3(0, 0, 0);
+					$pk->trData->vector2 = new Vector3(0, 0, 0);
 
-				switch($packet->type){
-					case 0://interact
-						$pk->action = InteractPacket::ACTION_RIGHT_CLICK;
-					break;
-					case 1://attack
-						$pk->action = InteractPacket::ACTION_LEFT_CLICK;
-					break;
-					case 2://interact at
-						$pk->action = InteractPacket::ACTION_MOUSEOVER;
-					break;
+					switch($packet->type){
+						case 0://interact
+							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_INTERACT;
+						break;
+						case 1://attack
+							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK;
+						break;
+						default:
+							echo "[Translator] UseItemPacket\n";
+							return null;
+						break;
+					}
 				}
 
 				return $pk;

@@ -207,7 +207,7 @@ class InventoryUtils{
 
 	/**
 	 * @param ContainerClosePacket $packet
-	 * @return ServerCloseWindowPacket|null
+	 * @return ServerCloseWindowPacket
 	 */
 	public function onWindowCloseFromPEtoPC(ContainerClosePacket $packet) : ServerCloseWindowPacket{
 		foreach($this->playerCraftSlot as $num => $item){
