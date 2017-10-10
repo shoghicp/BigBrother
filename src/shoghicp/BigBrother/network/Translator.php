@@ -202,10 +202,10 @@ class Translator{
 
 				switch($packet->type){
 					case 0://interact
-						$pk->action = InteractPacket::ACTION_RIGHT_CLICK;
+						$pk->action = InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_INTERACT;
 					break;
 					case 1://attack
-						$pk->action = InteractPacket::ACTION_LEFT_CLICK;
+						$pk->action = InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK;
 					break;
 					case 2://interact at
 						$pk->action = InteractPacket::ACTION_MOUSEOVER;
