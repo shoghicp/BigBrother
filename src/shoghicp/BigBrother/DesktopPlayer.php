@@ -514,7 +514,13 @@ class DesktopPlayer extends Player{
 	 * @param string $hash
 	 */
 	public function getAuthenticateOnline(string $username, string $hash) : void{
-		$result = json_decode(Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$username."&serverId=".$hash, 5), true);
+		$result = null;
+
+		$response = Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$username."&serverId=".$hash, 5);
+		if($response !== false){
+			$result = json_decode($response, true);
+		}
+
 		if(is_array($result) and isset($result["id"])){
 			$this->bigBrother_authenticate($result["id"], $result["properties"]);
 		}else{
