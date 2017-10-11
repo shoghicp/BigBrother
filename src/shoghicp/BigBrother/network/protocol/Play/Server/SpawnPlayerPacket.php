@@ -56,17 +56,13 @@ class SpawnPlayerPacket extends OutboundPacket{
 	}
 
 	protected function encode() : void{
-		assert($this->yaw >= 0 and $this->yaw < 360);
-		assert($this->pitch >= 0 and $this->pitch < 360);
-
 		$this->putVarInt($this->eid);
 		$this->put($this->uuid);
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);
-		$this->putByte((int) round($this->yaw * 256 / 360));//TODO make sure
-		$this->putByte((int) round($this->pitch * 256 / 360));//TODO make sure
-		$meta = Binary::writeMetadata($this->metadata);
-		$this->put($meta);
+		$this->putAngle($this->yaw);
+		$this->putAngle($this->pitch);
+		$this->put(Binary::writeMetadata($this->metadata));
 	}
 }

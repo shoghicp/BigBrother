@@ -141,6 +141,10 @@ abstract class Packet extends \stdClass{
 		return ord($this->buffer{$this->offset++});
 	}
 
+	protected function getAngle() : float{
+		return $this->getByte() * 360 / 256;
+	}
+
 	protected function getString() : string{
 		return $this->get($this->getVarInt());
 	}
@@ -196,6 +200,13 @@ abstract class Packet extends \stdClass{
 
 	protected function putByte(int $v) : void{
 		$this->buffer .= chr($v);
+	}
+
+	/**
+	 * @param float $v any number is valid, including negative numbers and numbers greater than 360
+	 */
+	protected function putAngle(float $v) : void{
+		$this->putByte((int) round($v * 256 / 360));
 	}
 
 	protected function putString(string $v) : void{
