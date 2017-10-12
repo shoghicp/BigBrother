@@ -88,7 +88,7 @@ class DesktopPlayer extends Player{
 	private $bigBrother_clientSetting = [];
 	/** @var array */
 	private $bigBrother_pluginMessageList = [];
-	/** @var Vectior3 */
+	/** @var array */
 	private $bigBrother_breakPosition = [];
 
 	/** @var ProtocolInterface */
