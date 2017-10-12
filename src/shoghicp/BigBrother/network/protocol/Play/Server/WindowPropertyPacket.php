@@ -35,9 +35,9 @@ class WindowPropertyPacket extends OutboundPacket{
 
 	/** @var int */
 	public $windowID;
-	/** @var short */
+	/** @var int */
 	public $property;
-	/** @var short */
+	/** @var int */
 	public $value;
 
 	public function pid() : int{
