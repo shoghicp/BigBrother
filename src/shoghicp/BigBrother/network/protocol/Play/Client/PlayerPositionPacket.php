@@ -50,6 +50,6 @@ class PlayerPositionPacket extends InboundPacket{
 		$this->x = $this->getDouble();
 		$this->y = $this->getDouble();
 		$this->z = $this->getDouble();
-		$this->onGround = $this->getByte() > 0;
+		$this->onGround = $this->getBool();
 	}
 }

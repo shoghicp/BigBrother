@@ -47,6 +47,6 @@ class PlayerLookPacket extends InboundPacket{
 	protected function decode() : void{
 		$this->yaw = $this->getFloat();
 		$this->pitch = $this->getFloat();
-		$this->onGround = $this->getByte() > 0;
+		$this->onGround = $this->getBool();
 	}
 }
