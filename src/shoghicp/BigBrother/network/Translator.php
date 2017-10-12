@@ -1151,7 +1151,7 @@ class Translator{
 				$pk = new SpawnObjectPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->uuid = UUID::fromRandom()->toBinary();
-				$pk->type = 2;
+				$pk->type = SpawnObjectPacket::ITEM_STACK;
 				$pk->x = $packet->position->x;
 				$pk->y = $packet->position->y;
 				$pk->z = $packet->position->z;
