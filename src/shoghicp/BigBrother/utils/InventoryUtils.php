@@ -47,6 +47,8 @@ use pocketmine\tile\Tile;
 use pocketmine\tile\EnderChest as TileEnderChest;
 use pocketmine\item\Item;
 use pocketmine\inventory\InventoryHolder;
+use pocketmine\inventory\ShapedRecipe;
+use pocketmine\inventory\ShapelessRecipe;
 
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
@@ -692,7 +694,7 @@ class InventoryUtils{
 		}
 
 		if(isset($this->windowInfo[$packet->windowID]["type"])){
-			switch($this->windowInfo[$packet->windowID]["type"]){//Workbench is up code!
+			switch($this->windowInfo[$packet->windowID]["type"]){
 				case WindowTypes::FURNACE:
 					switch($packet->slot){
 						case 1://fuel
