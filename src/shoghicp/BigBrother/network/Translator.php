@@ -60,6 +60,7 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\tile\Tile;
+use pocketmine\tile\Spawnable;
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\DesktopChunk;
@@ -1858,7 +1859,9 @@ class Translator{
 			case Info::FULL_CHUNK_DATA_PACKET:
 				$blockEntities = [];
 				foreach($player->getLevel()->getChunkTiles($packet->chunkX, $packet->chunkZ) as $tile){
-					$blockEntities[] = clone $tile->getSpawnCompound();
+					if($tile instanceof Spawnable){
+						$blockEntities[] = clone $tile->getSpawnCompound();
+					}
 				}
 
 				$chunk = new DesktopChunk($player, $packet->chunkX, $packet->chunkZ);
