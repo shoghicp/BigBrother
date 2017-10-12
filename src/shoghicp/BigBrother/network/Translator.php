@@ -459,7 +459,7 @@ class Translator{
 						if($packet->status === 4){
 							$item = $player->getInventory()->getItemInHand();
 							if($item->getCount() === 1){
-								$item = Item::get(Item::AIR);
+								$item = Item::get(Item::AIR, 0, 0);
 							}else{
 								$item->setCount($item->getCount() - 1);
 							}
@@ -467,7 +467,7 @@ class Translator{
 							$dropItem = $player->getInventory()->getItemInHand();
 							$dropItem->setCount(1);
 						}else{
-							$item = Item::get(Item::AIR);
+							$item = Item::get(Item::AIR, 0, 0);
 							$dropItem = $player->getInventory()->getItemInHand();
 						}
 

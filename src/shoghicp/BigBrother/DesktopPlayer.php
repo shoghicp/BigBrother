@@ -33,7 +33,10 @@ use pocketmine\Player;
 use pocketmine\event\Timings;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Item;
+use pocketmine\inventory\CraftingGrid;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\types\WindowTypes;
+use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
@@ -300,6 +303,25 @@ class DesktopPlayer extends Player{
 			$pk->hasTab = true;
 			$pk->tabId = "pocketmine:advancements/root";
 			$this->putRawPacket($pk);
+		}
+	}
+
+	/**
+	 * @param CraftingGrid $grid
+	 * @override
+	 */
+	public function setCraftingGrid(CraftingGrid $grid) : void{
+		parent::setCraftingGrid($grid);
+
+		if($grid->getDefaultSize() === 9){//Open Crafting Table
+			$pk = new ContainerOpenPacket();
+			$pk->windowId = 255;//Max WindowId
+			$pk->type = WindowTypes::WORKBENCH;
+			$pk->x = 0;
+			$pk->y = 0;
+			$pk->z = 0;
+
+			$this->dataPacket($pk);
 		}
 	}
 
