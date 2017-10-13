@@ -101,6 +101,9 @@ class InventoryUtils{
 		$this->playerInventorySlot = array_fill(0, 36, Item::get(Item::AIR, 0, 0));
 		$this->playerHotbarSlot = array_fill(0, 9, Item::get(Item::AIR, 0, 0));
 		$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
+
+		$this->shapelessRecipes = $player->getServer()->getCraftingManager()->getShapelessRecipes();
+		$this->shapedRecipes = $player->getServer()->getCraftingManager()->getShapedRecipes();
 	}
 
 	/**
@@ -738,7 +741,7 @@ class InventoryUtils{
 					}
 
 					$inventorySlot -= $slots;
-					$oldItem = $this->player->getInventory()->getItem($inventorySlot);
+					$oldItem = $this->playerInventorySlot[$inventorySlot];
 				}else{
 					if($packet->windowID === 255){
 						$oldItem = $this->playerCraftTableSlot[$inventorySlot];
@@ -751,7 +754,7 @@ class InventoryUtils{
 					$inventorySlot -= 36;
 				}
 
-				$oldItem = $this->player->getInventory()->getItem($inventorySlot);
+				$oldItem = $this->playerInventorySlot[$inventorySlot];
 			}
 
 			$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, $windowId, $inventorySlot, $oldItem, $item);
@@ -814,7 +817,7 @@ class InventoryUtils{
 		}else{
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
 				$inventorySlot = $packet->slot - 5;
-				$oldItem = $this->player->getInventory()->getItem(36 + $packet->slot);
+				$oldItem = $this->playerInventorySlot[36 + $packet->slot];
 				$newItem = $packet->item;
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::ARMOR, $inventorySlot, $oldItem, $newItem);
@@ -825,7 +828,7 @@ class InventoryUtils{
 					$inventorySlot = $packet->slot;
 				}
 
-				$oldItem = $this->player->getInventory()->getItem($inventorySlot);
+				$oldItem = $this->playerInventorySlot[$inventorySlot];
 				$newItem = $packet->item;
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $inventorySlot, $oldItem, $newItem);
@@ -936,22 +939,6 @@ class InventoryUtils{
 				$this->player->putRawPacket($pk);
 
 				$this->playerCraftTableSlot[0] = $recipe->getResult();
-			}
-		}
-	}
-
-	/**
-	 * @param array $craftInfoData
-	 */
-	public function setCraftInfoData(array $craftInfoData) : void{
-		foreach($craftInfoData as $recipe){
-			if($recipe instanceof ShapelessRecipe){
-				$ingredients = $recipe->getIngredientList();
-				usort($ingredients, [$this, "sort"]);
-
-				$this->shapelessRecipes[json_encode($recipe->getResult())][json_encode($ingredients)] = $recipe;
-			}elseif($recipe instanceof ShapedRecipe){
-				$this->shapedRecipes[json_encode($recipe->getResult())][json_encode($recipe->getIngredientMap())] = $recipe;
 			}
 		}
 	}
