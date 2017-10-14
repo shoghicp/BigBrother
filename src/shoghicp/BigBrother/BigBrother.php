@@ -151,21 +151,21 @@ class BigBrother extends PluginBase implements Listener{
 	 * @return string ip address
 	 */
 	public function getIp() : string{
-		return (string)$this->getConfig()->get("interface");
+		return (string) $this->getConfig()->get("interface");
 	}
 
 	/**
 	 * @return int port
 	 */
 	public function getPort() : int{
-		return (int)$this->getConfig()->get("port");
+		return (int) $this->getConfig()->get("port");
 	}
 
 	/**
 	 * @return string motd
 	 */
 	public function getMotd() : string{
-		return (string)$this->getConfig()->get("motd");
+		return (string) $this->getConfig()->get("motd");
 	}
 
 	/**
@@ -302,5 +302,4 @@ class BigBrother extends PluginBase implements Listener{
 		$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		return $result;
 	}
-
 }
