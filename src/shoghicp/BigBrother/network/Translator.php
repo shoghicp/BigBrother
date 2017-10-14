@@ -477,6 +477,7 @@ class Translator{
 						}
 
 						$player->getInventory()->setItemInHand($item);
+						$player->getInventory()->sendHeldItem($player->getViewers());
 						$player->dropItem($dropItem);
 
 						return null;

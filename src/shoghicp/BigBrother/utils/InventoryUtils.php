@@ -817,6 +817,7 @@ class InventoryUtils{
 			}
 
 			$this->player->dropItem($dropItem);
+			$this->player->getInventory()->sendHeldItem($this->player->getViewers());
 
 			return null;
 		}else{
