@@ -200,7 +200,7 @@ class BigBrother extends PluginBase implements Listener{
 	 */
 	public function onRespawn(PlayerRespawnEvent $event) : void{
 		$player = $event->getPlayer();
-		if($player instanceof DesktopPlayer and $player->getHealth() === 0){
+		if($player instanceof DesktopPlayer){
 			$pk = new RespawnPacket();
 			$pk->dimension = $player->bigBrother_getDimension();
 			$pk->difficulty = $player->getServer()->getDifficulty();
