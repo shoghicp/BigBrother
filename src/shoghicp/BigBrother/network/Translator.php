@@ -53,6 +53,7 @@ use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEffectPacket;
+use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
@@ -168,7 +169,10 @@ class Translator{
 					"SkinSettings" => $packet->skinSetting,
 				]);
 
-				return null;
+				$pk = new RequestChunkRadiusPacket();
+				$pk->radius = $packet->view;
+
+				return $pk;
 
 			case InboundPacket::CONFIRM_TRANSACTION_PACKET://Confirm
 				return null;
