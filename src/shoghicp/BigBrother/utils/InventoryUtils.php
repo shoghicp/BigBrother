@@ -739,7 +739,7 @@ class InventoryUtils{
 							$oldItem = $this->playerHotbarSlot[$inventorySlot];
 							$this->playerHotbarSlot[$inventorySlot] = $item;
 						}else{
-							$saveInventorySlot += 9;
+							$saveInventorySlot = $inventorySlot + 9;
 
 							$oldItem = $this->playerInventorySlot[$inventorySlot];
 							$this->playerInventorySlot[$inventorySlot] = $item;
