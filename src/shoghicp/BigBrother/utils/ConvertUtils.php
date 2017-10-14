@@ -129,6 +129,7 @@ class ConvertUtils{
 		[[240,   0], [199,   0]], //Chorus Plant
 		[[199,  -1], [ 68,  -1]], //Item Frame is temporaly a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
 		[[236,  -1], [252,  -1]], //Concretes
+		[[425,  -1], [416,  -1]], //Armor Stand
 		//******** Glazed Terracota ********//
 		[[220,   0], [235,   0]],
 		[[221,   0], [236,   0]],
