@@ -23,9 +23,10 @@ Welcome to BigBrother, a shoghicp's project who has been abandonned and who has 
 * Dropped items
 * Converted blocks IDs' & items IDs'
 * Converted entities metadatas
+* Inventories
 * And many other things !
 
 #### Features not yet implemented
-* Inventories
+* Crafting
 * Tiles
 * Offhand (who only accept Totem Of Undying & Arrows)
