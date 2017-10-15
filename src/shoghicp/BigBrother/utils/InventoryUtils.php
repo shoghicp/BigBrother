@@ -127,6 +127,35 @@ class InventoryUtils{
 		return $items;
 	}
 
+	private function dropHeldItem() : void{
+		if($this->playerHeldItem->getId() !== Item::AIR){
+			$this->player->dropItem($this->playerHeldItem);
+			$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
+			$this->player->getCursorInventory()->setItem(0, Item::get(Item::AIR, 0, 0));
+		}
+	}
+
+	/**
+	 * @param Item[] $craftingItem
+	 */
+	private function dropCraftingItem(array &$craftingItem) : void{
+		foreach($craftingItem as $slot => $item){
+			if($item->getId() !== Item::AIR){
+				$pk = new SetSlotPacket();
+				$pk->windowID = count($craftingItem) === 9 ? 255 : 0;
+				$pk->item = Item::get(Item::AIR, 0, 0);
+				$pk->slot = $slot;
+				$this->player->putRawPacket($pk);
+
+				$this->player->getCraftingGrid()->setItem(0, Item::get(Item::AIR, 0, 0));
+				$craftingItem[$slot] = Item::get(Item::AIR, 0, 0);
+				if($slot !== 0){
+					$this->player->dropItem($item);
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param ContainerOpenPacket $packet
 	 * @return OutboundPacket|null
@@ -203,43 +232,10 @@ class InventoryUtils{
 	 * @return ContainerClosePacket|null
 	 */
 	public function onWindowCloseFromPCtoPE(ClientCloseWindowPacket $packet) : ?ContainerClosePacket{
-		foreach($this->playerCraftSlot as $slot => $item){
-			if($item->getId() !== Item::AIR){
-				$pk = new SetSlotPacket();
-				$pk->windowID = 0;
-				$pk->item = Item::get(Item::AIR, 0, 0);
-				$pk->slot = $slot;
-				$this->player->putRawPacket($pk);
+		$this->dropCraftingItem($this->playerCraftSlot);
+		$this->dropCraftingItem($this->playerCraftTableSlot);
 
-				$this->player->getCraftingGrid()->setItem(0, Item::get(Item::AIR, 0, 0));
-				$this->playerCraftSlot[$slot] = Item::get(Item::AIR, 0, 0);
-				if($slot !== 0){
-					$this->player->dropItem($item);
-				}
-			}
-		}
-
-		foreach($this->playerCraftTableSlot as $slot => $item){
-			if($item->getId() !== Item::AIR){
-				$pk = new SetSlotPacket();
-				$pk->windowID = 255;
-				$pk->item = Item::get(Item::AIR, 0, 0);
-				$pk->slot = $slot;
-				$this->player->putRawPacket($pk);
-
-				$this->player->getCraftingGrid()->setItem(0, Item::get(Item::AIR, 0, 0));
-				$this->playerCraftTableSlot[$slot] = Item::get(Item::AIR, 0, 0);
-				if($slot !== 0){
-					$this->player->dropItem($item);
-				}
-			}
-		}
-
-		if($this->playerHeldItem->getId() !== Item::AIR){
-			$this->player->dropItem($this->playerHeldItem);
-			$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
-			$this->player->getCursorInventory()->setItem(0, Item::get(Item::AIR, 0, 0));
-		}
+		$this->dropHeldItem();
 
 		if($packet->windowID !== ContainerIds::INVENTORY){//Player Inventory
 			$pk = new ContainerClosePacket();
@@ -256,11 +252,7 @@ class InventoryUtils{
 	 * @return ServerCloseWindowPacket
 	 */
 	public function onWindowCloseFromPEtoPC(ContainerClosePacket $packet) : ServerCloseWindowPacket{
-		if($this->playerHeldItem->getId() !== Item::AIR){
-			$this->player->dropItem($this->playerHeldItem);
-			$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
-			$this->player->getCursorInventory()->setItem(0, Item::get(Item::AIR, 0, 0));
-		}
+		$this->dropHeldItem();
 
 		$pk = new ServerCloseWindowPacket();
 		$pk->windowID = $packet->windowId;
@@ -708,83 +700,6 @@ class InventoryUtils{
 				//$resultItem ===> $this->playerHeldItem
 				//$heldItem ===> $item
 
-				echo "A\n";
-
-				/*if($resultItem->equalsExact($this->playerHeldItem)){
-
-				}
-
-				/*if($heldItem->equals($item, true, true)){//TODO: more check item?
-					echo "A\n";
-					/*if($heldItem->equals()){
-
-					}else{
-
-					}
-					
-				}else{
-
-				}*/
-
-				/*if($heldItem->equals($item, true, true)){//TODO: more check item?
-					if($resultItem->getId() === Item::AIR){
-						$accepted = false;//not send packet
-					}elseif(!$resultItem->equals($heldItem, true, true)){
-						echo "C\n";
-						$accepted = false;//not send packet
-					}
-				}else{
-					echo "D\n";
-					
-				}
-
-				if($accepted){
-
-				}else{
-					$this->playerHeldItem = $heldItem;
-				}*/
-
-
-				/*if($heldItem->getId() !== Item::AIR){
-					if($heldItem->equals($item, true, true)){//TODO: more check item?
-						$this->playerHeldItem->setCount($this->playerHeldItem->getCount() + $item->getCount());
-					}else{
-						$accepted = false;//not send packet
-
-						$this->playerHeldItem = $heldItem;
-					}
-				}
-
-				if($accepted){
-	
-				}
-
-				/*if($heldItem->equals($item, true, true)){//TODO: more check item?
-					$accepted = false;//not send packet
-
-					$this->playerHeldItem = $heldItem;
-					echo "AAA\n";
-				}else{
-					echo "BBB\n";
-				}
-
-
-
-				/*if($resultItem->getId() === Item::AIR){
-					$accepted = false;//not send packet
-
-					$this->playerHeldItem = $heldItem;
-					echo "AA\n";
-				}else{
-					if($heldItem->equals($item, true, true)){
-
-					}else{
-
-					}
-				}*/
-
-
-
 				//var_dump($packet);
 				/*if($heldItem->equals($item, true, true)){//TODO: more check item?
 					if($resultItem->getId() === Item::AIR){
@@ -1081,8 +996,6 @@ class InventoryUtils{
 			$resultItem = Item::get(Item::AIR, 0, 0);
 		}
 		$saveInventoryData[0] = $resultItem;
-
-		var_dump($this->player->getCraftingGrid());
 
 		$pk = new SetSlotPacket();
 		$pk->windowID = $windowId;
