@@ -385,7 +385,10 @@ class Translator{
 							$packets[] = $pk;
 
 							$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
-							if($block->getHardness() === 0){
+							if($block->getHardness() === (float) 0){
+								usleep(5);//wait five microtime. blame pmmp
+								//TODO: BreakTime problem
+
 								$pk = new PlayerActionPacket();
 								$pk->entityRuntimeId = $player->getId();
 								$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
@@ -409,6 +412,15 @@ class Translator{
 								$pk->trData->clickPos = new Vector3($packet->x, $packet->y, $packet->z);
 
 								$packets[] = $pk;
+
+								$pk = new PlayerActionPacket();
+								$pk->entityRuntimeId = $player->getId();
+								$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
+								$pk->x = $packet->x;
+								$pk->y = $packet->y;
+								$pk->z = $packet->z;
+								$pk->face = $packet->face;
+								$packets[] = $pk;
 							}
 
 							return $packets;
@@ -429,6 +441,9 @@ class Translator{
 					break;
 					case 2:
 						if($player->getGamemode() !== 1){
+							usleep(5);//wait five microtime. blame pmmp
+							//TODO: BreakTime problem
+
 							$player->bigBrother_setBreakPosition([new Vector3(0, 0, 0), 0]);
 
 							$packets = [];
@@ -454,6 +469,15 @@ class Translator{
 							$pk->trData->itemInHand = $player->getInventory()->getItemInHand();
 							$pk->trData->playerPos = new Vector3($player->getX(), $player->getY(), $player->getZ());
 							$pk->trData->clickPos = new Vector3($packet->x, $packet->y, $packet->z);
+							$packets[] = $pk;
+
+							$pk = new PlayerActionPacket();
+							$pk->entityRuntimeId = $player->getId();
+							$pk->action = PlayerActionPacket::ACTION_ABORT_BREAK;
+							$pk->x = $packet->x;
+							$pk->y = $packet->y;
+							$pk->z = $packet->z;
+							$pk->face = $packet->face;
 							$packets[] = $pk;
 
 							return $packets;
