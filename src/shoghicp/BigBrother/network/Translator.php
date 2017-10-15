@@ -84,6 +84,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\EntityEquipmentPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityStatusPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityHeadLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\EntityLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityMetadataPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityVelocityPacket;
@@ -1174,9 +1175,16 @@ class Translator{
 					$pk->pitch = $packet->pitch;
 					$packets[] = $pk;
 
+					$pk = new EntityLookPacket();
+					$pk->eid = $packet->entityRuntimeId;
+					$pk->yaw = $packet->headYaw;
+					$pk->pitch = $packet->pitch;
+					$pk->onGround = $packet->onGround;
+					$packets[] = $pk;
+
 					$pk = new EntityHeadLookPacket();
 					$pk->eid = $packet->entityRuntimeId;
-					$pk->yaw = $packet->yaw;
+					$pk->yaw = $packet->headYaw;
 					$packets[] = $pk;
 
 					return $packets;
@@ -1207,9 +1215,16 @@ class Translator{
 					$pk->pitch = $packet->pitch;
 					$packets[] = $pk;
 
+					$pk = new EntityLookPacket();
+					$pk->eid = $packet->entityRuntimeId;
+					$pk->yaw = $packet->headYaw;
+					$pk->pitch = $packet->pitch;
+					$pk->onGround = $packet->onGround;
+					$packets[] = $pk;
+
 					$pk = new EntityHeadLookPacket();
 					$pk->eid = $packet->entityRuntimeId;
-					$pk->yaw = $packet->yaw;
+					$pk->yaw = $packet->headYaw;
 					$packets[] = $pk;
 
 					return $packets;
