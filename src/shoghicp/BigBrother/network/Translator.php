@@ -1076,6 +1076,7 @@ class Translator{
 					$pk->z = $packet->position->z;
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
+					$pk->headPitch = 0;
 					$pk->metadata = $packet->metadata;
 				}
 
