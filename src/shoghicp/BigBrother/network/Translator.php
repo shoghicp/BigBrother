@@ -109,6 +109,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\NamedSoundEffectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\UseEntityPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class Translator{
@@ -204,7 +205,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::USE_ENTITY_PACKET:
-				if($packet->type === 2){//interact at
+				if($packet->type === UseEntityPacket::INTERACT_AT){
 					$pk = new InteractPacket();
 					$pk->target = $packet->target;
 					$pk->action = InteractPacket::ACTION_MOUSEOVER;
@@ -222,10 +223,10 @@ class Translator{
 					$pk->trData->vector2 = new Vector3(0, 0, 0);
 
 					switch($packet->type){
-						case 0://interact
+						case UseEntityPacket::INTERACT:
 							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_INTERACT;
 						break;
-						case 1://attack
+						case UseEntityPacket::ATTACK:
 							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK;
 						break;
 						default:

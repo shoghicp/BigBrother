@@ -33,6 +33,10 @@ use shoghicp\BigBrother\network\InboundPacket;
 
 class UseEntityPacket extends InboundPacket{
 
+	const INTERACT    = 0;
+	const ATTACK      = 1;
+	const INTERACT_AT = 2;
+
 	/** @var int */
 	public $target;
 	/** @var int */
@@ -55,12 +59,12 @@ class UseEntityPacket extends InboundPacket{
 	protected function decode() : void{
 		$this->target = $this->getVarInt();
 		$this->type = $this->getVarInt();
-		if($this->type === 2){
+		if($this->type === self::INTERACT_AT){
 			$this->targetX = $this->getFloat();
 			$this->targetY = $this->getFloat();
 			$this->targetZ = $this->getFloat();
 		}
-		if($this->type !== 1){
+		if($this->type !== self::ATTACK){
 			$this->hand = $this->getVarInt();
 		}
 	}
