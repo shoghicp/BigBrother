@@ -737,23 +737,12 @@ class InventoryUtils{
 		if(isset($this->windowInfo[$packet->windowID]["type"])){
 			switch($this->windowInfo[$packet->windowID]["type"]){
 				case WindowTypes::FURNACE:
-					switch($packet->slot){
-						case 1://fuel
-							if($heldItem->equals($item, true, true)){//TODO: more check item?
-								if($item->getFuelTime() === 0){
-									$accepted = false;
+					if($packet->slot === 2){
+						if($heldItem->equals($item, true, true)){//TODO: more check item?
+							$accepted = false;
 
-									$this->playerHeldItem = $heldItem;//TODO: send slot?
-								}
-							}
-						break;
-						case 2://output
-							if($heldItem->equals($item, true, true)){//TODO: more check item?
-								$accepted = false;
-
-								$this->playerHeldItem = $heldItem;//TODO: send slot?
-							}
-						break;
+							$this->playerHeldItem = $heldItem;//TODO: send slot?
+						}
 					}
 				break;
 				//TODO: add more?

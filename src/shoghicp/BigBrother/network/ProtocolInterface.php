@@ -43,6 +43,8 @@ use shoghicp\BigBrother\network\protocol\Play\Client\EnchantItemPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\TeleportConfirmPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\AnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ConfirmTransactionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CraftRecipeRequestPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CraftingBookDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ClickWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ClientSettingsPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\ClientStatusPacket;
@@ -334,6 +336,9 @@ class ProtocolInterface implements SourceInterface{
 				case InboundPacket::PLAYER_LOOK_PACKET:
 					$pk = new PlayerLookPacket();
 					break;
+				case InboundPacket::CRAFT_RECIPE_REQUEST_PACKET:
+					$pk = new CraftRecipeRequestPacket();
+				break;
 				case InboundPacket::PLAYER_ABILITIES_PACKET:
 					$pk = new PlayerAbilitiesPacket();
 					break;
@@ -342,6 +347,9 @@ class ProtocolInterface implements SourceInterface{
 					break;
 				case InboundPacket::ENTITY_ACTION_PACKET:
 					$pk = new EntityActionPacket();
+					break;
+				case InboundPacket::CRAFTING_BOOK_DATA_PACKET:
+					$pk = new CraftingBookDataPacket();
 					break;
 				case InboundPacket::ADVANCEMENT_TAB_PACKET:
 					$pk = new AdvancementTabPacket();
