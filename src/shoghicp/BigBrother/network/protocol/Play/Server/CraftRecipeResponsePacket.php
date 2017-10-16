@@ -31,7 +31,7 @@ namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
 
-class CraftingBookDataPacket extends OutboundPacket{
+class CraftRecipeResponsePacket extends OutboundPacket{
 
 	/** @var int */
 	public $windowID;
