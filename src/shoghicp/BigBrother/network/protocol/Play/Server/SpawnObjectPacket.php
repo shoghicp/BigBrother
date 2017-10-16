@@ -51,6 +51,8 @@ class SpawnObjectPacket extends OutboundPacket{
 	public $yaw;
 	/** @var int */
 	public $data = 0;
+	/** @var bool */
+	public $sendVelocity = false;
 	/** @var float */
 	public $velocityX;
 	/** @var float */
@@ -72,7 +74,7 @@ class SpawnObjectPacket extends OutboundPacket{
 		$this->putAngle($this->pitch);
 		$this->putAngle($this->yaw);
 		$this->putInt($this->data);
-		if($this->data > 0){
+		if($this->sendVelocity){
 			$this->putShort((int) round($this->velocityX * 8000));
 			$this->putShort((int) round($this->velocityY * 8000));
 			$this->putShort((int) round($this->velocityZ * 8000));

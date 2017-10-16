@@ -1100,9 +1100,12 @@ class Translator{
 					$pk->yaw = 0;
 					$pk->pitch = 0;
 					$pk->data = $data;
-					$pk->velocityX = 0;
-					$pk->velocityY = 0;
-					$pk->velocityZ = 0;
+					if($data > 0){
+						$pk->sendVelocity = true;
+						$pk->velocityX = 0;
+						$pk->velocityY = 0;
+						$pk->velocityZ = 0;
+					}
 				}else{
 					$pk = new SpawnMobPacket();
 					$pk->eid = $packet->entityRuntimeId;
@@ -1155,6 +1158,7 @@ class Translator{
 				$pk->yaw = 0;
 				$pk->pitch = 0;
 				$pk->data = 1;
+				$pk->sendVelocity = true;
 				$pk->velocityX = 0;
 				$pk->velocityY = 0;
 				$pk->velocityZ = 0;
