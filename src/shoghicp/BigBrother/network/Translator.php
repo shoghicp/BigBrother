@@ -35,6 +35,7 @@ use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
+use pocketmine\level\Level;
 use pocketmine\level\particle\Particle;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
@@ -54,6 +55,8 @@ use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEffectPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
+use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\UUID;
 use pocketmine\nbt\NBT;
@@ -110,6 +113,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UseBedPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\NamedSoundEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\UseEntityPacket;
+use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class Translator{
@@ -205,6 +209,53 @@ class Translator{
 				return null;
 
 			case InboundPacket::USE_ENTITY_PACKET:
+				$frame = ItemFrameBlockEntity::getItemFrameById($player->getLevel(), $packet->target);
+				if($frame !== null){
+					switch($packet->type){
+						case UseEntityPacket::INTERACT:
+							$pk = new InventoryTransactionPacket();
+							$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
+							$pk->trData = new \stdClass();
+							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK;
+							$pk->trData->x = $frame->x;
+							$pk->trData->y = $frame->y;
+							$pk->trData->z = $frame->z;
+							$pk->trData->face = $frame->getFacing();
+							$pk->trData->hotbarSlot = $player->getInventory()->getHeldItemIndex();
+							$pk->trData->itemInHand = $player->getInventory()->getItemInHand();
+							$pk->trData->playerPos = $player->asVector3();
+							$pk->trData->clickPos = $frame->asVector3();
+							return $pk;
+						break;
+						case UseEntityPacket::ATTACK:
+							if($frame->hasItem()){
+								$pk = new ItemFrameDropItemPacket();
+								$pk->x = $frame->x;
+								$pk->y = $frame->y;
+								$pk->z = $frame->z;
+								return $pk;
+							}else{
+								$player->lastBreak = microtime(true) - 5;
+
+								$pk = new InventoryTransactionPacket();
+								$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
+								$pk->trData = new \stdClass();
+								$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK;
+								$pk->trData->x = $frame->x;
+								$pk->trData->y = $frame->y;
+								$pk->trData->z = $frame->z;
+								$pk->trData->face = $frame->getFacing();
+								$pk->trData->hotbarSlot = $player->getInventory()->getHeldItemIndex();
+								$pk->trData->itemInHand = $player->getInventory()->getItemInHand();
+								$pk->trData->playerPos = $player->asVector3();
+								$pk->trData->clickPos = $frame->asVector3();
+								return $pk;
+							}
+						break;
+					}
+					return null;
+				}
+
 				if($packet->type === UseEntityPacket::INTERACT_AT){
 					$pk = new InteractPacket();
 					$pk->target = $packet->target;
@@ -235,6 +286,7 @@ class Translator{
 						break;
 					}
 				}
+
 
 				return $pk;
 
@@ -664,6 +716,10 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
+				if(ItemFrameBlockEntity::exists($player->getLevel(), $packet->x, $packet->y, $packet->z)){
+					return null;
+				}
+
 				$pk = new InventoryTransactionPacket();
 				$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
 				$pk->trData = new \stdClass();
@@ -1274,6 +1330,27 @@ class Translator{
 				return null;
 
 			case Info::UPDATE_BLOCK_PACKET:
+				if(($entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z)) !== null){
+					if($packet->blockId !== Block::FRAME_BLOCK){
+						$entity->despawnFrom($player);
+					}else{
+						$entity->spawnTo($player);
+					}
+
+					return null;
+				}
+
+				if($packet->blockId === Block::FRAME_BLOCK){
+					$chunkX = $packet->x >> 4;
+					$chunkZ = $packet->z >> 4;
+					echo "Spawn Item Frame(face: $packet->blockData at $packet->x, $packet->z, chunk ($chunkX, $chunkZ)" . PHP_EOL;
+
+					$entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z, $packet->blockData, true);
+					$entity->spawnTo($player);
+
+					return null;
+				}
+
 				ConvertUtils::convertBlockData(true, $packet->blockId, $packet->blockData);
 
 				$pk = new BlockChangePacket();
@@ -1867,7 +1944,9 @@ class Translator{
 						$pk->namedtag = $nbt;
 					break;
 					case Tile::ITEM_FRAME:
-						//TODO: Convert Item Frame block to its entity.
+						if(($entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z)) !== null){
+							$entity->spawnTo($player);//Update Item Frame
+						}
 						return null;
 					break;
 					case Tile::SIGN:
@@ -2084,3 +2163,4 @@ class Translator{
 		}
 	}
 }
+

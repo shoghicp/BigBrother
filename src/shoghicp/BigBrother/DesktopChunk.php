@@ -29,9 +29,11 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\block\Block;
 use pocketmine\level\format\io\LevelProvider;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 
 class DesktopChunk{
 	/** @var DesktopPlayer */
@@ -93,8 +95,13 @@ class DesktopChunk{
 						$blockid = $subChunk->getBlockId($x, $y, $z);
 						$blockdata = $subChunk->getBlockData($x, $y, $z);
 
-						ConvertUtils::convertBlockData(true, $blockid, $blockdata);
-						$block = (int) ($blockid << 4) | $blockdata;
+						if($blockid == Block::FRAME_BLOCK){
+							ItemFrameBlockEntity::getItemFrame($this->player->getLevel(), $x + ($this->chunkX << 4), $y + ($num << 4), $z + ($this->chunkZ << 4), $blockdata, true);
+							$block = Block::AIR;
+						}else{
+							ConvertUtils::convertBlockData(true, $blockid, $blockdata);
+							$block = (int) ($blockid << 4) | $blockdata;
+						}
 
 						if(($key = array_search($block, $palette, true)) !== false){
 							$data .= chr($key);//bit
