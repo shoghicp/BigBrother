@@ -327,19 +327,45 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * TODO note that this method overriding parent private method!!
-	 * @param int        $x
-	 * @param int        $z
-	 * @param Level|null $level
+	 * @param Level $targetLevel
+	 * @return bool
 	 * @override
 	 */
-	private function unloadChunk(int $x, int $z, ?Level $level = null){
-		parent::unloadChunk($x, $z, $level);
+	protected function switchLevel(Level $targetLevel) : bool{
+		$oldLevel = $this->level;
+		$indexes = array_keys($this->usedChunks);
+		if($retval = parent::switchLevel($targetLevel)){
+			foreach($indexes as $index){
+				Level::getXZ($index, $chunkX, $chunkZ);
+				$this->__unloadChunk($chunkX, $chunkZ, $oldLevel);
+			}
+		}
+		return $retval;
+	}
 
+	/**
+	 * @override
+	 */
+	protected function orderChunks(){
+		$indexes = array_keys($this->usedChunks);
+		if($retval = parent::orderChunks()){
+			foreach(array_diff($indexes, array_keys($this->usedChunks)) as $index){
+				Level::getXZ($index, $chunkX, $chunkZ);
+				$this->__unloadChunk($chunkX, $chunkZ);
+			}
+		}
+		return $retval;
+	}
+
+	/**
+	 * @param int   $chunkX
+	 * @param int   $chunkZ
+	 * @param Level $oldLevel
+	 */
+	private function __unloadChunk(int $chunkX, int $chunkZ, Level $oldLevel=null){
 		$pk = new UnloadChunkPacket();
-		$pk->chunkX = $x;
-		$pk->chunkZ = $z;
-
+		$pk->chunkX = $chunkX;
+		$pk->chunkZ = $chunkZ;
 		$this->putRawPacket($pk);
 	}
 
