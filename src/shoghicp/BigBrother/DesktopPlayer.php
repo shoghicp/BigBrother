@@ -42,8 +42,10 @@ use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\level\Level;
+use pocketmine\level\format\Chunk;
 use pocketmine\utils\Utils;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\Packet;
@@ -58,6 +60,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UnloadChunkPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UnlockRecipesPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
+use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\InventoryUtils;
 
@@ -327,20 +330,76 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * TODO note that this method overriding parent private method!!
-	 * @param int        $x
-	 * @param int        $z
-	 * @param Level|null $level
+	 * @param int $chunkX
+	 * @param int $chunkZ
+	 * @param BatchPacket $payload
 	 * @override
 	 */
-	private function unloadChunk(int $x, int $z, ?Level $level = null){
-		parent::unloadChunk($x, $z, $level);
+	public function sendChunk(int $chunkX, int $chunkZ, BatchPacket $payload){
+		parent::sendChunk($chunkX, $chunkZ, $payload);
+		foreach($this->usedChunks as $index => $c){
+			Level::getXZ($index, $chunkX, $chunkZ);
+			foreach(ItemFrameBlockEntity::getItemFramesInChunk($this->level, $chunkX, $chunkZ) as $frame){
+				$frame->spawnTo($this);
+			}
+		}
+	}
 
+	/**
+	 * @param Level $targetLevel
+	 * @return bool
+	 * @override
+	 */
+	protected function switchLevel(Level $targetLevel) : bool{
+		$oldLevel = $this->level;
+		$indexes = array_keys($this->usedChunks);
+		if($retval = parent::switchLevel($targetLevel)){
+			foreach($indexes as $index){
+				Level::getXZ($index, $chunkX, $chunkZ);
+				$this->__unloadChunk($chunkX, $chunkZ, $oldLevel);
+			}
+		}
+		return $retval;
+	}
+
+	/**
+	 * @override
+	 */
+	protected function orderChunks(){
+		$indexes = array_keys($this->usedChunks);
+		if($retval = parent::orderChunks()){
+			foreach(array_diff($indexes, array_keys($this->usedChunks)) as $index){
+				Level::getXZ($index, $chunkX, $chunkZ);
+				$this->__unloadChunk($chunkX, $chunkZ);
+			}
+		}
+		return $retval;
+	}
+
+	/**
+	 * @param int   $chunkX
+	 * @param int   $chunkZ
+	 * @param Level $oldLevel
+	 */
+	private function __unloadChunk(int $chunkX, int $chunkZ, Level $oldLevel=null){
 		$pk = new UnloadChunkPacket();
-		$pk->chunkX = $x;
-		$pk->chunkZ = $z;
-
+		$pk->chunkX = $chunkX;
+		$pk->chunkZ = $chunkZ;
 		$this->putRawPacket($pk);
+
+		foreach(ItemFrameBlockEntity::getItemFramesInChunk($oldlevel ?? $this->level, $chunkX, $chunkZ) as $frame){
+			$frame->despawnFrom($this);
+		}
+	}
+
+	/**
+	 * @param Chunk $chunk
+	 * @override
+	 */
+	public function onChunkUnloaded(Chunk $chunk){
+		foreach(ItemFrameBlockEntity::getItemFramesInChunk($this->level, $chunk->getX(), $chunk->getZ()) as $frame){
+			$frame->despawnFromAll();
+		}
 	}
 
 	/**
@@ -404,6 +463,8 @@ class DesktopPlayer extends Player{
 			unset($this->usedChunks[$index]);
 			$this->level->unregisterChunkLoader($this, $x, $z);
 			unset($this->loadQueue[$index]);
+
+			$this->__unloadChunk($x, $z);
 		}
 
 		$this->usedChunks = [];
