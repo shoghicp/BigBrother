@@ -235,8 +235,6 @@ class Translator{
 								$pk->z = $frame->z;
 								return $pk;
 							}else{
-								$player->lastBreak = microtime(true) - 5;
-
 								$pk = new InventoryTransactionPacket();
 								$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
 								$pk->trData = new \stdClass();
@@ -439,9 +437,6 @@ class Translator{
 
 							$block = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 							if($block->getHardness() === (float) 0){
-								usleep(5);//wait five microtime. blame pmmp
-								//TODO: BreakTime problem
-
 								$pk = new PlayerActionPacket();
 								$pk->entityRuntimeId = $player->getId();
 								$pk->action = PlayerActionPacket::ACTION_STOP_BREAK;
@@ -494,9 +489,6 @@ class Translator{
 					break;
 					case 2:
 						if($player->getGamemode() !== 1){
-							usleep(5);//wait five microtime. blame pmmp
-							//TODO: BreakTime problem
-
 							$player->bigBrother_setBreakPosition([new Vector3(0, 0, 0), 0]);
 
 							$packets = [];

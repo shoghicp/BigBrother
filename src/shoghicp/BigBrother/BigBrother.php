@@ -35,6 +35,7 @@ use pocketmine\block\Block;
 use pocketmine\block\Chest;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\event\block\BlockPlaceEvent;
+use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat;
 
@@ -245,6 +246,18 @@ class BigBrother extends PluginBase implements Listener{
 			if($num_side_chest > 1){//Cancel if there are more than one chest that can be large-chest
 				$event->setCancelled();
 			}
+		}
+	}
+
+	/**
+	 * @param BlockBreakEvent $event
+	 *
+	 * @priority NORMAL
+	 */
+	public function onBreak(BlockBreakEvent $event) : void{
+		$player = $event->getPlayer();
+		if($player instanceof DesktopPlayer){
+			$event->setInstaBreak(true);//ItemFrame and other blocks
 		}
 	}
 
