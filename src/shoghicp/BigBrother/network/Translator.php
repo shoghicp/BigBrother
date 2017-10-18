@@ -1933,13 +1933,13 @@ class Translator{
 					case Tile::FLOWER_POT:
 						$pk->actionID = 5;
 
-						$nbt->Item = $nbt->item;
+						$nbt->Item = clone $nbt->item;
 						$nbt->Item->setName("Item");
-						unset($nbt["item"]);
+						unset($nbt->item);
 
-						$nbt->Data = $nbt->mData;
+						$nbt->Data = clone $nbt->mData;
 						$nbt->Data->setName("Data");
-						unset($nbt["mData"]);
+						unset($nbt->mData);
 
 						$pk->namedtag = $nbt;
 					break;

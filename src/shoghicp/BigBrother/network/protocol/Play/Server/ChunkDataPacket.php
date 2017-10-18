@@ -72,11 +72,11 @@ class ChunkDataPacket extends OutboundPacket{
 		foreach($this->blockEntities as $blockEntity){
 			switch($blockEntity->id){
 				case Tile::FLOWER_POT:
-					$blockEntity->Item = $blockEntity->item;
+					$blockEntity->Item = clone $blockEntity->item;
 					$blockEntity->Item->setName("Item");
 					unset($blockEntity->item);
 
-					$blockEntity->Data = $blockEntity->mData;
+					$blockEntity->Data = clone $blockEntity->mData;
 					$blockEntity->Data->setName("Data");
 					unset($blockEntity->mData);
 				break;
