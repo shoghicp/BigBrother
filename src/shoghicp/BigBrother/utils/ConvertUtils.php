@@ -260,10 +260,9 @@ class ConvertUtils{
 
 	/**
 	 * @param Tag  $nbt
-	 * @param bool $convert
 	 * @return string converted nbt tag data
 	 */
-	public static function convertNBTDataFromPEtoPC(Tag $nbt, bool $convert = false) : string{
+	public static function convertNBTDataFromPEtoPC(Tag $nbt) : string{
 		$stream = new BinaryStream();
 		$stream->putByte($nbt->getType());
 
@@ -276,16 +275,7 @@ class ConvertUtils{
 			case NBT::TAG_Compound:
 				assert($nbt instanceof CompoundTag);
 				foreach($nbt as $tag){
-					if($nbt["id"] === Tile::SIGN){
-						if($tag->getType() === NBT::TAG_String){
-							$convert = true;
-						}else{
-							$convert = false;
-						}
-					}else{
-						$convert = false;
-					}
-					$stream->put(self::convertNBTDataFromPEtoPC($tag, $convert));
+					$stream->put(self::convertNBTDataFromPEtoPC($tag));
 				}
 
 				$stream->putByte(0);
@@ -315,14 +305,8 @@ class ConvertUtils{
 				$stream->put($nbt->getValue());
 			break;
 			case NBT::TAG_String:
-				if($convert){
-					$value = BigBrother::toJSON($nbt->getValue());
-					$stream->putShort(strlen($value));
-					$stream->put($value);
-				}else{
-					$stream->putShort(strlen($nbt->getValue()));
-					$stream->put($nbt->getValue());
-				}
+				$stream->putShort(strlen($nbt->getValue()));
+				$stream->put($nbt->getValue());
 			break;
 			case NBT::TAG_List:
 				assert($nbt instanceof ListTag);

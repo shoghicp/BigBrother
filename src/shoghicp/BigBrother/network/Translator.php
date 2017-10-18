@@ -1951,6 +1951,27 @@ class Translator{
 					break;
 					case Tile::SIGN:
 						$pk->actionID = 9;
+
+						$textData = explode("\n", $nbt->Text->getValue());
+
+						//blame mojang
+						$nbt->Text1 = clone $nbt->Text;
+						$nbt->Text1->setName("Text1");
+						$nbt->Text1->setValue(BigBrother::toJSON($textData[0]));
+
+						$nbt->Text2 = clone $nbt->Text;
+						$nbt->Text2->setName("Text2");
+						$nbt->Text2->setValue(BigBrother::toJSON($textData[1]));
+
+						$nbt->Text3 = clone $nbt->Text;
+						$nbt->Text3->setName("Text3");
+						$nbt->Text3->setValue(BigBrother::toJSON($textData[2]));
+
+						$nbt->Text4 = clone $nbt->Text;
+						$nbt->Text4->setName("Text4");
+						$nbt->Text4->setValue(BigBrother::toJSON($textData[3]));
+						unset($nbt["Text"]);
+
 						$pk->namedtag = $nbt;
 					break;
 					case Tile::SKULL:
