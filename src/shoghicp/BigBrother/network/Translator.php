@@ -1588,8 +1588,8 @@ class Translator{
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
-				$pk->actionID = $packet->case1;
-				$pk->actionParam = $packet->case2;
+				$pk->actionID = $packet->eventType;
+				$pk->actionParam = $packet->eventData;
 				$pk->blockType = $blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
 
 				return $pk;
