@@ -127,6 +127,65 @@ class InventoryUtils{
 		return $items;
 	}
 
+	/**
+	 * @param int $windowId
+	 * @param int $inventorySlot
+	 * @param int &$targetWindowId
+	 * @param int &$targetInventorySlot
+	 * @return Item&
+	 * @throws \InvalidArgumentException
+	 */
+	private function &getItemAndSlot(int $windowId, int $inventorySlot, int &$targetWindowId=null, int &$targetInventorySlot=null) : Item{
+		$targetInventorySlot = $inventorySlot;
+		$targetWindowId = $windowId;
+
+		switch($windowId){
+			case ContainerIds::INVENTORY:
+				if($inventorySlot >= 0 and $inventorySlot < 5){
+					$retval = &$this->playerCraftTableSlot[$inventorySlot];
+				}elseif($inventorySlot < 9){
+					$targetWindowId = ContainerIds::ARMOR;
+					$inventorySlot -= 5;
+					$targetInventorySlot = $inventorySlot;
+					$retval = &$this->playerArmorSlot[$inventorySlot];
+				}elseif($inventorySlot < 36){
+					$inventorySlot -= 9;
+					$retval = &$this->playerInventorySlot[$inventorySlot];
+				}elseif($inventorySlot < 45){
+					$inventorySlot -= 36;
+					$targetInventorySlot = $inventorySlot;
+					$retval = &$this->playerHotbarSlot[$inventorySlot];
+				}else{
+					throw new \InvalidArgumentException("inventorySlot: " . $inventorySlot . " is out of range!!");
+				}
+			break;
+
+			default:
+				if($inventorySlot >= $this->windowInfo[$windowId]["slots"]){
+					$targetWindowId = ContainerIds::INVENTORY;
+					$inventorySlot -= $this->windowInfo[$windowId]["slots"];
+
+					if($inventorySlot >= 27 and $inventorySlot < 36){
+						$inventorySlot -= 27;
+						$targetInventorySlot = $inventorySlot;
+						$retval = &$this->playerHotbarSlot[$inventorySlot];
+					}else{
+						$targetInventorySlot = $inventorySlot + 9;
+						$retval = &$this->playerInventorySlot[$inventorySlot];
+					}
+				}else{
+					if($windowId === 255){
+						$retval = &$this->playerCraftTableSlot[$inventorySlot];
+					}else{
+						$retval = &$this->windowInfo[$windowId]["items"][$inventorySlot];
+					}
+				}
+			break;
+		}
+
+		return $retval;
+	}
+
 	private function dropHeldItem() : void{
 		if(!$this->playerHeldItem->isNull()){
 			$this->player->dropItem($this->playerHeldItem);
@@ -564,7 +623,7 @@ class InventoryUtils{
 					break;
 					case 1:
 						if($packet->slot !== -999){//Ctrl + Drop key
-							
+
 						}else{//Right click outside inventory holding nothing
 
 						}
@@ -708,7 +767,7 @@ class InventoryUtils{
 						}
 					}
 
-					
+
 
 					$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_TODO, NetworkInventoryAction::SOURCE_TYPE_CONTAINER_DROP_CONTENTS, 0, $resultItem, Item::get(Item::AIR, 0, 0));
 
@@ -735,53 +794,17 @@ class InventoryUtils{
 		}
 
 		if($accepted){
-			$windowId = $packet->windowID;
-			$inventorySlot = $saveInventorySlot = $packet->slot;
 
 			$pk = new InventoryTransactionPacket();
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
 			$pk->isCraftingPart = $isCraftingPart;
 
 			if($isContainer){
-				if($windowId !== ContainerIds::INVENTORY){
-					if($inventorySlot >= $this->windowInfo[$packet->windowID]["slots"]){
-						$windowId = ContainerIds::INVENTORY;
-						$inventorySlot -= $this->windowInfo[$packet->windowID]["slots"];
+				$slot = $this->getItemAndSlot($packet->windowID, $packet->slot, $windowId, $saveInventorySlot);
+				$oldItem = $slot;
 
-						if($inventorySlot >= 27 and $inventorySlot < 36){
-							$inventorySlot -= 27;
-							$saveInventorySlot = $inventorySlot;
-
-							$oldItem = $this->playerHotbarSlot[$inventorySlot];
-							$this->playerHotbarSlot[$inventorySlot] = $item;
-						}else{
-							$saveInventorySlot = $inventorySlot + 9;
-
-							$oldItem = $this->playerInventorySlot[$inventorySlot];
-							$this->playerInventorySlot[$inventorySlot] = $item;
-						}
-					}else{
-						if($packet->windowID === 255){
-							$oldItem = $this->playerCraftTableSlot[$inventorySlot];
-							//Already saved!
-						}else{
-							$oldItem = $this->windowInfo[$packet->windowID]["items"][$inventorySlot];
-							$this->windowInfo[$packet->windowID]["items"][$inventorySlot] = $item;
-						}
-					}
-				}else{
-					if($inventorySlot >= 36 and $inventorySlot < 45){
-						$inventorySlot -= 36;
-						$saveInventorySlot = $inventorySlot;
-
-						$oldItem = $this->playerHotbarSlot[$inventorySlot];
-						$this->playerHotbarSlot[$inventorySlot] = $item;
-					}else{
-						$inventorySlot -= 9;
-
-						$oldItem = $this->playerInventorySlot[$inventorySlot];
-						$this->playerInventorySlot[$inventorySlot] = $item;
-					}
+				if($packet->windowID !== 255){
+					$slot = $item;
 				}
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, $windowId, $saveInventorySlot, $oldItem, $item);
@@ -948,7 +971,7 @@ class InventoryUtils{
 				if($slot === 0){
 					continue;
 				}
-				
+
 				$gridOffset = $slot - 1;
 				$y = (int) ($gridOffset / $gridSize);
 				$x = $gridOffset % $gridSize;
