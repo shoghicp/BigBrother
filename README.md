@@ -29,4 +29,5 @@ Welcome to BigBrother, a shoghicp's project who has been abandonned and who has 
 
 #### Features not yet implemented
 * Crafting
-* Offhand (who only accept Totem Of Undying & Arrows)
+* ~~Offhand (who only accept Totem Of Undying & Arrows)~~  
+(Implement after offhand is implemented by pmmp)
