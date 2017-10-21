@@ -831,21 +831,25 @@ class InventoryUtils{
 		}else{
 			if($packet->slot > 4 and $packet->slot < 9){//Armor
 				$inventorySlot = $packet->slot - 5;
-				$oldItem = $this->playerInventorySlot[36 + $packet->slot];
+				$oldItem = $this->playerArmorSlot[$inventorySlot];
 				$newItem = $packet->item;
-				$this->playerInventorySlot[36 + $packet->slot] = $newItem;
+				$this->playerArmorSlot[$inventorySlot] = $newItem;
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::ARMOR, $inventorySlot, $oldItem, $newItem);
 			}else{
+				$newItem = $packet->item;
+
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
 					$inventorySlot = $packet->slot - 36;
+
+					$oldItem = $this->playerHotbarSlot[$inventorySlot];
+					$this->playerHotbarSlot[$inventorySlot] = $newItem;
 				}else{
 					$inventorySlot = $packet->slot;
-				}
 
-				$oldItem = $this->playerInventorySlot[$inventorySlot];
-				$newItem = $packet->item;
-				$this->playerInventorySlot[$inventorySlot] = $newItem;
+					$oldItem = $this->playerInventorySlot[$inventorySlot];
+					$this->playerInventorySlot[$inventorySlot] = $newItem;
+				}
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $inventorySlot, $oldItem, $newItem);
 			}
