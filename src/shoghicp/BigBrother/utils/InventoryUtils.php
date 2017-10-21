@@ -95,7 +95,7 @@ class InventoryUtils{
 		$this->playerCraftSlot = array_fill(0, 5, Item::get(Item::AIR, 0, 0));
 		$this->playerCraftTableSlot = array_fill(0, 9, Item::get(Item::AIR, 0, 0));
 		$this->playerArmorSlot = array_fill(0, 5, Item::get(Item::AIR, 0, 0));
-		$this->playerInventorySlot = array_fill(0, 36, Item::get(Item::AIR, 0, 0));
+		$this->playerInventorySlot = array_fill(0, 27, Item::get(Item::AIR, 0, 0));
 		$this->playerHotbarSlot = array_fill(0, 9, Item::get(Item::AIR, 0, 0));
 		$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
 
@@ -842,18 +842,21 @@ class InventoryUtils{
 				$newItem = $packet->item;
 
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
-					$inventorySlot = $packet->slot - 36;
+					$saveInventorySlot = $packet->slot - 36;
+					$inventorySlot = $saveInventorySlot;
+
 
 					$oldItem = $this->playerHotbarSlot[$inventorySlot];
 					$this->playerHotbarSlot[$inventorySlot] = $newItem;
 				}else{
-					$inventorySlot = $packet->slot;
+					$saveInventorySlot = $packet->slot;
+					$inventorySlot = $packet->slot - 9;
 
 					$oldItem = $this->playerInventorySlot[$inventorySlot];
 					$this->playerInventorySlot[$inventorySlot] = $newItem;
 				}
 
-				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $inventorySlot, $oldItem, $newItem);
+				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $saveInventorySlot, $oldItem, $newItem);
 			}
 
 			$pk = new InventoryTransactionPacket();
