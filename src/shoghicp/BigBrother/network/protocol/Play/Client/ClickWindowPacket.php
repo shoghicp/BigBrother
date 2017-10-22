@@ -53,9 +53,9 @@ class ClickWindowPacket extends InboundPacket{
 
 	protected function decode() : void{
 		$this->windowID = $this->getByte();
-		$this->slot = $this->getShort();
-		$this->button = $this->getByte();
-		$this->actionNumber = $this->getShort();
+		$this->slot = $this->getSignedShort();
+		$this->button = $this->getSignedByte();
+		$this->actionNumber = $this->getSignedShort();
 		$this->mode = $this->getVarInt();
 		$this->clickedItem = $this->getSlot();
 	}

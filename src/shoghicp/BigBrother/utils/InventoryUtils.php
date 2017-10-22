@@ -461,13 +461,19 @@ class InventoryUtils{
 		$otherAction = [];
 		$isContainer = true;
 
+		if($packet->slot === -1){
+			return [];
+		}
+
 		var_dump($packet);
 
 		switch($packet->mode){
 			case 0:
 				switch($packet->button){
 					case 0://Left mouse click
-						if($packet->slot !== 65535){
+						if($packet->slot === -999){
+							//Drop Item
+						}else{
 							$accepted = true;
 
 							if($item->equals($this->playerHeldItem, true, true)){
@@ -479,7 +485,9 @@ class InventoryUtils{
 						}
 					break;
 					case 1://Right mouse click
-						if($packet->slot !== 65535){
+						if($packet->slot === -999){
+							//Drop Item
+						}else{
 							$accepted = true;
 
 							if($this->playerHeldItem->isNull()){
@@ -560,7 +568,7 @@ class InventoryUtils{
 			break;
 			case 4:
 				switch($packet->button){
-					case 0:
+					case 0://Drop key
 						if($packet->slot !== -999){//Drop key
 
 						}else{//Left click outside inventory holding nothing

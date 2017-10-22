@@ -41,6 +41,6 @@ class HeldItemChangePacket extends InboundPacket{
 	}
 
 	protected function decode() : void{
-		$this->selectedSlot = $this->getShort();
+		$this->selectedSlot = $this->getSignedShort();
 	}
 }

@@ -51,6 +51,6 @@ class PlayerDiggingPacket extends InboundPacket{
 	protected function decode() : void{
 		$this->status = $this->getVarInt();
 		$this->getPosition($this->x, $this->y, $this->z);
-		$this->face = $this->getByte();
+		$this->face = $this->getSignedByte();
 	}
 }

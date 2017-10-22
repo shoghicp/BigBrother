@@ -86,12 +86,12 @@ abstract class Packet extends \stdClass{
 	 * @return Item
 	 */
 	protected function getSlot() : Item{
-		$itemId = $this->getShort();
-		if($itemId === 65535){ //Empty
+		$itemId = $this->getSignedShort();
+		if($itemId === -1){ //Empty
 			return Item::get(Item::AIR, 0, 0);
 		}else{
-			$count = $this->getByte();
-			$damage = $this->getShort();
+			$count = $this->getSignedByte();
+			$damage = $this->getSignedShort();
 			$nbt = $this->get(true);
 
 			$nbt = ConvertUtils::convertNBTDataFromPCtoPE($nbt);

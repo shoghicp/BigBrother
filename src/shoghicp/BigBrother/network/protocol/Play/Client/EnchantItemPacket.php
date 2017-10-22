@@ -43,7 +43,7 @@ class EnchantItemPacket extends InboundPacket{
 	}
 
 	protected function decode() : void{
-		$this->windowID = $this->getByte();
-		$this->enchantment = $this->getByte();
+		$this->windowID = $this->getSignedByte();
+		$this->enchantment = $this->getSignedByte();
 	}
 }

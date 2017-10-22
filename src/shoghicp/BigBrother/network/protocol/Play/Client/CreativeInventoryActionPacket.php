@@ -44,7 +44,7 @@ class CreativeInventoryActionPacket extends InboundPacket{
 	}
 
 	protected function decode() : void{
-		$this->slot = $this->getShort();
+		$this->slot = $this->getSignedShort();
 		$this->item = $this->getSlot();
 	}
 }

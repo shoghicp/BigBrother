@@ -45,8 +45,8 @@ class ConfirmTransactionPacket extends InboundPacket{
 	}
 
 	protected function decode() : void{
-		$this->windowID = $this->getByte();
-		$this->actionNumber = $this->getShort();
+		$this->windowID = $this->getSignedByte();
+		$this->actionNumber = $this->getSignedShort();
 		$this->accepted = $this->getBool();
 	}
 }
