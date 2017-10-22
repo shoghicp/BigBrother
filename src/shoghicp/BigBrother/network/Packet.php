@@ -125,6 +125,10 @@ abstract class Packet extends \stdClass{
 		return Binary::readShort($this->get(2));
 	}
 
+	protected function getSignedShort() : int{
+		return Binary::readSignedShort($this->get(2));
+	}
+
 	protected function getTriad() : int{
 		return Binary::readTriad($this->get(3));
 	}
@@ -139,6 +143,10 @@ abstract class Packet extends \stdClass{
 
 	protected function getByte() : int{
 		return ord($this->buffer{$this->offset++});
+	}
+
+	protected function getSignedByte() : int{
+		return ord($this->buffer{$this->offset++}) << 56 >> 56;
 	}
 
 	protected function getAngle() : float{
