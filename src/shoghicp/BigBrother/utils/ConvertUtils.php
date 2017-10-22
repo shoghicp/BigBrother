@@ -32,7 +32,7 @@ namespace shoghicp\BigBrother\utils;
 use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\entity\Human;
-use pocketmine\entity\Projectile;
+use pocketmine\entity\projectile\Projectile;
 use pocketmine\event\TimingsHandler;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\ByteArrayTag;
