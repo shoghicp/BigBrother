@@ -387,7 +387,7 @@ class DesktopPlayer extends Player{
 		$pk->chunkZ = $chunkZ;
 		$this->putRawPacket($pk);
 
-		foreach(ItemFrameBlockEntity::getItemFramesInChunk($oldlevel ?? $this->level, $chunkX, $chunkZ) as $frame){
+		foreach(ItemFrameBlockEntity::getItemFramesInChunk($oldLevel ?? $this->level, $chunkX, $chunkZ) as $frame){
 			$frame->despawnFrom($this);
 		}
 	}
