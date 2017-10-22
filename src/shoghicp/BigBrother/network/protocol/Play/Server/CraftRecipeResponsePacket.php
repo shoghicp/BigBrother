@@ -35,7 +35,7 @@ class CraftRecipeResponsePacket extends OutboundPacket{
 
 	/** @var int */
 	public $windowID;
-	/** @var int[] */
+	/** @var int */
 	public $recipeId = -1;
 
 	public function pid() : int{

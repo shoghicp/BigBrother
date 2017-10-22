@@ -39,7 +39,7 @@ class EntityLookPacket extends OutboundPacket{
 	public $yaw;
 	/** @var int */
 	public $pitch;
-	/** @var int */
+	/** @var bool */
 	public $onGround;
 
 	public function pid() : int{

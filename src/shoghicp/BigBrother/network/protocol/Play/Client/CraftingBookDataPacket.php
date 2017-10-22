@@ -35,7 +35,7 @@ class CraftingBookDataPacket extends InboundPacket{
 
 	/** @var int */
 	public $type;
-	/** @var int[] */
+	/** @var int */
 	public $recipeId = -1;
 	/** @var bool */
 	public $isCraftingBookOpen = false;

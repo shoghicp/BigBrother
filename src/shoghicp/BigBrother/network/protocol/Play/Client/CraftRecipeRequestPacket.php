@@ -35,7 +35,7 @@ class CraftRecipeRequestPacket extends InboundPacket{
 
 	/** @var int */
 	public $windowID;
-	/** @var int[] */
+	/** @var int */
 	public $recipeId = -1;
 	/** @var bool */
 	public $isMakeAll = false;
