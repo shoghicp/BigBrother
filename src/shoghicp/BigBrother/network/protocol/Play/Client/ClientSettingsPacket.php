@@ -52,9 +52,9 @@ class ClientSettingsPacket extends InboundPacket{
 
 	protected function decode() : void{
 		$this->lang = $this->getString();
-		$this->view = $this->getByte();
-		$this->chatMode = $this->getByte();
-		$this->chatColor = (bool) $this->getByte();
+		$this->view = $this->getSignedByte();
+		$this->chatMode = $this->getVarInt();
+		$this->chatColor = $this->getBool();
 		$this->skinSetting = $this->getByte();
 		$this->mainHand = $this->getVarInt();
 	}

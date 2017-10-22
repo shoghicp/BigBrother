@@ -41,6 +41,6 @@ class PlayerPacket extends InboundPacket{
 	}
 
 	protected function decode() : void{
-		$this->onGround = (bool) $this->getByte();
+		$this->onGround = $this->getBool();
 	}
 }
