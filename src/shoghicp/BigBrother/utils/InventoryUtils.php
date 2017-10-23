@@ -528,29 +528,13 @@ class InventoryUtils{
 			case 2:
 				switch($packet->button){
 					case 0://Number key 1
-
-					break;
 					case 1://Number key 2
-
-					break;
 					case 2://Number key 3
-
-					break;
 					case 3://Number key 4
-
-					break;
 					case 4://Number key 5
-
-					break;
 					case 5://Number key 6
-
-					break;
 					case 6://Number key 7
-
-					break;
 					case 7://Number key 8
-
-					break;
 					case 8://Number key 9
 
 					break;
@@ -637,6 +621,15 @@ class InventoryUtils{
 			default:
 				echo "[InventoryUtils] ClickWindowPacket: ".$packet->mode."\n";
 			break;
+		}
+
+		if($packet->windowID === 0){
+			if($packet->slot === 45){//Offhand
+				$accepted = false;
+				$this->playerHeldItem = $heldItem;
+
+				$this->player->sendMessage("Not yet implemented!");
+			}
 		}
 
 		$isCraftingPart = false;
@@ -805,11 +798,11 @@ class InventoryUtils{
 			}
 		}
 
-		$pk = new ConfirmTransactionPacket();
-		$pk->windowID = $packet->windowID;
-		$pk->actionNumber = $packet->actionNumber;
-		$pk->accepted = $accepted;
-		$this->player->putRawPacket($pk);
+		$accepted_pk = new ConfirmTransactionPacket();
+		$accepted_pk->windowID = $packet->windowID;
+		$accepted_pk->actionNumber = $packet->actionNumber;
+		$accepted_pk->accepted = $accepted;
+		$this->player->putRawPacket($accepted_pk);
 
 		if($accepted){
 			return $pk;
@@ -842,18 +835,26 @@ class InventoryUtils{
 
 			return null;
 		}else{
-			if($packet->slot > 4 and $packet->slot < 9){//Armor
+			if($packet->slot === -1){//DropItem
+				$this->player->dropItem($packet->item);
+
+				return null;
+			}elseif($packet->slot > 4 and $packet->slot < 9){//Armor
 				$inventorySlot = $packet->slot - 5;
 				$oldItem = $this->playerArmorSlot[$inventorySlot];
 				$newItem = $packet->item;
 				$this->playerArmorSlot[$inventorySlot] = $newItem;
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::ARMOR, $inventorySlot, $oldItem, $newItem);
-			}elseif($packet->slot === -1){//DropItem
-				$this->player->dropItem($packet->item);
+			}elseif($packet->slot === 45){//Offhand
+				$pk = new SetSlotPacket();
+				$pk->windowID = 0;
+				$pk->item = Item::get(Item::AIR, 0, 0);
+				$pk->slot = 45;//offhand slot
+				$this->player->putRawPacket($pk);
 
 				return null;
-			}else{
+			}else{//Inventory
 				$newItem = $packet->item;
 
 				if($packet->slot > 35 and $packet->slot < 45){//hotbar
