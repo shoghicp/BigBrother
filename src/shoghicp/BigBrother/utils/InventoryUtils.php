@@ -800,11 +800,11 @@ class InventoryUtils{
 			$pk->isCraftingPart = $isCraftingPart;
 
 			if($isContainer){
-				$slot = $this->getItemAndSlot($packet->windowID, $packet->slot, $windowId, $saveInventorySlot);
-				$oldItem = $slot;
+				$ref = $this->getItemAndSlot($packet->windowID, $packet->slot, $windowId, $saveInventorySlot);
+				$oldItem = $ref;
 
 				if($packet->windowID !== 255){
-					$slot = $item;
+					$ref = $item;
 				}
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, $windowId, $saveInventorySlot, $oldItem, $item);
