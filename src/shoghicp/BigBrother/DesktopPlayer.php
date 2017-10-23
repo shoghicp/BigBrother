@@ -346,48 +346,20 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param Level $targetLevel
-	 * @return bool
-	 * @override
-	 */
-	protected function switchLevel(Level $targetLevel) : bool{
-		$oldLevel = $this->level;
-		$indexes = array_keys($this->usedChunks);
-		if($retval = parent::switchLevel($targetLevel)){
-			foreach($indexes as $index){
-				Level::getXZ($index, $chunkX, $chunkZ);
-				$this->__unloadChunk($chunkX, $chunkZ, $oldLevel);
-			}
-		}
-		return $retval;
-	}
-
-	/**
-	 * @override
-	 */
-	protected function orderChunks(){
-		$indexes = array_keys($this->usedChunks);
-		if($retval = parent::orderChunks()){
-			foreach(array_diff($indexes, array_keys($this->usedChunks)) as $index){
-				Level::getXZ($index, $chunkX, $chunkZ);
-				$this->__unloadChunk($chunkX, $chunkZ);
-			}
-		}
-		return $retval;
-	}
-
-	/**
 	 * @param int   $chunkX
 	 * @param int   $chunkZ
-	 * @param Level $oldLevel
+	 * @param Level $level
+	 * @override
 	 */
-	private function __unloadChunk(int $chunkX, int $chunkZ, Level $oldLevel=null){
+	protected function unloadChunk(int $chunkX, int $chunkZ, Level $level=null){
+		parent::unloadChunk($chunkX, $chunkZ, $level);
+
 		$pk = new UnloadChunkPacket();
 		$pk->chunkX = $chunkX;
 		$pk->chunkZ = $chunkZ;
 		$this->putRawPacket($pk);
 
-		foreach(ItemFrameBlockEntity::getItemFramesInChunk($oldLevel ?? $this->level, $chunkX, $chunkZ) as $frame){
+		foreach(ItemFrameBlockEntity::getItemFramesInChunk($level ?? $this->level, $chunkX, $chunkZ) as $frame){
 			$frame->despawnFrom($this);
 		}
 	}
@@ -452,19 +424,8 @@ class DesktopPlayer extends Player{
 		$this->putRawPacket($pk);
 
 		foreach($this->usedChunks as $index => $d){//reset chunks
-			Level::getXZ($index, $x, $z);
-
-			foreach($this->level->getChunkEntities($x, $z) as $entity){
-				if($entity !== $this){
-					$entity->despawnFrom($this);
-				}
-			}
-
-			unset($this->usedChunks[$index]);
-			$this->level->unregisterChunkLoader($this, $x, $z);
-			unset($this->loadQueue[$index]);
-
-			$this->__unloadChunk($x, $z);
+			Level::getXZ($index, $chunkX, $chunkZ);
+			$this->unloadChunk($chunkX, $chunkZ);
 		}
 
 		$this->usedChunks = [];
