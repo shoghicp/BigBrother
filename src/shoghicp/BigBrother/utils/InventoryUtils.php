@@ -135,7 +135,7 @@ class InventoryUtils{
 	 * @return Item&
 	 * @throws \InvalidArgumentException
 	 */
-	private function &getItemAndSlot(int $windowId, int $inventorySlot, int &$targetWindowId=null, int &$targetInventorySlot=null) : Item{
+	private function &getItemAndSlot(int $windowId, int $inventorySlot, int &$targetWindowId = null, int &$targetInventorySlot = null) : Item{
 		$targetInventorySlot = $inventorySlot;
 		$targetWindowId = $windowId;
 

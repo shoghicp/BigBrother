@@ -351,7 +351,7 @@ class DesktopPlayer extends Player{
 	 * @param Level $level
 	 * @override
 	 */
-	protected function unloadChunk(int $chunkX, int $chunkZ, Level $level=null){
+	protected function unloadChunk(int $chunkX, int $chunkZ, Level $level = null){
 		parent::unloadChunk($chunkX, $chunkZ, $level);
 
 		$pk = new UnloadChunkPacket();
