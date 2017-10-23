@@ -403,14 +403,6 @@ class DesktopPlayer extends Player{
 		$this->putRawPacket($pk);
 
 		$this->sendAdvancements(true);
-
-		/*$pk = new UnlockRecipesPacket();
-		$pk->actionID = 0;
-		$pk->recipes[] = 163;
-		$pk->recipes[] = 438;
-		$pk->recipes[] = 424;
-		$pk->extraRecipes[] = 0;
-		$this->putRawPacket($pk);*/
 	}
 
 	public function bigBrother_respawn() : void{
