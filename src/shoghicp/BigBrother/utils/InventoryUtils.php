@@ -452,9 +452,9 @@ class InventoryUtils{
 
 	/**
 	 * @param ClickWindowPacket $packet
-	 * @return DataPacket[]
+	 * @return InventoryTransactionPacket|null
 	 */
-	public function onWindowClick(ClickWindowPacket $packet) : array{
+	public function onWindowClick(ClickWindowPacket $packet) : ?InventoryTransactionPacket{
 		$item = clone $packet->clickedItem;
 		$heldItem = clone $this->playerHeldItem;
 		$accepted = false;
@@ -462,7 +462,7 @@ class InventoryUtils{
 		$isContainer = true;
 
 		if($packet->slot === -1){
-			return [];
+			return null;
 		}
 
 		var_dump($packet);
@@ -472,7 +472,9 @@ class InventoryUtils{
 				switch($packet->button){
 					case 0://Left mouse click
 						if($packet->slot === -999){
-							//Drop Item
+							$dropItem = clone $this->playerHeldItem;
+							$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, $heldItem, $dropItem);
 						}else{
 							$accepted = true;
 
@@ -486,7 +488,8 @@ class InventoryUtils{
 					break;
 					case 1://Right mouse click
 						if($packet->slot === -999){
-							//Drop Item
+							$dropItem = $this->playerHeldItem->pop();
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, $heldItem, $dropItem);
 						}else{
 							$accepted = true;
 
@@ -577,7 +580,7 @@ class InventoryUtils{
 					break;
 					case 1:
 						if($packet->slot !== -999){//Ctrl + Drop key
-
+							
 						}else{//Right click outside inventory holding nothing
 
 						}
@@ -738,7 +741,6 @@ class InventoryUtils{
 			}
 		}
 
-		$packets = [];
 		if($accepted){
 			$windowId = $packet->windowID;
 			$inventorySlot = $saveInventorySlot = $packet->slot;
@@ -801,8 +803,6 @@ class InventoryUtils{
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::CURSOR, 0, $heldItem, $this->playerHeldItem);
 				$pk->actions[] = $action;
 			}
-
-			$packets[] = $pk;
 		}
 
 		$pk = new ConfirmTransactionPacket();
@@ -811,7 +811,10 @@ class InventoryUtils{
 		$pk->accepted = $accepted;
 		$this->player->putRawPacket($pk);
 
-		return $packets;
+		if($accepted){
+			return $pk;
+		}
+		return null;
 	}
 
 	/**
@@ -846,6 +849,10 @@ class InventoryUtils{
 				$this->playerArmorSlot[$inventorySlot] = $newItem;
 
 				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::ARMOR, $inventorySlot, $oldItem, $newItem);
+			}elseif($packet->slot === -1){//DropItem
+				$this->player->dropItem($packet->item);
+
+				return null;
 			}else{
 				$newItem = $packet->item;
 
