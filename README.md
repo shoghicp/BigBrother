@@ -5,7 +5,7 @@ BigBrother
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Percentage of issues still open")
 
-Welcome to BigBrother, a shoghicp's project who has been abandonned and who has been taken back by the BigBrotherTeam!
+Welcome to BigBrother, a shoghicp project who has been abandoned and taken back by the BigBrotherTeam!
 -------------
 
 ### Watch Video working on PocketMine-MP!
@@ -21,11 +21,11 @@ Welcome to BigBrother, a shoghicp's project who has been abandonned and who has 
 * Placing/destroying blocks
 * Gamemodes
 * Dropped items
-* Converted blocks IDs' & items IDs'
+* Converted blocks IDs '& items IDs'
 * Converted entities metadatas
 * Inventories
 * Tiles
-* And many other things !
+* And many other things!
 
 #### Features not yet implemented
 * Crafting
