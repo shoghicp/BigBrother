@@ -143,15 +143,15 @@ class InventoryUtils{
 			case ContainerIds::INVENTORY:
 				if($inventorySlot >= 0 and $inventorySlot < 5){
 					$retval = &$this->playerCraftTableSlot[$inventorySlot];
-				}elseif($inventorySlot < 9){
+				}elseif($inventorySlot >= 5 and $inventorySlot < 9){
 					$targetWindowId = ContainerIds::ARMOR;
 					$inventorySlot -= 5;
 					$targetInventorySlot = $inventorySlot;
 					$retval = &$this->playerArmorSlot[$inventorySlot];
-				}elseif($inventorySlot < 36){
+				}elseif($inventorySlot >= 9 and $inventorySlot < 36){
 					$inventorySlot -= 9;
 					$retval = &$this->playerInventorySlot[$inventorySlot];
-				}elseif($inventorySlot < 45){
+				}elseif($inventorySlot >= 36 and $inventorySlot < 45){
 					$inventorySlot -= 36;
 					$targetInventorySlot = $inventorySlot;
 					$retval = &$this->playerHotbarSlot[$inventorySlot];
@@ -794,14 +794,13 @@ class InventoryUtils{
 		}
 
 		if($accepted){
-
 			$pk = new InventoryTransactionPacket();
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
 			$pk->isCraftingPart = $isCraftingPart;
 
 			if($isContainer){
-				$ref = $this->getItemAndSlot($packet->windowID, $packet->slot, $windowId, $saveInventorySlot);
-				$oldItem = $ref;
+				$ref = &$this->getItemAndSlot($packet->windowID, $packet->slot, $windowId, $saveInventorySlot);
+				$oldItem = clone $ref;
 
 				if($packet->windowID !== 255){
 					$ref = $item;
@@ -828,6 +827,8 @@ class InventoryUtils{
 		$this->player->putRawPacket($accepted_pk);
 
 		if($accepted){
+			$this->checkInventoryTransactionPacket($pk);
+
 			return $pk;
 		}
 		return null;
@@ -913,6 +914,8 @@ class InventoryUtils{
 
 				$pk->actions[] = $action;
 			}
+
+			$this->checkInventoryTransactionPacket($pk);
 
 			return $pk;
 		}
@@ -1033,6 +1036,48 @@ class InventoryUtils{
 		$action->newItem = $newItem;
 
 		return $action;
+	}
+
+	/**
+	 * @param InventoryTransactionPacket  $packet
+	 */
+	public function checkInventoryTransactionPacket(InventoryTransactionPacket $packet) : bool{
+		$actions = [];
+		foreach($packet->actions as $networkInventoryAction){
+			$action = $networkInventoryAction->createInventoryAction($this->player);
+
+			if($action === null){
+				$errors++;
+				continue;
+			}
+
+			$actions[] = $action;
+		}
+
+		$errors = 0;
+		foreach($actions as $actionNumber => $action){
+			$reflection = new \ReflectionClass($action->getInventory());
+			$windowName = $reflection->getShortName();
+
+			if($action->isValid($this->player)){
+				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] nothing error!\n";
+			}else{
+				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invaild Item!\n";
+				$reflection = new \ReflectionClass($action);
+				if($reflection->getShortName() === "SlotChangeAction"){
+					$checkItem = $action->getInventory()->getItem($action->getSlot());
+					var_dump(["checkItem" => $checkItem, "sourceItem" => $action->getSourceItem()]);//json_encode
+				}
+				$errors++;
+				/*
+				$check->equalsExact($action->sourceItem);*/
+			}
+		}
+
+		if($errors > 0){
+			return false;
+		}
+		return true;
 	}
 
 }
