@@ -159,7 +159,6 @@ class InventoryUtils{
 					throw new \InvalidArgumentException("inventorySlot: " . $inventorySlot . " is out of range!!");
 				}
 			break;
-
 			default:
 				if($inventorySlot >= $this->windowInfo[$windowId]["slots"]){
 					$targetWindowId = ContainerIds::INVENTORY;
@@ -785,7 +784,7 @@ class InventoryUtils{
 						if($heldItem->equals($item, true, true)){//TODO: more check item?
 							$accepted = false;
 
-							$this->playerHeldItem = $heldItem;//TODO: send slot?
+							$this->playerHeldItem = $heldItem;
 						}
 					}
 				break;
@@ -830,6 +829,9 @@ class InventoryUtils{
 			$this->checkInventoryTransactionPacket($pk);
 
 			return $pk;
+		}else{
+			$this->player->getInventory()->sendContents($this->player);
+			$this->player->getInventory()->sendHeldItem($this->player);
 		}
 		return null;
 	}
@@ -1060,9 +1062,9 @@ class InventoryUtils{
 			$windowName = $reflection->getShortName();
 
 			if($action->isValid($this->player)){
-				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] nothing error!\n";
+				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] error nothing!\n";
 			}else{
-				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invaild Item!\n";
+				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invalid Item!\n";
 				$reflection = new \ReflectionClass($action);
 				if($reflection->getShortName() === "SlotChangeAction"){
 					$checkItem = $action->getInventory()->getItem($action->getSlot());
