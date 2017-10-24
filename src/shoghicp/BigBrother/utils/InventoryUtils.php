@@ -446,7 +446,7 @@ class InventoryUtils{
 				}
 
 				for($i = 0; $i < 4; ++$i){
-					$pk->items[] = Item::get(Item::AIR, 0, 0);//Armor
+					$pk->items[] = $this->playerArmorSlot[$i];//Armor
 				}
 
 				$hotbar = [];
