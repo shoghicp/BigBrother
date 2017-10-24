@@ -214,6 +214,15 @@ class InventoryUtils{
 		}
 	}
 
+	public function sendHeldItem(){//send cursor item
+		$pk = new SetSlotPacket();
+		$pk->windowID = -1;
+		$pk->item = $this->playerHeldItem;
+		$pk->slot = -1;
+
+		$this->player->putRawPacket($pk);
+	}
+
 	/**
 	 * @param ContainerOpenPacket $packet
 	 * @return OutboundPacket|null
@@ -831,7 +840,9 @@ class InventoryUtils{
 			return $pk;
 		}else{
 			$this->player->getInventory()->sendContents($this->player);
+			$this->player->getInventory()->sendArmorContents($this->player);
 			$this->player->getInventory()->sendHeldItem($this->player);
+			$this->sendHeldItem();
 		}
 		return null;
 	}
