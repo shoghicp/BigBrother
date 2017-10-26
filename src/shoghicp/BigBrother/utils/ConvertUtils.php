@@ -260,15 +260,19 @@ class ConvertUtils{
 
 	/**
 	 * @param Tag  $nbt
+	 * @param bool $isListTag
 	 * @return string converted nbt tag data
 	 */
-	public static function convertNBTDataFromPEtoPC(Tag $nbt) : string{
+	public static function convertNBTDataFromPEtoPC(Tag $nbt, $isListTag = false) : string{
 		$stream = new BinaryStream();
-		$stream->putByte($nbt->getType());
 
-		if($nbt instanceof NamedTag){
-			$stream->putShort(strlen($nbt->getName()));
-			$stream->put($nbt->getName());
+		if(!$isListTag){
+			$stream->putByte($nbt->getType());
+
+			if($nbt instanceof NamedTag){
+				$stream->putShort(strlen($nbt->getName()));
+				$stream->put($nbt->getName());
+			}
 		}
 
 		switch($nbt->getType()){
@@ -312,7 +316,7 @@ class ConvertUtils{
 				assert($nbt instanceof ListTag);
 
 				$count = count($nbt);
-				$type = $nbt[0]->getType();
+				$type = $nbt->getTagType();
 
 				foreach($nbt as $tag){
 					if($tag instanceof Tag){
@@ -326,7 +330,7 @@ class ConvertUtils{
 				$stream->putInt($count);
 
 				foreach($nbt as $tag){
-					$stream->put(self::convertNBTDataFromPEtoPC($tag));
+					$stream->put(self::convertNBTDataFromPEtoPC($tag, true));
 				}
 			break;
 			case NBT::TAG_IntArray:
@@ -340,76 +344,85 @@ class ConvertUtils{
 
 	/**
 	 * @param string $buffer
+	 * @param bool 	 $isListTag
+	 * @param int 	 $listTagId
 	 * @return CompoundTag|Tag|null
 	 */
-	public static function convertNBTDataFromPCtoPE(string $buffer) : ?Tag{
+	public static function convertNBTDataFromPCtoPE(string $buffer, $isListTag = false, $listTagId = NBT::TAG_End) : ?Tag{
 		$stream = new BinaryStream($buffer);
 		$nbt = null;
 
-		$type = $stream->getByte();
-		if($type === NBT::TAG_End){
-			$nbt = new EndTag();
+		if($isListTag){
+			$type = $listTagId;
+			$name = "";
 		}else{
-			$name = $stream->get($stream->getShort());
-			switch($type){
-				case NBT::TAG_Byte:
-					$nbt = new ByteTag($name, $stream->getByte());
-				break;
-				case NBT::TAG_Short:
-					$nbt = new ShortTag($name, $stream->getShort());
-				break;
-				case NBT::TAG_Int:
-					$nbt = new IntTag($name, $stream->getInt());
-				break;
-				case NBT::TAG_Long:
-					$nbt = new LongTag($name, $stream->getLong());
-				break;
-				case NBT::TAG_Float:
-					$nbt = new FloatTag($name, $stream->getFloat());
-				break;
-				case NBT::TAG_Double:
-					$nbt = new DoubleTag($name, Binary::readDouble($stream->get(8)));
-				break;
-				case NBT::TAG_ByteArray:
-					$nbt = new ByteArrayTag($name, $stream->get($stream->getInt()));
-				break;
-				case NBT::TAG_String:
-					$nbt = new StringTag($name, $stream->get($stream->getShort()));
-				break;
-				case NBT::TAG_List:
-					$id = $stream->getByte();
-					$count = $stream->getInt();
-
-					$tags = [];
-					for($i = 0; $i < $count and !$stream->feof(); $i++){
-						$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
-						$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
-
-						if($tag instanceof NamedTag and $tag->getName() !== ""){
-							$tags[] = $tag;
-						}
-					}
-
-					$nbt = new ListTag($name, $tags);
-					$nbt->setTagType($id);
-				break;
-				case NBT::TAG_Compound:
-					$tags = [];
-					do{
-						$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
-						$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
-
-						if($tag instanceof NamedTag and $tag->getName() !== ""){
-							$tags[] = $tag;
-						}
-					}while(!($tag instanceof EndTag) and !$stream->feof());
-
-					$nbt = new CompoundTag($name, $tags);
-				break;
-				case NBT::TAG_IntArray:
-					$nbt = new IntArrayTag($name, unpack("N*", $stream->get($stream->getInt()*4)));
-				break;
+			$type = $stream->getByte();
+			if($type !== NBT::TAG_End){
+				$name = $stream->get($stream->getShort());
 			}
+		}
+
+		switch($type){
+			case NBT::TAG_End://unused
+				$nbt = new EndTag();
+			break;
+			case NBT::TAG_Byte:
+				$nbt = new ByteTag($name, $stream->getByte());
+			break;
+			case NBT::TAG_Short:
+				$nbt = new ShortTag($name, $stream->getShort());
+			break;
+			case NBT::TAG_Int:
+				$nbt = new IntTag($name, $stream->getInt());
+			break;
+			case NBT::TAG_Long:
+				$nbt = new LongTag($name, $stream->getLong());
+			break;
+			case NBT::TAG_Float:
+				$nbt = new FloatTag($name, $stream->getFloat());
+			break;
+			case NBT::TAG_Double:
+				$nbt = new DoubleTag($name, Binary::readDouble($stream->get(8)));
+			break;
+			case NBT::TAG_ByteArray:
+				$nbt = new ByteArrayTag($name, $stream->get($stream->getInt()));
+			break;
+			case NBT::TAG_String:
+				$nbt = new StringTag($name, $stream->get($stream->getShort()));
+			break;
+			case NBT::TAG_List:
+				$id = $stream->getByte();
+				$count = $stream->getInt();
+
+				$tags = [];
+				for($i = 0; $i < $count and !$stream->feof(); $i++){
+					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()), true, $id);
+					$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag, true));
+
+					if($tag instanceof NamedTag){
+						$tags[] = $tag;
+					}
+				}
+
+				$nbt = new ListTag($name, $tags);
+				$nbt->setTagType($id);
+			break;
+			case NBT::TAG_Compound:
+				$tags = [];
+				do{
+					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
+					$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
+
+					if($tag instanceof NamedTag){
+						$tags[] = $tag;
+					}
+				}while(!($tag instanceof EndTag) and !$stream->feof());
+
+				$nbt = new CompoundTag($name, $tags);
+			break;
+			case NBT::TAG_IntArray:
+				$nbt = new IntArrayTag($name, unpack("N*", $stream->get($stream->getInt()*4)));
+			break;
 		}
 
 		return $nbt;
