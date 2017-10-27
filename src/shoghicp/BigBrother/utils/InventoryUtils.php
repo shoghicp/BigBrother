@@ -1053,6 +1053,7 @@ class InventoryUtils{
 
 	/**
 	 * @param InventoryTransactionPacket  $packet
+	 * @return bool
 	 */
 	public function checkInventoryTransactionPacket(InventoryTransactionPacket $packet) : bool{
 		$actions = [];
@@ -1069,15 +1070,19 @@ class InventoryUtils{
 
 		$errors = 0;
 		foreach($actions as $actionNumber => $action){
-			$reflection = new \ReflectionClass($action->getInventory());
-			$windowName = $reflection->getShortName();
+			$reflection = new \ReflectionClass($action);
+			if(($shortName = $reflection->getShortName()) === "SlotChangeAction"){
+				$reflection = new \ReflectionClass($action->getInventory());
+				$windowName = $reflection->getShortName();
+			}else{
+				$windowName = "CreativeInventoryAction";
+			}
 
 			if($action->isValid($this->player)){
 				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] error nothing!\n";
 			}else{
 				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invalid Item!\n";
-				$reflection = new \ReflectionClass($action);
-				if($reflection->getShortName() === "SlotChangeAction"){
+				if($shortName === "SlotChangeAction"){
 					$checkItem = $action->getInventory()->getItem($action->getSlot());
 					var_dump(["checkItem" => $checkItem, "sourceItem" => $action->getSourceItem()]);//json_encode
 				}

@@ -41,6 +41,7 @@ use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
+use pocketmine\network\mcpe\protocol\BookEditPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\EntityEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -63,6 +64,7 @@ use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\nbt\tag\Tag;
 use pocketmine\tile\Tile;
 use pocketmine\tile\Spawnable;
 use shoghicp\BigBrother\BigBrother;
@@ -74,6 +76,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimate
 use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PluginMessagePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ParticlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockActionPacket;
@@ -201,6 +204,56 @@ class Translator{
 					break;
 					case "MC|Brand": //ServerType
 						$player->bigBrother_setPluginMessageList("ServerType", $packet->data);
+					break;
+					case "MC|BEdit":
+						$packets = [];
+						$item = clone $packet->data[0];
+
+						if(!is_null(($pages = $item->getNamedTagEntry("pages")))){
+							foreach($pages as $pageNumber => $tag){
+								if($tag instanceof StringTag){
+									$pk = new BookEditPacket();
+									$pk->type = BookEditPacket::TYPE_REPLACE_PAGE;
+									$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
+									$pk->pageNumber = (int) $pageNumber;
+									$pk->text = $tag->getValue();
+									$pk->photoName = "";//Not implement
+
+									$packets[] = $pk;
+								}
+							}
+						}
+
+						return $packets;
+					break;
+					case "MC|BSign":
+						$packets = [];
+						$item = clone $packet->data[0];
+
+						if(!is_null(($pages = $item->getNamedTagEntry("pages")))){
+							foreach($pages as $pageNumber => $tag){
+								if($tag instanceof StringTag){
+									$pk = new BookEditPacket();
+									$pk->type = BookEditPacket::TYPE_REPLACE_PAGE;
+									$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
+									$pk->pageNumber = (int) $pageNumber;
+									$pk->text = $tag->getValue();
+									$pk->photoName = "";//Not implement
+
+									$packets[] = $pk;
+								}
+							}
+						}
+
+						$pk = new BookEditPacket();
+						$pk->type = BookEditPacket::TYPE_SIGN_BOOK;
+						$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
+						$pk->title = $item->getNamedTagEntry("title")->getValue();
+						$pk->author = $item->getNamedTagEntry("author")->getValue();
+
+						$packets[] = $pk;
+
+						return $packets;
 					break;
 					default:
 						echo "PluginChannel: ".$packet->channel."\n";
@@ -726,6 +779,14 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::USE_ITEM_PACKET:
+				if($player->getInventory()->getItemInHand()->getId() === Item::WRITTEN_BOOK){
+					$pk = new PluginMessagePacket();
+					$pk->channel = "MC|BOpen";
+					$pk->data[] = 0;//main hand
+
+					$player->putRawPacket($pk);
+				}
+
 				$pk = new InventoryTransactionPacket();
 				$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
 				$pk->trData = new \stdClass();

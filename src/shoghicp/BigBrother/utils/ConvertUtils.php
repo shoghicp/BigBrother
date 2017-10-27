@@ -448,6 +448,65 @@ class ConvertUtils{
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
+			case Item::WRITABLE_BOOK:
+				if($iscomputer){
+					if($itemnbt !== ""){
+						$nbt = new NBT();
+						$nbt->read($itemnbt, true);
+						$itemnbt = $nbt->getData();
+
+						$listTag = [];
+
+						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
+							if($pageTags instanceof CompoundTag){
+								foreach($pageTags as $name => $tag){
+									if($tag instanceof StringTag){
+										if($tag->getName() === "text"){
+											$listTag[] = new StringTag("", $tag->getValue());
+										}
+									}
+								}
+							}
+						}
+
+						$itemnbt = new CompoundTag("", [
+							new ListTag("pages", $listTag)
+						]);
+					}
+				}
+			break;
+			case Item::WRITTEN_BOOK:
+				if($iscomputer){
+					if($itemnbt !== ""){
+						$nbt = new NBT();
+						$nbt->read($itemnbt, true);
+						$itemnbt = $nbt->getData();
+
+						$author = $itemnbt->author->getValue();
+						$title = $itemnbt->title->getValue();
+
+						$listTag = [];
+
+						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
+							if($pageTags instanceof CompoundTag){
+								foreach($pageTags as $name => $tag){
+									if($tag instanceof StringTag){
+										if($tag->getName() === "text"){
+											$listTag[] = new StringTag("", $tag->getValue());
+										}
+									}
+								}
+							}
+						}
+
+						$itemnbt = new CompoundTag("", [
+							new StringTag("author", $author),
+							new StringTag("title", $title),
+							new ListTag("pages", $listTag)
+						]);
+					}
+				}
+			break;
 			case Item::SPAWN_EGG:
 				if($iscomputer){
 					if($type = self::$spawnEggList[$itemdamage] ?? ""){

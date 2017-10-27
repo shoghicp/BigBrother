@@ -44,6 +44,10 @@ class PluginMessagePacket extends OutboundPacket{
 
 	protected function encode() : void{
 		$this->putString($this->channel);
-		//TODO
+		switch($this->channel){
+			case "MC|BOpen":
+				$this->putVarInt($this->data[0]);
+			break;
+		}
 	}
 }
