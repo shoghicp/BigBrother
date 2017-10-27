@@ -785,6 +785,7 @@ class Translator{
 					$pk->data[] = 0;//main hand
 
 					$player->putRawPacket($pk);
+					return null;
 				}
 
 				$pk = new InventoryTransactionPacket();
