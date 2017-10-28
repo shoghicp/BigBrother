@@ -484,11 +484,15 @@ class ConvertUtils{
 
 						$author = $itemnbt->author->getValue();
 						$title = $itemnbt->title->getValue();
+						$generation = $itemnbt->generation->getValue();
 
 						$listTag = [];
+						$peCompoundTag = [];
 
 						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
 							if($pageTags instanceof CompoundTag){
+								$peCompoundTag[] = $pageTags;
+
 								foreach($pageTags as $name => $tag){
 									if($tag instanceof StringTag){
 										if($tag->getName() === "text"){
@@ -502,7 +506,28 @@ class ConvertUtils{
 						$itemnbt = new CompoundTag("", [
 							new StringTag("author", $author),
 							new StringTag("title", $title),
-							new ListTag("pages", $listTag)
+							new IntTag("generation", $generation),
+							new ListTag("pages", $listTag),
+							new ListTag("pepages", $peCompoundTag),
+						]);
+					}
+				}else{
+					if($itemnbt !== ""){
+						$nbt = new NBT();
+						$nbt->read($itemnbt, true);
+						$itemnbt = $nbt->getData();
+
+						$author = $itemnbt->author->getValue();
+						$title = $itemnbt->title->getValue();
+						$generation = $itemnbt->generation->getValue();
+
+						$listTag = $itemnbt->pepages->getValue();
+
+						$itemnbt = new CompoundTag("", [
+							new ListTag("pages", $listTag),
+							new StringTag("author", $author),
+							new StringTag("title", $title),
+							new IntTag("generation", $generation),
 						]);
 					}
 				}
