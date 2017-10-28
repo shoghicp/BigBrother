@@ -759,7 +759,18 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
-				if(ItemFrameBlockEntity::exists($player->getLevel(), $packet->x, $packet->y, $packet->z)){
+				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
+				$blockReplace = $blockClicked->getSide($packet->direction);
+
+				if(ItemFrameBlockEntity::exists($player->getLevel(), $blockReplace->getX(), $blockReplace->getY(), $blockReplace->getZ())){
+					$pk = new BlockChangePacket();//Cancel place block
+					$pk->x = $blockReplace->getX();
+					$pk->y = $blockReplace->getY();
+					$pk->z = $blockReplace->getZ();
+					$pk->blockId = Block::AIR;
+					$pk->blockMeta = 0;
+					$player->putRawPacket($pk);
+
 					return null;
 				}
 
