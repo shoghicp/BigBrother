@@ -1065,7 +1065,6 @@ class InventoryUtils{
 	public function checkInventoryTransactionPacket(InventoryTransactionPacket $packet) : bool{
 		$errors = 0;
 		$actions = [];
-		var_dump($packet->actions);
 		foreach($packet->actions as $actionNumber => $networkInventoryAction){
 			$action = $networkInventoryAction->createInventoryAction($this->player);
 
