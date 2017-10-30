@@ -603,7 +603,14 @@ class InventoryUtils{
 					case 6://Number key 7
 					case 7://Number key 8
 					case 8://Number key 9
+						if($this->playerHeldItem->isNull()){
+							$accepted = true;
 
+							$slot = $this->getItemAndSlot($packet->windowID, $packet->slot);
+							$item = $this->playerHotbarSlot[$packet->button];
+							$this->playerHotbarSlot[$packet->button] = $slot;
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $packet->button, $item, $slot);
+						}
 					break;
 					default:
 						echo "[InventoryUtils] UnknownButtonType: ".$packet->mode." : ".$packet->button."\n";
@@ -1056,19 +1063,23 @@ class InventoryUtils{
 	 * @return bool
 	 */
 	public function checkInventoryTransactionPacket(InventoryTransactionPacket $packet) : bool{
+		$errors = 0;
 		$actions = [];
-		foreach($packet->actions as $networkInventoryAction){
+		var_dump($packet->actions);
+		foreach($packet->actions as $actionNumber => $networkInventoryAction){
 			$action = $networkInventoryAction->createInventoryAction($this->player);
 
 			if($action === null){
 				$errors++;
+				echo "[Action Number #".$actionNumber."] error action!\n";
 				continue;
 			}
+
+			echo "[Action Number #".$actionNumber."] error nothing!\n";
 
 			$actions[] = $action;
 		}
 
-		$errors = 0;
 		foreach($actions as $actionNumber => $action){
 			$reflection = new \ReflectionClass($action);
 			if(($shortName = $reflection->getShortName()) === "SlotChangeAction"){
