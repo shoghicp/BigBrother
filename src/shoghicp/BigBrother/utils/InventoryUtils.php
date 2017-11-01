@@ -539,9 +539,12 @@ class InventoryUtils{
 				switch($packet->button){
 					case 0://Left mouse click
 						if($packet->slot === -999){
+							$accepted = true;
+							$isContainer = false;
+
 							$dropItem = clone $this->playerHeldItem;
 							$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
-							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, $heldItem, $dropItem);
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, Item::get(Item::AIR, 0, 0), $dropItem);
 						}else{
 							$accepted = true;
 
@@ -555,8 +558,11 @@ class InventoryUtils{
 					break;
 					case 1://Right mouse click
 						if($packet->slot === -999){
+							$accepted = true;
+							$isContainer = false;
+
 							$dropItem = $this->playerHeldItem->pop();
-							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, $heldItem, $dropItem);
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, Item::get(Item::AIR, 0, 0), $dropItem);
 						}else{
 							$accepted = true;
 
@@ -631,16 +637,24 @@ class InventoryUtils{
 				switch($packet->button){
 					case 0://Drop key
 						if($packet->slot !== -999){//Drop key
+							$accepted = true;
 
+							$item = clone $this->getItemAndSlot($packet->windowID, $packet->slot);
+							$dropItem = $item->pop();
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, Item::get(Item::AIR, 0, 0), $dropItem);
 						}else{//Left click outside inventory holding nothing
-
+							//unused?
 						}
 					break;
 					case 1:
 						if($packet->slot !== -999){//Ctrl + Drop key
+							$accepted = true;
 
+							$dropItem = clone $this->getItemAndSlot($packet->windowID, $packet->slot);
+							$item = Item::get(Item::AIR, 0, 0);
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_WORLD, 0, NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM, Item::get(Item::AIR, 0, 0), $dropItem);
 						}else{//Right click outside inventory holding nothing
-
+							//unused?
 						}
 					break;
 					default:
