@@ -166,7 +166,6 @@ class ServerManager{
 	public function shutdown() : void{
 		$this->thread->shutdown();
 		usleep(50000); //Sleep for 1 tick
-		//$this->thread->kill();
 	}
 
 	/**
@@ -176,7 +175,6 @@ class ServerManager{
 		@fread($this->fp, 1);
 		if(is_string($packet = $this->thread->readMainToThreadPacket())){
 			$pid = ord($packet{0});
-
 			$buffer = substr($packet, 1);
 
 			switch($pid){
@@ -190,7 +188,6 @@ class ServerManager{
 					}
 					$this->sessions[$id]->writeRaw($data);
 				break;
-
 				case self::PACKET_ENABLE_ENCRYPTION:
 					$id = Binary::readInt(substr($buffer, 0, 4));
 					$secret = substr($buffer, 4);
@@ -201,7 +198,6 @@ class ServerManager{
 					}
 					$this->sessions[$id]->enableEncryption($secret);
 				break;
-
 				case self::PACKET_SET_COMPRESSION:
 					$id = Binary::readInt(substr($buffer, 0, 4));
 					$threshold = Binary::readInt(substr($buffer, 4, 4));
@@ -212,7 +208,6 @@ class ServerManager{
 					}
 					$this->sessions[$id]->setCompression($threshold);
 				break;
-
 				case self::PACKET_SET_OPTION:
 					$offset = 1;
 					$len = ord($packet{$offset++});
@@ -225,7 +220,6 @@ class ServerManager{
 						break;
 					}
 				break;
-
 				case self::PACKET_CLOSE_SESSION:
 					$id = Binary::readInt(substr($buffer, 0, 4));
 					if(isset($this->sessions[$id])){
@@ -234,7 +228,6 @@ class ServerManager{
 						$this->closeSession($id, 1);
 					}
 				break;
-
 				case self::PACKET_SHUTDOWN:
 					foreach($this->sessions as $session){
 						$session->close();
@@ -244,7 +237,6 @@ class ServerManager{
 					stream_socket_shutdown($this->socket, STREAM_SHUT_RDWR);
 					$this->shutdown = true;
 				break;
-
 				case self::PACKET_EMERGENCY_SHUTDOWN:
 					$this->shutdown = true;
 				break;
