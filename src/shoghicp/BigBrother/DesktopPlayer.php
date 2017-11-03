@@ -461,6 +461,7 @@ class DesktopPlayer extends Player{
 			$pk->protocol = Info::CURRENT_PROTOCOL;
 			$pk->clientUUID = $this->bigBrother_formatedUUID;
 			$pk->clientId = crc32($this->bigbrother_clientId);
+			$pk->xuid = crc32($this->bigBrother_username);
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->clientData["SkinGeometryName"] = "";//TODO
 			$pk->clientData["SkinGeometry"] = "";//TODO
