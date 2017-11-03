@@ -1716,20 +1716,28 @@ class Translator{
 					case SetTitlePacket::TYPE_SET_TITLE:
 						$pk = new TitlePacket();
 						$pk->actionID = TitlePacket::TYPE_SET_TITLE;
-						$pk->data = TextFormat::toJSON($packet->text);
+						$pk->data = BigBrother::toJSON($packet->text);
 
 						return $pk;
 					break;
 					case SetTitlePacket::TYPE_SET_SUBTITLE:
 						$pk = new TitlePacket();
 						$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
-						$pk->data = TextFormat::toJSON($packet->text);
+						$pk->data = BigBrother::toJSON($packet->text);
+
+						return $pk;
+					break;
+					case SetTitlePacket::TYPE_SET_ACTIONBAR_MESSAGE:
+						$pk = new TitlePacket();
+						$pk->actionID = TitlePacket::TYPE_SET_ACTION_BAR;
+						$pk->data = BigBrother::toJSON($packet->text);
 
 						return $pk;
 					break;
 					case SetTitlePacket::TYPE_SET_ANIMATION_TIMES:
 						$pk = new TitlePacket();
 						$pk->actionID = TitlePacket::TYPE_SET_SETTINGS;
+						$pk->data = [];
 						$pk->data[0] = $packet->fadeInTime;
 						$pk->data[1] = $packet->stayTime;
 						$pk->data[2] = $packet->fadeOutTime;
