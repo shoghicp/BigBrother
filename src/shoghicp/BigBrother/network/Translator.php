@@ -41,6 +41,7 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\Tag;
+use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
@@ -598,6 +599,10 @@ class Translator{
 							}
 						}else{
 							list($dropItem, $item) = [$item, $dropItem];//swap
+						}
+						$player->getServer()->getPluginManager()->callEvent($ev = new PlayerDropItemEvent($player, $item));
+						if($ev->isCancelled()){
+							return null;
 						}
 
 						$player->getInventory()->setItemInHand($item);
@@ -1450,6 +1455,18 @@ class Translator{
 				$pk->levelType = "default";
 	
 				$player->bigBrother_respawn();
+
+				return $pk;
+
+			case Info::PLAY_SOUND_PACKET:
+				$pk = new NamedSoundEffectPacket();
+				$pk->category = 0;
+				$pk->x = (int) $packet->x;
+				$pk->y = (int) $packet->y;
+				$pk->z = (int) $packet->z;
+				$pk->volume = $packet->volume * 0.25;
+				$pk->pitch = $packet->pitch;
+				$pk->name = $packet->soundName;
 
 				return $pk;
 
