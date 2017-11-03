@@ -35,9 +35,10 @@ class TitlePacket extends OutboundPacket{
 
 	const TYPE_SET_TITLE = 0;
 	const TYPE_SET_SUB_TITLE = 1;
-	const TYPE_SET_SETTINGS = 2;
-	const TYPE_HIDE = 3;
-	const TYPE_RESET = 4;
+	const TYPE_SET_ACTION_BAR = 2;
+	const TYPE_SET_SETTINGS = 3;
+	const TYPE_HIDE = 4;
+	const TYPE_RESET = 5;
 
 	/** @var int */
 	public $actionID;
@@ -53,6 +54,7 @@ class TitlePacket extends OutboundPacket{
 		switch($this->actionID){
 			case self::TYPE_SET_TITLE:
 			case self::TYPE_SET_SUB_TITLE:
+			case self::TYPE_SET_ACTION_BAR:
 				$this->putString($this->data);
 			break;
 			case self::TYPE_SET_SETTINGS:
