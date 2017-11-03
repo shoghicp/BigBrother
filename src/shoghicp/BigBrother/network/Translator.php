@@ -30,93 +30,97 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\Achievement;
-use pocketmine\Player;
+use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
-use pocketmine\block\Block;
-use pocketmine\math\Vector3;
 use pocketmine\level\Level;
 use pocketmine\level\particle\Particle;
-use pocketmine\network\mcpe\protocol\PacketPool;
-use pocketmine\network\mcpe\protocol\AnimatePacket;
-use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
-use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
-use pocketmine\network\mcpe\protocol\BookEditPacket;
-use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\EntityEventPacket;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\LevelEventPacket;
-use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
-use pocketmine\network\mcpe\protocol\InteractPacket;
-use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
-use pocketmine\network\mcpe\protocol\TextPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
-use pocketmine\network\mcpe\protocol\PlayerActionPacket;
-use pocketmine\network\mcpe\protocol\PlayStatusPacket;
-use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
-use pocketmine\network\mcpe\protocol\MobEffectPacket;
-use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
-use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
-use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
-use pocketmine\utils\TextFormat;
-use pocketmine\utils\UUID;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\Tag;
-use pocketmine\tile\Tile;
+use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
+use pocketmine\network\mcpe\protocol\AnimatePacket;
+use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
+use pocketmine\network\mcpe\protocol\BookEditPacket;
+use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\EntityEventPacket;
+use pocketmine\network\mcpe\protocol\InteractPacket;
+use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
+use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\MobEffectPacket;
+use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\PacketPool;
+use pocketmine\network\mcpe\protocol\PlayerActionPacket;
+use pocketmine\network\mcpe\protocol\PlayStatusPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
+use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
+use pocketmine\network\mcpe\protocol\SetTitlePacket;
+use pocketmine\network\mcpe\protocol\TextPacket;
+use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use pocketmine\Player;
 use pocketmine\tile\Spawnable;
+use pocketmine\tile\Tile;
+use pocketmine\utils\TextFormat;
+use pocketmine\utils\UUID;
+
 use shoghicp\BigBrother\BigBrother;
-use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\DesktopChunk;
+use shoghicp\BigBrother\DesktopPlayer;
+use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\UseEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\PluginMessagePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\ParticlePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockBreakAnimationPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BossBarPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ChangeGameStatePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ChatPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ChunkDataPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EffectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\EntityEquipmentPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityEffectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\EntityStatusPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\EntityEquipmentPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityHeadLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityLookPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityMetadataPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\EntityPropertiesPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\EntityStatusPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityVelocityPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\EntityPropertiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ExplosionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\JoinGamePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\NamedSoundEffectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\ParticlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayDisconnectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\PlayerListPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\ChunkDataPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\PluginMessagePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\RemoveEntityEffectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ServerDifficultyPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnExperienceOrbPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\StatisticsPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\SetExperiencePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\RemoveEntityEffectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\TimeUpdatePacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\UpdateHealthPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\TitlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UpdateBlockEntityPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UseBedPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\NamedSoundEffectPacket;
-use shoghicp\BigBrother\network\protocol\Play\Client\UseEntityPacket;
-use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\utils\ConvertUtils;
 
 class Translator{
@@ -1438,6 +1442,17 @@ class Translator{
 
 				return $pk;
 
+			case Info::CHANGE_DIMENSION_PACKET:
+				$pk = new RespawnPacket();
+				$pk->dimension = $player->bigBrother_getDimensionPEToPC($packet->dimension);
+				$pk->difficulty = $player->getServer()->getDifficulty();
+				$pk->gamemode = $player->getGamemode();
+				$pk->levelType = "default";
+	
+				$player->bigBrother_respawn();
+
+				return $pk;
+
 			case Info::LEVEL_SOUND_EVENT_PACKET:
 				$issoundeffect = false;
 
@@ -1666,6 +1681,50 @@ class Translator{
 				$pk->blockType = $blockId = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z))->getId();
 
 				return $pk;
+
+			case Info::SET_TITLE_PACKET:
+				switch($packet->type){
+					case SetTitlePacket::TYPE_CLEAR_TITLE:
+						$pk = new TitlePacket();
+						$pk->actionID = TitlePacket::TYPE_HIDE;
+
+						return $pk;
+					break;
+					case SetTitlePacket::TYPE_RESET_TITLE:
+						$pk = new TitlePacket();
+						$pk->actionID = TitlePacket::TYPE_RESET;
+
+						return $pk;
+					break;
+					case SetTitlePacket::TYPE_SET_TITLE:
+						$pk = new TitlePacket();
+						$pk->actionID = TitlePacket::TYPE_SET_TITLE;
+						$pk->data = TextFormat::toJSON($packet->text);
+
+						return $pk;
+					break;
+					case SetTitlePacket::TYPE_SET_SUBTITLE:
+						$pk = new TitlePacket();
+						$pk->actionID = TitlePacket::TYPE_SET_SUB_TITLE;
+						$pk->data = TextFormat::toJSON($packet->text);
+
+						return $pk;
+					break;
+					case SetTitlePacket::TYPE_SET_ANIMATION_TIMES:
+						$pk = new TitlePacket();
+						$pk->actionID = TitlePacket::TYPE_SET_SETTINGS;
+						$pk->data[0] = $packet->fadeInTime;
+						$pk->data[1] = $packet->stayTime;
+						$pk->data[2] = $packet->fadeOutTime;
+
+						return $pk;
+					break;
+					default:
+						echo "SetTitlePacket: ".$packet->type."\n";
+					break;
+				}
+
+				return null;
 
 			case Info::ENTITY_EVENT_PACKET:
 				switch($packet->event){
@@ -2247,4 +2306,3 @@ class Translator{
 		}
 	}
 }
-
