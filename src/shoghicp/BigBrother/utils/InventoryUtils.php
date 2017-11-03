@@ -41,13 +41,16 @@ use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\WindowTypes;
 
+use pocketmine\entity\projectile\Arrow;
 use pocketmine\entity\Item as ItemEntity;
-use pocketmine\math\Vector3;
-use pocketmine\tile\Tile;
-use pocketmine\tile\EnderChest as TileEnderChest;
-use pocketmine\item\Item;
-use pocketmine\inventory\InventoryHolder;
+use pocketmine\event\inventory\InventoryPickupItemEvent;
+use pocketmine\event\inventory\InventoryPickupArrowEvent;
 use pocketmine\inventory\CraftingRecipe;
+use pocketmine\inventory\InventoryHolder;
+use pocketmine\item\Item;
+use pocketmine\math\Vector3;
+use pocketmine\tile\EnderChest as TileEnderChest;
+use pocketmine\tile\Tile;
 
 use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
@@ -966,8 +969,22 @@ class InventoryUtils{
 
 		$entity = $this->player->getLevel()->getEntity($packet->target);
 		if($entity instanceof ItemEntity){
+			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupItemEvent($this->player->inventory, $entity));
+
+			if($ev->isCancelled()){
+				return null;
+			}
 			$item = $entity->getItem();
 			$itemCount = $item->getCount();
+		}
+
+		if($entity instanceof Arrow){
+			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupArrowEvent($this->player->inventory, $entity));
+			
+			if($ev->isCancelled()){
+				return null;
+			}
+			$item = Item::get(Item::ARROW);
 		}
 
 		if($this->player->getInventory()->canAddItem($item)){
@@ -975,6 +992,8 @@ class InventoryUtils{
 			$pk->eid = $packet->eid;
 			$pk->target = $packet->target;
 			$pk->itemCount = $itemCount;
+
+			$this->player->getInventory()->sendHeldItem($this->player->getViewers());
 
 			return $pk;
 		}
