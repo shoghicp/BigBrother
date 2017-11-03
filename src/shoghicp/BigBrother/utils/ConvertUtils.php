@@ -78,9 +78,25 @@ class ConvertUtils{
 		[[445,   0], [450,   0]], //Shulker Shell
 		[[125,  -1], [158,  -1]], //Dropper
 		[[410,  -1], [154,  -1]], //Hopper
+		[[425,  -1], [416,  -1]], //Armor Stand
+		[[446,  -1], [425,  -1]], //Banner
+		//************ Discs ***********//
+		//NOTE: it's the real value, no joke
+		[[500,   0], [2256,  0]],
+		[[501,   0], [2257,  0]],
+		[[502,   0], [2258,  0]],
+		[[503,   0], [2258,  0]],
+		[[504,   0], [2260,  0]],
+		[[505,   0], [2261,  0]],
+		[[506,   0], [2262,  0]],
+		[[507,   0], [2263,  0]],
+		[[508,   0], [2264,  0]],
+		[[509,   0], [2265,  0]],
+		[[510,   0], [2266,  0]],
+		[[511,   0], [2267,  0]],
 		//******** Tipped Arrows *******//
 		/*
-		[[262,  -1], [440,  -1]], //TODO: Fix that
+		[[262,  -1], [440,  -1]], //TODO
 		*/
 		//*******************************//
 		[[458,   0], [435,   0]], //Beetroot Seeds
@@ -128,8 +144,9 @@ class ConvertUtils{
 		[[ 85,   5], [191,   0]], //Dark Oak Fence
 		[[240,   0], [199,   0]], //Chorus Plant
 		[[199,  -1], [ 68,  -1]], //Item Frame is temporaly a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
-		[[236,  -1], [252,  -1]], //Concretes
-		[[425,  -1], [416,  -1]], //Armor Stand
+		[[252,  -1], [255,  -1]], //Structures Block
+		[[236,  -1], [251,  -1]], //Concretes
+		[[237,  -1], [252,  -1]], //Concretes Powder
 		//******** Glazed Terracota ********//
 		[[220,   0], [235,   0]],
 		[[221,   0], [236,   0]],
@@ -151,6 +168,7 @@ class ConvertUtils{
 		[[251,  -1], [218,  -1]], //Observer
 		//******** Shulker Box ********//
 		//dude mojang, whyy
+		[[205,  -1], [229,  -1]], //Undyed
 		[[218,   0], [219,   0]],
 		[[218,   1], [220,   0]],
 		[[218,   2], [221,   0]],
@@ -173,7 +191,7 @@ class ConvertUtils{
 		[[244,  -1], [207,  -1]], //Beetroot Block
 		[[207,  -1], [212,  -1]], //Frosted Ice
 		[[  4,  -1], [  4,  -1]], //For Stonecutter
-		[[245,  -1], [  4,  -1]], //Stonecutter - To avoid problems, it's now a stone block
+		[[245,  -1], [  4,  -1]] //Stonecutter - To avoid problems, it's now a stone block
 		//******************************//
 		/*
 		[[  P  E  ], [  P  C  ]],
