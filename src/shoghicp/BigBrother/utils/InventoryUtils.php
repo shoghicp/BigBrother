@@ -969,7 +969,7 @@ class InventoryUtils{
 
 		$entity = $this->player->getLevel()->getEntity($packet->target);
 		if($entity instanceof ItemEntity){
-			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupItemEvent($this->player->inventory, $entity));
+			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupItemEvent($this->player->getInventory(), $entity));
 
 			if($ev->isCancelled()){
 				return null;
@@ -979,7 +979,7 @@ class InventoryUtils{
 		}
 
 		if($entity instanceof Arrow){
-			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupArrowEvent($this->player->inventory, $entity));
+			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupArrowEvent($this->player->getInventory(), $entity));
 			
 			if($ev->isCancelled()){
 				return null;
