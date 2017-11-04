@@ -31,6 +31,7 @@ namespace shoghicp\BigBrother;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
+use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\block\Block;
 use pocketmine\block\Chest;
 use pocketmine\event\player\PlayerRespawnEvent;
@@ -273,7 +274,7 @@ class BigBrother extends PluginBase implements Listener{
 		$result = json_decode(TextFormat::toJSON($message), true);
 
 		switch($type){
-			case 2:
+			case TextPacket::TYPE_TRANSLATION:
 				unset($result["text"]);
 				$message = TextFormat::clean($message);
 
@@ -298,8 +299,8 @@ class BigBrother extends PluginBase implements Listener{
 					}
 				}
 			break;
-			case 3:
-			case 4://Just to be sure
+			case TextPacket::TYPE_POPUP:
+			case TextPacket::TYPE_TIP://Just to be sure
 				if(isset($result["text"])){
 					$result["text"] = $message;
 				}
