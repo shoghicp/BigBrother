@@ -46,6 +46,7 @@ use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\BookEditPacket;
+use pocketmine\network\mcpe\protocol\BossEventPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\EntityEventPacket;
 use pocketmine\network\mcpe\protocol\InteractPacket;
@@ -948,6 +949,9 @@ class Translator{
 				$packets[] = $pk;
 
 				$player->bigBrother_addEntityList($packet->entityRuntimeId, "player");
+				if(isset($packet->metadata[Entity::DATA_NAMETAG])){
+					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[Entity::DATA_NAMETAG]);
+				}
 
 				return $packets;
 
@@ -1261,15 +1265,37 @@ class Translator{
 				$packets[] = $pk;
 
 				$player->bigBrother_addEntityList($packet->entityRuntimeId, $type);
+				if(isset($packet->metadata[Entity::DATA_NAMETAG])){
+					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[Entity::DATA_NAMETAG]);
+				}
 
 				return $packets;
 
 			case Info::REMOVE_ENTITY_PACKET:
+				$packets = [];
+
+				if($packet->entityUniqueId === $player->bigBrother_getBossBarData("entityRuntimeId")){
+					$uuid = $player->bigBrother_getBossBarData("uuid");
+					if($uuid === ""){
+						return null;
+					}
+					$pk = new BossBarPacket();
+					$pk->uuid = $uuid;
+					$pk->actionID = BossBarPacket::TYPE_REMOVE;
+
+					$player->bigBrother_setBossBarData("entityRuntimeId", -1);
+					$player->bigBrother_setBossBarData("uuid", "");
+
+					$packets[] = $pk;
+				}
 				$pk = new DestroyEntitiesPacket();
 				$pk->ids[] = $packet->entityUniqueId;
 
 				$player->bigBrother_removeEntityList($packet->entityUniqueId);
-				return $pk;
+
+				$packets[] = $pk;
+
+				return $packets;
 
 			case Info::ADD_ITEM_ENTITY_PACKET:
 				$item = clone $packet->item;
@@ -1858,14 +1884,21 @@ class Translator{
 								$pk->food = (int) $player->getFood();//TODO: Default Value
 								$pk->saturation = $player->getSaturation();//TODO: Default Value
 
-							/*}elseif($player->getSetting("BossBar") !== false){
-								if($packet->entityRuntimeId === $player->getSetting("BossBar")[0]){
-									$pk = new BossBarPacket();
-									$pk->uuid = $player->getSetting("BossBar")[1];//Temporary
-									$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
-									//$pk->health = $entry->getValue();//TODO
-									$pk->health = 1;
-								}*/
+							}elseif($packet->entityRuntimeId === $player->bigBrother_getBossBarData("entityRuntimeId")){
+								$uuid = $player->bigBrother_getBossBarData("uuid");
+								if($uuid === ""){
+									return null;
+								}
+								$pk = new BossBarPacket();
+								$pk->uuid = $uuid;
+								$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
+								$health = 1.0;
+								if($entry->getValue() < 100){ //healthPercent is a value between 1 and 100
+									$health = $entry->getValue() / 100;
+								}elseif($entry->getValue() <= 0){
+									$health = 0.0;
+								}
+								$pk->health = $health;
 							}else{
 								$pk = new EntityMetadataPacket();
 								$pk->eid = $packet->entityRuntimeId;
@@ -1966,22 +1999,22 @@ class Translator{
 			case Info::SET_ENTITY_DATA_PACKET:
 				$packets = [];
 
-				/*if($player->getSetting("BossBar") !== false){
-					if($packet->entityRuntimeId === $player->getSetting("BossBar")[0]){
-						if(isset($packet->metadata[Entity::DATA_NAMETAG])){
-							$title = str_replace("\n", "", $packet->metadata[Entity::DATA_NAMETAG][1]);
-						}else{
-							$title = "Test";
-						}
-
-						$pk = new BossBarPacket();
-						$pk->uuid = $player->getSetting("BossBar")[1];
-						$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
-						$pk->title = BigBrother::toJSON($title);
-
-						$packets[] = $pk;
+				if($packet->entityRuntimeId === $player->bigBrother_getBossBarData("entityRuntimeId")){
+					$uuid = $player->bigBrother_getBossBarData("uuid");
+					if($uuid === ""){
+						return null;
 					}
-				}*/
+					$title = "";
+					if(isset($packet->metadata[Entity::DATA_NAMETAG])){
+						$title = $packet->metadata[Entity::DATA_NAMETAG];
+					}
+					$pk = new BossBarPacket();
+					$pk->uuid = $uuid;
+					$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
+					$pk->title = BigBrother::toJSON($title);
+
+					$packets[] = $pk;
+				}
 
 				if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
 					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION][1];
@@ -2242,48 +2275,86 @@ class Translator{
 
 				return $pk;
 
-			/*case Info::BOSS_EVENT_PACKET:
+			case Info::BOSS_EVENT_PACKET:
 				$pk = new BossBarPacket();
+				$uuid = $player->bigBrother_getBossBarData("uuid");
 
-				switch($packet->type){
-					case 0:
-						/*if($player->getSetting("BossBar") !== false){//PE is Update
+				switch($packet->eventType){
+					case BossEventPacket::TYPE_REGISTER_PLAYER:
+					case BossEventPacket::TYPE_UNREGISTER_PLAYER:
+					case BossEventPacket::TYPE_UNKNOWN_6:
+					break;
+					case BossEventPacket::TYPE_SHOW:
+						if($uuid !== ""){
 							return null;
 						}
-
-						if(($entity = $player->getLevel()->getEntity($packet->entityRuntimeId)) instanceof Entity){
-							$title = str_replace("\n", "", $entity->getNameTag());
-							$health = 1;//TODO
-						}else{
-							$title = "Test";
-							$health = 1;
-						}
-
-						$flags = 0;
-						$flags |= 0x01;
-						$flags |= 0x02;
-
-						$pk->actionID = BossBarPacket::TYPE_ADD;
 						$pk->uuid = UUID::fromRandom()->toBinary();
+						$pk->actionID = BossBarPacket::TYPE_ADD;
+						$title = "";
+						if(isset($packet->title) and is_string($packet->title) and strlen($packet->title) > 0){
+							$title = $packet->title;
+						}else{
+							$title = $player->bigBrother_getBossBarData("nameTag");
+						}
 						$pk->title = BigBrother::toJSON($title);
+						$health = 1.0;
+						if($packet->healthPercent < 100){ //healthPercent is a value between 1 and 100
+							$health = $packet->healthPercent / 100;
+						}elseif($packet->healthPercent <= 0){
+							$health = 0.0;
+						}
 						$pk->health = $health;
-						$pk->color = 0;
-						$pk->division = 0;
-						$pk->flags = $flags;
 
-						$player->setSetting(["BossBar" => [$packet->entityRuntimeId, $pk->uuid]]);
+						$player->bigBrother_setBossBarData("entityRuntimeId", $packet->bossEid);
+						$player->bigBrother_setBossBarData("uuid", $pk->uuid);
 
 						return $pk;
 					break;
-					case 1:
-						/*if($player->getSetting("BossBar") === false){
+					case BossEventPacket::TYPE_HIDE:
+						if($uuid === ""){
 							return null;
 						}
-
+						$pk->uuid = $uuid;
 						$pk->actionID = BossBarPacket::TYPE_REMOVE;
-						$pk->uuid = $player->getSetting("BossBar")[1];
 
-						$player->removeSetting("BossBar");
+						$player->bigBrother_setBossBarData("entityRuntimeId", -1);
+						$player->bigBrother_setBossBarData("uuid", "");
+
+						return $pk;
+					break;
+					case BossEventPacket::TYPE_TEXTURE:
+						if($uuid === ""){
+							return null;
+						}
+						$pk->uuid = $uuid;
+						$pk->actionID = BossBarPacket::TYPE_UPDATE_COLOR;
+						$pk->color = $packet->color;
+
+						return $pk;
+					break;
+					case BossEventPacket::TYPE_HEALTH_PERCENT:
+						if($uuid === ""){
+							return null;
+						}
+						$pk->uuid = $uuid;
+						$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
+						$health = 1.0;
+						if($packet->healthPercent < 100){ //healthPercent is a value between 1 and 100
+							$health = $packet->healthPercent / 100;
+						}elseif($packet->healthPercent <= 0){
+							$health = 0.0;
+						}
+						$pk->health = $health;
+
+						return $pk;
+					break;
+					case BossEventPacket::TYPE_TITLE:
+						if($uuid === ""){
+							return null;
+						}
+						$pk->uuid = $uuid;
+						$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
+						$pk->title = BigBrother::toJSON($packet->title);
 
 						return $pk;
 					break;
@@ -2291,7 +2362,7 @@ class Translator{
 						echo "BossEventPacket: ".$packet->type."\n";
 					break;
 				}
-				return null;*/
+				return null;
 
 			case 0xfe: //Info::BATCH_PACKET
 				$packets = [];

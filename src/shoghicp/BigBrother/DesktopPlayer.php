@@ -97,6 +97,12 @@ class DesktopPlayer extends Player{
 	private $bigBrother_pluginMessageList = [];
 	/** @var array */
 	private $bigBrother_breakPosition = [];
+	/** @var array */
+	private $bigBrother_bossBarData = [
+		"entityRuntimeId" => -1,
+		"uuid" => "",
+		"nameTag" => ""
+	];
 
 	/** @var ProtocolInterface */
 	protected $interface;
@@ -232,6 +238,24 @@ class DesktopPlayer extends Player{
 	 */
 	public function bigBrother_setBreakPosition(array $positionData = []) : void{
 		$this->bigBrother_breakPosition = $positionData;
+	}
+
+	/**
+	 * @param  string       $bossBardata
+	 * @return string|array
+	 */
+	public function bigBrother_getBossBarData(string $bossBarData = ""){
+		if($bossBarData === ""){
+			return $this->bigBrother_bossBarData;
+		}
+		return $this->bigBrother_bossBarData[$bossBarData];
+	}
+
+	/**
+	 * @param string $bossBardata
+	 */
+	public function bigBrother_setBossBarData(string $bossBarData, $data) : void{
+		$this->bigBrother_bossBarData[$bossBarData] = $data;
 	}
 
 	/**
@@ -474,6 +498,7 @@ class DesktopPlayer extends Player{
 			$pk->clientId = crc32($this->bigbrother_clientId);
 			$pk->xuid = crc32($this->bigBrother_username);
 			$pk->serverAddress = "127.0.0.1:25565";
+			$pk->locale = "en_US";
 			$pk->clientData["SkinGeometryName"] = "";//TODO
 			$pk->clientData["SkinGeometry"] = "";//TODO
 			$pk->clientData["CapeData"] = "";//TODO

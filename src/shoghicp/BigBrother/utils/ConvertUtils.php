@@ -80,6 +80,7 @@ class ConvertUtils{
 		[[410,  -1], [154,  -1]], //Hopper
 		[[425,  -1], [416,  -1]], //Armor Stand
 		[[446,  -1], [425,  -1]], //Banner
+		[[466,   0], [322,   1]], //Enchanted golden apple
 		//************ Discs ***********//
 		//NOTE: it's the real value, no joke
 		[[500,   0], [2256,  0]],

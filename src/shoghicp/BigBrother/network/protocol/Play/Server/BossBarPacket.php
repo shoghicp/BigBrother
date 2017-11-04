@@ -37,6 +37,25 @@ class BossBarPacket extends OutboundPacket{
 	const TYPE_REMOVE = 1;
 	const TYPE_UPDATE_HEALTH = 2;
 	const TYPE_UPDATE_TITLE = 3;
+	const TYPE_UPDATE_COLOR = 4;
+	const TYPE_UPDATE_FLAGS = 5;
+
+	const COLOR_PINK = 0;
+	const COLOR_BLUE = 1;
+	const COLOR_RED = 2;
+	const COLOR_GREEN = 3;
+	const COLOR_YELLOW = 4;
+	const COLOR_PURPLE = 5;
+	const COLOR_WHITE = 6;
+
+	const DIVISION_ZERO = 0;
+	const DIVISION_SIX = 1;
+	const DIVISION_TEN = 2;
+	const DIVISION_TWELVE = 3;
+	const DIVISION_TWENTY = 4;
+
+	const FLAG_DARK_SKY = 0x01;
+	const FLAG_DRAGON_BAR = 0x02; //also used to play end music
 
 	/** @var string */
 	public $uuid;
@@ -45,14 +64,19 @@ class BossBarPacket extends OutboundPacket{
 
 	/** @var string */
 	public $title;
-	/** @var float */
-	public $health;
+	/** @var float */ 
+	/*
+	* From 0 to 1.
+	* Values greater than 1 do not crash a Notchian client,
+	* and start rendering part of a second health bar at around 1.5.
+	*/
+	public $health = 1;
 	/** @var int */
-	public $color;
+	public $color = self::COLOR_PURPLE;
 	/** @var int */
-	public $division;
+	public $division = self::DIVISION_ZERO;
 	/** @var int */
-	public $flags;
+	public $flags = 0;
 
 	public function pid() : int{
 		return self::BOSS_BAR_PACKET;
@@ -63,7 +87,7 @@ class BossBarPacket extends OutboundPacket{
 		$this->putVarInt($this->actionID);
 		switch($this->actionID){
 			case self::TYPE_ADD:
-				$this->putString($this->title);//Chat format
+				$this->putString($this->title);
 				$this->putFloat($this->health);
 				$this->putVarInt($this->color);
 				$this->putVarInt($this->division);
@@ -75,9 +99,14 @@ class BossBarPacket extends OutboundPacket{
 				$this->putFloat($this->health);
 			break;
 			case self::TYPE_UPDATE_TITLE:
-				$this->putString($this->title);//Chat format
+				$this->putString($this->title);
 			break;
-			//TODO: addtype
+			case self::TYPE_UPDATE_COLOR:
+				$this->putVarInt($this->color);
+			break;
+			case self::TYPE_UPDATE_FLAGS:
+				$this->putByte($this->flags);
+			break;
 		}
 	}
 }
