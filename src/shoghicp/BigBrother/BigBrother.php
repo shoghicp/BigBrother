@@ -304,6 +304,10 @@ class BigBrother extends PluginBase implements Listener{
 				if(isset($result["text"])){
 					$result["text"] = $message;
 				}
+
+				if(isset($result["extra"])){
+					unset($result["extra"]);
+				}
 			break;
 		}
 
