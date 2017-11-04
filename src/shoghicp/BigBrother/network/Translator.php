@@ -2057,6 +2057,9 @@ class Translator{
 			case Info::CONTAINER_SET_DATA_PACKET:
 				return $player->getInventoryUtils()->onWindowSetData($packet);
 
+			case Info::CRAFTING_DATA_PACKET:
+				return $player->getRecipeUtils()->onCraftingData($packet);
+
 			case Info::INVENTORY_CONTENT_PACKET:
 				return $player->getInventoryUtils()->onWindowSetContent($packet);
 
@@ -2315,7 +2318,6 @@ class Translator{
 
 				return $packets;
 
-			case Info::CRAFTING_DATA_PACKET:
 			case Info::RESOURCE_PACKS_INFO_PACKET:
 			case Info::RESPAWN_PACKET:
 			case Info::ADVENTURE_SETTINGS_PACKET:
