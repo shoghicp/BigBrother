@@ -302,7 +302,7 @@ class BigBrother extends PluginBase implements Listener{
 			case TextPacket::TYPE_POPUP:
 			case TextPacket::TYPE_TIP://Just to be sure
 				if(isset($result["text"])){
-					$result["text"] = $message;
+					$result["text"] = str_replace("\n", "", $message);
 				}
 
 				if(isset($result["extra"])){
