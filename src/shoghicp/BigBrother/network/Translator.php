@@ -1899,6 +1899,7 @@ class Translator{
 									$health = 0.0;
 								}
 								$pk->health = $health;
+
 							}else{
 								$pk = new EntityMetadataPacket();
 								$pk->eid = $packet->entityRuntimeId;
@@ -1906,6 +1907,7 @@ class Translator{
 									7 => [2, $entry->getValue()],
 									"convert" => true,
 								];
+								
 							}
 
 							$packets[] = $pk;
