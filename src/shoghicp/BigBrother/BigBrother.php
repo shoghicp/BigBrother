@@ -114,7 +114,7 @@ class BigBrother extends PluginBase implements Listener{
 			return;
 		}
 
-		if(Info::CURRENT_PROTOCOL === 141){
+		if(Info::CURRENT_PROTOCOL === 150){
 			$this->translator = new Translator();
 
 			$this->getServer()->getPluginManager()->registerEvents($this, $this);
