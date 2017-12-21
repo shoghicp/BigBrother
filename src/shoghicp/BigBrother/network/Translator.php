@@ -1532,7 +1532,9 @@ class Translator{
 						return null;
 					break;
 					default:
-						echo "LevelSoundEventPacket: ".$packet->sound."\n";
+						if(\pocketmine\DEBUG > 3){
+							echo "LevelSoundEventPacket: ".$packet->sound."\n";
+						}
 						return null;
 					break;
 				}
@@ -1827,7 +1829,9 @@ class Translator{
 						//unused
 					break;
 					default:
-						echo "EntityEventPacket: ".$packet->event."\n";
+						if(\pocketmine\DEBUG > 3){
+							echo "EntityEventPacket: ".$packet->event."\n";
+						}
 					break;
 				}
 
@@ -2227,8 +2231,11 @@ class Translator{
 					case 0://Add
 						$pk->actionID = PlayerListPacket::TYPE_ADD;
 
+						$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
 						foreach($packet->entries as $entry){
-							$playerdata = $player->getServer()->getLoggedInPlayers()[$entry->uuid->toBinary()];
+							if(isset($loggedInPlayers[$entry->uuid->toBinary()])){
+								$playerdata = $loggedInPlayers[$entry->uuid->toBinary()];
+							}
 
 							if($playerdata instanceof DesktopPlayer){
 								$properties = $playerdata->bigBrother_getProperties();
