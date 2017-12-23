@@ -2233,6 +2233,7 @@ class Translator{
 
 						$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
 						foreach($packet->entries as $entry){
+							$playerdata = null;
 							if(isset($loggedInPlayers[$entry->uuid->toBinary()])){
 								$playerdata = $loggedInPlayers[$entry->uuid->toBinary()];
 							}
