@@ -2234,8 +2234,10 @@ class Translator{
 						$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
 						foreach($packet->entries as $entry){
 							$playerdata = null;
+							$gamemode = 0;
 							if(isset($loggedInPlayers[$entry->uuid->toBinary()])){
 								$playerdata = $loggedInPlayers[$entry->uuid->toBinary()];
+								$gamemode = $playerdata->getGamemode();
 							}
 
 							if($playerdata instanceof DesktopPlayer){
@@ -2265,7 +2267,7 @@ class Translator{
 								$entry->uuid->toBinary(),
 								TextFormat::clean($entry->username),
 								$properties,
-								$playerdata->getGamemode(),
+								$gamemode,
 								0,
 								true,
 								BigBrother::toJSON($entry->username)
