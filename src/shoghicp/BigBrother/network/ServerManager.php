@@ -266,7 +266,6 @@ class ServerManager{
 
 	/**
 	 * @param int $id
-	 * @param int $flag
 	 */
 	protected function closeSession(int $id) : void{
 		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id));
