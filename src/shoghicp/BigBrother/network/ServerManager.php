@@ -183,7 +183,7 @@ class ServerManager{
 					$data = substr($buffer, 4);
 
 					if(!isset($this->sessions[$id])){
-						$this->closeSession($id, 0);
+						$this->closeSession($id);
 						return true;
 					}
 					$this->sessions[$id]->writeRaw($data);
@@ -193,7 +193,7 @@ class ServerManager{
 					$secret = substr($buffer, 4);
 
 					if(!isset($this->sessions[$id])){
-						$this->closeSession($id, 0);
+						$this->closeSession($id);
 						return true;
 					}
 					$this->sessions[$id]->enableEncryption($secret);
@@ -203,7 +203,7 @@ class ServerManager{
 					$threshold = Binary::readInt(substr($buffer, 4, 4));
 
 					if(!isset($this->sessions[$id])){
-						$this->closeSession($id, 0);
+						$this->closeSession($id);
 						return true;
 					}
 					$this->sessions[$id]->setCompression($threshold);
@@ -225,7 +225,7 @@ class ServerManager{
 					if(isset($this->sessions[$id])){
 						$this->close($this->sessions[$id]);
 					}else{
-						$this->closeSession($id, 1);
+						$this->closeSession($id);
 					}
 				break;
 				case self::PACKET_SHUTDOWN:
@@ -268,8 +268,8 @@ class ServerManager{
 	 * @param int $id
 	 * @param int $flag
 	 */
-	protected function closeSession(int $id, int $flag) : void{
-		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id).Binary::writeInt($flag));
+	protected function closeSession(int $id) : void{
+		$this->thread->pushThreadToMainPacket(chr(self::PACKET_CLOSE_SESSION) . Binary::writeInt($id));
 	}
 
 	private function process() : void{
@@ -325,6 +325,6 @@ class ServerManager{
 		fclose($this->sockets[$identifier]);
 		unset($this->sockets[$identifier]);
 		unset($this->sessions[$identifier]);
-		$this->closeSession($identifier, 0);
+		$this->closeSession($identifier);
 	}
 }

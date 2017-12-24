@@ -447,16 +447,8 @@ class ProtocolInterface implements SourceInterface{
 				$this->plugin->getServer()->addPlayer($identifier, $player);
 			}elseif($pid === ServerManager::PACKET_CLOSE_SESSION){
 				$id = Binary::readInt(substr($buffer, $offset, 4));
-				$offset += 4;
-				$flag = Binary::readInt(substr($buffer, $offset, 4));
 
-				if(isset($this->sessionsPlayers[$id])){
-					if($flag === 0){
-						$this->close($this->sessionsPlayers[$id]);
-					}else{
-						$this->closeSession($id);
-					}
-				}
+				$this->closeSession($id);
 			}
 
 		}
