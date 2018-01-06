@@ -475,9 +475,12 @@ class ConvertUtils{
 						$itemnbt = $nbt->getData();
 
 						$listTag = [];
+						$peCompoundTag = [];
 
 						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
 							if($pageTags instanceof CompoundTag){
+								$peCompoundTag[] = $pageTags;
+
 								foreach($pageTags as $name => $tag){
 									if($tag instanceof StringTag){
 										if($tag->getName() === "text"){
@@ -489,7 +492,20 @@ class ConvertUtils{
 						}
 
 						$itemnbt = new CompoundTag("", [
-							new ListTag("pages", $listTag)
+							new ListTag("pages", $listTag),
+							new ListTag("pepages", $peCompoundTag),
+						]);
+					}
+				}else{
+					if($itemnbt !== ""){
+						$nbt = new NBT();
+						$nbt->read($itemnbt, true);
+						$itemnbt = $nbt->getData();
+
+						$listTag = $itemnbt->pepages->getValue();
+
+						$itemnbt = new CompoundTag("", [
+							new ListTag("pages", $listTag),
 						]);
 					}
 				}
