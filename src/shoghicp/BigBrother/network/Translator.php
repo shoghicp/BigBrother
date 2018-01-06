@@ -2171,6 +2171,10 @@ class Translator{
 						$pk->actionID = 11;
 						$pk->namedtag = $nbt;
 					break;
+					case Tile::BANNER:
+						$pk->actionID = 6;
+						$pk->namedtag = $nbt;
+					break;
 					default:
 						echo "BlockEntityDataPacket: ".$nbt["id"]."\n";
 						return null;
