@@ -36,7 +36,7 @@ use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\particle\Particle;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\LittleEndianNBTStream;
+use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
@@ -732,7 +732,7 @@ class Translator{
 					new IntTag("z", (int) $packet->z)
 				]);
 
-				$nbt = new LittleEndianNBTStream();
+				$nbt = new NetworkLittleEndianNBTStream();
 				$nbt->setData($tags);
 
 				$pk = new BlockEntityDataPacket();
@@ -2108,8 +2108,8 @@ class Translator{
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
 
-				$nbt = new LittleEndianNBTStream();
-				$nbt->read($packet->namedtag, false, true);
+				$nbt = new NetworkLittleEndianNBTStream();
+				$nbt->read($packet->namedtag, true);
 				$nbt = $nbt->getData();
 
 				switch($nbt["id"]){
