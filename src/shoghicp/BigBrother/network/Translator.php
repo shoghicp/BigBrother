@@ -36,7 +36,7 @@ use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\particle\Particle;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\NBT;
+use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
@@ -732,7 +732,7 @@ class Translator{
 					new IntTag("z", (int) $packet->z)
 				]);
 
-				$nbt = new NBT(NBT::LITTLE_ENDIAN);
+				$nbt = new LittleEndianNBTStream();
 				$nbt->setData($tags);
 
 				$pk = new BlockEntityDataPacket();
@@ -1929,7 +1929,7 @@ class Translator{
 								$pk = new SetExperiencePacket();
 								$pk->experience = $entry->getValue();//TODO: Default Value
 								$pk->level = $player->getXpLevel();//TODO: Default Value
-								$pk->totalexperience = $player->getTotalXp();//TODO: Default Value
+								$pk->totalexperience = $player->getLifetimeTotalXp();//TODO: Default Value
 
 								$packets[] = $pk;
 							}
@@ -2108,7 +2108,7 @@ class Translator{
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
 
-				$nbt = new NBT(NBT::LITTLE_ENDIAN);
+				$nbt = new LittleEndianNBTStream();
 				$nbt->read($packet->namedtag, false, true);
 				$nbt = $nbt->getData();
 

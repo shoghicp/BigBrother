@@ -31,7 +31,7 @@ namespace shoghicp\BigBrother\utils;
 
 use phpseclib\Math\BigInteger;
 use shoghicp\BigBrother\network\Session;
-use pocketmine\nbt\NBT;
+use pocketmine\nbt\LittleEndianNBTStream;
 
 class Binary extends \pocketmine\utils\Binary{
 
@@ -96,7 +96,7 @@ class Binary extends \pocketmine\utils\Binary{
 						$m .= self::writeByte($item->getCount());
 						$m .= self::writeShort($item->getDamage());
 
-						$nbt = new NBT(NBT::LITTLE_ENDIAN);
+						$nbt = new LittleEndianNBTStream();
 						$nbt->read($item->getCompoundTag());
 						$nbt = $nbt->getData();
 

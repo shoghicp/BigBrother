@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother;
 
 use pocketmine\block\Block;
-use pocketmine\level\format\io\LevelProvider;
+use pocketmine\level\Level;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
@@ -42,8 +42,8 @@ class DesktopChunk{
 	private $chunkX;
 	/** @var int */
 	private $chunkZ;
-	/** @var LevelProvider */
-	private $provider;
+	/** @var Level */
+	private $level;
 	/** @var bool */
 	private $groundUp;
 	/** @var int */
@@ -62,7 +62,7 @@ class DesktopChunk{
 		$this->player = $player;
 		$this->chunkX = $chunkX;
 		$this->chunkZ = $chunkZ;
-		$this->provider = $player->getLevel()->getProvider();
+		$this->level = $player->getLevel();
 		$this->groundUp = true;
 		$this->bitMap = 0;
 
@@ -70,7 +70,7 @@ class DesktopChunk{
 	}
 
 	public function generateChunk() : void{
-		$chunk = $this->provider->getChunk($this->chunkX, $this->chunkZ, false);
+		$chunk = $this->level->getChunk($this->chunkX, $this->chunkZ, false);
 		$this->biomes = $chunk->getBiomeIdArray();
 
 		$payload = "";

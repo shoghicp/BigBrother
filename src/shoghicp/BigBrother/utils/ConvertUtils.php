@@ -34,6 +34,7 @@ use pocketmine\block\Block;
 use pocketmine\entity\Human;
 use pocketmine\entity\projectile\Projectile;
 use pocketmine\event\TimingsHandler;
+use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\ByteTag;
@@ -470,7 +471,7 @@ class ConvertUtils{
 			case Item::WRITABLE_BOOK:
 				if($iscomputer){
 					if($itemnbt !== ""){
-						$nbt = new NBT();
+						$nbt = new LittleEndianNBTStream();
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
@@ -498,7 +499,7 @@ class ConvertUtils{
 					}
 				}else{
 					if($itemnbt !== ""){
-						$nbt = new NBT();
+						$nbt = new LittleEndianNBTStream();
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
@@ -513,7 +514,7 @@ class ConvertUtils{
 			case Item::WRITTEN_BOOK:
 				if($iscomputer){
 					if($itemnbt !== ""){
-						$nbt = new NBT();
+						$nbt = new LittleEndianNBTStream();
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
@@ -548,7 +549,7 @@ class ConvertUtils{
 					}
 				}else{
 					if($itemnbt !== ""){
-						$nbt = new NBT();
+						$nbt = new LittleEndianNBTStream();
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
@@ -579,7 +580,7 @@ class ConvertUtils{
 				}else{
 					$entitytag = "";
 					if($itemnbt !== ""){
-						$nbt = new NBT();
+						$nbt = new LittleEndianNBTStream();
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 						if($itemnbt->getType() === NBT::TAG_Compound){

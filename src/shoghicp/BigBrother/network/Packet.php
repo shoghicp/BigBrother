@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\network;
 
 use pocketmine\item\Item;
-use pocketmine\nbt\NBT;
+use pocketmine\nbt\LittleEndianNBTStream;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 use shoghicp\BigBrother\utils\ComputerItem;
@@ -113,7 +113,7 @@ abstract class Packet extends \stdClass{
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
 
-			$nbt = new NBT(NBT::LITTLE_ENDIAN);
+			$nbt = new LittleEndianNBTStream();
 			$nbt->read($item->getCompoundTag());
 			$nbt = $nbt->getData();
 
