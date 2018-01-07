@@ -748,7 +748,7 @@ class Translator{
 				$pk->action = 1;
 				$pk->entityRuntimeId = $player->getId();
 
-				if($player->lastBreak !== PHP_INT_MAX){
+				/*if($player->lastBreak !== PHP_INT_MAX){//TODO: implement punch block
 					$packets = [$pk];
 
 					$pos = $player->bigBrother_getBreakPosition();
@@ -764,7 +764,7 @@ class Translator{
 					}
 
 					return $packets;
-				}
+				}*/
 
 				return $pk;
 
