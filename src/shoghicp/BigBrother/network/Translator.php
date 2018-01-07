@@ -748,23 +748,21 @@ class Translator{
 				$pk->action = 1;
 				$pk->entityRuntimeId = $player->getId();
 
-				/*if($player->lastBreak !== PHP_INT_MAX){//TODO: implement punch block
+				$pos = $player->bigBrother_getBreakPosition();
+				if(!$pos[0]->equals(new Vector3(0, 0, 0))){
 					$packets = [$pk];
 
-					$pos = $player->bigBrother_getBreakPosition();
-					if(!$pos[0]->equals(new Vector3(0, 0, 0))){
-						$pk = new PlayerActionPacket();
-						$pk->entityRuntimeId = $player->getId();
-						$pk->action = PlayerActionPacket::ACTION_CONTINUE_BREAK;
-						$pk->x = $pos[0]->x;
-						$pk->y = $pos[0]->y;
-						$pk->z = $pos[0]->z;
-						$pk->face = $pos[1];
-						$packets[] = $pk;
-					}
+					$pk = new PlayerActionPacket();
+					$pk->entityRuntimeId = $player->getId();
+					$pk->action = PlayerActionPacket::ACTION_CONTINUE_BREAK;
+					$pk->x = $pos[0]->x;
+					$pk->y = $pos[0]->y;
+					$pk->z = $pos[0]->z;
+					$pk->face = $pos[1];
+					$packets[] = $pk;
 
 					return $packets;
-				}*/
+				}
 
 				return $pk;
 
