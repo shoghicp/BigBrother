@@ -77,8 +77,6 @@ class BigBrother extends PluginBase implements Listener{
 
 		$this->saveDefaultConfig();
 		$this->saveResource("server-icon.png", false);
-		$this->saveResource("steve.yml", false);
-		$this->saveResource("alex.yml", false);
 		$this->saveResource("openssl.cnf", false);
 		$this->reloadConfig();
 
