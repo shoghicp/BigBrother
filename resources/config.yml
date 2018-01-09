@@ -11,7 +11,3 @@ motd: "§bPocketMine-MP server using §6§lBigBrother§r§b plugin\n§aConnect t
 
 #Use Mojang services to authenticate players
 online-mode: true
-
-#This is Skin Settings
-skin-yml: "steve.yml"
-skin-slim: false

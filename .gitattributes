@@ -3,6 +3,3 @@
 *.php text eol=lf
 *.yml text eol=lf
 *.png binary
-
-resources/steve.yml binary
-resources/alex.yml binary
