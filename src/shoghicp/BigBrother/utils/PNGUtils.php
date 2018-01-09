@@ -313,7 +313,7 @@ class PNGUtils{
 			$this->pixeldata[$height] = [];
 
 			for($width = 0; $width < $this->width; $width++){
-				$pixel = [0,0,0,0];
+				$pixel = [0,0,0,255];
 				if(isset($old_pixeldata[$height][$width])){
 					$pixel = $old_pixeldata[$height][$width];
 				}
