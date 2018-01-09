@@ -34,7 +34,7 @@ class CapeUtils{
 
 	public function __construct($binary){
 		$this->utils = new PNGUtils($binary);
-		if($binary === ""){
+		if($binary !== ""){
 			$this->existCape = true;
 		}
 	}
