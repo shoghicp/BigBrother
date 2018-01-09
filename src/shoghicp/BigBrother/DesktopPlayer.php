@@ -62,8 +62,10 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UnlockRecipesPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\utils\Binary;
+use shoghicp\BigBrother\utils\CapeUtils;
 use shoghicp\BigBrother\utils\InventoryUtils;
 use shoghicp\BigBrother\utils\RecipeUtils;
+use shoghicp\BigBrother\utils\SkinUtils;
 
 class DesktopPlayer extends Player{
 
@@ -480,13 +482,19 @@ class DesktopPlayer extends Player{
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
-			$skin = "";
-			$skindata = null;
 			foreach($this->bigBrother_properties as $property){
 				if($property["name"] === "textures"){
-					$skindata = json_decode(base64_decode($property["value"]), true);
-					if(isset($skindata["textures"]["SKIN"]["url"])){
-						$skin = $this->getSkinImage($skindata["textures"]["SKIN"]["url"]);
+					$textures = json_decode(base64_decode($property["value"]), true);
+
+					$model = false;
+					if(isset($textures["textures"]["SKIN"]["metadata"]["model"])){
+						$model = true;
+					}
+
+					$skinimage = file_get_contents($textures["textures"]["SKIN"]["url"]);
+					$capeimage = "";
+					if(isset($textures["textures"]["CAPE"])){
+						$capeimage = file_get_contents($textures["textures"]["CAPE"]["url"]);
 					}
 				}
 			}
@@ -499,24 +507,22 @@ class DesktopPlayer extends Player{
 			$pk->xuid = crc32($this->bigBrother_username);
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->locale = "en_US";
-			$pk->clientData["SkinGeometryName"] = "";//TODO
 			$pk->clientData["SkinGeometry"] = "";//TODO
-			$pk->clientData["CapeData"] = "";//TODO
-			if($skin === ""){
-				if($this->plugin->getConfig()->get("skin-slim")){
-					$pk->clientData["SkinId"] = "Standard_Custom";
-				}else{
-					$pk->clientData["SkinId"] = "Standard_CustomSlim";
-				}
-				$pk->clientData["SkinData"] = base64_encode(file_get_contents($this->plugin->getDataFolder().$this->plugin->getConfig()->get("skin-yml")));
+
+			if($model){
+				$pk->clientData["SkinId"] = $this->bigBrother_formatedUUID."_CustomSlim";
+				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.customSlim";
 			}else{
-				if($skindata !== null && !isset($skindata["textures"]["SKIN"]["metadata"]["model"])){
-					$pk->clientData["SkinId"] = "Standard_Custom";
-				}else{
-					$pk->clientData["SkinId"] = "Standard_CustomSlim";
-				}
-				$pk->clientData["SkinData"] = base64_encode($skin);
+				$pk->clientData["SkinId"] = $this->bigBrother_formatedUUID."_Custom";
+				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.custom";
 			}
+
+			$skin = new SkinUtils($skinimage);
+			$pk->clientData["SkinData"] = $skin->getSkinData();
+
+			$cape = new CapeUtils($capeimage);
+			$pk->clientData["CapeData"] = $cape->getCapeData();
+
 			$pk->chainData = ["chain" => []];
 			$pk->clientDataJwt = "eyJ4NXUiOiJNSFl3RUFZSEtvWkl6ajBDQVFZRks0RUVBQ0lEWWdBRThFTGtpeHlMY3dsWnJ5VVFjdTFUdlBPbUkyQjd2WDgzbmRuV1JVYVhtNzR3RmZhNWZcL2x3UU5UZnJMVkhhMlBtZW5wR0k2SmhJTVVKYVdacmptTWo5ME5vS05GU05CdUtkbThyWWlYc2ZhejNLMzZ4XC8xVTI2SHBHMFp4S1wvVjFWIn0.W10.QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB";
 			$this->handleDataPacket($pk);
@@ -610,60 +616,7 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	/**
-	 * @param string $url
-	 * @return string skin image
-	 */
-	public function getSkinImage(string $url) : string{
-		if(extension_loaded("gd")){
-			$image = imagecreatefrompng($url);
-
-			if($image !== false){
-				$width = imagesx($image);
-				$height = imagesy($image);
-				$colors = [];
-				for($y = 0; $y < $height; $y++){
-					$y_array = [];
-					for($x = 0; $x < $width; $x++){
-						$rgb = imagecolorat($image, $x, $y);
-						$r = ($rgb >> 16) & 0xFF;
-						$g = ($rgb >> 8) & 0xFF;
-						$b = $rgb & 0xFF;
-						$alpha = imagecolorsforindex($image, $rgb)["alpha"];
-						$x_array = [$r, $g, $b, $alpha];
-						$y_array[] = $x_array;
-					}
-					$colors[] = $y_array;
-				}
-				$skin = "";
-				foreach($colors as $width){
-					foreach($width as $height){
-						$alpha = 0;
-						if($height[0] === 255 and $height[1] === 255 and $height[2] === 255){
-							$height[0] = 0;
-							$height[1] = 0;
-							$height[2] = 0;
-							if($height[3] === 127){
-								$alpha = 255;
-							}else{
-								$alpha = 0;
-							}
-						}else{
-							if($height[3] === 127){
-								$alpha = 0;
-							}else{
-								$alpha = 255;
-							}
-						}
-						$skin = $skin.chr($height[0]).chr($height[1]).chr($height[2]).chr($alpha);
-					}
-				}
-				imagedestroy($image);
-				return $skin;
-			}
-		}
-		return "";
-	}
+	
 
 	/**
 	 * @param DataPacket $packet

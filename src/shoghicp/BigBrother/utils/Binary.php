@@ -97,7 +97,7 @@ class Binary extends \pocketmine\utils\Binary{
 						$m .= self::writeShort($item->getDamage());
 
 						$nbt = new LittleEndianNBTStream();
-						$nbt->read($item->getCompoundTag());
+						$nbt->read($item->getCompoundTag(), true);
 						$nbt = $nbt->getData();
 
 						$m .= ConvertUtils::convertNBTDataFromPEtoPC($nbt);

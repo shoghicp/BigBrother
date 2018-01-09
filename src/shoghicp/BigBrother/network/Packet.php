@@ -114,7 +114,7 @@ abstract class Packet extends \stdClass{
 			$this->putShort($item->getDamage());
 
 			$nbt = new LittleEndianNBTStream();
-			$nbt->read($item->getCompoundTag());
+			$nbt->read($item->getCompoundTag(), true);
 			$nbt = $nbt->getData();
 
 			$this->put(ConvertUtils::convertNBTDataFromPEtoPC($nbt));

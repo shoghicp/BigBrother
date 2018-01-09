@@ -1136,11 +1136,15 @@ class InventoryUtils{
 
 			if($action === null){
 				$errors++;
-				echo "[Action Number #".$actionNumber."] error action!\n";
+				if(\pocketmine\DEBUG > 3){
+					echo "[Action Number #".$actionNumber."] error action!\n";
+				}
 				continue;
 			}
 
-			echo "[Action Number #".$actionNumber."] error nothing!\n";
+			if(\pocketmine\DEBUG > 3){
+				echo "[Action Number #".$actionNumber."] error nothing!\n";
+			}
 
 			$actions[] = $action;
 		}
@@ -1155,12 +1159,16 @@ class InventoryUtils{
 			}
 
 			if($action->isValid($this->player)){
-				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] error nothing!\n";
+				if(\pocketmine\DEBUG > 3){
+					echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] error nothing!\n";
+				}
 			}else{
-				echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invalid Item!\n";
-				if($shortName === "SlotChangeAction"){
-					$checkItem = $action->getInventory()->getItem($action->getSlot());
-					var_dump(["checkItem" => $checkItem, "sourceItem" => $action->getSourceItem()]);//json_encode
+				if(\pocketmine\DEBUG > 3){
+					echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invalid Item!\n";
+					if($shortName === "SlotChangeAction"){
+						$checkItem = $action->getInventory()->getItem($action->getSlot());
+						var_dump(["checkItem" => $checkItem, "sourceItem" => $action->getSourceItem()]);//json_encode
+					}
 				}
 				$errors++;
 				/*
