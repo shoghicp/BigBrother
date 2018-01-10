@@ -62,7 +62,7 @@ class PNGUtils{
 			return $this->pixeldata[$x][$z];
 		}
 
-		return [0, 0, 0, 0];
+		return [0, 0, 0, 0];//Don't change it.
 	}
 
 	public function getBinary() : string{
@@ -234,7 +234,7 @@ class PNGUtils{
 		}
 	}
 
-	public function getData(&$stream){
+	private function getData(&$stream){
 		switch($this->bitDepth){
 			/*case 1:
 
