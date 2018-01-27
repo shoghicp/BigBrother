@@ -414,8 +414,8 @@ class DesktopPlayer extends Player{
 	/**
 	 * @override
 	 */
-	public function onVerifyCompleted(LoginPacket $packet, bool $isValid, bool $isAuthenticated) : void{
-		parent::onVerifyCompleted($packet, true, true);
+	public function onVerifyCompleted(LoginPacket $packet, ?string $error, bool $isAuthenticated) : void{
+		parent::onVerifyCompleted($packet, null, true);
 
 		$pk = new ResourcePackClientResponsePacket();
 		$pk->status = ResourcePackClientResponsePacket::STATUS_COMPLETED;

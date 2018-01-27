@@ -2022,12 +2022,12 @@ class Translator{
 
 				if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
 					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION][1];
-					if($bedXYZ !== [0, 0, 0]){
+					if($bedXYZ !== null){
 						$pk = new UseBedPacket();
 						$pk->eid = $packet->entityRuntimeId;
-						$pk->bedX = $bedXYZ[0];
-						$pk->bedY = $bedXYZ[1];
-						$pk->bedZ = $bedXYZ[2];
+						$pk->bedX = $bedXYZ->getX();
+						$pk->bedY = $bedXYZ->getY();
+						$pk->bedZ = $bedXYZ->getZ();
 
 						$packets[] = $pk;
 					}
