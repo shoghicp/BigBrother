@@ -40,6 +40,7 @@ use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\Tag;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
@@ -949,6 +950,13 @@ class Translator{
 				$player->bigBrother_addEntityList($packet->entityRuntimeId, "player");
 				if(isset($packet->metadata[Entity::DATA_NAMETAG])){
 					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[Entity::DATA_NAMETAG]);
+				}
+
+				$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
+				foreach($loggedInPlayers as $uuid => $loggedInPlayer){
+					if($loggedInPlayer->getId() === $packet->entityRuntimeId){
+						$loggedInPlayer->setNameTag("");
+					}
 				}
 
 				return $packets;
@@ -2120,12 +2128,10 @@ class Translator{
 					case Tile::FLOWER_POT:
 						$pk->actionID = 5;
 
-						$nbt->Item = clone $nbt->item;
-						$nbt->Item->setName("Item");
-						unset($nbt->item);
+						$nbt->setTag(new ShortTag("Item", $nbt["item"]));
+						$nbt->setTag(new IntTag("Data", $nbt["mData"]));
 
-						$nbt->Data = clone $nbt->mData;
-						$nbt->Data->setName("Data");
+						unset($nbt->item);
 						unset($nbt->mData);
 
 						$pk->namedtag = $nbt;
@@ -2139,24 +2145,13 @@ class Translator{
 					case Tile::SIGN:
 						$pk->actionID = 9;
 
-						$textData = explode("\n", $nbt->Text->getValue());
+						$textData = explode("\n", $nbt["Text"]);
 
 						//blame mojang
-						$nbt->Text1 = clone $nbt->Text;
-						$nbt->Text1->setName("Text1");
-						$nbt->Text1->setValue(BigBrother::toJSON($textData[0]));
-
-						$nbt->Text2 = clone $nbt->Text;
-						$nbt->Text2->setName("Text2");
-						$nbt->Text2->setValue(BigBrother::toJSON($textData[1]));
-
-						$nbt->Text3 = clone $nbt->Text;
-						$nbt->Text3->setName("Text3");
-						$nbt->Text3->setValue(BigBrother::toJSON($textData[2]));
-
-						$nbt->Text4 = clone $nbt->Text;
-						$nbt->Text4->setName("Text4");
-						$nbt->Text4->setValue(BigBrother::toJSON($textData[3]));
+						$nbt->setTag(new StringTag("Text1", BigBrother::toJSON($textData[0])));
+						$nbt->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
+						$nbt->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
+						$nbt->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
 						unset($nbt["Text"]);
 
 						$pk->namedtag = $nbt;
@@ -2237,9 +2232,11 @@ class Translator{
 						foreach($packet->entries as $entry){
 							$playerdata = null;
 							$gamemode = 0;
+							$displayName = $entry->username;
 							if(isset($loggedInPlayers[$entry->uuid->toBinary()])){
 								$playerdata = $loggedInPlayers[$entry->uuid->toBinary()];
 								$gamemode = $playerdata->getGamemode();
+								$displayName = $playerdata->getNameTag();
 							}
 
 							if($playerdata instanceof DesktopPlayer){
@@ -2267,7 +2264,7 @@ class Translator{
 
 							$pk->players[] = [
 								$entry->uuid->toBinary(),
-								TextFormat::clean($entry->username),
+								TextFormat::clean($displayName),
 								$properties,
 								$gamemode,
 								0,

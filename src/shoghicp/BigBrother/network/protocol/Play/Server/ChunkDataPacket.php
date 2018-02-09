@@ -33,6 +33,9 @@ use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
 use shoghicp\BigBrother\BigBrother;
 use pocketmine\tile\Tile;
+use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\StringTag;
+use pocketmine\nbt\tag\ShortTag;
 
 class ChunkDataPacket extends OutboundPacket{
 
@@ -70,35 +73,22 @@ class ChunkDataPacket extends OutboundPacket{
 		}
 		$this->putVarInt(count($this->blockEntities));
 		foreach($this->blockEntities as $blockEntity){
-			switch($blockEntity->id){
+			switch($blockEntity["id"]){
 				case Tile::FLOWER_POT:
-					$blockEntity->Item = clone $blockEntity->item;
-					$blockEntity->Item->setName("Item");
-					unset($blockEntity->item);
+					$blockEntity->setTag(new ShortTag("Item", $blockEntity["item"]));
+					$blockEntity->setTag(new IntTag("Data", $blockEntity["mData"]));
 
-					$blockEntity->Data = clone $blockEntity->mData;
-					$blockEntity->Data->setName("Data");
+					unset($blockEntity->item);
 					unset($blockEntity->mData);
 				break;
 				case Tile::SIGN:
-					$textData = explode("\n", $blockEntity->Text->getValue());
+					$textData = explode("\n", $blockEntity["Text"]);
 
-					//blame mojang
-					$blockEntity->Text1 = clone $blockEntity->Text;
-					$blockEntity->Text1->setName("Text1");
-					$blockEntity->Text1->setValue(BigBrother::toJSON($textData[0]));
+					$blockEntity->setTag(new StringTag("Text1", BigBrother::toJSON($textData[0])));
+					$blockEntity->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
+					$blockEntity->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
+					$blockEntity->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
 
-					$blockEntity->Text2 = clone $blockEntity->Text;
-					$blockEntity->Text2->setName("Text2");
-					$blockEntity->Text2->setValue(BigBrother::toJSON($textData[1]));
-
-					$blockEntity->Text3 = clone $blockEntity->Text;
-					$blockEntity->Text3->setName("Text3");
-					$blockEntity->Text3->setValue(BigBrother::toJSON($textData[2]));
-
-					$blockEntity->Text4 = clone $blockEntity->Text;
-					$blockEntity->Text4->setName("Text4");
-					$blockEntity->Text4->setValue(BigBrother::toJSON($textData[3]));
 					unset($blockEntity->Text);
 				break;
 			}

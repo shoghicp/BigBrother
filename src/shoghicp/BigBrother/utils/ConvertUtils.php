@@ -359,6 +359,8 @@ class ConvertUtils{
 			break;
 		}
 
+
+
 		return $stream->getBuffer();
 	}
 
@@ -503,7 +505,7 @@ class ConvertUtils{
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
-						$listTag = $itemnbt->pepages->getValue();
+						$listTag = $itemnbt["pepages"];
 
 						$itemnbt = new CompoundTag("", [
 							new ListTag("pages", $listTag),
@@ -518,9 +520,9 @@ class ConvertUtils{
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
-						$author = $itemnbt->author->getValue();
-						$title = $itemnbt->title->getValue();
-						$generation = $itemnbt->generation->getValue();
+						$author = $itemnbt["author"];
+						$title = $itemnbt["title"];
+						$generation = $itemnbt["generation"];
 
 						$listTag = [];
 						$peCompoundTag = [];
@@ -553,11 +555,11 @@ class ConvertUtils{
 						$nbt->read($itemnbt, true);
 						$itemnbt = $nbt->getData();
 
-						$author = $itemnbt->author->getValue();
-						$title = $itemnbt->title->getValue();
-						$generation = $itemnbt->generation->getValue();
+						$author = $itemnbt["author"];
+						$title = $itemnbt["title"];
+						$generation = $itemnbt["generation"];
 
-						$listTag = $itemnbt->pepages->getValue();
+						$listTag = $itemnbt["pepages"];
 
 						$itemnbt = new CompoundTag("", [
 							new ListTag("pages", $listTag),
