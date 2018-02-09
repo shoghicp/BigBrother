@@ -506,9 +506,10 @@ class ConvertUtils{
 						$itemnbt = $nbt->getData();
 
 						$listTag = $itemnbt["pepages"];
+						$listTag->setName("pages");
 
 						$itemnbt = new CompoundTag("", [
-							new ListTag("pages", $listTag),
+							$listTag,
 						]);
 					}
 				}
@@ -560,9 +561,10 @@ class ConvertUtils{
 						$generation = $itemnbt["generation"];
 
 						$listTag = $itemnbt["pepages"];
+						$listTag->setName("pages");
 
 						$itemnbt = new CompoundTag("", [
-							new ListTag("pages", $listTag),
+							$listTag,
 							new StringTag("author", $author),
 							new StringTag("title", $title),
 							new IntTag("generation", $generation),
