@@ -952,13 +952,6 @@ class Translator{
 					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[Entity::DATA_NAMETAG]);
 				}
 
-				$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
-				foreach($loggedInPlayers as $uuid => $loggedInPlayer){
-					if($loggedInPlayer->getId() === $packet->entityRuntimeId){
-						$loggedInPlayer->setNameTag("");
-					}
-				}
-
 				return $packets;
 
 			case Info::ADD_ENTITY_PACKET:
