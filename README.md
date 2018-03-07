@@ -5,7 +5,7 @@ BigBrother
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Percentage of issues still open")
 
-Welcome to BigBrother, a shoghicp project who has been abandoned and taken back by the BigBrotherTeam!
+Welcome to BigBrother, a [shoghicp project that was abandoned](https://github.com/shoghicp/bigbrother) and taken back by the BigBrotherTeam!
 -------------
 
 ### Watch Video working on PocketMine-MP!
@@ -13,7 +13,7 @@ Welcome to BigBrother, a shoghicp project who has been abandoned and taken back 
 
 #### Notice
 * This plugin supports use with PocketMine-MP (pmmp). Using spoons will cause many bugs & problems.
-* This plugin supports Minecraft version 1.12.2 ONLY.
+* This plugin supports Minecraft version 1.12.2 ***ONLY.***
 
 #### Features implemented
 * Login (with premium account or not)
