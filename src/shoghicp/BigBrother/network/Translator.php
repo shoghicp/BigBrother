@@ -116,6 +116,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\SetExperiencePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnExperienceOrbPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnObjectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPaintingPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPlayerPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnPositionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\StatisticsPacket;
@@ -1458,6 +1459,18 @@ class Translator{
 				$pk->blockMeta = $packet->blockData;
 
 				return $pk;
+
+			/*case Info::ADD_PAINTING_PACKET:
+				$pk = new SpawnPaintingPacket();
+				$pk->eid = $packet->entityRuntimeId;
+				$pk->uuid = UUID::fromRandom()->toBinary();
+				$pk->x = $packet->x;
+				$pk->y = $packet->y;
+				$pk->z = $packet->z;
+				$pk->title = $packet->title;
+				$pk->direction = $packet->direction;
+
+				return $pk;*/
 
 			case Info::EXPLODE_PACKET:
 				$pk = new ExplosionPacket();

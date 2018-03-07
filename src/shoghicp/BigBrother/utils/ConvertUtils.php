@@ -40,7 +40,6 @@ use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\EndTag;
 use pocketmine\nbt\tag\FloatTag;
 use pocketmine\nbt\tag\IntArrayTag;
 use pocketmine\nbt\tag\IntTag;
@@ -386,7 +385,7 @@ class ConvertUtils{
 
 		switch($type){
 			case NBT::TAG_End://unused
-				$nbt = new EndTag();
+				$nbt = null;
 			break;
 			case NBT::TAG_Byte:
 				$nbt = new ByteTag($name, $stream->getByte());
@@ -438,7 +437,7 @@ class ConvertUtils{
 					if($tag instanceof NamedTag){
 						$tags[] = $tag;
 					}
-				}while(!($tag instanceof EndTag) and !$stream->feof());
+				}while($tag !== null and !$nbt->feof());
 
 				$nbt = new CompoundTag($name, $tags);
 			break;
@@ -787,6 +786,6 @@ class ComputerItem extends Item{
 	public function __construct(int $id = 0, int $meta = 0, int $count = 1, $tag = ""){
 		parent::__construct($id, $meta);
 		$this->setCount($count);
-		$this->setCompoundTag($tag instanceof EndTag ? "" : $tag);
+		$this->setCompoundTag($tag instanceof NamedTag ? $tag : "");
 	}
 }
