@@ -96,11 +96,15 @@ class Binary extends \pocketmine\utils\Binary{
 						$m .= self::writeByte($item->getCount());
 						$m .= self::writeShort($item->getDamage());
 
-						$nbt = new LittleEndianNBTStream();
-						$nbt->read($item->getCompoundTag(), true);
-						$nbt = $nbt->getData();
+						if($item->hasCompoundTag()){
+							$nbt = new LittleEndianNBTStream();
+							$nbt->read($item->getCompoundTag(), true);
+							$nbt = $nbt->getData();
 
-						$m .= ConvertUtils::convertNBTDataFromPEtoPC($nbt);
+							$m .= ConvertUtils::convertNBTDataFromPEtoPC($nbt);
+						}else{
+							$m .= "\x00";//TAG_End
+						}
 					}
 				break;
 				case 6://Boolean

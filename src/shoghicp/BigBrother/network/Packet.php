@@ -113,11 +113,15 @@ abstract class Packet extends \stdClass{
 			$this->putByte($item->getCount());
 			$this->putShort($item->getDamage());
 
-			$nbt = new LittleEndianNBTStream();
-			$nbt->read($item->getCompoundTag(), true);
-			$nbt = $nbt->getData();
+			if($item->hasCompoundTag()){
+				$nbt = new LittleEndianNBTStream();
+				$nbt->read($item->getCompoundTag(), true);
+				$nbt = $nbt->getData();
 
-			$this->put(ConvertUtils::convertNBTDataFromPEtoPC($nbt));
+				$this->put(ConvertUtils::convertNBTDataFromPEtoPC($nbt));
+			}else{
+				$this->put("\x00");//TAG_End
+			}
 		}
 	}
 
