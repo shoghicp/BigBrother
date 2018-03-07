@@ -507,6 +507,7 @@ class DesktopPlayer extends Player{
 			$pk->xuid = "";
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->locale = "en_US";
+			$pk->skipVerification = true;
 			$pk->clientData["SkinGeometry"] = "";//TODO
 
 			if($model){
