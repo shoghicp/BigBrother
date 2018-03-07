@@ -121,7 +121,7 @@ class DesktopPlayer extends Player{
 	public function __construct(SourceInterface $interface, string $clientID, string $address, int $port, BigBrother $plugin){
 		$this->plugin = $plugin;
 		$this->bigbrother_clientId = $clientID;
-		parent::__construct($interface, $clientID, $address, $port);
+		parent::__construct($interface, $address, $port);
 
 		$this->bigBrother_breakPosition = [new Vector3(0, 0, 0), 0];
 		$this->inventoryUtils = new InventoryUtils($this);
