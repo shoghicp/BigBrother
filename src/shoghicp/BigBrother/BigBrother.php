@@ -273,13 +273,22 @@ class BigBrother extends PluginBase implements Listener{
 		switch($type){
 			case TextPacket::TYPE_TRANSLATION:
 				unset($result["text"]);
+				$tokenize = TextFormat::tokenize($message);
 				$message = TextFormat::clean($message);
 
 				if(substr($message, 0, 1) === "["){//chat.type.admin
 					$result["translate"] = "chat.type.admin";
+					$result["color"] = "gray";
+					$result["italic"] = true;
+					unset($result["extra"]);
 
 					$result["with"][] = ["text" => substr($message, 1, strpos($message, ":") - 1)];
-					$result["with"][] = ["translate" => preg_replace("/[^0-9a-zA-Z.]/", "", substr($message, strpos($message, "%") === false ? 0 : strpos($message, "%")))];
+
+					if($message === "[CONSOLE: Reload complete.]" or $message === "[CONSOLE: Reloading server...]"){//blame pmmp
+						$result["with"][] = ["translate" => substr(substr($message, strpos($message, ":") + 2), 0, - 1), "color" => "yellow"];
+					}else{
+						$result["with"][] = ["translate" => substr(substr($message, strpos($message, ":") + 2), 0, - 1)];
+					}
 
 					$with = &$result["with"][1];
 				}else{

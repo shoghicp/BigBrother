@@ -94,8 +94,8 @@ abstract class Packet extends \stdClass{
 			$damage = $this->getSignedShort();
 			$nbt = $this->get(true);
 
-			$nbt = ConvertUtils::convertNBTDataFromPCtoPE($nbt);
-			$item = new ComputerItem($itemId, $damage, $count, $nbt);
+			$itemnbt = ConvertUtils::convertNBTDataFromPCtoPE($nbt);
+			$item = new ComputerItem($itemId, $damage, $count, $itemnbt);
 
 			ConvertUtils::convertItemData(false, $item);
 
@@ -115,10 +115,9 @@ abstract class Packet extends \stdClass{
 
 			if($item->hasCompoundTag()){
 				$nbt = new LittleEndianNBTStream();
-				$nbt->read($item->getCompoundTag(), true);
-				$nbt = $nbt->getData();
+				$itemnbt = $nbt->read($item->getCompoundTag(), true);
 
-				$this->put(ConvertUtils::convertNBTDataFromPEtoPC($nbt));
+				$this->put(ConvertUtils::convertNBTDataFromPEtoPC($itemnbt));
 			}else{
 				$this->put("\x00");//TAG_End
 			}

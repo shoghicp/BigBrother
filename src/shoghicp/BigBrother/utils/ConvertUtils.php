@@ -48,7 +48,6 @@ use pocketmine\nbt\tag\LongTag;
 use pocketmine\nbt\tag\NamedTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
-use pocketmine\nbt\tag\Tag;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Binary;
 use pocketmine\tile\Tile;
@@ -278,11 +277,11 @@ class ConvertUtils{
 	}
 
 	/**
-	 * @param Tag  $nbt
+	 * @param NamedTag  $nbt
 	 * @param bool $isListTag
 	 * @return string converted nbt tag data
 	 */
-	public static function convertNBTDataFromPEtoPC(Tag $nbt, $isListTag = false) : string{
+	public static function convertNBTDataFromPEtoPC(NamedTag $nbt, $isListTag = false) : string{
 		$stream = new BinaryStream();
 
 		if(!$isListTag){
@@ -338,7 +337,7 @@ class ConvertUtils{
 				$type = $nbt->getTagType();
 
 				foreach($nbt as $tag){
-					if($tag instanceof Tag){
+					if($tag instanceof NamedTag){
 						if($type !== $tag->getType()){
 							throw new \UnexpectedValueException("ListTag must consists of tags which types are the same");
 						}
@@ -367,9 +366,9 @@ class ConvertUtils{
 	 * @param string $buffer
 	 * @param bool 	 $isListTag
 	 * @param int 	 $listTagId
-	 * @return CompoundTag|Tag|null
+	 * @return CompoundTag|NamedTag|null
 	 */
-	public static function convertNBTDataFromPCtoPE(string $buffer, $isListTag = false, $listTagId = NBT::TAG_End) : ?Tag{
+	public static function convertNBTDataFromPCtoPE(string $buffer, $isListTag = false, $listTagId = NBT::TAG_End) : ?NamedTag{
 		$stream = new BinaryStream($buffer);
 		$nbt = null;
 
@@ -418,26 +417,33 @@ class ConvertUtils{
 				$tags = [];
 				for($i = 0; $i < $count and !$stream->feof(); $i++){
 					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()), true, $id);
-					$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag, true));
+					if($tag instanceof NamedTag){
+						$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag, true));
+					}else{
+						$stream->offset += 1;
+					}
 
 					if($tag instanceof NamedTag){
 						$tags[] = $tag;
 					}
 				}
 
-				$nbt = new ListTag($name, $tags);
-				$nbt->setTagType($id);
+				$nbt = new ListTag($name, $tags, $id);
 			break;
 			case NBT::TAG_Compound:
 				$tags = [];
 				do{
 					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
-					$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
+					if($tag instanceof NamedTag){
+						$stream->offset += strlen(self::convertNBTDataFromPEtoPC($tag));
+					}else{
+						$stream->offset += 1;
+					}
 
 					if($tag instanceof NamedTag){
 						$tags[] = $tag;
 					}
-				}while($tag !== null and !$nbt->feof());
+				}while($tag !== null and !$stream->feof());
 
 				$nbt = new CompoundTag($name, $tags);
 			break;
@@ -469,12 +475,11 @@ class ConvertUtils{
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
-			case Item::WRITABLE_BOOK:
+			/*case Item::WRITABLE_BOOK:
 				if($iscomputer){
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
-						$nbt->read($itemnbt, true);
-						$itemnbt = $nbt->getData();
+						$itemnbt = $nbt->read($itemnbt, true);
 
 						$listTag = [];
 						$peCompoundTag = [];
@@ -501,8 +506,7 @@ class ConvertUtils{
 				}else{
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
-						$nbt->read($itemnbt, true);
-						$itemnbt = $nbt->getData();
+						$itemnbt = $nbt->read($itemnbt, true);
 
 						$listTag = $itemnbt["pepages"];
 						$listTag->setName("pages");
@@ -517,8 +521,7 @@ class ConvertUtils{
 				if($iscomputer){
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
-						$nbt->read($itemnbt, true);
-						$itemnbt = $nbt->getData();
+						$itemnbt = $nbt->read($itemnbt, true);
 
 						$author = $itemnbt["author"];
 						$title = $itemnbt["title"];
@@ -552,8 +555,7 @@ class ConvertUtils{
 				}else{
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
-						$nbt->read($itemnbt, true);
-						$itemnbt = $nbt->getData();
+						$itemnbt = $nbt->read($itemnbt, true);
 
 						$author = $itemnbt["author"];
 						$title = $itemnbt["title"];
@@ -570,7 +572,7 @@ class ConvertUtils{
 						]);
 					}
 				}
-			break;
+			break;*/
 			case Item::SPAWN_EGG:
 				if($iscomputer){
 					if($type = self::$spawnEggList[$itemdamage] ?? ""){
@@ -584,8 +586,7 @@ class ConvertUtils{
 					$entitytag = "";
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
-						$nbt->read($itemnbt, true);
-						$itemnbt = $nbt->getData();
+						$itemnbt = $nbt->read($itemnbt, true);
 						if($itemnbt->getType() === NBT::TAG_Compound){
 							$entitytag = $itemnbt["EntityTag"]["id"];
 						}
@@ -786,6 +787,6 @@ class ComputerItem extends Item{
 	public function __construct(int $id = 0, int $meta = 0, int $count = 1, $tag = ""){
 		parent::__construct($id, $meta);
 		$this->setCount($count);
-		$this->setCompoundTag($tag instanceof NamedTag ? $tag : "");
+		$this->setCompoundTag($tag);
 	}
 }
