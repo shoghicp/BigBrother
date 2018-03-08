@@ -273,7 +273,6 @@ class BigBrother extends PluginBase implements Listener{
 		switch($type){
 			case TextPacket::TYPE_TRANSLATION:
 				unset($result["text"]);
-				$tokenize = TextFormat::tokenize($message);
 				$message = TextFormat::clean($message);
 
 				if(substr($message, 0, 1) === "["){//chat.type.admin
