@@ -73,77 +73,76 @@ class BigBrother extends PluginBase implements Listener{
 	 * @override
 	 */
 	public function onEnable(){
-		ConvertUtils::init();
-
-		$this->saveDefaultConfig();
-		$this->saveResource("server-icon.png", false);
-		$this->saveResource("openssl.cnf", false);
-		$this->reloadConfig();
-
-		$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
-
-		$aes = new AES();
-		switch($aes->getEngine()){
-			case AES::ENGINE_OPENSSL:
-				$this->getLogger()->info("Use openssl as AES encryption engine.");
-			break;
-			case AES::ENGINE_MCRYPT:
-				$this->getLogger()->warning("Use obsolete mcrypt for AES encryption. Try to install openssl extension instead!!");
-			break;
-			case AES::ENGINE_INTERNAL:
-				$this->getLogger()->warning("Use phpseclib internal engine for AES encryption, this may impact on performance. To improve them, try to install openssl extension.");
-			break;
-		}
-
-		$this->rsa = new RSA();
-		switch(constant("CRYPT_RSA_MODE")){
-			case RSA::MODE_OPENSSL:
-				$this->rsa->configFile = $this->getDataFolder() . "openssl.cnf";
-				$this->getLogger()->info("Use openssl as RSA encryption engine.");
-			break;
-			case RSA::MODE_INTERNAL:
-				$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
-			break;
-		}
-
-		if(!$this->getConfig()->exists("motd")){
-			$this->getLogger()->warning("No motd has been set. The server description will be empty.");
-			$this->getPluginLoader()->disablePlugin($this);
-			return;
-		}
-
-		if(Info::CURRENT_PROTOCOL === 201){
-			$this->translator = new Translator();
-
-			$this->getServer()->getPluginManager()->registerEvents($this, $this);
-
-			if($this->onlineMode){
-				$this->getLogger()->info("Server is being started in the background");
-				$this->getLogger()->info("Generating keypair");
-				$this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
-				$this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS8);
-				$this->rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
-				$keys = $this->rsa->createKey(1024);
-				$this->privateKey = $keys["privatekey"];
-				$this->publicKey = $keys["publickey"];
-				$this->rsa->loadKey($this->privateKey);
+		$enable = true;
+		foreach($this->getServer()->getNetwork()->getInterfaces() as $interface){
+			if($interface instanceof ProtocolInterface){
+				$enable = false;
 			}
+		}
 
-			$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".ServerManager::VERSION);
+		if($enable){
+			if(Info::CURRENT_PROTOCOL === 201){
+				ConvertUtils::init();
 
-			$disable = true;
-			foreach($this->getServer()->getNetwork()->getInterfaces() as $interface){
-				if($interface instanceof ProtocolInterface){
-					$disable = false;
+				$this->saveDefaultConfig();
+				$this->saveResource("server-icon.png", false);
+				$this->saveResource("openssl.cnf", false);
+				$this->reloadConfig();
+
+				$aes = new AES();
+				switch($aes->getEngine()){
+					case AES::ENGINE_OPENSSL:
+						$this->getLogger()->info("Use openssl as AES encryption engine.");
+					break;
+					case AES::ENGINE_MCRYPT:
+						$this->getLogger()->warning("Use obsolete mcrypt for AES encryption. Try to install openssl extension instead!!");
+					break;
+					case AES::ENGINE_INTERNAL:
+						$this->getLogger()->warning("Use phpseclib internal engine for AES encryption, this may impact on performance. To improve them, try to install openssl extension.");
+					break;
 				}
-			}
-			if($disable){
+
+				$this->rsa = new RSA();
+				switch(constant("CRYPT_RSA_MODE")){
+					case RSA::MODE_OPENSSL:
+						$this->rsa->configFile = $this->getDataFolder() . "openssl.cnf";
+						$this->getLogger()->info("Use openssl as RSA encryption engine.");
+					break;
+					case RSA::MODE_INTERNAL:
+						$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
+					break;
+				}
+
+				if(!$this->getConfig()->exists("motd")){
+					$this->getLogger()->warning("No motd has been set. The server description will be empty.");
+					$this->getPluginLoader()->disablePlugin($this);
+					return;
+				}
+
+				$this->onlineMode = (bool) $this->getConfig()->get("online-mode");
+				if($this->onlineMode){
+					$this->getLogger()->info("Server is being started in the background");
+					$this->getLogger()->info("Generating keypair");
+					$this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
+					$this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS8);
+					$this->rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
+					$keys = $this->rsa->createKey(1024);
+					$this->privateKey = $keys["privatekey"];
+					$this->publicKey = $keys["publickey"];
+					$this->rsa->loadKey($this->privateKey);
+				}
+
+				$this->getLogger()->info("Starting Minecraft: PC server on ".($this->getIp() === "0.0.0.0" ? "*" : $this->getIp()).":".$this->getPort()." version ".ServerManager::VERSION);
+
+				$this->getServer()->getPluginManager()->registerEvents($this, $this);
+
+				$this->translator = new Translator();
 				$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, $this->getConfig()->get("network-compression-threshold"));
 				$this->getServer()->getNetwork()->registerInterface($this->interface);
+			}else{
+				$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
+				$this->getPluginLoader()->disablePlugin($this);
 			}
-		}else{
-			$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
-			$this->getPluginLoader()->disablePlugin($this);
 		}
 	}
 
