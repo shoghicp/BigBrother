@@ -98,10 +98,9 @@ class Binary extends \pocketmine\utils\Binary{
 
 						if($item->hasCompoundTag()){
 							$nbt = new LittleEndianNBTStream();
-							$nbt->read($item->getCompoundTag(), true);
-							$nbt = $nbt->getData();
+							$itemnbt = $nbt->read($item->getCompoundTag(), true);
 
-							$m .= ConvertUtils::convertNBTDataFromPEtoPC($nbt);
+							$m .= ConvertUtils::convertNBTDataFromPEtoPC($itemnbt);
 						}else{
 							$m .= "\x00";//TAG_End
 						}

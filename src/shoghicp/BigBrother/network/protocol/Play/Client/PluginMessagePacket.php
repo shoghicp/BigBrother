@@ -66,7 +66,7 @@ class PluginMessagePacket extends InboundPacket{
 			break;
 			case "MC|BEdit":
 			case "MC|BSign":
-				$this->data[] = $this->getSlot();
+				$this->data[] = $this->getSlot(false);
 			break;
 		}
 	}

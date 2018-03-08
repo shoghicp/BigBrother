@@ -475,7 +475,7 @@ class ConvertUtils{
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
-			/*case Item::WRITABLE_BOOK:
+			case Item::WRITABLE_BOOK:
 				if($iscomputer){
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
@@ -572,7 +572,7 @@ class ConvertUtils{
 						]);
 					}
 				}
-			break;*/
+			break;
 			case Item::SPAWN_EGG:
 				if($iscomputer){
 					if($type = self::$spawnEggList[$itemdamage] ?? ""){
