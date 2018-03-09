@@ -85,7 +85,7 @@ abstract class Packet extends \stdClass{
 	/**
 	 * @return Item
 	 */
-	protected function getSlot($convertItemData = true) : Item{
+	protected function getSlot() : Item{
 		$itemId = $this->getSignedShort();
 		if($itemId === -1){ //Empty
 			return Item::get(Item::AIR, 0, 0);
@@ -97,9 +97,7 @@ abstract class Packet extends \stdClass{
 			$itemnbt = ConvertUtils::convertNBTDataFromPCtoPE($nbt);
 			$item = new ComputerItem($itemId, $damage, $count, $itemnbt);
 
-			if($convertItemData){
-				ConvertUtils::convertItemData(false, $item);
-			}
+			ConvertUtils::convertItemData(false, $item);
 
 			return $item;
 		}

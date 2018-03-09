@@ -217,16 +217,22 @@ class Translator{
 						$item = clone $packet->data[0];
 
 						if(!is_null(($pages = $item->getNamedTagEntry("pages")))){
-							foreach($pages as $pageNumber => $tag){
-								if($tag instanceof StringTag){
-									$pk = new BookEditPacket();
-									$pk->type = BookEditPacket::TYPE_REPLACE_PAGE;
-									$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
-									$pk->pageNumber = (int) $pageNumber;
-									$pk->text = $tag->getValue();
-									$pk->photoName = "";//Not implement
+							foreach($pages as $pageNumber => $pageTags){
+								if($pageTags instanceof CompoundTag){
+									foreach($pageTags as $name => $tag){
+										if($tag instanceof StringTag){
+											if($tag->getName() === "text"){
+												$pk = new BookEditPacket();
+												$pk->type = BookEditPacket::TYPE_REPLACE_PAGE;
+												$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
+												$pk->pageNumber = (int) $pageNumber;
+												$pk->text = $tag->getValue();
+												$pk->photoName = "";//Not implement
 
-									$packets[] = $pk;
+												$packets[] = $pk;
+											}
+										}
+									}
 								}
 							}
 						}
@@ -238,16 +244,22 @@ class Translator{
 						$item = clone $packet->data[0];
 
 						if(!is_null(($pages = $item->getNamedTagEntry("pages")))){
-							foreach($pages as $pageNumber => $tag){
-								if($tag instanceof StringTag){
-									$pk = new BookEditPacket();
-									$pk->type = BookEditPacket::TYPE_REPLACE_PAGE;
-									$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
-									$pk->pageNumber = (int) $pageNumber;
-									$pk->text = $tag->getValue();
-									$pk->photoName = "";//Not implement
+							foreach($pages as $pageNumber => $pageTags){
+								if($pageTags instanceof CompoundTag){
+									foreach($pageTags as $name => $tag){
+										if($tag instanceof StringTag){
+											if($tag->getName() === "text"){
+												$pk = new BookEditPacket();
+												$pk->type = BookEditPacket::TYPE_REPLACE_PAGE;
+												$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
+												$pk->pageNumber = (int) $pageNumber;
+												$pk->text = $tag->getValue();
+												$pk->photoName = "";//Not implement
 
-									$packets[] = $pk;
+												$packets[] = $pk;
+											}
+										}
+									}
 								}
 							}
 						}

@@ -475,6 +475,7 @@ class ConvertUtils{
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
+
 			case Item::WRITABLE_BOOK:
 				if($iscomputer){
 					if($itemnbt !== ""){
@@ -482,38 +483,56 @@ class ConvertUtils{
 						$itemnbt = $nbt->read($itemnbt, true);
 
 						$listTag = [];
-						$peCompoundTag = [];
-
+						$photoListTag = [];
 						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
 							if($pageTags instanceof CompoundTag){
-								$peCompoundTag[] = $pageTags;
-
 								foreach($pageTags as $name => $tag){
 									if($tag instanceof StringTag){
-										if($tag->getName() === "text"){
-											$listTag[] = new StringTag("", $tag->getValue());
+										switch($tag->getName()){
+											case "text":
+												$listTag[] = new StringTag("", $tag->getValue());
+											break;
+											case "photoname":
+												$photoListTag[] = new StringTag("", $tag->getValue());
+											break;
 										}
 									}
 								}
 							}
 						}
 
-						$itemnbt = new CompoundTag("", [
-							new ListTag("pages", $listTag),
-							new ListTag("pepages", $peCompoundTag),
-						]);
+						$itemnbt->removeTag("pages");
+						$itemnbt->setTag(new ListTag("pages", $listTag));
+						$itemnbt->setTag(new ListTag("photoname", $photoListTag));
 					}
 				}else{
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
 						$itemnbt = $nbt->read($itemnbt, true);
 
-						$listTag = $itemnbt["pepages"];
-						$listTag->setName("pages");
+						$listTag = [];
+						foreach($itemnbt["pages"] as $pageNumber => $tag){
+							if($tag instanceof StringTag){
+								$tag->setName("text");
 
-						$itemnbt = new CompoundTag("", [
-							$listTag,
-						]);
+								$photonameTag = new StringTag("photoname", "");
+								if(isset($itemnbt["photoname"][$pageNumber])){
+									$photonameTag->setValue($itemnbt["photoname"][$pageNumber]);
+								}
+
+								$listTag[] = new CompoundTag("", [
+									$tag,
+									$photonameTag,
+								]);
+							}
+						}
+
+						$itemnbt->removeTag("pages");
+						if($itemnbt->hasTag("photoname")){
+							$itemnbt->removeTag("photoname");
+						}
+
+						$itemnbt->setTag(new ListTag("pages", $listTag));
 					}
 				}
 			break;
@@ -523,53 +542,57 @@ class ConvertUtils{
 						$nbt = new LittleEndianNBTStream();
 						$itemnbt = $nbt->read($itemnbt, true);
 
-						$author = $itemnbt["author"];
-						$title = $itemnbt["title"];
-						$generation = $itemnbt["generation"];
-
 						$listTag = [];
-						$peCompoundTag = [];
-
+						$photoListTag = [];
 						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
 							if($pageTags instanceof CompoundTag){
-								$peCompoundTag[] = $pageTags;
-
 								foreach($pageTags as $name => $tag){
 									if($tag instanceof StringTag){
-										if($tag->getName() === "text"){
-											$listTag[] = new StringTag("", $tag->getValue());
+										switch($tag->getName()){
+											case "text":
+												$listTag[] = new StringTag("", $tag->getValue());
+											break;
+											case "photoname":
+												$photoListTag[] = new StringTag("", $tag->getValue());
+											break;
 										}
 									}
 								}
 							}
 						}
 
-						$itemnbt = new CompoundTag("", [
-							new StringTag("author", $author),
-							new StringTag("title", $title),
-							new IntTag("generation", $generation),
-							new ListTag("pages", $listTag),
-							new ListTag("pepages", $peCompoundTag),
-						]);
+						$itemnbt->removeTag("pages");
+						$itemnbt->setTag(new ListTag("pages", $listTag));
+						$itemnbt->setTag(new ListTag("photoname", $photoListTag));
 					}
 				}else{
 					if($itemnbt !== ""){
 						$nbt = new LittleEndianNBTStream();
 						$itemnbt = $nbt->read($itemnbt, true);
 
-						$author = $itemnbt["author"];
-						$title = $itemnbt["title"];
-						$generation = $itemnbt["generation"];
+						$listTag = [];
+						foreach($itemnbt["pages"] as $pageNumber => $tag){
+							if($tag instanceof StringTag){
+								$tag->setName("text");
 
-						$listTag = $itemnbt["pepages"];
-						$listTag->setName("pages");
+								$photonameTag = new StringTag("photoname", "");
+								if(isset($itemnbt["photoname"][$pageNumber])){
+									$photonameTag->setValue($itemnbt["photoname"][$pageNumber]);
+								}
 
-						$itemnbt = new CompoundTag("", [
-							$listTag,
-							new StringTag("author", $author),
-							new StringTag("title", $title),
-							new IntTag("generation", $generation),
-						]);
+								$listTag[] = new CompoundTag("", [
+									$tag,
+									$photonameTag,
+								]);
+							}
+						}
+
+						$itemnbt->removeTag("pages");
+						if($itemnbt->hasTag("photoname")){
+							$itemnbt->removeTag("photoname");
+						}
+
+						$itemnbt->setTag(new ListTag("pages", $listTag));
 					}
 				}
 			break;
