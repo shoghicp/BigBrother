@@ -475,7 +475,6 @@ class ConvertUtils{
 			case Item::JACK_O_LANTERN:
 				$itemdamage = 0;
 			break;
-
 			case Item::WRITABLE_BOOK:
 				if($iscomputer){
 					if($itemnbt !== ""){
