@@ -1442,22 +1442,20 @@ class Translator{
 				if(($entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z)) !== null){
 					if($packet->blockId !== Block::FRAME_BLOCK){
 						$entity->despawnFrom($player);
+
+						ItemFrameBlockEntity::removeItemFrame($entity);
 					}else{
 						$entity->spawnTo($player);
+
+						return null;
 					}
+				}else{
+					if($packet->blockId === Block::FRAME_BLOCK){
+						$entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z, $packet->blockData, true);
+						$entity->spawnTo($player);
 
-					return null;
-				}
-
-				if($packet->blockId === Block::FRAME_BLOCK){
-					$chunkX = $packet->x >> 4;
-					$chunkZ = $packet->z >> 4;
-					echo "Spawn Item Frame(face: $packet->blockData at $packet->x, $packet->z, chunk ($chunkX, $chunkZ)" . PHP_EOL;
-
-					$entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z, $packet->blockData, true);
-					$entity->spawnTo($player);
-
-					return null;
+						return null;
+					}
 				}
 
 				ConvertUtils::convertBlockData(true, $packet->blockId, $packet->blockData);
@@ -2142,8 +2140,7 @@ class Translator{
 				$pk->z = $packet->z;
 
 				$nbt = new NetworkLittleEndianNBTStream();
-				$nbt->read($packet->namedtag, true);
-				$nbt = $nbt->getData();
+				$nbt = $nbt->read($packet->namedtag, true);
 
 				switch($nbt["id"]){
 					case Tile::CHEST:
