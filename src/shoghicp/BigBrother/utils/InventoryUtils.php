@@ -864,7 +864,7 @@ class InventoryUtils{
 			return $pk;
 		}else{
 			$this->player->getInventory()->sendContents($this->player);
-			$this->player->getInventory()->sendArmorContents($this->player);
+			$this->player->getArmorInventory()->sendContents($this->player);
 			$this->player->getInventory()->sendHeldItem($this->player);
 			$this->sendHeldItem();
 		}
