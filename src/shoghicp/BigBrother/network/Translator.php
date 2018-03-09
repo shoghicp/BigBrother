@@ -1459,17 +1459,27 @@ class Translator{
 
 				return $pk;
 
-			/*case Info::ADD_PAINTING_PACKET:
+			case Info::ADD_PAINTING_PACKET:
+				$directions = [
+					0 => Vector3::SIDE_SOUTH,
+					1 => Vector3::SIDE_WEST,
+					2 => Vector3::SIDE_NORTH,
+					3 => Vector3::SIDE_EAST
+				];
+
+				$paintingPos = new Vector3($packet->x, $packet->y, $packet->z);
+				$spawnPaintingPos = $paintingPos->getSide($directions[$packet->direction]);
+
 				$pk = new SpawnPaintingPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->uuid = UUID::fromRandom()->toBinary();
-				$pk->x = $packet->x;
-				$pk->y = $packet->y;
-				$pk->z = $packet->z;
+				$pk->x = $spawnPaintingPos->x;
+				$pk->y = $spawnPaintingPos->y;
+				$pk->z = $spawnPaintingPos->z;
 				$pk->title = $packet->title;
 				$pk->direction = $packet->direction;
 
-				return $pk;*/
+				return $pk;
 
 			case Info::EXPLODE_PACKET:
 				$pk = new ExplosionPacket();
