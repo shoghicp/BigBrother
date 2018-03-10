@@ -2021,17 +2021,7 @@ class Translator{
 				return $pk;
 
 			case Info::MOB_ARMOR_EQUIPMENT_PACKET:
-				$packets = [];
-
-				foreach($packet->slots as $num => $item){
-					$pk = new EntityEquipmentPacket();
-					$pk->eid = $packet->entityRuntimeId;
-					$pk->slot = 2 + 3 - $num;
-					$pk->item = $item;
-					$packets[] = $pk;
-				}
-
-				return $packets;
+				return $player->getInventoryUtils()->onMobArmorEquipment($packet);
 
 			case Info::SET_ENTITY_DATA_PACKET:
 				$packets = [];

@@ -37,6 +37,7 @@ use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
+use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\WindowTypes;
@@ -56,6 +57,7 @@ use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\EntityEquipmentPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenWindowPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetSlotPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\WindowItemsPacket;
@@ -372,7 +374,7 @@ class InventoryUtils{
 			break;
 			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
-			case ContainerIds::CURSOR:
+			case ContainerIds::CURSOR://TODO
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowId])){
@@ -497,7 +499,7 @@ class InventoryUtils{
 			break;
 			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
-			case ContainerIds::CURSOR:
+			case ContainerIds::CURSOR://TODO
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowId])){
@@ -752,7 +754,7 @@ class InventoryUtils{
 				$saveInventoryData[$packet->slot] = $item;
 				$inventorySlot = $packet->slot - 1;
 
-				var_dump(["inventorySlot" => $inventorySlot])
+				var_dump(["inventorySlot" => $inventorySlot]);
 
 				if($heldItem->equals($item, true, true)){//TODO: more check item?
 					if($oldItem->getId() === Item::AIR){
@@ -999,6 +1001,26 @@ class InventoryUtils{
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param MobArmorEquipmentPacket $packet
+	 * @return OutboundPacket[]|array
+	 */
+	public function onMobArmorEquipment(MobArmorEquipmentPacket $packet) : array{
+		$packets = [];
+
+		foreach($packet->slots as $num => $item){
+			$pk = new EntityEquipmentPacket();
+			$pk->eid = $packet->entityRuntimeId;
+			$pk->slot = 2 + 3 - $num;
+			$pk->item = $item;
+
+			$this->playerArmorSlot[$num] = $item;
+			$packets[] = $pk;
+		}
+
+		return $packets;
 	}
 
 	/**
