@@ -186,6 +186,15 @@ class Translator{
 					"SkinSettings" => $packet->skinSetting,
 				]);
 
+				$locale = $packet->lang{0}.$packet->lang{1};
+				if(isset($packet->lang{2})){
+					$locale .= $packet->lang{2}.strtoupper($packet->lang{3}.$packet->lang{4});
+				}
+
+				var_dump($locale);
+
+				$player->setLocale($locale);
+
 				$pk = new RequestChunkRadiusPacket();
 				$pk->radius = $packet->view;
 

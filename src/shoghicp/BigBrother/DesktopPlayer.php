@@ -366,6 +366,10 @@ class DesktopPlayer extends Player{
 		}
 	}
 
+	public function setLocale(string $locale) : void{
+		$this->locale = $locale;
+	}
+
 	/**
 	 * @param int $chunkX
 	 * @param int $chunkZ
@@ -509,6 +513,8 @@ class DesktopPlayer extends Player{
 			$pk->locale = "en_US";
 			$pk->skipVerification = true;
 			$pk->clientData["SkinGeometry"] = "";//TODO
+
+			echo "LoginPacket\n";
 
 			if($model){
 				$pk->clientData["SkinId"] = $this->bigBrother_formatedUUID."_CustomSlim";
