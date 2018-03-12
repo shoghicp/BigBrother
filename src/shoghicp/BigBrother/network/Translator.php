@@ -191,8 +191,6 @@ class Translator{
 					$locale .= $packet->lang{2}.strtoupper($packet->lang{3}.$packet->lang{4});
 				}
 
-				var_dump($locale);
-
 				$player->setLocale($locale);
 
 				$pk = new RequestChunkRadiusPacket();

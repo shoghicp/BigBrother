@@ -514,8 +514,6 @@ class DesktopPlayer extends Player{
 			$pk->skipVerification = true;
 			$pk->clientData["SkinGeometry"] = "";//TODO
 
-			echo "LoginPacket\n";
-
 			if($model){
 				$pk->clientData["SkinId"] = $this->bigBrother_formatedUUID."_CustomSlim";
 				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.customSlim";
