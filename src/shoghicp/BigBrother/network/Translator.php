@@ -2145,8 +2145,7 @@ class Translator{
 						$nbt->setTag(new ShortTag("Item", $nbt["item"]));
 						$nbt->setTag(new IntTag("Data", $nbt["mData"]));
 
-						unset($nbt->item);
-						unset($nbt->mData);
+						$nbt->removeTag("item", "mdata");
 
 						$pk->namedtag = $nbt;
 					break;
@@ -2166,7 +2165,7 @@ class Translator{
 						$nbt->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
 						$nbt->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
 						$nbt->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
-						unset($nbt["Text"]);
+						$nbt->removeTag("Text");
 
 						$pk->namedtag = $nbt;
 					break;

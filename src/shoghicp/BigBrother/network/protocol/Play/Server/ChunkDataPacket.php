@@ -78,8 +78,7 @@ class ChunkDataPacket extends OutboundPacket{
 					$blockEntity->setTag(new ShortTag("Item", $blockEntity["item"]));
 					$blockEntity->setTag(new IntTag("Data", $blockEntity["mData"]));
 
-					unset($blockEntity->item);
-					unset($blockEntity->mData);
+					$blockEntity->removeTag("item", "mdata");
 				break;
 				case Tile::SIGN:
 					$textData = explode("\n", $blockEntity["Text"]);
@@ -89,7 +88,7 @@ class ChunkDataPacket extends OutboundPacket{
 					$blockEntity->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
 					$blockEntity->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
 
-					unset($blockEntity->Text);
+					$blockEntity->removeTag("Text");
 				break;
 			}
 

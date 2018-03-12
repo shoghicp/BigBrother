@@ -190,6 +190,15 @@ class InventoryUtils{
 		return $retval;
 	}
 
+	/*private function get(int $windowId, int $inventorySlot, Item $selectedItem){
+		switch($windowId){
+			case ContainerIds::INVENTORY:
+
+
+			break;
+		}
+	}*/
+
 	private function dropHeldItem() : void{
 		if(!$this->playerHeldItem->isNull()){
 			$this->player->dropItem($this->playerHeldItem);
@@ -617,10 +626,10 @@ class InventoryUtils{
 						if($this->playerHeldItem->isNull()){
 							$accepted = true;
 
-							$slot = $this->getItemAndSlot($packet->windowID, $packet->slot);
+							$newItem = $this->getItemAndSlot($packet->windowID, $packet->slot);
 							$item = $this->playerHotbarSlot[$packet->button];
-							$this->playerHotbarSlot[$packet->button] = $slot;
-							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $packet->button, $item, $slot);
+							$this->playerHotbarSlot[$packet->button] = $newItem;
+							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $packet->button, $item, $newItem);
 						}
 					break;
 					default:
@@ -631,7 +640,7 @@ class InventoryUtils{
 			case 3:
 				switch($packet->button){
 					case 2://Middle click
-
+						echo "middle\n";
 					break;
 					default:
 						echo "[InventoryUtils] UnknownButtonType: ".$packet->mode." : ".$packet->button."\n";
@@ -679,13 +688,13 @@ class InventoryUtils{
 
 					break;
 					case 4://Starting right mouse drag
-
+						echo "start\n";
 					break;
 					case 5://Add slot for right-mouse drag
-
+						echo "add slot\n";
 					break;
 					case 6://Ending right mouse drag
-
+						echo "end\n";
 					break;
 					case 8://Starting middle mouse drag
 
@@ -1015,9 +1024,9 @@ class InventoryUtils{
 			$pk->eid = $packet->entityRuntimeId;
 			$pk->slot = 2 + 3 - $num;
 			$pk->item = $item;
+			$packets[] = $pk;
 
 			$this->playerArmorSlot[$num] = $item;
-			$packets[] = $pk;
 		}
 
 		return $packets;
