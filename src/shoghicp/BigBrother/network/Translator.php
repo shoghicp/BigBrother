@@ -2040,7 +2040,7 @@ class Translator{
 					}
 					$title = "";
 					if(isset($packet->metadata[Entity::DATA_NAMETAG])){
-						$title = $packet->metadata[Entity::DATA_NAMETAG];
+						$title = $packet->metadata[Entity::DATA_NAMETAG][1];
 					}
 					$pk = new BossBarPacket();
 					$pk->uuid = $uuid;
@@ -2325,7 +2325,7 @@ class Translator{
 						if(isset($packet->title) and is_string($packet->title) and strlen($packet->title) > 0){
 							$title = $packet->title;
 						}else{
-							$title = $player->bigBrother_getBossBarData("nameTag");
+							$title = $player->bigBrother_getBossBarData("nameTag")[1];
 						}
 						$pk->title = BigBrother::toJSON($title);
 						$health = 1.0;
