@@ -668,6 +668,10 @@ class ConvertUtils{
 			case Block::IRON_TRAPDOOR:
 				self::convertTrapdoor($blockdata);
 			break;
+			case Block::STONE_BUTTON:
+			case Block::WOODEN_BUTTON:
+				self::convertButton($blockdata);
+			break;
 			default:
 				if($iscomputer){
 					$src = 0; $dst = 1;
@@ -796,6 +800,27 @@ class ConvertUtils{
 
 		$blockdata = (($blockdata >> 2) << 2) | $directions[$blockdata & 0x03];
 	}
+
+	/*
+	 * Blame Mojang!! :-@
+	 * Why Mojang change the order of flag bits?
+	 * Why Mojang change the directions??
+	 *
+	 * @param int &$blockdata
+	 *
+	 * #blamemojang
+	 */
+	private static function convertButton(int &$blockdata) : void{
+		/*//var_dump($blockdata);
+
+		//swap bits
+		$blockdata ^= (($blockdata & 0x04) << 1);
+		$blockdata ^= (($blockdata & 0x08) >> 1);
+		$blockdata ^= (($blockdata & 0x04) << 1);
+
+		$blockdata = (($blockdata >> 2) << 2) | $blockdata & 0x03;*/
+	}
+
 }
 
 

@@ -418,7 +418,7 @@ class DesktopPlayer extends Player{
 	/**
 	 * @override
 	 */
-	public function onVerifyCompleted(LoginPacket $packet, ?string $error, bool $isAuthenticated) : void{
+	public function onVerifyCompleted(LoginPacket $packet, ?string $error, bool $signedByMojang) : void{
 		parent::onVerifyCompleted($packet, null, true);
 
 		$pk = new ResourcePackClientResponsePacket();
@@ -508,7 +508,7 @@ class DesktopPlayer extends Player{
 			$pk->protocol = Info::CURRENT_PROTOCOL;
 			$pk->clientUUID = $this->bigBrother_formatedUUID;
 			$pk->clientId = crc32($this->bigbrother_clientId);
-			$pk->xuid = "";
+			$pk->xuid = str_repeat("0", 16);
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->locale = "en_US";
 			$pk->skipVerification = true;

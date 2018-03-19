@@ -1934,14 +1934,11 @@ class Translator{
 								$pk = new BossBarPacket();
 								$pk->uuid = $uuid;
 								$pk->actionID = BossBarPacket::TYPE_UPDATE_HEALTH;
-								$health = 1.0;
-								if($entry->getValue() < 100){ //healthPercent is a value between 1 and 100
-									$health = $entry->getValue() / 100;
-								}elseif($entry->getValue() <= 0){
-									$health = 0.0;
+								if((int) $entry->getMaxValue() === 0){
+									$pk->health = 0;
+								}else{
+									$pk->health = $entry->getValue() / $entry->getMaxValue();
 								}
-								$pk->health = $health;
-
 							}else{
 								$pk = new EntityMetadataPacket();
 								$pk->eid = $packet->entityRuntimeId;
@@ -2045,7 +2042,7 @@ class Translator{
 					$pk = new BossBarPacket();
 					$pk->uuid = $uuid;
 					$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
-					$pk->title = BigBrother::toJSON($title);
+					$pk->title = BigBrother::toJSON(str_replace(["\r\n", "\r", "\n"], "", $title));
 
 					$packets[] = $pk;
 				}
@@ -2327,7 +2324,7 @@ class Translator{
 						}else{
 							$title = $player->bigBrother_getBossBarData("nameTag")[1];
 						}
-						$pk->title = BigBrother::toJSON($title);
+						$pk->title = BigBrother::toJSON(str_replace(["\r\n", "\r", "\n"], "", $title));
 						$health = 1.0;
 						if($packet->healthPercent < 100){ //healthPercent is a value between 1 and 100
 							$health = $packet->healthPercent / 100;
@@ -2385,7 +2382,7 @@ class Translator{
 						}
 						$pk->uuid = $uuid;
 						$pk->actionID = BossBarPacket::TYPE_UPDATE_TITLE;
-						$pk->title = BigBrother::toJSON($packet->title);
+						$pk->title = BigBrother::toJSON(str_replace(["\r\n", "\r", "\n"], "", $packet->title));
 
 						return $pk;
 					break;
