@@ -33,7 +33,6 @@ use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\entity\Human;
 use pocketmine\entity\projectile\Projectile;
-use pocketmine\timings\TimingsHandler;
 use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\ByteArrayTag;
@@ -48,9 +47,10 @@ use pocketmine\nbt\tag\LongTag;
 use pocketmine\nbt\tag\NamedTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\tile\Tile;
+use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Binary;
-use pocketmine\tile\Tile;
 use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{

@@ -30,7 +30,6 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother;
 
 use pocketmine\Player;
-use pocketmine\event\Timings;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Item;
 use pocketmine\inventory\CraftingGrid;
@@ -46,6 +45,7 @@ use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\level\Level;
 use pocketmine\level\format\Chunk;
+use pocketmine\timings\Timings;
 use pocketmine\utils\Utils;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\Packet;
