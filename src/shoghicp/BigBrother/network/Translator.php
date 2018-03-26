@@ -1566,6 +1566,11 @@ class Translator{
 							$name = "block.chest.close";
 						}
 					break;
+					case LevelSoundEventPacket::SOUND_NOTE:
+						$issoundeffect = true;
+						$category = 3;
+						$name = "block.note.harp";//TODO
+					break;
 					case LevelSoundEventPacket::SOUND_PLACE://unused
 						return null;
 					break;

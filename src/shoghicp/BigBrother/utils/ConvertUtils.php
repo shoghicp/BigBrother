@@ -33,7 +33,7 @@ use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\entity\Human;
 use pocketmine\entity\projectile\Projectile;
-use pocketmine\event\TimingsHandler;
+use pocketmine\timings\TimingsHandler;
 use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\ByteArrayTag;
