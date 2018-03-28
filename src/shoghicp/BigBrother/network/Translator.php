@@ -966,6 +966,17 @@ class Translator{
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
+				$pk = new EntityEquipmentPacket();
+				$pk->eid = $packet->entityRuntimeId;
+				$pk->slot = 0;//main hand
+				$pk->item = $packet->item;
+				$packets[] = $pk;
+
+				$pk = new EntityHeadLookPacket();
+				$pk->eid = $packet->entityRuntimeId;
+				$pk->yaw = $packet->yaw;
+				$packets[] = $pk;
+
 				$player->bigBrother_addEntityList($packet->entityRuntimeId, "player");
 				if(isset($packet->metadata[Entity::DATA_NAMETAG])){
 					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[Entity::DATA_NAMETAG]);
@@ -1128,6 +1139,11 @@ class Translator{
 						$type = "shulker";
 						$packet->type = 69;
 					break;
+					case 61://ArmorStand
+						//Spawn Object
+						$isobject = true;
+						$packet->type = 78;
+					break;
 					/*case 64://Item
 						//Spawn Object
 					break;*/
@@ -1257,6 +1273,12 @@ class Translator{
 						$pk->velocityY = 0;
 						$pk->velocityZ = 0;
 					}
+
+					$packets[] = $pk;
+
+					$pk = new EntityMetadataPacket();
+					$pk->eid = $packet->entityRuntimeId;
+					$pk->metadata = $packet->metadata;
 				}else{
 					$pk = new SpawnMobPacket();
 					$pk->eid = $packet->entityRuntimeId;
@@ -1588,7 +1610,7 @@ class Translator{
 					$pk->x = (int) $packet->position->x;
 					$pk->y = (int) $packet->position->y;
 					$pk->z = (int) $packet->position->z;
-					$pk->volume = 0.5;
+					$pk->volume = 1;
 					$pk->pitch = $packet->pitch;
 					$pk->name = $name;
 				}
