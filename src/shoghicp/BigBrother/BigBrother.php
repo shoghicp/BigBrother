@@ -81,7 +81,7 @@ class BigBrother extends PluginBase implements Listener{
 		}
 
 		if($enable){
-			if(Info::CURRENT_PROTOCOL === 201){
+			if(Info::CURRENT_PROTOCOL === 223){
 				ConvertUtils::init();
 
 				$this->saveDefaultConfig();
@@ -261,13 +261,11 @@ class BigBrother extends PluginBase implements Listener{
 
 	/**
 	 * @param string|null $message
-	 * @param string|null $source
 	 * @param int         $type
 	 * @param array|null  $parameters
 	 * @return string
 	 */
-	public static function toJSON(?string $message, ?string $source = "", int $type = 1, ?array $parameters = []) : string{
-		$message = $source.$message;
+	public static function toJSON(?string $message, int $type = 1, ?array $parameters = []) : string{
 		$result = json_decode(TextFormat::toJSON($message), true);
 
 		switch($type){

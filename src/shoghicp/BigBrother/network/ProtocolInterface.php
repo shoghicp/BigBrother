@@ -176,7 +176,7 @@ class ProtocolInterface implements SourceInterface{
 	 * @param Packet $packet
 	 */
 	protected function sendPacket(int $target, Packet $packet){
-		if(\pocketmine\DEBUG > 3){
+		if(\pocketmine\DEBUG > 4){
 			$id = bin2hex(chr($packet->pid()));
 			if($id !== "1f"){
 				echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
@@ -274,7 +274,7 @@ class ProtocolInterface implements SourceInterface{
 	 * @param string        $payload
 	 */
 	protected function handlePacket(DesktopPlayer $player, string $payload){
-		if(\pocketmine\DEBUG > 3){
+		if(\pocketmine\DEBUG > 4){
 			$id = bin2hex(chr(ord($payload{0})));
 			if($id !== "0b"){//KeepAlivePacket
 				echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
@@ -373,7 +373,7 @@ class ProtocolInterface implements SourceInterface{
 					$pk = new UseItemPacket();
 					break;
 				default:
-					if(\pocketmine\DEBUG > 3){
+					if(\pocketmine\DEBUG > 4){
 						echo "[Receive][Interface] 0x".bin2hex(chr($pid))." Not implemented\n"; //Debug
 					}
 					return;

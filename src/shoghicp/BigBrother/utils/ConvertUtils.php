@@ -133,6 +133,7 @@ class ConvertUtils{
 		[[ 44,   7], [ 44,   6]], //Nether Brick Slab
 		[[ 44,  14], [ 44,  15]], //Upper Quartz Slab
 		[[ 44,  15], [ 44,  14]], //Upper Nether Brick Slab
+		[[155,  -1], [155,   0]], //Quartz Block | TODO: convert meta
 		[[168,   1], [168,   2]], //Dark Prismarine
 		[[168,   2], [168,   1]], //Prismarine Bricks
 		[[201,   1], [201,   0]], //Unused Purpur Block
@@ -722,23 +723,23 @@ class ConvertUtils{
 						$flags |= 0x08;
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_INVISIBLE)) > 0){
-						//$flags |= 0x20;
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_INVISIBLE)) > 0){
+						$flags |= 0x20;
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_CAN_SHOW_NAMETAG)) > 0){
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_CAN_SHOW_NAMETAG)) > 0){
 						$newdata[3] = [6, true];
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_ALWAYS_SHOW_NAMETAG)) > 0){
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_ALWAYS_SHOW_NAMETAG)) > 0){
 						$newdata[3] = [6, true];
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
 						//$newdata[11] = [0, true];
 					}
 
-					if(((int) $d[1] & (1 <<  Human::DATA_FLAG_SILENT)) > 0){
+					if(((int) $d[1] & (1 << Human::DATA_FLAG_SILENT)) > 0){
 						$newdata[4] = [6, true];
 					}
 

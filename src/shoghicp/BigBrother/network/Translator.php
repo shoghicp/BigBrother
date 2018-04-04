@@ -31,6 +31,7 @@ namespace shoghicp\BigBrother\network;
 
 use pocketmine\Achievement;
 use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
@@ -273,7 +274,7 @@ class Translator{
 
 						$pk = new BookEditPacket();
 						$pk->type = BookEditPacket::TYPE_SIGN_BOOK;
-						$pk->inventorySlot = $player->getInventory()->getHeldItemIndex() + 9;
+						$pk->inventorySlot = $player->getInventory()->getHeldItemIndex();
 						$pk->title = $item->getNamedTagEntry("title")->getValue();
 						$pk->author = $item->getNamedTagEntry("author")->getValue();
 
@@ -843,7 +844,7 @@ class Translator{
 				return $pk;
 
 			default:
-				if(\pocketmine\DEBUG > 3){
+				if(\pocketmine\DEBUG > 4){
 					echo "[Receive][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
 				}
 				return null;
@@ -889,7 +890,7 @@ class Translator{
 				}
 
 				$pk = new ChatPacket();
-				$pk->message = BigBrother::toJSON($packet->message, $packet->source, $packet->type, $packet->parameters);
+				$pk->message = BigBrother::toJSON($packet->message, $packet->type, $packet->parameters);
 				switch($packet->type){
 					case TextPacket::TYPE_CHAT:
 					case TextPacket::TYPE_TRANSLATION:
@@ -1468,8 +1469,10 @@ class Translator{
 				return null;
 
 			case Info::UPDATE_BLOCK_PACKET:
+				$block = BlockFactory::fromStaticRuntimeId($packet->blockRuntimeId);
+
 				if(($entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z)) !== null){
-					if($packet->blockId !== Block::FRAME_BLOCK){
+					if($block[0] !== Block::FRAME_BLOCK){
 						$entity->despawnFrom($player);
 
 						ItemFrameBlockEntity::removeItemFrame($entity);
@@ -1479,22 +1482,22 @@ class Translator{
 						return null;
 					}
 				}else{
-					if($packet->blockId === Block::FRAME_BLOCK){
-						$entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z, $packet->blockData, true);
+					if($block[0] === Block::FRAME_BLOCK){
+						$entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z, $block[1], true);
 						$entity->spawnTo($player);
 
 						return null;
 					}
 				}
 
-				ConvertUtils::convertBlockData(true, $packet->blockId, $packet->blockData);
+				ConvertUtils::convertBlockData(true, $block[0], $block[1]);
 
 				$pk = new BlockChangePacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
-				$pk->blockId = $packet->blockId;
-				$pk->blockMeta = $packet->blockData;
+				$pk->blockId = $block[0];
+				$pk->blockMeta = $block[1];
 
 				return $pk;
 
@@ -1558,6 +1561,8 @@ class Translator{
 
 			case Info::LEVEL_SOUND_EVENT_PACKET:
 				$issoundeffect = false;
+				$volume = 1;
+				$pitch = $packet->pitch;
 
 				switch($packet->sound){
 					case LevelSoundEventPacket::SOUND_EXPLODE:
@@ -1590,8 +1595,11 @@ class Translator{
 					break;
 					case LevelSoundEventPacket::SOUND_NOTE:
 						$issoundeffect = true;
-						$category = 3;
+						$category = 2;
+						$volume = 3;
 						$name = "block.note.harp";//TODO
+
+						$pitch /= 2.0;
 					break;
 					case LevelSoundEventPacket::SOUND_PLACE://unused
 						return null;
@@ -1610,8 +1618,8 @@ class Translator{
 					$pk->x = (int) $packet->position->x;
 					$pk->y = (int) $packet->position->y;
 					$pk->z = (int) $packet->position->z;
-					$pk->volume = 1;
-					$pk->pitch = $packet->pitch;
+					$pk->volume = $volume;
+					$pk->pitch = $pitch;
 					$pk->name = $name;
 				}
 
@@ -2452,7 +2460,7 @@ class Translator{
 				return null;
 
 			default:
-				if(\pocketmine\DEBUG > 3){
+				if(\pocketmine\DEBUG > 4){
 					echo "[Send][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
 				}
 				return null;

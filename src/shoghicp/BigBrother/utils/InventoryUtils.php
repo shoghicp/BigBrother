@@ -44,6 +44,7 @@ use pocketmine\network\mcpe\protocol\types\WindowTypes;
 
 use pocketmine\entity\projectile\Arrow;
 use pocketmine\entity\Item as ItemEntity;
+use pocketmine\inventory\transaction\action\CreativeInventoryAction;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\inventory\InventoryPickupArrowEvent;
 use pocketmine\inventory\CraftingRecipe;
@@ -1199,6 +1200,11 @@ class InventoryUtils{
 					if($shortName === "SlotChangeAction"){
 						$checkItem = $action->getInventory()->getItem($action->getSlot());
 						var_dump(["checkItem" => $checkItem, "sourceItem" => $action->getSourceItem()]);//json_encode
+					}elseif($shortName === "CreativeInventoryAction"){
+						var_dump([
+							$this->player->isCreative(true),
+							($action->getActionType() === CreativeInventoryAction::TYPE_DELETE_ITEM or Item::getCreativeItemIndex($action->getSourceItem()) !== -1)
+						]);
 					}
 				}
 				$errors++;
