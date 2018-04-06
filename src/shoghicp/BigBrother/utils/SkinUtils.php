@@ -32,16 +32,21 @@ namespace shoghicp\BigBrother\utils;
 class SkinUtils{
 
 	public function __construct($binary){
-		$this->utils = new PNGUtils($binary);
+		$this->utils = new PNGUtils($binary) ? $binary : null;
 	}
 
 	public function getSKinData() : string{
 		$data = "";
-		for($height = 0; $height < $this->utils->getHeight(); $height++){
-			for($width = 0; $width < $this->utils->getWidth(); $width++){
-				$rgbadata = $this->utils->getRGBA($height, $width);
-				$data .= chr($rgbadata[0]).chr($rgbadata[1]).chr($rgbadata[2]).chr($rgbadata[3]);
+		if($this->utils){
+			for($height = 0; $height < $this->utils->getHeight(); $height++){
+				for($width = 0; $width < $this->utils->getWidth(); $width++){
+					$rgbadata = $this->utils->getRGBA($height, $width);
+					$data .= chr($rgbadata[0]).chr($rgbadata[1]).chr($rgbadata[2]).chr($rgbadata[3]);
+				}
 			}
+		}else{
+			//TODO implement default skin
+			$data = str_repeat(' ', 64*32*4);//dummy data
 		}
 		return base64_encode($data);
 	}
