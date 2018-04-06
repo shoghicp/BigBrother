@@ -491,11 +491,15 @@ class DesktopPlayer extends Player{
 					$textures = json_decode(base64_decode($property["value"]), true);
 
 					$model = false;
-					if(isset($textures["textures"]["SKIN"]["metadata"]["model"])){
-						$model = true;
+					$skinimage = "";
+					if(isset($textures["textures"]["SKIN"])){
+						if(isset($textures["textures"]["SKIN"]["metadata"]["model"])){
+							$model = true;
+						}
+
+						$skinimage = file_get_contents($textures["textures"]["SKIN"]["url"]);
 					}
 
-					$skinimage = file_get_contents($textures["textures"]["SKIN"]["url"]);
 					$capeimage = "";
 					if(isset($textures["textures"]["CAPE"])){
 						$capeimage = file_get_contents($textures["textures"]["CAPE"]["url"]);
@@ -621,7 +625,7 @@ class DesktopPlayer extends Player{
 		}
 	}
 
-	
+
 
 	/**
 	 * @param DataPacket $packet
