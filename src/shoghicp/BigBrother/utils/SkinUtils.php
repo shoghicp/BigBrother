@@ -30,14 +30,18 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\utils;
 
 class SkinUtils{
+	private $existSkin = false;
 
 	public function __construct($binary){
-		$this->utils = new PNGUtils($binary) ? $binary : null;
+		$this->utils = new PNGUtils($binary);
+		if($binary !== ""){
+			$this->existSkin = true;
+		}
 	}
 
 	public function getSKinData() : string{
 		$data = "";
-		if($this->utils){
+		if($this->existSkin){
 			for($height = 0; $height < $this->utils->getHeight(); $height++){
 				for($width = 0; $width < $this->utils->getWidth(); $width++){
 					$rgbadata = $this->utils->getRGBA($height, $width);
@@ -46,8 +50,9 @@ class SkinUtils{
 			}
 		}else{
 			//TODO implement default skin
-			$data = str_repeat(' ', 64*32*4);//dummy data
+			$data = str_repeat(" ", 64 * 32 * 4);//dummy data
 		}
+
 		return base64_encode($data);
 	}
 
