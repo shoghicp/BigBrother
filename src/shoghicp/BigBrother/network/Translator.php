@@ -1728,13 +1728,10 @@ class Translator{
 						$id = 2;
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
-						$block = $packet->data;//block data
-						$blockId = $block & 0xff;
-						$blockDamage = $block >> 8;
+						$block = BlockFactory::fromStaticRuntimeId($packet->data);//block data
+						ConvertUtils::convertBlockData(true, $block[0], $block[1]);
 
-						ConvertUtils::convertBlockData(true, $blockId, $blockDamage);
-
-						$packet->data = $blockId | ($blockDamage << 12);
+						$packet->data = $block[0] | ($block[1] << 12);
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
 						//TODO: BreakAnimation
