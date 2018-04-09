@@ -92,6 +92,9 @@ class BigBrother extends PluginBase implements Listener{
 				$this->getLogger()->info("OS: ".php_uname());
 				$this->getLogger()->info("PHP version: ".PHP_VERSION);
 
+				$this->getLogger()->info("PMMP version: ".\pocketmine\VERSION." ".\pocketmine\CODENAME);
+				$this->getLogger()->info("PMMP API version: ".\pocketmine\API_VERSION);
+
 				if(!$this->isPhar() and is_dir($this->getDataFolder().".git")){
 					$cwd = getcwd();
 					chdir($this->getDataFolder());
