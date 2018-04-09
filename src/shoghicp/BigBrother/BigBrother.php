@@ -89,6 +89,7 @@ class BigBrother extends PluginBase implements Listener{
 				$this->saveResource("openssl.cnf", false);
 				$this->reloadConfig();
 
+				$this->getLogger()->info("OS: ".php_uname());
 				$this->getLogger()->info("PHP version: ".PHP_VERSION);
 
 				if(!$this->isPhar() and is_dir($this->getDataFolder().".git")){
