@@ -91,6 +91,16 @@ class BigBrother extends PluginBase implements Listener{
 
 				$this->getLogger()->info("PHP version: ".PHP_VERSION);
 
+				if(!$this->isPhar() and is_dir($this->getDataFolder().".git")){
+					$cwd = getcwd();
+					chdir($this->getDataFolder());
+					@exec("git describe --tags --always --dirty", $revision, $retval);
+					if($retval == 0){
+						$this->getLogger()->info("BigBrother revision: ".$revision[0]);
+					}
+					chdir($cwd);
+				}
+
 				$aes = new AES();
 				switch($aes->getEngine()){
 					case AES::ENGINE_OPENSSL:
