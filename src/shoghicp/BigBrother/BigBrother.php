@@ -89,6 +89,18 @@ class BigBrother extends PluginBase implements Listener{
 				$this->saveResource("openssl.cnf", false);
 				$this->reloadConfig();
 
+				$this->getLogger()->info("PHP version: ".PHP_VERSION);
+
+				if(!$this->isPhar() and is_dir($this->getDataFolder().".git")){
+					$cwd = getcwd();
+					chdir($this->getDataFolder());
+					@exec("git describe --tags --always --dirty", $revision, $retval);
+					if($retval == 0){
+						$this->getLogger()->info("BigBrother revision: ".$revision[0]);
+					}
+					chdir($cwd);
+				}
+
 				$aes = new AES();
 				switch($aes->getEngine()){
 					case AES::ENGINE_OPENSSL:
@@ -111,6 +123,17 @@ class BigBrother extends PluginBase implements Listener{
 					case RSA::MODE_INTERNAL:
 						$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
 					break;
+				}
+
+				if($aes->getEngine() === AES::ENGINE_OPENSSL or constant("CRYPT_RSA_MODE") === RSA::MODE_OPENSSL){
+					ob_start();
+					@phpinfo();
+					preg_match_all('#OpenSSL (Header|Library) Version => (.*)#im', ob_get_contents() ?? "", $matches);
+					ob_end_clean();
+
+					foreach(array_map(null, $matches[1], $matches[2]) as $version){
+						$this->getLogger()->info("OpenSSL ".$version[0]." version: ".$version[1]);
+					}
 				}
 
 				if(!$this->getConfig()->exists("motd")){
