@@ -761,6 +761,8 @@ class ConvertUtils{
 				case Human::DATA_SCALE:
 				case Human::DATA_MAX_AIR:
 				case Human::DATA_OWNER_EID:
+				case Human::DATA_BOUNDING_BOX_WIDTH:
+				case Human::DATA_BOUNDING_BOX_HEIGHT:
 				case Projectile::DATA_SHOOTER_ID:
 					//Unused
 				break;

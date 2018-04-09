@@ -1178,7 +1178,7 @@ class Translator{
 						$pk->x = $packet->position->x;
 						$pk->y = $packet->position->y;
 						$pk->z = $packet->position->z;
-						$pk->count = $entity->namedtag["Experience"];
+						$pk->count = $entity->namedtag["Value"];
 
 						return $pk;
 					break;
@@ -1628,6 +1628,7 @@ class Translator{
 			case Info::LEVEL_EVENT_PACKET://TODO
 				$issoundeffect = false;
 				$isparticle = false;
+				$addData = [];
 
 				switch($packet->evid){
 					case LevelEventPacket::EVENT_SOUND_IGNITE:
@@ -1659,8 +1660,11 @@ class Translator{
 								$name = "entity.enderpearl.throw";
 							break;
 							default:
-								echo "LevelEventPacket: ".$id."\n";
-								return null;
+								$name = "entity.snowball.throw";
+
+								if(\pocketmine\DEBUG > 3){
+									echo "LevelEventPacket: ".$id."\n";
+								}
 							break;
 						}
 					break;
@@ -1727,6 +1731,27 @@ class Translator{
 
 						$id = 2;
 					break;
+					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_TERRAIN:
+						$isparticle = true;
+
+						$block = BlockFactory::fromStaticRuntimeId($packet->data);//block data
+						ConvertUtils::convertBlockData(true, $block[0], $block[1]);
+
+						$packet->data = $block[0] | ($block[1] << 12);
+
+						$id = 37;
+						$addData = [
+							$packet->data
+						];
+					break;
+					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_SNOWBALL_POOF:
+						$isparticle = true;
+
+						$id = 31;
+					break;
+					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_ITEM_BREAK:
+						//TODO
+					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
 						$block = BlockFactory::fromStaticRuntimeId($packet->data);//block data
 						ConvertUtils::convertBlockData(true, $block[0], $block[1]);
@@ -1747,11 +1772,14 @@ class Translator{
 						return null;
 					break;
 					default:
+						if(($packet->evid & LevelEventPacket::EVENT_ADD_PARTICLE_MASK) === LevelEventPacket::EVENT_ADD_PARTICLE_MASK){
+							$packet->evid ^= LevelEventPacket::EVENT_ADD_PARTICLE_MASK;
+						}
+
 						echo "LevelEventPacket: ".$packet->evid."\n";
 						return null;
 					break;
 				}
-
 
 				if($issoundeffect){
 					$pk = new NamedSoundEffectPacket();
@@ -1766,14 +1794,15 @@ class Translator{
 					$pk = new ParticlePacket();
 					$pk->id = $id;
 					$pk->longDistance = false;
-					$pk->x = (int) $packet->position->x;
-					$pk->y = (int) $packet->position->y;
-					$pk->z = (int) $packet->position->z;
+					$pk->x = $packet->position->x;
+					$pk->y = $packet->position->y;
+					$pk->z = $packet->position->z;
 					$pk->offsetX = 0;
 					$pk->offsetY = 0;
 					$pk->offsetZ = 0;
 					$pk->data = $packet->data;
 					$pk->count = 1;
+					$pk->addData = $addData;
 				}else{
 					$pk = new EffectPacket();
 					$pk->effectId = $packet->evid;
@@ -1954,7 +1983,7 @@ class Translator{
 						case "minecraft:health":
 							if($packet->entityRuntimeId === $player->getId()){
 								$pk = new UpdateHealthPacket();
-								$pk->health = $entry->getValue();//TODO: Defalut Value
+								$pk->health = $entry->getValue();//TODO: Default Value
 								$pk->food = (int) $player->getFood();//TODO: Default Value
 								$pk->saturation = $player->getSaturation();//TODO: Default Value
 
