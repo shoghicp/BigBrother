@@ -89,6 +89,8 @@ class BigBrother extends PluginBase implements Listener{
 				$this->saveResource("openssl.cnf", false);
 				$this->reloadConfig();
 
+				$this->getLogger()->info("PHP version: ".PHP_VERSION);
+
 				$aes = new AES();
 				switch($aes->getEngine()){
 					case AES::ENGINE_OPENSSL:
