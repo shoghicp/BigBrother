@@ -125,6 +125,17 @@ class BigBrother extends PluginBase implements Listener{
 					break;
 				}
 
+				if($aes->getEngine() === AES::ENGINE_OPENSSL or constant("CRYPT_RSA_MODE") === RSA::MODE_OPENSSL){
+					ob_start();
+					@phpinfo();
+					preg_match_all('#OpenSSL (Header|Library) Version => (.*)#im', ob_get_contents() ?? "", $matches);
+					ob_end_clean();
+
+					foreach(array_map(null, $matches[1], $matches[2]) as $version){
+						$this->getLogger()->info("OpenSSL ".$version[0]." version: ".$version[1]);
+					}
+				}
+
 				if(!$this->getConfig()->exists("motd")){
 					$this->getLogger()->warning("No motd has been set. The server description will be empty.");
 					$this->getPluginLoader()->disablePlugin($this);
