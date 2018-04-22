@@ -754,6 +754,12 @@ class ConvertUtils{
 				case Human::DATA_FUSE_LENGTH://TNT
 					$newdata[6] = [1, $d[1]];
 				break;
+				case Human::DATA_POTION_COLOR:
+					$newdata[8] = [1, $d[1]];
+				break;
+				case Human::DATA_POTION_AMBIENT:
+					$newdata[9] = [6, $d[1] ? true : false];
+				break;
 				case Human::DATA_VARIANT:
 				case Human::DATA_PLAYER_FLAGS:
 				case Human::DATA_PLAYER_BED_POSITION:
