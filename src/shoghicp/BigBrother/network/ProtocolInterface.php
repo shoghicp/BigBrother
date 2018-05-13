@@ -397,10 +397,9 @@ class ProtocolInterface implements SourceInterface{
 	}
 
 	/**
-	 * @return bool
 	 * @override
 	 */
-	public function process() : bool{
+	public function process() : void{
 		if(count($this->identifiers) > 0){
 			foreach($this->identifiers as $id => $player){
 				$player->handleACK($id);
@@ -452,7 +451,5 @@ class ProtocolInterface implements SourceInterface{
 			}
 
 		}
-
-		return true;
 	}
 }
