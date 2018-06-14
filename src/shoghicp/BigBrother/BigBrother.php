@@ -92,13 +92,12 @@ class BigBrother extends PluginBase implements Listener{
 				$this->getLogger()->info("OS: ".php_uname());
 				$this->getLogger()->info("PHP version: ".PHP_VERSION);
 
-				$this->getLogger()->info("PMMP version: ".\pocketmine\VERSION." ".\pocketmine\CODENAME);
 				$this->getLogger()->info("PMMP Server version: ".$this->getServer()->getVersion());
 				$this->getLogger()->info("PMMP API version: ".\pocketmine\API_VERSION);
 
-				if(!$this->isPhar() and is_dir($this->getDataFolder().".git")){
+				if(!$this->isPhar() and is_dir($this->getFile().".git")){
 					$cwd = getcwd();
-					chdir($this->getDataFolder());
+					chdir($this->getFile());
 					@exec("git describe --tags --always --dirty", $revision, $retval);
 					if($retval == 0){
 						$this->getLogger()->info("BigBrother revision: ".$revision[0]);
