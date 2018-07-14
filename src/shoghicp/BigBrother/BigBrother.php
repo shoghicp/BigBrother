@@ -168,7 +168,7 @@ class BigBrother extends PluginBase implements Listener{
 				$this->getServer()->getNetwork()->registerInterface($this->interface);
 			}else{
 				$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");
-				$this->getPluginLoader()->disablePlugin($this);
+				$this->getServer()->getPluginManager()->disablePlugin($this);
 			}
 		}
 	}
