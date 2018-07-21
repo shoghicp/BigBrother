@@ -410,8 +410,10 @@ class DesktopPlayer extends Player{
 	 * @override
 	 */
 	public function onChunkUnloaded(Chunk $chunk){
-		foreach(ItemFrameBlockEntity::getItemFramesInChunk($this->level, $chunk->getX(), $chunk->getZ()) as $frame){
-			$frame->despawnFromAll();
+		if($this->loggedIn){
+			foreach(ItemFrameBlockEntity::getItemFramesInChunk($this->level, $chunk->getX(), $chunk->getZ()) as $frame){
+				$frame->despawnFromAll();
+			}
 		}
 	}
 
