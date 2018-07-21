@@ -81,7 +81,7 @@ class BigBrother extends PluginBase implements Listener{
 		}
 
 		if($enable){
-			if(Info::CURRENT_PROTOCOL === 261){
+			if(Info::CURRENT_PROTOCOL === 274){
 				ConvertUtils::init();
 
 				$this->saveDefaultConfig();

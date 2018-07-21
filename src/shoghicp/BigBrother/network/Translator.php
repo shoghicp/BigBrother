@@ -1379,7 +1379,7 @@ class Translator{
 
 				return $pk;
 
-			case Info::MOVE_ENTITY_PACKET:
+			case Info::MOVE_ENTITY_ABSOLUTE_PACKET:
 				if($packet->entityRuntimeId === $player->getId()){//TODO
 					return null;
 				}else{
@@ -1407,20 +1407,20 @@ class Translator{
 					$pk->x = $packet->position->x;
 					$pk->y = $packet->position->y - $baseOffset;
 					$pk->z = $packet->position->z;
-					$pk->yaw = $packet->yaw;
-					$pk->pitch = $packet->pitch;
+					$pk->yaw = $packet->zRot;
+					$pk->pitch = $packet->xRot;
 					$packets[] = $pk;
 
 					$pk = new EntityLookPacket();
 					$pk->eid = $packet->entityRuntimeId;
-					$pk->yaw = $packet->headYaw;
-					$pk->pitch = $packet->pitch;
+					$pk->yaw = $packet->yRot;
+					$pk->pitch = $packet->xRot;
 					$pk->onGround = $packet->onGround;
 					$packets[] = $pk;
 
 					$pk = new EntityHeadLookPacket();
 					$pk->eid = $packet->entityRuntimeId;
-					$pk->yaw = $packet->headYaw;
+					$pk->yaw = $packet->yRot;
 					$packets[] = $pk;
 
 					return $packets;
