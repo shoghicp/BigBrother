@@ -876,10 +876,10 @@ class Translator{
 			case Info::DISCONNECT_PACKET:
 				if($player->bigBrother_getStatus() === 0){
 					$pk = new LoginDisconnectPacket();
-					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
+					$pk->reason = BigBrother::toJSON($packet->message);
 				}else{
 					$pk = new PlayDisconnectPacket();
-					$pk->reason = BigBrother::toJSON($packet->message === "" ? "You have been disconnected." : $packet->message);
+					$pk->reason = BigBrother::toJSON($packet->message);
 				}
 
 				return $pk;
@@ -1384,6 +1384,7 @@ class Translator{
 					return null;
 				}else{
 					$baseOffset = 0;
+					$isOnGround = true;
 					$entity = $player->getLevel()->getEntity($packet->entityRuntimeId);
 					if($entity instanceof Entity){
 						switch($entity::NETWORK_ID){
@@ -1398,6 +1399,8 @@ class Translator{
 								$baseOffset = 0.49;
 							break;
 						}
+
+						$isOnGround = $entity->isOnGround();
 					}
 
 					$packets = [];
@@ -1415,7 +1418,7 @@ class Translator{
 					$pk->eid = $packet->entityRuntimeId;
 					$pk->yaw = $packet->yRot;
 					$pk->pitch = $packet->xRot;
-					$pk->onGround = $packet->onGround;
+					$pk->onGround = $isOnGround;
 					$packets[] = $pk;
 
 					$pk = new EntityHeadLookPacket();
