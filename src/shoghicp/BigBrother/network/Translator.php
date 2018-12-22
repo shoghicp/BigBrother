@@ -399,7 +399,7 @@ class Translator{
 				$pk = new MovePlayerPacket();
 				$pk->position = new Vector3($packet->x, $packet->y + $player->getEyeHeight(), $packet->z);
 				$pk->yaw = $player->yaw;
-				$pk->bodyYaw = $player->yaw;
+				$pk->headYaw = $player->yaw;
 				$pk->pitch = $player->pitch;
 				$packets[] = $pk;
 
@@ -436,7 +436,7 @@ class Translator{
 				$pk = new MovePlayerPacket();
 				$pk->position = new Vector3($packet->x, $packet->y + $player->getEyeHeight(), $packet->z);
 				$pk->yaw = $packet->yaw;
-				$pk->bodyYaw = $packet->yaw;
+				$pk->headYaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
@@ -471,7 +471,7 @@ class Translator{
 				$pk = new MovePlayerPacket();
 				$pk->position = new Vector3($player->x, $player->y + $player->getEyeHeight(), $player->z);
 				$pk->yaw = $packet->yaw;
-				$pk->bodyYaw = $packet->yaw;
+				$pk->headYaw = $packet->yaw;
 				$pk->pitch = $packet->pitch;
 
 				return $pk;

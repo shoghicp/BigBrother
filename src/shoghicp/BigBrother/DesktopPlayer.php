@@ -42,6 +42,7 @@ use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\BatchPacket;
+use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\level\Level;
 use pocketmine\level\format\Chunk;
@@ -430,7 +431,11 @@ class DesktopPlayer extends Player{
 		$pk = new RequestChunkRadiusPacket();
 		$pk->radius = 8;
 		$this->handleDataPacket($pk);
-
+		
+		$pk = new SetLocalPlayerAsInitializedPacket();
+		$pk->entityRuntimeId = $this->getId();
+		$this->handleDataPacket($pk);
+		
 		$pk = new KeepAlivePacket();
 		$pk->id = mt_rand();
 		$this->putRawPacket($pk);
