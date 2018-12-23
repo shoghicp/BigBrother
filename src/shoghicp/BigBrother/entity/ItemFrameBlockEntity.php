@@ -73,6 +73,7 @@ class ItemFrameBlockEntity extends Position{
 	 * @param int   $y
 	 * @param int   $z
 	 * @param int   $data
+	 * @throws
 	 */
 	private function __construct(Level $level, int $x, int $y, int $z, int $data){
 		parent::__construct($x, $y, $z, $level);
@@ -227,6 +228,7 @@ class ItemFrameBlockEntity extends Position{
 	 * @param Level $level
 	 * @param int   $x
 	 * @param int   $z
+	 * @return array
 	 */
 	public static function getItemFramesInChunk(Level $level, int $x, int $z) : array{
 		return self::$itemFramesInChunk[$level->getId()][Level::chunkHash($x, $z)] ?? [];

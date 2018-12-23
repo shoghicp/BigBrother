@@ -34,6 +34,7 @@ use pocketmine\utils\BinaryStream;
 class PNGUtils{
 	const PNGFileSignature = "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a";
 
+	private $stream;
 	private $width = 0, $height = 0;
 	private $isPalette = false, $palette = [];
 	private $bitDepth = 8, $colorType = 6, $isAlpha = true;
@@ -73,7 +74,7 @@ class PNGUtils{
 		if($this->stream->get(8) !== self::PNGFileSignature){
 			$this->stream->reset();
 			echo "Error\n";
-			return false;
+			return;
 		}
 
 		while(!$this->stream->feof()){
@@ -82,12 +83,19 @@ class PNGUtils{
 
 			switch($chunkType){
 				case "IHDR":
+					$this->readIHDR($length);
+				break;
 				case "PLTE":
+					$this->readPLTE($length);
+				break;
 				case "IDAT":
+					$this->readIDAT($length);
+				break;
 				case "IEND":
+					$this->readIEND($length);
+				break;
 				case "tRNS":
-					$chunkType = "read".$chunkType;
-					$this->$chunkType($length);
+					$this->readtRNS($length);
 				break;
 				default:
 					$this->stream->offset += $length;
@@ -100,7 +108,7 @@ class PNGUtils{
 		$this->readAllIDAT();
 	}
 
-	private function readIHDR($length){
+	private function readIHDR(int $length){
 		$this->setWidth($this->stream->getInt());
 		$this->setHeight($this->stream->getInt());
 		$this->bitDepth = $this->stream->getByte();
@@ -120,7 +128,7 @@ class PNGUtils{
 		}
 	}
 
-	private function readPLTE($length){
+	private function readPLTE(int $length){
 		$this->isPalette = true;//unused?
 
 		$paletteCount = $length / 3;
@@ -133,7 +141,7 @@ class PNGUtils{
 		}
 	}
 
-	private function readtRNS($length){
+	private function readtRNS(int $length){
 		switch($this->colorType){
 			/*case 0:
 				
@@ -153,7 +161,7 @@ class PNGUtils{
 		}
 	}
 
-	private function readIDAT($length){
+	private function readIDAT(int $length){
 		$chunkdata = zlib_decode($this->stream->get($length));
 
 		$this->rawimagedata .= $chunkdata;
@@ -234,7 +242,7 @@ class PNGUtils{
 		}
 	}
 
-	private function getData(&$stream){
+	private function getData(BinaryStream &$stream){
 		switch($this->bitDepth){
 			/*case 1:
 

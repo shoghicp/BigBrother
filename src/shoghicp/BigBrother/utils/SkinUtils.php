@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\utils;
 
 class SkinUtils{
-	private $existSkin = false;
+	private $utils, $existSkin = false;
 
 	public function __construct($binary){
 		$this->utils = new PNGUtils($binary);

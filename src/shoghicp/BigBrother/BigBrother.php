@@ -142,7 +142,7 @@ class BigBrother extends PluginBase implements Listener{
 
 				if(!$this->getConfig()->exists("motd")){
 					$this->getLogger()->warning("No motd has been set. The server description will be empty.");
-					$this->getPluginLoader()->disablePlugin($this);
+					$this->getServer()->getPluginManager()->disablePlugin($this);
 					return;
 				}
 
@@ -164,7 +164,7 @@ class BigBrother extends PluginBase implements Listener{
 				$this->getServer()->getPluginManager()->registerEvents($this, $this);
 
 				$this->translator = new Translator();
-				$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, $this->getConfig()->get("network-compression-threshold"));
+				$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, (int) $this->getConfig()->get("network-compression-threshold"));
 				$this->getServer()->getNetwork()->registerInterface($this->interface);
 			}else{
 				$this->getLogger()->critical("Couldn't find a protocol translator for #".Info::CURRENT_PROTOCOL .", disabling plugin");

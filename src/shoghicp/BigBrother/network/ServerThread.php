@@ -65,7 +65,7 @@ class ServerThread extends \Thread{
 	 * @param string          $interface
 	 * @param string          $motd
 	 * @param string|null     $icon
-	 *
+	 * @param bool            $autoStart
 	 * @throws \Exception
 	 */
 	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null, bool $autoStart = true){
@@ -228,5 +228,9 @@ class ServerThread extends \Thread{
 
 		$data = unserialize($this->data);
 		$manager = new ServerManager($this, $this->port, $this->interface, $data["motd"], $data["icon"]);
+	}
+
+	public function setGarbage(){
+		// TODO: Implement setGarbage() method.
 	}
 }

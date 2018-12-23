@@ -121,6 +121,7 @@ abstract class OutboundPacket extends Packet{
 
 	/**
 	 * @deprecated
+	 * @throws
 	 */
 	protected final function decode() : void{
 		throw new \ErrorException(get_class($this) . " is subclass of OutboundPacket: don't call decode() method");

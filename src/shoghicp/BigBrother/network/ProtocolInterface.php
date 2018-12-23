@@ -79,7 +79,7 @@ class ProtocolInterface implements SourceInterface{
 	/** @var ServerThread */
 	protected $thread;
 
-	/** @var \SplObjectStorage<DesktopPlayer> */
+	/** @var \SplObjectStorage<int> */
 	protected $sessions;
 
 	/** @var DesktopPlayer[] */
@@ -99,6 +99,7 @@ class ProtocolInterface implements SourceInterface{
 	 * @param Server     $server
 	 * @param Translator $translator
 	 * @param int        $threshold
+	 * @throws
 	 */
 	public function __construct(BigBrother $plugin, Server $server, Translator $translator, int $threshold){
 		$this->plugin = $plugin;
@@ -162,6 +163,7 @@ class ProtocolInterface implements SourceInterface{
 	 */
 	public function close(Player $player, string $reason = "unknown reason"){
 		if(isset($this->sessions[$player])){
+			/** @var int $identifier */
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
 			unset($this->identifiers[$identifier]);
@@ -192,6 +194,7 @@ class ProtocolInterface implements SourceInterface{
 	 */
 	public function setCompression(DesktopPlayer $player){
 		if(isset($this->sessions[$player])){
+			/** @var int $target */
 			$target = $this->sessions[$player];
 			$data = chr(ServerManager::PACKET_SET_COMPRESSION) . Binary::writeInt($target) . Binary::writeInt($this->threshold);
 			$this->thread->pushMainToThreadPacket($data);
@@ -204,6 +207,7 @@ class ProtocolInterface implements SourceInterface{
 	 */
 	public function enableEncryption(DesktopPlayer $player, string $secret){
 		if(isset($this->sessions[$player])){
+			/** @var int $target */
 			$target = $this->sessions[$player];
 			$data = chr(ServerManager::PACKET_ENABLE_ENCRYPTION) . Binary::writeInt($target) . $secret;
 			$this->thread->pushMainToThreadPacket($data);
@@ -216,6 +220,7 @@ class ProtocolInterface implements SourceInterface{
 	 */
 	public function putRawPacket(DesktopPlayer $player, Packet $packet){
 		if(isset($this->sessions[$player])){
+			/** @var int $target */
 			$target = $this->sessions[$player];
 			$this->sendPacket($target, $packet);
 		}
@@ -239,6 +244,7 @@ class ProtocolInterface implements SourceInterface{
 		assert($player instanceof DesktopPlayer);
 		$packets = $this->translator->serverToInterface($player, $packet);
 		if($packets !== null and $this->sessions->contains($player)){
+			/** @var int $target */
 			$target = $this->sessions[$player];
 			if(is_array($packets)){
 				foreach($packets as $packet){

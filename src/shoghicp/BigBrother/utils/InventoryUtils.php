@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\utils;
 
+use pocketmine\inventory\ShapedRecipe;
+use pocketmine\inventory\ShapelessRecipe;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
@@ -42,19 +44,17 @@ use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\WindowTypes;
 
+use pocketmine\entity\object\ItemEntity;
 use pocketmine\entity\projectile\Arrow;
-use pocketmine\entity\Item as ItemEntity;
 use pocketmine\inventory\transaction\action\CreativeInventoryAction;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\inventory\InventoryPickupArrowEvent;
-use pocketmine\inventory\CraftingRecipe;
 use pocketmine\inventory\InventoryHolder;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\tile\EnderChest as TileEnderChest;
 use pocketmine\tile\Tile;
 
-use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
@@ -75,9 +75,9 @@ class InventoryUtils{
 	private $player;
 	/** @var array */
 	private $windowInfo = [];
-	/** @var array */
+	/** @var ShapedRecipe[][] */
 	private $shapedRecipes = [];
-	/** @var array */
+	/** @var ShapelessRecipe[][] */
 	private $shapelessRecipes = [];
 	/** @var Item */
 	private $playerHeldItem = null;
@@ -243,7 +243,6 @@ class InventoryUtils{
 	 * @return OutboundPacket|null
 	 */
 	public function onWindowOpen(ContainerOpenPacket $packet) : ?OutboundPacket{
-		$type = "";
 		switch($packet->type){
 			case WindowTypes::CONTAINER:
 				$type = "minecraft:chest";
@@ -968,12 +967,12 @@ class InventoryUtils{
 
 			return $pk;
 		}
-		return null;
 	}
 
 	/**
 	 * @param TakeItemEntityPacket $packet
 	 * @return OutboundPacket|null
+	 * @throws
 	 */
 	public function onTakeItemEntity(TakeItemEntityPacket $packet) : ?OutboundPacket{
 		$itemCount = 1;
@@ -981,7 +980,8 @@ class InventoryUtils{
 
 		$entity = $this->player->getLevel()->getEntity($packet->target);
 		if($entity instanceof ItemEntity){
-			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupItemEvent($this->player->getInventory(), $entity));
+			$ev = new InventoryPickupItemEvent($this->player->getInventory(), $entity);
+			$ev->call();
 
 			if($ev->isCancelled()){
 				return null;
@@ -991,7 +991,8 @@ class InventoryUtils{
 		}
 
 		if($entity instanceof Arrow){
-			$this->player->getServer()->getPluginManager()->callEvent($ev = new InventoryPickupArrowEvent($this->player->getInventory(), $entity));
+			$ev = new InventoryPickupArrowEvent($this->player->getInventory(), $entity);
+			$ev->call();
 			
 			if($ev->isCancelled()){
 				return null;
@@ -1159,6 +1160,7 @@ class InventoryUtils{
 	/**
 	 * @param InventoryTransactionPacket  $packet
 	 * @return bool
+	 * @throws
 	 */
 	public function checkInventoryTransactionPacket(InventoryTransactionPacket $packet) : bool{
 		$errors = 0;

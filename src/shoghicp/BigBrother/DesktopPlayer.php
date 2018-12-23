@@ -59,7 +59,6 @@ use shoghicp\BigBrother\network\protocol\Play\Server\PlayerPositionAndLookPacket
 use shoghicp\BigBrother\network\protocol\Play\Server\TitlePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UnloadChunkPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\UnlockRecipesPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\utils\Binary;
@@ -244,7 +243,7 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param  string       $bossBardata
+	 * @param  string $bossBarData
 	 * @return string|array
 	 */
 	public function bigBrother_getBossBarData(string $bossBarData = ""){
@@ -255,7 +254,8 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param string $bossBardata
+	 * @param string $bossBarData
+	 * @param string|array $data
 	 */
 	public function bigBrother_setBossBarData(string $bossBarData, $data) : void{
 		$this->bigBrother_bossBarData[$bossBarData] = $data;
@@ -382,6 +382,7 @@ class DesktopPlayer extends Player{
 		foreach($this->usedChunks as $index => $c){
 			Level::getXZ($index, $chunkX, $chunkZ);
 			foreach(ItemFrameBlockEntity::getItemFramesInChunk($this->level, $chunkX, $chunkZ) as $frame){
+				/** @var ItemFrameBlockEntity $frame */
 				$frame->spawnTo($this);
 			}
 		}
@@ -402,6 +403,7 @@ class DesktopPlayer extends Player{
 		$this->putRawPacket($pk);
 
 		foreach(ItemFrameBlockEntity::getItemFramesInChunk($level ?? $this->level, $chunkX, $chunkZ) as $frame){
+			/** @var ItemFrameBlockEntity $frame */
 			$frame->despawnFrom($this);
 		}
 	}
@@ -413,12 +415,16 @@ class DesktopPlayer extends Player{
 	public function onChunkUnloaded(Chunk $chunk){
 		if($this->loggedIn){
 			foreach(ItemFrameBlockEntity::getItemFramesInChunk($this->level, $chunk->getX(), $chunk->getZ()) as $frame){
+				/** @var ItemFrameBlockEntity $frame */
 				$frame->despawnFromAll();
 			}
 		}
 	}
 
 	/**
+	 * @param LoginPacket $packet
+	 * @param string $error
+	 * @param bool $signedByMojang
 	 * @override
 	 */
 	public function onVerifyCompleted(LoginPacket $packet, ?string $error, bool $signedByMojang) : void{
@@ -637,6 +643,7 @@ class DesktopPlayer extends Player{
 	/**
 	 * @param DataPacket $packet
 	 * @override
+	 * @throws
 	 */
 	public function handleDataPacket(DataPacket $packet){
 		if($this->isConnected() === false){
@@ -646,7 +653,8 @@ class DesktopPlayer extends Player{
 		$timings = Timings::getReceiveDataPacketTimings($packet);
 		$timings->startTiming();
 
-		$this->getServer()->getPluginManager()->callEvent($ev = new DataPacketReceiveEvent($this, $packet));
+		$ev = new DataPacketReceiveEvent($this, $packet);
+		$ev->call();
 		if(!$ev->isCancelled() and !$packet->handle($this->sessionAdapter)){
 			$this->getServer()->getLogger()->debug("Unhandled " . $packet->getName() . " received from " . $this->getName() . ": 0x" . bin2hex($packet->buffer));
 		}

@@ -1,0 +1,41 @@
+{
+  "name": "BigBrother",
+  "description": "Allows the connection of Minecraft: PC clients to PocketMine-MP servers",
+  "license": "LGPL-3.0",
+  "authors": [
+    {
+      "name": "hmy2001",
+      "email": "harutowii@yahoo.co.jp",
+      "role": "Lead Developer"
+    },
+    {
+      "name": "eternalharvest",
+      "email": "takuya@tuntunkun.com",
+      "role": "Developer"
+    },
+    {
+      "name": "SuperMaXAleX",
+      "email": "marielolo93@gmail.com",
+      "role": "Developer"
+    },
+    {
+      "name": "caspervanneck",
+      "email": "wesleyvanneck1012@gmail.com",
+      "role": "Developer"
+    },
+    {
+      "name": "DrewD3V",
+      "email": "ytapplegamer@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0",
+    "ext-json": "*",
+    "ext-mcrypt": "*",
+    "ext-openssl": "*",
+    "ext-zlib": "*",
+    "ext-sockets": "*",
+    "phpseclib/phpseclib": "2.0.6"
+  }
+}

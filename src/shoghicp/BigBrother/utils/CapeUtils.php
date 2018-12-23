@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\utils;
 
 class CapeUtils{
-	private $existCape = false;
+	private $utils, $existCape = false;
 
 	public function __construct($binary){
 		$this->utils = new PNGUtils($binary);

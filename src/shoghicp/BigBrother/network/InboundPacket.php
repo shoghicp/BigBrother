@@ -73,6 +73,7 @@ abstract class InboundPacket extends Packet{
 
 	/**
 	 * @deprecated
+	 * @throws
 	 */
 	protected final function encode() : void{
 		throw new \ErrorException(get_class($this) . " is subclass of InboundPacket: don't call encode() method");

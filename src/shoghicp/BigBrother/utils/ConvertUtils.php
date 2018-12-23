@@ -47,11 +47,9 @@ use pocketmine\nbt\tag\LongTag;
 use pocketmine\nbt\tag\NamedTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
-use pocketmine\tile\Tile;
 use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Binary;
-use shoghicp\BigBrother\BigBrother;
 
 class ConvertUtils{
 	/** @var TimingsHandler */
@@ -735,9 +733,9 @@ class ConvertUtils{
 						$newdata[3] = [6, true];
 					}
 
-					if(((int) $d[1] & (1 << Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
+					/*if(((int) $d[1] & (1 << Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
 						//$newdata[11] = [0, true];
-					}
+					}*/
 
 					if(((int) $d[1] & (1 << Human::DATA_FLAG_SILENT)) > 0){
 						$newdata[4] = [6, true];

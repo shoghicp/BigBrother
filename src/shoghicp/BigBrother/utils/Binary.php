@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\utils;
 
 use phpseclib\Math\BigInteger;
+use pocketmine\item\Item;
 use shoghicp\BigBrother\network\Session;
 use pocketmine\nbt\LittleEndianNBTStream;
 
@@ -88,11 +89,12 @@ class Binary extends \pocketmine\utils\Binary{
 					$m .= self::writeComputerVarInt(strlen($d[1])) . $d[1];
 				break;
 				case 5://Slot
+					/** @var Item $item */
 					$item = $d[1];
-					if($item->getID() === 0){
+					if($item->getId() === 0){
 						$m .= self::writeShort(-1);
 					}else{
-						$m .= self::writeShort($item->getID());
+						$m .= self::writeShort($item->getId());
 						$m .= self::writeByte($item->getCount());
 						$m .= self::writeShort($item->getDamage());
 
