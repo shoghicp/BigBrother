@@ -83,7 +83,7 @@ class PNGUtils{
 
 			switch($chunkType){
 				case "IHDR":
-					$this->readIHDR($length);
+					$this->readIHDR();
 				break;
 				case "PLTE":
 					$this->readPLTE($length);
@@ -102,13 +102,13 @@ class PNGUtils{
 				break;
 			}
 
-			$crc = $this->stream->getInt();
+			$this->stream->getInt();//crc32
 		}
 
 		$this->readAllIDAT();
 	}
 
-	private function readIHDR(int $length){
+	private function readIHDR(){
 		$this->setWidth($this->stream->getInt());
 		$this->setHeight($this->stream->getInt());
 		$this->bitDepth = $this->stream->getByte();

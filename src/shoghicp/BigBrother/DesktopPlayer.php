@@ -47,7 +47,7 @@ use pocketmine\network\SourceInterface;
 use pocketmine\level\Level;
 use pocketmine\level\format\Chunk;
 use pocketmine\timings\Timings;
-use pocketmine\utils\Utils;
+use pocketmine\utils\Internet;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
@@ -597,7 +597,7 @@ class DesktopPlayer extends Player{
 		$profile = null;
 		$info = null;
 
-		$response = Utils::getURL("https://api.mojang.com/users/profiles/minecraft/".$username);
+		$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$username);
 		if($response !== false){
 			$profile = json_decode($response, true);
 		}
@@ -607,7 +607,7 @@ class DesktopPlayer extends Player{
 		}
 
 		$uuid = $profile["id"];
-		$response = Utils::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3);
+		$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3);
 		if($response !== false){
 			$info = json_decode($response, true);
 		}
@@ -626,7 +626,7 @@ class DesktopPlayer extends Player{
 	public function getAuthenticateOnline(string $username, string $hash) : void{
 		$result = null;
 
-		$response = Utils::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$username."&serverId=".$hash, 5);
+		$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$username."&serverId=".$hash, 5);
 		if($response !== false){
 			$result = json_decode($response, true);
 		}

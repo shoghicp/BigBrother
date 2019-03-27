@@ -65,8 +65,8 @@ class AdvancementsPacket extends OutboundPacket{
 				if(($advancement[2][5][0] & 0x01) > 0){
 					$this->putString($advancement[2][5][1]);
 				}
-				$this->putFloat($advancement[2][6]);// x coord
-				$this->putFloat($advancement[2][7]);// z coord
+				$this->putFloat($advancement[2][6]);// x coordinate
+				$this->putFloat($advancement[2][7]);// z coordinate
 			}
 			$this->putVarInt(count($advancement[3]));//criteria
 			foreach($advancement[3] as $criteria){
@@ -86,11 +86,11 @@ class AdvancementsPacket extends OutboundPacket{
 			$this->putString($identifier);
 		}
 		$this->putVarInt(count($this->progress));
-		foreach($this->progress as $progressdata){
-			$this->putString($progressdata[0]);//id
-			$this->putVarInt(count($progressdata[1]));//Criteria size
-			foreach($progressdata[1] as $criterion){
-				$this->putString($criterion[0]);//criyeria id
+		foreach($this->progress as $progressData){
+			$this->putString($progressData[0]);//id
+			$this->putVarInt(count($progressData[1]));//Criteria size
+			foreach($progressData[1] as $criterion){
+				$this->putString($criterion[0]);//criteria id
 				$this->putBool($criterion[1][0]);//
 				if($criterion[1][0]){
 					$this->putLong($criterion[1][1]);//time

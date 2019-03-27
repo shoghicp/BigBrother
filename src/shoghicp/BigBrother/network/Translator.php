@@ -104,6 +104,9 @@ use shoghicp\BigBrother\DesktopChunk;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClickWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CloseWindowPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\CreativeInventoryActionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Client\UseEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\AnimatePacket as STCAnimatePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\BlockActionPacket;
@@ -230,11 +233,13 @@ class Translator{
 				return null;
 
 			case InboundPacket::CLICK_WINDOW_PACKET:
+				/** @var ClickWindowPacket $packet */
 				$pk = $player->getInventoryUtils()->onWindowClick($packet);
 
 				return $pk;
 
 			case InboundPacket::CLOSE_WINDOW_PACKET:
+				/** @var CloseWindowPacket $packet */
 				$pk = $player->getInventoryUtils()->onWindowCloseFromPCtoPE($packet);
 
 				return $pk;
@@ -765,6 +770,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::CREATIVE_INVENTORY_ACTION_PACKET:
+				/** @var CreativeInventoryActionPacket $packet */
 				$pk = $player->getInventoryUtils()->onCreativeInventoryAction($packet);
 
 				return $pk;
@@ -1022,7 +1028,7 @@ class Translator{
 				/** @var AddEntityPacket $packet */
 				$packets = [];
 
-				$isobject = false;
+				$isObject = false;
 				$type = "generic";
 				$data = 1;
 
@@ -1176,7 +1182,7 @@ class Translator{
 					break;
 					case 61://ArmorStand
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 78;
 					break;
 					/*case 64://Item
@@ -1184,12 +1190,12 @@ class Translator{
 					break;*/
 					case 65://PrimedTNT
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 50;
 					break;
 					case 66://FallingSand
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 70;
 
 						$block = $packet->metadata[2][1];//block data
@@ -1225,7 +1231,7 @@ class Translator{
 					break;*/
 					case 77://FishingHook
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 90;
 					break;
 					/*case 79://DragonFireBall
@@ -1233,17 +1239,17 @@ class Translator{
 					break;*/
 					case 80://Arrow
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 60;
 					break;
 					case 81://Snowball
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 61;
 					break;
 					case 82://Egg
 						//Spawn Object
-						$isobject = true;
+						$isObject = true;
 						$packet->type = 62;
 					break;
 					/*case 83://Painting
@@ -1291,7 +1297,7 @@ class Translator{
 					break;
 				}
 
-				if($isobject){
+				if($isObject){
 					$pk = new SpawnObjectPacket();
 					$pk->eid = $packet->entityRuntimeId;
 					$pk->type = $packet->type;
@@ -1409,9 +1415,6 @@ class Translator{
 
 			case Info::TAKE_ITEM_ENTITY_PACKET:
 				/** @var TakeItemEntityPacket $packet */
-				$packet->target = $packet->getEntityRuntimeId(); //blame pmmp :(
-				$packet->eid = $packet->getEntityRuntimeId(); //blame pmmp :(
-
 				$pk = $player->getInventoryUtils()->onTakeItemEntity($packet);
 
 				return $pk;
@@ -1608,19 +1611,18 @@ class Translator{
 
 			case Info::LEVEL_SOUND_EVENT_PACKET:
 				/** @var LevelSoundEventPacket $packet */
-				$issoundeffect = false;
 				$volume = 1;
 				$pitch = $packet->extraData;
 
 				switch($packet->sound){
 					case LevelSoundEventPacket::SOUND_EXPLODE:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 						$category = 0;
 
 						$name = "entity.generic.explode";
 					break;
 					case LevelSoundEventPacket::SOUND_CHEST_OPEN:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 						$category = 1;
 
 						$blockId = $player->getLevel()->getBlock($packet->position)->getId();
@@ -1631,7 +1633,7 @@ class Translator{
 						}
 					break;
 					case LevelSoundEventPacket::SOUND_CHEST_CLOSED:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 						$category = 1;
 
 						$blockId = $player->getLevel()->getBlock($packet->position)->getId();
@@ -1642,7 +1644,7 @@ class Translator{
 						}
 					break;
 					case LevelSoundEventPacket::SOUND_NOTE:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 						$category = 2;
 						$volume = 3;
 						$name = "block.note.harp";//TODO
@@ -1660,7 +1662,7 @@ class Translator{
 					break;
 				}
 
-				if($issoundeffect){
+				if($isSoundEffect){
 					$pk = new NamedSoundEffectPacket();
 					$pk->category = $category;
 					$pk->x = (int) $packet->position->x;
@@ -1677,7 +1679,7 @@ class Translator{
 
 			case Info::LEVEL_EVENT_PACKET://TODO
 				/** @var LevelEventPacket $packet */
-				$issoundeffect = false;
+				$isSoundEffect = false;
 				$isparticle = false;
 				$addData = [];
 				$category = 0;
@@ -1686,11 +1688,11 @@ class Translator{
 
 				switch($packet->evid){
 					case LevelEventPacket::EVENT_SOUND_IGNITE:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 						$name = "entity.tnt.primed";
 					break;
 					case LevelEventPacket::EVENT_SOUND_SHOOT:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 
 						switch(($id = $player->getInventory()->getItemInHand()->getId())){
 							case Item::SNOWBALL:
@@ -1721,7 +1723,7 @@ class Translator{
 						}
 					break;
 					case LevelEventPacket::EVENT_SOUND_DOOR:
-						$issoundeffect = true;
+						$isSoundEffect = true;
 
 						$block = $player->getLevel()->getBlock($packet->position);
 
@@ -1832,7 +1834,7 @@ class Translator{
 					break;
 				}
 
-				if($issoundeffect){
+				if($isSoundEffect){
 					$pk = new NamedSoundEffectPacket();
 					$pk->category = $category;
 					$pk->x = (int) $packet->position->x;
@@ -2455,7 +2457,6 @@ class Translator{
 						}
 						$pk->uuid = UUID::fromRandom()->toBinary();
 						$pk->actionID = BossBarPacket::TYPE_ADD;
-						$title = "";
 						if(isset($packet->title) and is_string($packet->title) and strlen($packet->title) > 0){
 							$title = $packet->title;
 						}else{
