@@ -29,10 +29,10 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use phpseclib\Crypt\AES;
 use pocketmine\utils\TextFormat;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Status\PingPacket;
-use shoghicp\BigBrother\utils\AES;
 use shoghicp\BigBrother\utils\Binary;
 
 class Session{
@@ -125,7 +125,7 @@ class Session{
 	 * @param string $secret
 	 */
 	public function enableEncryption(string $secret) : void{
-		$this->aes = new AES();
+		$this->aes = new AES(AES::MODE_CFB8);
 		$this->aes->enableContinuousBuffer();
 		$this->aes->setKey($secret);
 		$this->aes->setIV($secret);

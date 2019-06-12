@@ -29,6 +29,9 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother;
 
+use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\AES;
+
 use pocketmine\plugin\PluginBase;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\TextPacket;
@@ -40,14 +43,12 @@ use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat;
 
-use phpseclib\Crypt\RSA;
 use shoghicp\BigBrother\network\ServerManager;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenSignEditorPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
-use shoghicp\BigBrother\utils\AES;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -68,6 +69,22 @@ class BigBrother extends PluginBase implements Listener{
 
 	/** @var Translator */
 	protected $translator;
+
+	/**
+	 * @override
+	 */
+	public function onLoad()
+	{
+		if(is_file($composer = $this->getFile() . "vendor/autoload.php")){
+			$this->getLogger()->info("Registering Composer autoloader...");
+			__require($composer);
+		}else{
+			$this->getLogger()->critical("Composer autoloader not found");
+			$this->getLogger()->critical("Please initialize composer dependencies before running");
+			$this->getPluginLoader()->disablePlugin($this);
+			return;
+		}
+	}
 
 	/**
 	 * @override
@@ -105,7 +122,7 @@ class BigBrother extends PluginBase implements Listener{
 					chdir($cwd);
 				}
 
-				$aes = new AES();
+				$aes = new AES(AES::MODE_CFB8);
 				switch($aes->getEngine()){
 					case AES::ENGINE_OPENSSL:
 						$this->getLogger()->info("Use openssl as AES encryption engine.");
@@ -350,4 +367,14 @@ class BigBrother extends PluginBase implements Listener{
 		$result = json_encode($result, JSON_UNESCAPED_SLASHES);
 		return $result;
 	}
+}
+
+/**
+ * Scope isolated require.
+ *
+ * prevents access to $this/self from included file
+ */
+function __require($file)
+{
+	return require($file);
 }
