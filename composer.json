@@ -29,6 +29,12 @@
       "role": "Developer"
     }
   ],
+  "scripts": {
+    "build": [
+      "@composer install --no-dev -o",
+      "@php scripts/build"
+    ]
+  },
   "require": {
     "php": ">=7.2.0",
     "ext-json": "*",
