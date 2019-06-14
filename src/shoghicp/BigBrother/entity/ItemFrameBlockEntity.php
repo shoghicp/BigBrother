@@ -159,7 +159,7 @@ class ItemFrameBlockEntity extends Position{
 	}
 
 	public function despawnFromAll() : void{
-		foreach($this->getLevel()->getChunkPlayers($this->x >> 4, $this->z >> 4) as $player){
+		foreach($this->getLevel()->getChunkLoaders($this->x >> 4, $this->z >> 4) as $player){
 			if($player instanceof DesktopPlayer){
 				$this->despawnFrom($player);
 			}

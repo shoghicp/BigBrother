@@ -227,7 +227,7 @@ class ServerThread extends \Thread{
 		register_shutdown_function([$this, "shutdownHandler"]);
 
 		$data = unserialize($this->data);
-		$manager = new ServerManager($this, $this->port, $this->interface, $data["motd"], $data["icon"]);
+		new ServerManager($this, $this->port, $this->interface, $data["motd"], $data["icon"]);
 	}
 
 	public function setGarbage(){

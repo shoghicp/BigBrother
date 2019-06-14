@@ -129,6 +129,7 @@ class ProtocolInterface implements SourceInterface{
 	 */
 	public function shutdown(){
 		$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_SHUTDOWN));
+		$this->thread->join();
 	}
 
 	/**
