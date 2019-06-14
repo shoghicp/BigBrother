@@ -810,7 +810,6 @@ class ConvertUtils{
 
 	/*
 	 * Blame Mojang!! :-@
-	 * Why Mojang change the order of flag bits?
 	 * Why Mojang change the directions??
 	 *
 	 * @param int &$blockdata
@@ -818,14 +817,16 @@ class ConvertUtils{
 	 * #blamemojang
 	 */
 	private static function convertButton(int &$blockdata) : void{
-		/*//var_dump($blockdata);
+		$directions = [
+			0 => 0, // Button on block bottom facing down
+			1 => 5, // Button on block top facing up
+			2 => 4, // Button on block side facing north
+			3 => 3, // Button on block side facing south
+			4 => 2, // Button on block side facing west
+			5 => 1, // Button on block side facing east
+		];
 
-		//swap bits
-		$blockdata ^= (($blockdata & 0x04) << 1);
-		$blockdata ^= (($blockdata & 0x08) >> 1);
-		$blockdata ^= (($blockdata & 0x04) << 1);
-
-		$blockdata = (($blockdata >> 2) << 2) | $blockdata & 0x03;*/
+		$blockdata = ($blockdata & 0x08) | $directions[$blockdata & 0x07];
 	}
 
 }
