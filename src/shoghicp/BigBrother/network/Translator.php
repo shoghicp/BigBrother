@@ -47,6 +47,7 @@ use pocketmine\network\mcpe\protocol\AddPaintingPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\BlockEventPacket;
 use pocketmine\network\mcpe\protocol\BookEditPacket;
@@ -254,6 +255,7 @@ class Translator{
 					break;
 					case "MC|BEdit":
 						$packets = [];
+						/** @var Item $item */
 						$item = clone $packet->data[0];
 
 						if(!is_null(($pages = $item->getNamedTagEntry("pages")))){
@@ -281,6 +283,7 @@ class Translator{
 					break;
 					case "MC|BSign":
 						$packets = [];
+						/** @var Item $item */
 						$item = clone $packet->data[0];
 
 						if(!is_null(($pages = $item->getNamedTagEntry("pages")))){
@@ -803,6 +806,7 @@ class Translator{
 				$pk->entityRuntimeId = $player->getId();
 
 				$pos = $player->bigBrother_getBreakPosition();
+				/** @var Vector3[] $pos */
 				if(!$pos[0]->equals(new Vector3(0, 0, 0))){
 					$packets = [$pk];
 
@@ -2172,6 +2176,8 @@ class Translator{
 				if(isset($packet->metadata[Player::DATA_PLAYER_BED_POSITION])){
 					$bedXYZ = $packet->metadata[Player::DATA_PLAYER_BED_POSITION][1];
 					if($bedXYZ !== null){
+						/** @var Vector3 $bedXYZ */
+
 						$pk = new UseBedPacket();
 						$pk->eid = $packet->entityRuntimeId;
 						$pk->bedX = $bedXYZ->getX();
@@ -2533,6 +2539,7 @@ class Translator{
 			case 0xfe: //Info::BATCH_PACKET
 				$packets = [];
 
+				/** @var BatchPacket $packet */
 				$packet->decode();
 				foreach($packet->getPackets() as $buf){
 					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){

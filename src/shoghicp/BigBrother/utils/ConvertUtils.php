@@ -33,7 +33,6 @@ use pocketmine\item\Item;
 use pocketmine\block\Block;
 use pocketmine\entity\Human;
 use pocketmine\entity\projectile\Projectile;
-use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\ByteTag;
@@ -371,9 +370,9 @@ class ConvertUtils{
 		$stream = new BinaryStream($buffer);
 		$nbt = null;
 
+		$name = "";
 		if($isListTag){
 			$type = $listTagId;
-			$name = "";
 		}else{
 			$type = $stream->getByte();
 			if($type !== NBT::TAG_End){
@@ -455,197 +454,176 @@ class ConvertUtils{
 	}
 
 	/**
-	 * Convert item data from PE => PC when $iscomputer is set to true,
+	 * Convert item data from PE => PC when $isComputer is set to true,
 	 * else convert item data opposite way.
 	 *
-	 * @param bool $iscomputer
+	 * @param bool $isComputer
 	 * @param Item &$item
 	 */
-	public static function convertItemData(bool $iscomputer, Item &$item) : void{
+	public static function convertItemData(bool $isComputer, Item &$item) : void{
 		self::$timingConvertItem->startTiming();
 
-		$itemid = $item->getId();
-		$itemdamage = $item->getDamage();
-		$itemcount = $item->getCount();
-		$itemnbt = $item->getCompoundTag();
+		$itemId = $item->getId();
+		$itemDamage = $item->getDamage();
+		$itemCount = $item->getCount();
+		$itemNBT = clone $item->getNamedTag();
 
-		switch($itemid){
+		switch($itemId){
 			case Item::PUMPKIN:
 			case Item::JACK_O_LANTERN:
-				$itemdamage = 0;
+				$itemDamage = 0;
 			break;
 			case Item::WRITABLE_BOOK:
-				if($iscomputer){
-					if($itemnbt !== ""){
-						$nbt = new LittleEndianNBTStream();
-						$itemnbt = $nbt->read($itemnbt, true);
-
-						$listTag = [];
-						$photoListTag = [];
-						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
-							if($pageTags instanceof CompoundTag){
-								foreach($pageTags as $name => $tag){
-									if($tag instanceof StringTag){
-										switch($tag->getName()){
-											case "text":
-												$listTag[] = new StringTag("", $tag->getValue());
-											break;
-											case "photoname":
-												$photoListTag[] = new StringTag("", $tag->getValue());
-											break;
-										}
+				if($isComputer){
+					$listTag = [];
+					$photoListTag = [];
+					foreach($itemNBT["pages"] as $pageNumber => $pageTags){
+						if($pageTags instanceof CompoundTag){
+							foreach($pageTags as $name => $tag){
+								if($tag instanceof StringTag){
+									switch($tag->getName()){
+										case "text":
+											$listTag[] = new StringTag("", $tag->getValue());
+										break;
+										case "photoname":
+											$photoListTag[] = new StringTag("", $tag->getValue());
+										break;
 									}
 								}
 							}
 						}
-
-						$itemnbt->removeTag("pages");
-						$itemnbt->setTag(new ListTag("pages", $listTag));
-						$itemnbt->setTag(new ListTag("photoname", $photoListTag));
 					}
+
+					$itemNBT->removeTag("pages");
+					$itemNBT->setTag(new ListTag("pages", $listTag));
+					$itemNBT->setTag(new ListTag("photoname", $photoListTag));
 				}else{
-					if($itemnbt !== ""){
-						$nbt = new LittleEndianNBTStream();
-						$itemnbt = $nbt->read($itemnbt, true);
+					$listTag = [];
+					foreach($itemNBT["pages"] as $pageNumber => $tag){
+						if($tag instanceof StringTag){
+							$tag->setName("text");
 
-						$listTag = [];
-						foreach($itemnbt["pages"] as $pageNumber => $tag){
-							if($tag instanceof StringTag){
-								$tag->setName("text");
-
-								$photonameTag = new StringTag("photoname", "");
-								if(isset($itemnbt["photoname"][$pageNumber])){
-									$photonameTag->setValue($itemnbt["photoname"][$pageNumber]);
-								}
-
-								$listTag[] = new CompoundTag("", [
-									$tag,
-									$photonameTag,
-								]);
+							$value = "";
+							if(isset($itemNBT["photoname"][$pageNumber])){
+								$value = $itemNBT["photoname"][$pageNumber];
 							}
-						}
+							$photoNameTag = new StringTag("photoname", $value);
 
-						$itemnbt->removeTag("pages");
-						if($itemnbt->hasTag("photoname")){
-							$itemnbt->removeTag("photoname");
+							$listTag[] = new CompoundTag("", [
+								$tag,
+								$photoNameTag,
+							]);
 						}
-
-						$itemnbt->setTag(new ListTag("pages", $listTag));
 					}
+
+					$itemNBT->removeTag("pages");
+					if($itemNBT->hasTag("photoname")){
+						$itemNBT->removeTag("photoname");
+					}
+
+					$itemNBT->setTag(new ListTag("pages", $listTag));
 				}
 			break;
 			case Item::WRITTEN_BOOK:
-				if($iscomputer){
-					if($itemnbt !== ""){
-						$nbt = new LittleEndianNBTStream();
-						$itemnbt = $nbt->read($itemnbt, true);
-
-						$listTag = [];
-						$photoListTag = [];
-						foreach($itemnbt["pages"] as $pageNumber => $pageTags){
-							if($pageTags instanceof CompoundTag){
-								foreach($pageTags as $name => $tag){
-									if($tag instanceof StringTag){
-										switch($tag->getName()){
-											case "text":
-												$listTag[] = new StringTag("", $tag->getValue());
-											break;
-											case "photoname":
-												$photoListTag[] = new StringTag("", $tag->getValue());
-											break;
-										}
+				if($isComputer){
+					$listTag = [];
+					$photoListTag = [];
+					foreach($itemNBT["pages"] as $pageNumber => $pageTags){
+						if($pageTags instanceof CompoundTag){
+							foreach($pageTags as $name => $tag){
+								if($tag instanceof StringTag){
+									switch($tag->getName()){
+										case "text":
+											$listTag[] = new StringTag("", $tag->getValue());
+										break;
+										case "photoname":
+											$photoListTag[] = new StringTag("", $tag->getValue());
+										break;
 									}
 								}
 							}
 						}
-
-						$itemnbt->removeTag("pages");
-						$itemnbt->setTag(new ListTag("pages", $listTag));
-						$itemnbt->setTag(new ListTag("photoname", $photoListTag));
 					}
+
+					$itemNBT->removeTag("pages");
+					$itemNBT->setTag(new ListTag("pages", $listTag));
+					$itemNBT->setTag(new ListTag("photoname", $photoListTag));
 				}else{
-					if($itemnbt !== ""){
-						$nbt = new LittleEndianNBTStream();
-						$itemnbt = $nbt->read($itemnbt, true);
+					$listTag = [];
+					foreach($itemNBT["pages"] as $pageNumber => $tag){
+						if($tag instanceof StringTag){
+							$tag->setName("text");
 
-						$listTag = [];
-						foreach($itemnbt["pages"] as $pageNumber => $tag){
-							if($tag instanceof StringTag){
-								$tag->setName("text");
-
-								$photonameTag = new StringTag("photoname", "");
-								if(isset($itemnbt["photoname"][$pageNumber])){
-									$photonameTag->setValue($itemnbt["photoname"][$pageNumber]);
-								}
-
-								$listTag[] = new CompoundTag("", [
-									$tag,
-									$photonameTag,
-								]);
+							$value = "";
+							if(isset($itemNBT["photoname"][$pageNumber])){
+								$value = $itemNBT["photoname"][$pageNumber];
 							}
-						}
+							$photoNameTag = new StringTag("photoname", $value);
 
-						$itemnbt->removeTag("pages");
-						if($itemnbt->hasTag("photoname")){
-							$itemnbt->removeTag("photoname");
+							$listTag[] = new CompoundTag("", [
+								$tag,
+								$photoNameTag,
+							]);
 						}
-
-						$itemnbt->setTag(new ListTag("pages", $listTag));
 					}
+
+					$itemNBT->removeTag("pages");
+					if($itemNBT->hasTag("photoname")){
+						$itemNBT->removeTag("photoname");
+					}
+
+					$itemNBT->setTag(new ListTag("pages", $listTag));
 				}
 			break;
 			case Item::SPAWN_EGG:
-				if($iscomputer){
-					if($type = self::$spawnEggList[$itemdamage] ?? ""){
-						$itemnbt = new CompoundTag("", [
+				if($isComputer){
+					if($type = self::$spawnEggList[$itemDamage] ?? ""){
+						$itemNBT = new CompoundTag("", [
 							new CompoundTag("EntityTag", [
 								new StringTag("id", $type),
 							])
 						]);
 					}
 				}else{
-					$entitytag = "";
-					if($itemnbt !== ""){
-						$nbt = new LittleEndianNBTStream();
-						$itemnbt = $nbt->read($itemnbt, true);
-						if($itemnbt->getType() === NBT::TAG_Compound){
-							$entitytag = $itemnbt["EntityTag"]["id"];
+					$entityTag = "";
+					if($itemNBT !== ""){
+						if($itemNBT->hasTag("EntityTag")){
+							$entityTag = $itemNBT["EntityTag"]["id"];
 						}
 					}
 
-					$itemdamage = self::$reverseSpawnEggList[$entitytag] ?? 0;
-					$itemnbt = "";
+					$itemDamage = self::$reverseSpawnEggList[$entityTag] ?? 0;
 				}
 			break;
 			default:
-				if($iscomputer){
+				if($isComputer){
 					$src = 0; $dst = 1;
 				}else{
 					$src = 1; $dst = 0;
 				}
 
-				foreach(self::$idlistIndex[$src][$itemid] ?? [] as $convertitemdata){
-					if($convertitemdata[$src][1] === -1){
-						$itemid = $convertitemdata[$dst][0];
-						if($convertitemdata[$dst][1] === -1){
-							$itemdamage = $item->getDamage();
+				foreach(self::$idlistIndex[$src][$itemId] ?? [] as $convertItemData){
+					if($convertItemData[$src][1] === -1){
+						$itemId = $convertItemData[$dst][0];
+						if($convertItemData[$dst][1] === -1){
+							$itemDamage = $item->getDamage();
 						}else{
-							$itemdamage = $convertitemdata[$dst][1];
+							$itemDamage = $convertItemData[$dst][1];
 						}
 						break;
-					}elseif($convertitemdata[$src][1] === $item->getDamage()){
-						$itemid = $convertitemdata[$dst][0];
-						$itemdamage = $convertitemdata[$dst][1];
+					}elseif($convertItemData[$src][1] === $item->getDamage()){
+						$itemId = $convertItemData[$dst][0];
+						$itemDamage = $convertItemData[$dst][1];
 						break;
 					}
 				}
 			break;
 		}
 
-		if($iscomputer){
-			$item = new ComputerItem($itemid, $itemdamage, $itemcount, $itemnbt);
+		if($isComputer){
+			$item = new ComputerItem($itemId, $itemDamage, $itemCount, $itemNBT);
 		}else{
-			$item = Item::get($itemid, $itemdamage, $itemcount, $itemnbt);
+			$item = Item::get($itemId, $itemDamage, $itemCount, $itemNBT);
 		}
 
 		self::$timingConvertItem->stopTiming();

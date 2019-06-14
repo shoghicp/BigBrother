@@ -32,7 +32,6 @@ namespace shoghicp\BigBrother\utils;
 use phpseclib\Math\BigInteger;
 use pocketmine\item\Item;
 use shoghicp\BigBrother\network\Session;
-use pocketmine\nbt\LittleEndianNBTStream;
 
 class Binary extends \pocketmine\utils\Binary{
 
@@ -99,10 +98,8 @@ class Binary extends \pocketmine\utils\Binary{
 						$m .= self::writeShort($item->getDamage());
 
 						if($item->hasCompoundTag()){
-							$nbt = new LittleEndianNBTStream();
-							$itemnbt = $nbt->read($item->getCompoundTag(), true);
-
-							$m .= ConvertUtils::convertNBTDataFromPEtoPC($itemnbt);
+							$itemNBT = clone $item->getNamedTag();
+							$m .= ConvertUtils::convertNBTDataFromPEtoPC($itemNBT);
 						}else{
 							$m .= "\x00";//TAG_End
 						}

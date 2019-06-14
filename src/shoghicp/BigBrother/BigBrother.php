@@ -81,7 +81,7 @@ class BigBrother extends PluginBase implements Listener{
 		}else{
 			$this->getLogger()->critical("Composer autoloader not found");
 			$this->getLogger()->critical("Please initialize composer dependencies before running");
-			$this->getPluginLoader()->disablePlugin($this);
+			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
 	}
@@ -373,6 +373,8 @@ class BigBrother extends PluginBase implements Listener{
  * Scope isolated require.
  *
  * prevents access to $this/self from included file
+ * @param string $file
+ * @return void
  */
 function __require($file)
 {

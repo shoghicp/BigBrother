@@ -836,6 +836,7 @@ class InventoryUtils{
 			}
 		}
 
+		$pk = null;
 		if($accepted){
 			$pk = new InventoryTransactionPacket();
 			$pk->transactionType = InventoryTransactionPacket::TYPE_NORMAL;
@@ -1021,15 +1022,33 @@ class InventoryUtils{
 	public function onMobArmorEquipment(MobArmorEquipmentPacket $packet) : array{
 		$packets = [];
 
-		foreach($packet->slots as $num => $item){
-			$pk = new EntityEquipmentPacket();
-			$pk->eid = $packet->entityRuntimeId;
-			$pk->slot = 2 + 3 - $num;
-			$pk->item = $item;
-			$packets[] = $pk;
+		$pk = new EntityEquipmentPacket();
+		$pk->eid = $packet->entityRuntimeId;
+		$pk->slot = 5;
+		$pk->item = $packet->head;
+		$packets[] = $pk;
+		$this->playerArmorSlot[0] = $pk->item;
 
-			$this->playerArmorSlot[$num] = $item;
-		}
+		$pk = new EntityEquipmentPacket();
+		$pk->eid = $packet->entityRuntimeId;
+		$pk->slot = 4;
+		$pk->item = $packet->chest;
+		$packets[] = $pk;
+		$this->playerArmorSlot[1] = $pk->item;
+
+		$pk = new EntityEquipmentPacket();
+		$pk->eid = $packet->entityRuntimeId;
+		$pk->slot = 3;
+		$pk->item = $packet->legs;
+		$packets[] = $pk;
+		$this->playerArmorSlot[2] = $pk->item;
+
+		$pk = new EntityEquipmentPacket();
+		$pk->eid = $packet->entityRuntimeId;
+		$pk->slot = 2;
+		$pk->item = $packet->feet;
+		$packets[] = $pk;
+		$this->playerArmorSlot[3] = $pk->item;
 
 		return $packets;
 	}
@@ -1099,8 +1118,6 @@ class InventoryUtils{
 				$reindexed[$y][$x] = $inputSlotMap[$y + $yOffset][$x + $xOffset];
 			}
 		}*/
-
-
 
 		$resultRecipe = null;
 		foreach($this->shapedRecipes as $jsonResult => $jsonSlotData){

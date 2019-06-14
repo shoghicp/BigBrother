@@ -154,8 +154,9 @@ class DesktopPlayer extends Player{
 	 * @return int dimension of pc version converted from $level_dimension
 	 */
 	public function bigBrother_getDimensionPEToPC(int $level_dimension) : int{
+		$dimension = 0;
 		switch($level_dimension){
-			case 0://Overworld
+			case 0://Over world
 				$dimension = 0;
 			break;
 			case 1://Nether
@@ -499,23 +500,23 @@ class DesktopPlayer extends Player{
 				$this->bigBrother_properties = $onlineModeData;
 			}
 
+			$model = false;
+			$skinImage = "";
+			$capeImage = "";
 			foreach($this->bigBrother_properties as $property){
 				if($property["name"] === "textures"){
 					$textures = json_decode(base64_decode($property["value"]), true);
 
-					$model = false;
-					$skinimage = "";
 					if(isset($textures["textures"]["SKIN"])){
 						if(isset($textures["textures"]["SKIN"]["metadata"]["model"])){
 							$model = true;
 						}
 
-						$skinimage = file_get_contents($textures["textures"]["SKIN"]["url"]);
+						$skinImage = file_get_contents($textures["textures"]["SKIN"]["url"]);
 					}
 
-					$capeimage = "";
 					if(isset($textures["textures"]["CAPE"])){
-						$capeimage = file_get_contents($textures["textures"]["CAPE"]["url"]);
+						$capeImage = file_get_contents($textures["textures"]["CAPE"]["url"]);
 					}
 				}
 			}
@@ -539,10 +540,10 @@ class DesktopPlayer extends Player{
 				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.custom";
 			}
 
-			$skin = new SkinUtils($skinimage);
+			$skin = new SkinUtils($skinImage);
 			$pk->clientData["SkinData"] = $skin->getSkinData();
 
-			$cape = new CapeUtils($capeimage);
+			$cape = new CapeUtils($capeImage);
 			$pk->clientData["CapeData"] = $cape->getCapeData();
 
 			$pk->chainData = ["chain" => []];
