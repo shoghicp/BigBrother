@@ -29,13 +29,18 @@
       "role": "Developer"
     }
   ],
+  "scripts": {
+    "build": [
+      "@composer install --no-dev -o",
+      "@php scripts/build"
+    ]
+  },
   "require": {
     "php": ">=7.2.0",
     "ext-json": "*",
-    "ext-mcrypt": "*",
     "ext-openssl": "*",
     "ext-zlib": "*",
     "ext-sockets": "*",
-    "phpseclib/phpseclib": "2.0.6"
+    "phpseclib/phpseclib": "2.0.17"
   }
 }
