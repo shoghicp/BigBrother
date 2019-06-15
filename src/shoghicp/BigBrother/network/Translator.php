@@ -143,6 +143,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ServerDifficultyPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SetExperiencePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\SpawnGlobalEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnExperienceOrbPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnMobPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnObjectPacket;
@@ -1280,10 +1281,16 @@ class Translator{
 					case 90;//Boat
 						$packet->type = 1;
 					break;
-					/*case 93://Lightning
-						//Spawn Global Entity
+					case 93://Lightning
+						$pk = new SpawnGlobalEntityPacket();
+						$pk->eid = $packet->entityRuntimeId;
+						$pk->type = SpawnGlobalEntityPacket::TYPE_LIGHTNING;
+						$pk->x = $packet->position->x;
+						$pk->y = $packet->position->y;
+						$pk->z = $packet->position->z;
+						return $pk;
 					break;
-					case 94://BlazeFireball
+					/*case 94://BlazeFireball
 						//Spawn Object
 					break;
 					case 96://MinecartHopper
