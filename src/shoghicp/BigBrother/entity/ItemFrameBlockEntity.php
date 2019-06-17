@@ -78,12 +78,7 @@ class ItemFrameBlockEntity extends Position{
 	 */
 	private function __construct(Level $level, int $x, int $y, int $z, int $data){
 		parent::__construct($x, $y, $z, $level);
-
-		$prop = (new ReflectionClass(Entity::class))->getProperty("entityCount");
-		$prop->setAccessible(true);
-		$this->eid = $prop->getValue();
-		$prop->setValue($this->eid + 1);
-
+		$this->eid = Entity::$entityCount++;
 		$this->uuid = UUID::fromRandom()->toBinary();
 		$this->facing = $data;
 		$this->yaw = self::$mapping[$data][0] ?? 0;
