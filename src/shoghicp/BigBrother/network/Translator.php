@@ -133,6 +133,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ExplosionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\MapPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\JoinGamePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\NamedSoundEffectPacket;
@@ -2458,6 +2459,24 @@ class Translator{
 							];
 						}
 					break;
+				}
+
+				return $pk;
+
+			case Info::CLIENTBOUND_MAP_ITEM_DATA_PACKET:
+				$pk = new MapPacket();
+
+				$pk->itemDamage = $packet->mapId;
+				$pk->scale = $packet->scale;
+				$pk->columns = $packet->width;
+				$pk->rows = $packet->height;
+
+				// TODO implement tracked entities handling and general map behaviour
+
+				for($y=0; $y<$pk->rows; ++$y){
+					for($x=0; $x<$pk->columns; ++$x){
+						$pk->data .= chr(ConvertUtils::findNearestColorForMap($packet->colors[$y][$x]));
+					}
 				}
 
 				return $pk;

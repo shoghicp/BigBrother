@@ -69,7 +69,7 @@ abstract class OutboundPacket extends Packet{
 	const EFFECT_PACKET = 0x21;
 	const PARTICLE_PACKET = 0x22;
 	const JOIN_GAME_PACKET = 0x23;
-	//TODO MAP_PACKET = 0x24;
+	const MAP_PACKET = 0x24;
 	const ENTITY_PACKET = 0x25;
 	//TODO ENTITY_RELATIVE_MOVE_PACKET = 0x26;
 	//TODO ENTITY_LOOK_AND_RELATIVE_MOVE_PACKET = 0x27;
