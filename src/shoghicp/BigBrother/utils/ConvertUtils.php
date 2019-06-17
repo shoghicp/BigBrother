@@ -49,6 +49,7 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Binary;
+use pocketmine\utils\Color;
 use UnexpectedValueException;
 
 class ConvertUtils{
@@ -246,6 +247,9 @@ class ConvertUtils{
 	/** @var array */
 	private static $reverseSpawnEggList;
 
+	/** @var array */
+	private static $colorTable = [];
+
 	public static function init() : void{
 		self::$timingConvertItem = new TimingsHandler("BigBrother - Convert Item Data");
 		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
@@ -273,6 +277,14 @@ class ConvertUtils{
 		}
 
 		self::$reverseSpawnEggList = array_flip(self::$spawnEggList);
+
+		// TODO complete this table, and i'm not sure whether if the exact color value is correct or not
+		self::$colorTable[ 16] = new Color(255,   0,   0); // RED
+		self::$colorTable[ 34] = new Color(255, 255, 255); // WHITE
+		self::$colorTable[ 48] = new Color(  0,   0, 255); // BLUE
+		self::$colorTable[ 74] = new Color(255, 255,   0); // YELLOW
+		self::$colorTable[134] = new Color(  0, 255,   0); // GREEN
+		self::$colorTable[204] = new Color(  0,   0,   0); // BLACK
 	}
 
 	/**
@@ -760,6 +772,29 @@ class ConvertUtils{
 		$newData["convert"] = true;
 
 		return $newData;
+	}
+
+	/**
+	 * Find nearest color defined in self::$colorTable
+	 *
+	 * @param Color $target
+	 * @return int
+	 */
+	public static function findNearestColorForMap(Color $target) : int{
+		$min = PHP_INT_MAX;
+		$ret = 0x00;
+
+		if($target->getA() >= 128){
+			foreach(self::$colorTable as $code => $color){
+				$squared = ($target->getR()-$color->getR())**2 + ($target->getG()-$color->getG())**2 + ($target->getB()-$color->getB())**2;
+				if($squared < $min){
+					$ret = $code;
+					$min = $squared;
+				}
+			}
+		}
+
+		return $ret;
 	}
 
 	/**
