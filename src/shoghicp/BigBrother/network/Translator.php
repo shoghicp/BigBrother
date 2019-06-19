@@ -2475,11 +2475,7 @@ class Translator{
 
 				// TODO implement tracked entities handling and general map behaviour
 
-				for($y=0; $y<$pk->rows; ++$y){
-					for($x=0; $x<$pk->columns; ++$x){
-						$pk->data .= chr(ConvertUtils::findNearestColorForMap($packet->colors[$y][$x]));
-					}
-				}
+				$pk->data = ConvertUtils::convertColorsToPC($packet->colors, $packet->width, $packet->height);
 
 				return $pk;
 
