@@ -57,7 +57,7 @@ class ConvertUtils{
 	private static $timingConvertBlock;
 
 	/** @var array */
-	private static $idlist = [
+	private static $idList = [
 		//************** ITEMS ***********//
 		[[325,   8], [326,   0]], //Water bucket,
 		[[325,  10], [327,   0]], //Lava bucket
@@ -99,8 +99,8 @@ class ConvertUtils{
 		[[458,   0], [435,   0]], //Beetroot Seeds
 		[[459,   0], [436,   0]], //Beetroot Soup
 		[[460,   0], [349,   1]], //Raw Salmon
-		[[461,   0], [349,   2]], //Clownfish
-		[[462,   0], [350,   3]], //Pufferfish
+		[[461,   0], [349,   2]], //Clown fish
+		[[462,   0], [350,   3]], //Puffer fish
 		[[463,   0], [350,   1]], //Cooked Salmon
 		[[466,   0], [422,   1]], //Enchanted Golden Apple
 		//********************************//
@@ -255,7 +255,7 @@ class ConvertUtils{
 			[/* PC => PE */]
 		];
 
-		foreach(self::$idlist as $entry){
+		foreach(self::$idList as $entry){
 			//append index (PE => PC)
 			if(isset(self::$idlistIndex[0][$entry[0][0]])){
 				self::$idlistIndex[0][$entry[0][0]][] = $entry;
