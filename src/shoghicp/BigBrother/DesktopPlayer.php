@@ -606,10 +606,12 @@ class DesktopPlayer extends Player{
 				 */
 				public function onCompletion(Server $server){
 					$result = $this->getResult();
+					/** @var DesktopPlayer $player */
+					$player = self::fetchLocal();
 					if(is_array($result) and isset($result["id"])){
-						self::fetchLocal()->bigBrother_authenticate($result["id"], $result["properties"]);
+						$player->bigBrother_authenticate($result["id"], $result["properties"]);
 					}else{
-						self::fetchLocal()->close("", "User not premium");
+						$player->close("", "User not premium");
 					}
 				}
 			});
@@ -683,7 +685,9 @@ class DesktopPlayer extends Player{
 					public function onCompletion(Server $server){
 						$info = $this->getResult();
 						if(is_array($info)){
-							self::fetchLocal()->bigBrother_authenticate($info["id"], $info["properties"]);
+							/** @var DesktopPlayer $player */
+							$player = self::fetchLocal();
+							$player->bigBrother_authenticate($info["id"], $info["properties"]);
 						}
 					}
 

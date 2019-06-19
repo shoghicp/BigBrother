@@ -38,7 +38,7 @@ class SetExperiencePacket extends OutboundPacket{
 	/** @var int */
 	public $level;
 	/** @var int */
-	public $totalexperience;
+	public $totalExperience;
 
 	public function pid() : int{
 		return self::SET_EXPERIENCE_PACKET;
@@ -47,6 +47,6 @@ class SetExperiencePacket extends OutboundPacket{
 	protected function encode() : void{
 		$this->putFloat($this->experience);
 		$this->putVarInt($this->level);
-		$this->putVarInt($this->totalexperience);
+		$this->putVarInt($this->totalExperience);
 	}
 }

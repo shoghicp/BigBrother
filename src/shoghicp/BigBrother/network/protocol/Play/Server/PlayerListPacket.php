@@ -54,14 +54,14 @@ class PlayerListPacket extends OutboundPacket{
 				case self::TYPE_ADD:
 					$this->put($player[0]);//UUID
 					$this->putString($player[1]); //PlayerName
-					$this->putVarInt(count($player[2])); //Count Peropetry
+					$this->putVarInt(count($player[2])); //Count Property
 
-					foreach($player[2] as $peropetrydata){
-						$this->putString($peropetrydata["name"]); //Name
-						$this->putString($peropetrydata["value"]); //Value
-						if(isset($peropetrydata["signature"])){
+					foreach($player[2] as $propertyData){
+						$this->putString($propertyData["name"]); //Name
+						$this->putString($propertyData["value"]); //Value
+						if(isset($propertyData["signature"])){
 							$this->putBool(true); //Is Signed
-							$this->putString($peropetrydata["signature"]); //Peropetry
+							$this->putString($propertyData["signature"]); //Property
 						}else{
 							$this->putBool(false); //Is Signed
 						}

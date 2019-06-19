@@ -115,7 +115,7 @@ class ServerManager{
 	/** @var string|null */
 	public $favicon;
 	/** @var array */
-	public $serverdata = [
+	public $serverData = [
 		"MaxPlayers" => 20,
 		"OnlinePlayers" => 0,
 	];
@@ -160,7 +160,7 @@ class ServerManager{
 	 * @return array
 	 */
 	public function getServerData() : array{
-		return $this->serverdata;
+		return $this->serverData;
 	}
 
 	public function shutdown() : void{
@@ -216,7 +216,7 @@ class ServerManager{
 					$value = substr($packet, $offset);
 					switch($name){
 						case "name":
-							$this->serverdata = json_decode($value, true);
+							$this->serverData = json_decode($value, true);
 						break;
 					}
 				break;

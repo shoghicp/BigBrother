@@ -38,12 +38,12 @@ class SpawnObjectPacket extends OutboundPacket{
 	const AREA_EFFECT_CLOUD =  3;
 	const MINECART          = 10;
 	const ACTIVATED_TNT     = 50;
-	const ENDERCRYSTAL      = 51;
+	const ENDER_CRYSTAL     = 51;
 	const TIPPED_ARROW      = 60;
 	const SNOWBALL          = 61;
 	const EGG               = 62;
 	const FIREBALL          = 63;
-	const FIRECHARGE        = 64;
+	const FIRE_CHARGE       = 64;
 	const THROWN_ENDERPEARL = 65;
 	const WITHER_SKULL      = 66;
 	const SHULKER_BULLET    = 67;
@@ -55,7 +55,7 @@ class SpawnObjectPacket extends OutboundPacket{
 	const THROWN_EXP_BOTTLE = 75;
 	const FIREWORK_ROCKET   = 76;
 	const LEASH_KNOT        = 77;
-	const ARMORSTAND        = 78;
+	const ARMOR_STAND       = 78;
 	const EVOCATION_FANGS   = 79;
 	const FISHING_HOOK      = 90;
 	const SPECTRAL_ARROW    = 91;

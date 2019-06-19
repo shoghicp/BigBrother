@@ -22,7 +22,7 @@ Welcome to BigBrother, a [shoghicp project that was abandoned](https://github.co
 * Gamemodes
 * Dropped items
 * Converted blocks IDs '& items IDs'
-* Converted entities metadatas
+* Converted entities metadata
 * Inventories
 * Tiles
 * And many other things!

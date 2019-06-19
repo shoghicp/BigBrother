@@ -39,8 +39,8 @@ class PNGUtils{
 	private $isPalette = false, $palette = [];
 	private $bitDepth = 8, $colorType = 6, $isAlpha = true;
 	private $compressionMethod = 0, $filterMethod = 0, $interlaceMethod = 0;
-	private $pixeldata = [[[0,0,0,255]]];
-	private $rawimagedata = "";
+	private $pixelData = [[[0,0,0,255]]];
+	private $rawImageData = "";
 	private $usedBit = 0, $usedBitNum = 0;
 
 	public function __construct($binary = ""){
@@ -59,8 +59,8 @@ class PNGUtils{
 	}
 
 	public function getRGBA($x, $z) : array{
-		if(isset($this->pixeldata[$x][$z])){
-			return $this->pixeldata[$x][$z];
+		if(isset($this->pixelData[$x][$z])){
+			return $this->pixelData[$x][$z];
 		}
 
 		return [0, 0, 0, 0];//Don't change it.
@@ -164,11 +164,11 @@ class PNGUtils{
 	private function readIDAT(int $length){
 		$chunkdata = zlib_decode($this->stream->get($length));
 
-		$this->rawimagedata .= $chunkdata;
+		$this->rawImageData .= $chunkdata;
 	}
 
 	private function readAllIDAT(){
-		$stream = new BinaryStream($this->rawimagedata);
+		$stream = new BinaryStream($this->rawImageData);
 
 		for($height = 0; $height < $this->height; $height++){
 			$filterMethod = $stream->getByte();
@@ -305,8 +305,8 @@ class PNGUtils{
 	}
 
 	public function setRGBA($x, $z, $pixeldata) : bool{
-		if(isset($this->pixeldata[$x][$z])){
-			$this->pixeldata[$x][$z] = $pixeldata;
+		if(isset($this->pixelData[$x][$z])){
+			$this->pixelData[$x][$z] = $pixeldata;
 			return true;
 		}
 
@@ -314,11 +314,11 @@ class PNGUtils{
 	}
 
 	private function generatePixelData(){
-		$old_pixeldata = $this->pixeldata;
-		$this->pixeldata = [];
+		$old_pixeldata = $this->pixelData;
+		$this->pixelData = [];
 
 		for($height = 0; $height < $this->height; $height++){
-			$this->pixeldata[$height] = [];
+			$this->pixelData[$height] = [];
 
 			for($width = 0; $width < $this->width; $width++){
 				$pixel = [0,0,0,255];
@@ -326,7 +326,7 @@ class PNGUtils{
 					$pixel = $old_pixeldata[$height][$width];
 				}
 
-				$this->pixeldata[$height][$width] = $pixel;
+				$this->pixelData[$height][$width] = $pixel;
 			}
 		}
 	}
