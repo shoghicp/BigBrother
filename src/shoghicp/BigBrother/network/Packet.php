@@ -33,8 +33,9 @@ use pocketmine\item\Item;
 use shoghicp\BigBrother\utils\Binary;
 use shoghicp\BigBrother\utils\ConvertUtils;
 use shoghicp\BigBrother\utils\ComputerItem;
+use stdClass;
 
-abstract class Packet extends \stdClass{
+abstract class Packet extends stdClass{
 
 	/** @var string */
 	protected $buffer;

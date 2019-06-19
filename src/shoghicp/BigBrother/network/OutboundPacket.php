@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use ErrorException;
+
 abstract class OutboundPacket extends Packet{
 
 	//Play
@@ -124,6 +126,6 @@ abstract class OutboundPacket extends Packet{
 	 * @throws
 	 */
 	protected final function decode() : void{
-		throw new \ErrorException(get_class($this) . " is subclass of OutboundPacket: don't call decode() method");
+		throw new ErrorException(get_class($this) . " is subclass of OutboundPacket: don't call decode() method");
 	}
 }

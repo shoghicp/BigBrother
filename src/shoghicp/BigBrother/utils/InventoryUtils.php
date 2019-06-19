@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\utils;
 
+use InvalidArgumentException;
+use const pocketmine\DEBUG;
 use pocketmine\inventory\ShapedRecipe;
 use pocketmine\inventory\ShapelessRecipe;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -55,6 +57,7 @@ use pocketmine\math\Vector3;
 use pocketmine\tile\EnderChest as TileEnderChest;
 use pocketmine\tile\Tile;
 
+use ReflectionClass;
 use shoghicp\BigBrother\DesktopPlayer;
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ConfirmTransactionPacket;
@@ -139,7 +142,7 @@ class InventoryUtils{
 	 * @param int &$targetWindowId
 	 * @param int &$targetInventorySlot
 	 * @return Item&
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function &getItemAndSlot(int $windowId, int $inventorySlot, int &$targetWindowId = null, int &$targetInventorySlot = null) : Item{
 		$targetInventorySlot = $inventorySlot;
@@ -162,7 +165,7 @@ class InventoryUtils{
 					$targetInventorySlot = $inventorySlot;
 					$retval = &$this->playerHotbarSlot[$inventorySlot];
 				}else{
-					throw new \InvalidArgumentException("inventorySlot: " . $inventorySlot . " is out of range!!");
+					throw new InvalidArgumentException("inventorySlot: " . $inventorySlot . " is out of range!!");
 				}
 			break;
 			default:
@@ -1187,13 +1190,13 @@ class InventoryUtils{
 
 			if($action === null){
 				$errors++;
-				if(\pocketmine\DEBUG > 3){
+				if(DEBUG > 3){
 					echo "[Action Number #".$actionNumber."] error action!\n";
 				}
 				continue;
 			}
 
-			if(\pocketmine\DEBUG > 3){
+			if(DEBUG > 3){
 				echo "[Action Number #".$actionNumber."] error nothing!\n";
 			}
 
@@ -1201,20 +1204,20 @@ class InventoryUtils{
 		}
 
 		foreach($actions as $actionNumber => $action){
-			$reflection = new \ReflectionClass($action);
+			$reflection = new ReflectionClass($action);
 			if(($shortName = $reflection->getShortName()) === "SlotChangeAction"){
-				$reflection = new \ReflectionClass($action->getInventory());
+				$reflection = new ReflectionClass($action->getInventory());
 				$windowName = $reflection->getShortName();
 			}else{
 				$windowName = "CreativeInventoryAction";
 			}
 
 			if($action->isValid($this->player)){
-				if(\pocketmine\DEBUG > 3){
+				if(DEBUG > 3){
 					echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] error nothing!\n";
 				}
 			}else{
-				if(\pocketmine\DEBUG > 3){
+				if(DEBUG > 3){
 					echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invalid Item!\n";
 					if($shortName === "SlotChangeAction"){
 						$checkItem = $action->getInventory()->getItem($action->getSlot());

@@ -29,8 +29,10 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use InvalidStateException;
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
+use const pocketmine\DEBUG;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\particle\Particle;
@@ -156,6 +158,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UseBedPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use stdClass;
 
 class Translator{
 
@@ -330,7 +333,7 @@ class Translator{
 						case UseEntityPacket::INTERACT:
 							$pk = new InventoryTransactionPacket();
 							$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-							$pk->trData = new \stdClass();
+							$pk->trData = new stdClass();
 							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK;
 							$pk->trData->x = $frame->x;
 							$pk->trData->y = $frame->y;
@@ -352,7 +355,7 @@ class Translator{
 							}else{
 								$pk = new InventoryTransactionPacket();
 								$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-								$pk->trData = new \stdClass();
+								$pk->trData = new stdClass();
 								$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK;
 								$pk->trData->x = $frame->x;
 								$pk->trData->y = $frame->y;
@@ -379,7 +382,7 @@ class Translator{
 				}else{
 					$pk = new InventoryTransactionPacket();
 					$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY;
-					$pk->trData = new \stdClass();
+					$pk->trData = new stdClass();
 					$pk->trData->entityRuntimeId = $packet->target;
 					$pk->trData->hotbarSlot = $player->getInventory()->getHeldItemIndex();
 					$pk->trData->itemInHand = $player->getInventory()->getItemInHand();
@@ -524,7 +527,7 @@ class Translator{
 						if($player->getGamemode() === 1){
 							$pk = new InventoryTransactionPacket();
 							$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-							$pk->trData = new \stdClass();
+							$pk->trData = new stdClass();
 							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK;
 							$pk->trData->x = $packet->x;
 							$pk->trData->y = $packet->y;
@@ -563,7 +566,7 @@ class Translator{
 
 								$pk = new InventoryTransactionPacket();
 								$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-								$pk->trData = new \stdClass();
+								$pk->trData = new stdClass();
 								$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK;
 								$pk->trData->x = $packet->x;
 								$pk->trData->y = $packet->y;
@@ -619,7 +622,7 @@ class Translator{
 
 							$pk = new InventoryTransactionPacket();
 							$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-							$pk->trData = new \stdClass();
+							$pk->trData = new stdClass();
 							$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK;
 							$pk->trData->x = $packet->x;
 							$pk->trData->y = $packet->y;
@@ -674,7 +677,7 @@ class Translator{
 					case 5:
 						$pk = new InventoryTransactionPacket();
 						$pk->transactionType = InventoryTransactionPacket::TYPE_RELEASE_ITEM;
-						$pk->trData = new \stdClass();
+						$pk->trData = new stdClass();
 						$pk->trData->hotbarSlot = $player->getInventory()->getHeldItemIndex();
 						$pk->trData->itemInHand = $item = $player->getInventory()->getItemInHand();
 						$pk->trData->headPos = new Vector3($packet->x, $packet->y, $packet->z);
@@ -842,7 +845,7 @@ class Translator{
 
 				$pk = new InventoryTransactionPacket();
 				$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-				$pk->trData = new \stdClass();
+				$pk->trData = new stdClass();
 				$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK;
 				$pk->trData->x = $packet->x;
 				$pk->trData->y = $packet->y;
@@ -867,7 +870,7 @@ class Translator{
 
 				$pk = new InventoryTransactionPacket();
 				$pk->transactionType = InventoryTransactionPacket::TYPE_USE_ITEM;
-				$pk->trData = new \stdClass();
+				$pk->trData = new stdClass();
 				$pk->trData->actionType = InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_AIR;
 				$pk->trData->x = 0;
 				$pk->trData->y = 0;
@@ -881,7 +884,7 @@ class Translator{
 				return $pk;
 
 			default:
-				if(\pocketmine\DEBUG > 4){
+				if(DEBUG > 4){
 					echo "[Receive][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
 				}
 				return null;
@@ -1659,7 +1662,7 @@ class Translator{
 						return null;
 					break;
 					default:
-						if(\pocketmine\DEBUG > 3){
+						if(DEBUG > 3){
 							echo "LevelSoundEventPacket: ".$packet->sound."\n";
 						}
 						return null;
@@ -1720,7 +1723,7 @@ class Translator{
 							default:
 								$name = "entity.snowball.throw";
 
-								if(\pocketmine\DEBUG > 3){
+								if(DEBUG > 3){
 									echo "LevelEventPacket: ".$id."\n";
 								}
 							break;
@@ -1988,7 +1991,7 @@ class Translator{
 						//unused
 					break;
 					default:
-						if(\pocketmine\DEBUG > 3){
+						if(DEBUG > 3){
 							echo "EntityEventPacket: ".$packet->event."\n";
 						}
 					break;
@@ -2544,7 +2547,7 @@ class Translator{
 				foreach($packet->getPackets() as $buf){
 					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){
 						if($pk::NETWORK_ID === 0xfe){
-							throw new \InvalidStateException("Invalid BatchPacket inside BatchPacket");
+							throw new InvalidStateException("Invalid BatchPacket inside BatchPacket");
 						}
 					}
 
@@ -2570,7 +2573,7 @@ class Translator{
 				return null;
 
 			default:
-				if(\pocketmine\DEBUG > 4){
+				if(DEBUG > 4){
 					echo "[Send][Translator] 0x".bin2hex(chr($packet->pid()))." Not implemented\n";
 				}
 				return null;

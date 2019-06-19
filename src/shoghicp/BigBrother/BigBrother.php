@@ -378,5 +378,6 @@ class BigBrother extends PluginBase implements Listener{
  */
 function __require($file)
 {
-	return require($file);
+	/** @noinspection PhpIncludeInspection */
+	return require $file;
 }

@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use Logger;
 use shoghicp\BigBrother\utils\Binary;
 
 class ServerManager{
@@ -103,7 +104,7 @@ class ServerManager{
 	protected $sockets = [];
 	/** @var Session[] */
 	protected $sessions = [];
-	/** @var \Logger */
+	/** @var Logger */
 	protected $logger;
 	/** @var bool */
 	protected $shutdown = false;

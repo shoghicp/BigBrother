@@ -29,15 +29,22 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
-class ServerThread extends \Thread{
+use ClassLoader;
+use Exception;
+use ReflectionClass;
+use Thread;
+use Threaded;
+use ThreadedLogger;
+
+class ServerThread extends Thread{
 
 	/** @var int */
 	protected $port;
 	/** @var string */
 	protected $interface;
-	/** @var \ThreadedLogger */
+	/** @var ThreadedLogger */
 	protected $logger;
-	/** @var \ClassLoader */
+	/** @var ClassLoader */
 	protected $loader;
 	/** @var string */
 	protected $data;
@@ -48,9 +55,9 @@ class ServerThread extends \Thread{
 	/** @var bool */
 	protected $shutdown;
 
-	/** @var \Threaded */
+	/** @var Threaded */
 	protected $externalQueue;
-	/** @var \Threaded */
+	/** @var Threaded */
 	protected $internalQueue;
 
 	/** @var resource */
@@ -59,19 +66,19 @@ class ServerThread extends \Thread{
 	protected $internalSocket;
 
 	/**
-	 * @param \ThreadedLogger $logger
-	 * @param \ClassLoader    $loader
+	 * @param ThreadedLogger $logger
+	 * @param ClassLoader    $loader
 	 * @param int             $port 1-65536
 	 * @param string          $interface
 	 * @param string          $motd
 	 * @param string|null     $icon
 	 * @param bool            $autoStart
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null, bool $autoStart = true){
+	public function __construct(ThreadedLogger $logger, ClassLoader $loader, int $port, string $interface = "0.0.0.0", string $motd = "Minecraft: PE server", string $icon = null, bool $autoStart = true){
 		$this->port = $port;
 		if($port < 1 or $port > 65536){
-			throw new \Exception("Invalid port range");
+			throw new Exception("Invalid port range");
 		}
 
 		$this->interface = $interface;
@@ -84,16 +91,16 @@ class ServerThread extends \Thread{
 		]);
 
 		$loadPaths = [];
-		$this->addDependency($loadPaths, new \ReflectionClass($logger));
-		$this->addDependency($loadPaths, new \ReflectionClass($loader));
+		$this->addDependency($loadPaths, new ReflectionClass($logger));
+		$this->addDependency($loadPaths, new ReflectionClass($loader));
 		$this->loadPaths = array_reverse($loadPaths);
 		$this->shutdown = false;
 
-		$this->externalQueue = new \Threaded;
-		$this->internalQueue = new \Threaded;
+		$this->externalQueue = new Threaded;
+		$this->internalQueue = new Threaded;
 
 		if(($sockets = stream_socket_pair((strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? STREAM_PF_INET : STREAM_PF_UNIX), STREAM_SOCK_STREAM, STREAM_IPPROTO_IP)) === false){
-			throw new \Exception("Could not create IPC streams. Reason: ".socket_strerror(socket_last_error()));
+			throw new Exception("Could not create IPC streams. Reason: ".socket_strerror(socket_last_error()));
 		}
 
 		$this->internalSocket = $sockets[0];
@@ -108,14 +115,14 @@ class ServerThread extends \Thread{
 
 	/**
 	 * @param array            &$loadPaths
-	 * @param \ReflectionClass $dep
+	 * @param ReflectionClass $dep
 	 */
-	protected function addDependency(array &$loadPaths, \ReflectionClass $dep){
+	protected function addDependency(array &$loadPaths, ReflectionClass $dep){
 		if($dep->getFileName() !== false){
 			$loadPaths[$dep->getName()] = $dep->getFileName();
 		}
 
-		if($dep->getParentClass() instanceof \ReflectionClass){
+		if($dep->getParentClass() instanceof ReflectionClass){
 			$this->addDependency($loadPaths, $dep->getParentClass());
 		}
 
@@ -150,23 +157,23 @@ class ServerThread extends \Thread{
 	}
 
 	/**
-	 * @return \ThreadedLogger logger
+	 * @return ThreadedLogger logger
 	 */
-	public function getLogger() : \ThreadedLogger{
+	public function getLogger() : ThreadedLogger{
 		return $this->logger;
 	}
 
 	/**
-	 * @return \Threaded external queue
+	 * @return Threaded external queue
 	 */
-	public function getExternalQueue() : \Threaded{
+	public function getExternalQueue() : Threaded{
 		return $this->externalQueue;
 	}
 
 	/**
-	 * @return \Threaded internal queue
+	 * @return Threaded internal queue
 	 */
-	public function getInternalQueue() : \Threaded{
+	public function getInternalQueue() : Threaded{
 		return $this->internalQueue;
 	}
 
@@ -208,7 +215,7 @@ class ServerThread extends \Thread{
 
 	public function shutdownHandler() : void{
 		if($this->shutdown !== true){
-			$this->getLogger()->emergency("[ServerThread #". \Thread::getCurrentThreadId() ."] ServerThread crashed!");
+			$this->getLogger()->emergency("[ServerThread #". Thread::getCurrentThreadId() ."] ServerThread crashed!");
 		}
 	}
 
@@ -219,7 +226,8 @@ class ServerThread extends \Thread{
 		//Load removed dependencies, can't use require_once()
 		foreach($this->loadPaths as $name => $path){
 			if(!class_exists($name, false) and !interface_exists($name, false)){
-				require($path);
+				/** @noinspection PhpIncludeInspection */
+				require $path;
 			}
 		}
 		$this->loader->register();

@@ -29,6 +29,9 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use Exception;
+use SplObjectStorage;
+use const pocketmine\DEBUG;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Server;
@@ -79,7 +82,7 @@ class ProtocolInterface implements SourceInterface{
 	/** @var ServerThread */
 	protected $thread;
 
-	/** @var \SplObjectStorage<int> */
+	/** @var SplObjectStorage<int> */
 	protected $sessions;
 
 	/** @var DesktopPlayer[] */
@@ -107,7 +110,7 @@ class ProtocolInterface implements SourceInterface{
 		$this->translator = $translator;
 		$this->threshold = $threshold;
 		$this->thread = new ServerThread($server->getLogger(), $server->getLoader(), $plugin->getPort(), $plugin->getIp(), $plugin->getMotd(), $plugin->getDataFolder()."server-icon.png", false);
-		$this->sessions = new \SplObjectStorage();
+		$this->sessions = new SplObjectStorage();
 	}
 
 	/**
@@ -179,7 +182,7 @@ class ProtocolInterface implements SourceInterface{
 	 * @param Packet $packet
 	 */
 	protected function sendPacket(int $target, Packet $packet){
-		if(\pocketmine\DEBUG > 4){
+		if(DEBUG > 4){
 			$id = bin2hex(chr($packet->pid()));
 			if($id !== "1f"){
 				echo "[Send][Interface] 0x".bin2hex(chr($packet->pid()))."\n";
@@ -281,7 +284,7 @@ class ProtocolInterface implements SourceInterface{
 	 * @param string        $payload
 	 */
 	protected function handlePacket(DesktopPlayer $player, string $payload){
-		if(\pocketmine\DEBUG > 4){
+		if(DEBUG > 4){
 			$id = bin2hex(chr(ord($payload{0})));
 			if($id !== "0b"){//KeepAlivePacket
 				echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
@@ -380,7 +383,7 @@ class ProtocolInterface implements SourceInterface{
 					$pk = new UseItemPacket();
 					break;
 				default:
-					if(\pocketmine\DEBUG > 4){
+					if(DEBUG > 4){
 						echo "[Receive][Interface] 0x".bin2hex(chr($pid))." Not implemented\n"; //Debug
 					}
 					return;
@@ -424,8 +427,8 @@ class ProtocolInterface implements SourceInterface{
 					$payload = substr($buffer, $offset);
 					try{
 						$this->handlePacket($this->sessionsPlayers[$id], $payload);
-					}catch(\Exception $e){
-						if(\pocketmine\DEBUG > 1){
+					}catch(Exception $e){
+						if(DEBUG > 1){
 							$logger = $this->server->getLogger();
 							if($logger instanceof MainLogger){
 								$logger->debug("DesktopPacket 0x" . bin2hex($payload));

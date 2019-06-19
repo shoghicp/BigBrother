@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use ErrorException;
+
 abstract class InboundPacket extends Packet{
 	//Play
 	const TELEPORT_CONFIRM_PACKET = 0x00;
@@ -76,6 +78,6 @@ abstract class InboundPacket extends Packet{
 	 * @throws
 	 */
 	protected final function encode() : void{
-		throw new \ErrorException(get_class($this) . " is subclass of InboundPacket: don't call encode() method");
+		throw new ErrorException(get_class($this) . " is subclass of InboundPacket: don't call encode() method");
 	}
 }

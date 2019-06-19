@@ -36,6 +36,7 @@ use pocketmine\level\Position;
 use pocketmine\entity\Entity;
 use pocketmine\tile\ItemFrame;
 use pocketmine\utils\UUID;
+use ReflectionClass;
 use shoghicp\BigBrother\network\protocol\Play\Server\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityMetadataPacket;
@@ -78,7 +79,7 @@ class ItemFrameBlockEntity extends Position{
 	private function __construct(Level $level, int $x, int $y, int $z, int $data){
 		parent::__construct($x, $y, $z, $level);
 
-		$prop = (new \ReflectionClass(Entity::class))->getProperty("entityCount");
+		$prop = (new ReflectionClass(Entity::class))->getProperty("entityCount");
 		$prop->setAccessible(true);
 		$this->eid = $prop->getValue();
 		$prop->setValue($this->eid + 1);

@@ -49,6 +49,7 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Binary;
+use UnexpectedValueException;
 
 class ConvertUtils{
 	/** @var TimingsHandler */
@@ -337,7 +338,7 @@ class ConvertUtils{
 				foreach($nbt as $tag){
 					if($tag instanceof NamedTag){
 						if($type !== $tag->getType()){
-							throw new \UnexpectedValueException("ListTag must consists of tags which types are the same");
+							throw new UnexpectedValueException("ListTag must consists of tags which types are the same");
 						}
 					}
 				}
