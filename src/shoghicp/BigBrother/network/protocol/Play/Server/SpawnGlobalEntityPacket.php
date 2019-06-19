@@ -45,7 +45,6 @@ class SpawnGlobalEntityPacket extends OutboundPacket{
 	public $y;
 	/** @var float */
 	public $z;
-	/** @var int */
 
 	public function pid() : int{
 		return self::SPAWN_GLOBAL_ENTITY_PACKET;
