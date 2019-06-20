@@ -96,6 +96,7 @@ use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\Player;
 use pocketmine\tile\Spawnable;
 use pocketmine\tile\Tile;
@@ -2546,14 +2547,17 @@ class Translator{
 				}
 				return null;
 
-			case 0xfe: //Info::BATCH_PACKET
+			case BatchPacket::NETWORK_ID:
 				$packets = [];
 
 				/** @var BatchPacket $packet */
 				$packet->decode();
-				foreach($packet->getPackets() as $buf){
+
+				for($stream=new NetworkBinaryStream($packet->payload); !$stream->feof();){
+					$buf = $stream->getString();
+
 					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){
-						if($pk::NETWORK_ID === 0xfe){
+						if($pk::NETWORK_ID === BatchPacket::NETWORK_ID){
 							throw new InvalidStateException("Invalid BatchPacket inside BatchPacket");
 						}
 					}
