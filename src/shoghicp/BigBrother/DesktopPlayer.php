@@ -592,12 +592,26 @@ class DesktopPlayer extends Player{
 				public function onRun(){
 					$result = null;
 
-					$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=".$this->username."&serverId=".$this->hash, 5);
-					if($response !== false){
-						$result = json_decode($response, true);
+					$query = http_build_query(array(
+						'username' => $this->username,
+						'serverId' => $this->hash
+					));
+
+					$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?".$query, 5, [], $err);
+					if($response === false){
+						$this->publishProgress("InternetException: failed to fetch session data; err=".$err);
 					}
 
-					$this->setResult($result);
+					$this->setResult(json_decode($response, true));
+				}
+
+				/**
+				 * @override
+				 * @param Server $server
+				 * @param mixed $message
+				 */
+				public function onProgressUpdate(Server $server, $message){
+					$server->getLogger()->error($message);
 				}
 
 				/**
@@ -654,28 +668,45 @@ class DesktopPlayer extends Player{
 						$profile = null;
 						$info = null;
 
-						$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username);
-						if($response !== false){
-							$profile = json_decode($response, true);
+						$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username, 10, [], $err);
+						if($response === false){
+							$this->publishProgress("InternetException: failed to fetch profile; err=".$err);
+							$this->setResult(false);
+							return;
 						}
 
+						$profile = json_decode($response, true);
 						if(!is_array($profile)){
+							$this->publishProgress("UnknownError: failed to parse profile; response=".$response);
 							$this->setResult(false);
 							return;
 						}
 
 						$uuid = $profile["id"];
-						$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3);
-						if($response !== false){
-							$info = json_decode($response, true);
+						$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3, [], $err);
+						if($response === false){
+							$this->publishProgress("InternetException: failed to fetch profile info; err=".$err);
+							$this->setResult(false);
+							return;
 						}
 
+						$info = json_decode($response, true);
 						if($info === null or !isset($info["id"])){
+							$this->publishProgress("UnknownError: failed to parse profile info; response=".$response);
 							$this->setResult(false);
 							return;
 						}
 
 						$this->setResult($info);
+					}
+
+					/**
+					 * @override
+					 * @param Server $server
+					 * @param mixed $message
+					 */
+					public function onProgressUpdate(Server $server, $message){
+						$server->getLogger()->error($message);
 					}
 
 					/**
