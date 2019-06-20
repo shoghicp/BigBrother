@@ -98,6 +98,8 @@ use /** @noinspection PhpInternalEntityUsedInspection */
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
 use pocketmine\Player;
 use pocketmine\tile\Spawnable;
 use pocketmine\tile\Tile;
@@ -2466,18 +2468,46 @@ class Translator{
 				return $pk;
 
 			case Info::CLIENTBOUND_MAP_ITEM_DATA_PACKET:
-				$pk = new MapPacket();
+				$player->getServer()->getAsyncPool()->submitTask(new class($player, $packet) extends AsyncTask{
 
-				$pk->itemDamage = $packet->mapId;
-				$pk->scale = $packet->scale;
-				$pk->columns = $packet->width;
-				$pk->rows = $packet->height;
+					private $packet;
 
-				// TODO implement tracked entities handling and general map behaviour
+					public function __construct(DesktopPlayer $player, $packet){
+						self::storeLocal($player);
+						$this->packet = $packet;
+					}
 
-				$pk->data = ConvertUtils::convertColorsToPC($packet->colors, $packet->width, $packet->height);
+					/*
+					 * @override
+					 */
+					public function onRun(){
+						$this->setResult(ConvertUtils::convertColorsToPC($this->packet->colors, $this->packet->width, $this->packet->height));
+					}
 
-				return $pk;
+					/*
+					 * @param Server $server
+					 * @override
+					 */
+					public function onCompletion(Server $server){
+						/** @var DesktopPlayer */
+						$player = self::fetchLocal();
+
+						$pk = new MapPacket();
+
+						$pk->itemDamage = $this->packet->mapId;
+						$pk->scale = $this->packet->scale;
+						$pk->columns = $this->packet->width;
+						$pk->rows = $this->packet->height;
+
+						// TODO implement tracked entities handling and general map behaviour
+
+						$pk->data = $this->getResult();
+
+						$player->putRawPacket($pk);
+					}
+				});
+
+				return null;
 
 			case Info::BOSS_EVENT_PACKET:
 				/** @var BossEventPacket $packet */
