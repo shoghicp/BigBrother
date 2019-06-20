@@ -93,7 +93,7 @@ class InventoryUtils{
 	/** @var Item[] */
 	private $playerInventorySlot = [];
 	/** @var Item[] */
-	private $playerHotbarSlot = [];
+	private $playerHotBarSlot = [];
 
 	/**
 	 * @param DesktopPlayer $player
@@ -105,7 +105,7 @@ class InventoryUtils{
 		$this->playerCraftTableSlot = array_fill(0, 10, Item::get(Item::AIR, 0, 0));
 		$this->playerArmorSlot = array_fill(0, 5, Item::get(Item::AIR, 0, 0));
 		$this->playerInventorySlot = array_fill(0, 27, Item::get(Item::AIR, 0, 0));
-		$this->playerHotbarSlot = array_fill(0, 9, Item::get(Item::AIR, 0, 0));
+		$this->playerHotBarSlot = array_fill(0, 9, Item::get(Item::AIR, 0, 0));
 		$this->playerHeldItem = Item::get(Item::AIR, 0, 0);
 
 		$this->shapelessRecipes = $player->getServer()->getCraftingManager()->getShapelessRecipes();//TODO: custom recipes
@@ -128,8 +128,8 @@ class InventoryUtils{
 	 * @param Item[] $items
 	 * @return Item[]
 	 */
-	public function getHotbar(array $items) : array{
-		foreach($this->playerHotbarSlot as $item){
+	public function getHotBar(array $items) : array{
+		foreach($this->playerHotBarSlot as $item){
 			$items[] = $item;
 		}
 
@@ -151,19 +151,19 @@ class InventoryUtils{
 		switch($windowId){
 			case ContainerIds::INVENTORY:
 				if($inventorySlot >= 0 and $inventorySlot < 5){
-					$retval = &$this->playerCraftTableSlot[$inventorySlot];
+					$item = &$this->playerCraftTableSlot[$inventorySlot];
 				}elseif($inventorySlot >= 5 and $inventorySlot < 9){
 					$targetWindowId = ContainerIds::ARMOR;
 					$inventorySlot -= 5;
 					$targetInventorySlot = $inventorySlot;
-					$retval = &$this->playerArmorSlot[$inventorySlot];
+					$item = &$this->playerArmorSlot[$inventorySlot];
 				}elseif($inventorySlot >= 9 and $inventorySlot < 36){
 					$inventorySlot -= 9;
-					$retval = &$this->playerInventorySlot[$inventorySlot];
+					$item = &$this->playerInventorySlot[$inventorySlot];
 				}elseif($inventorySlot >= 36 and $inventorySlot < 45){
 					$inventorySlot -= 36;
 					$targetInventorySlot = $inventorySlot;
-					$retval = &$this->playerHotbarSlot[$inventorySlot];
+					$item = &$this->playerHotBarSlot[$inventorySlot];
 				}else{
 					throw new InvalidArgumentException("inventorySlot: " . $inventorySlot . " is out of range!!");
 				}
@@ -176,22 +176,22 @@ class InventoryUtils{
 					if($inventorySlot >= 27 and $inventorySlot < 36){
 						$inventorySlot -= 27;
 						$targetInventorySlot = $inventorySlot;
-						$retval = &$this->playerHotbarSlot[$inventorySlot];
+						$item = &$this->playerHotBarSlot[$inventorySlot];
 					}else{
 						$targetInventorySlot = $inventorySlot + 9;
-						$retval = &$this->playerInventorySlot[$inventorySlot];
+						$item = &$this->playerInventorySlot[$inventorySlot];
 					}
 				}else{
 					if($windowId === 127){
-						$retval = &$this->playerCraftTableSlot[$inventorySlot];
+						$item = &$this->playerCraftTableSlot[$inventorySlot];
 					}else{
-						$retval = &$this->windowInfo[$windowId]["items"][$inventorySlot];
+						$item = &$this->windowInfo[$windowId]["items"][$inventorySlot];
 					}
 				}
 			break;
 		}
 
-		return $retval;
+		return $item;
 	}
 
 	/*private function get(int $windowId, int $inventorySlot, Item $selectedItem){
@@ -362,7 +362,7 @@ class InventoryUtils{
 					$pk->slot = $packet->inventorySlot + 36;
 					$inventorySlot = $packet->inventorySlot;
 
-					$this->playerHotbarSlot[$inventorySlot] = $packet->item;
+					$this->playerHotBarSlot[$inventorySlot] = $packet->item;
 				}elseif($packet->inventorySlot >= $this->player->getInventory()->getHotbarSize() and $packet->inventorySlot < $this->player->getInventory()->getSize()){
 					$pk->slot = $packet->inventorySlot;
 					$inventorySlot = $packet->inventorySlot - 9;
@@ -475,25 +475,25 @@ class InventoryUtils{
 					$pk->items[] = $this->playerArmorSlot[$i];//Armor
 				}
 
-				$hotbar = [];
+				$hotBar = [];
 				$inventory = [];
 				for($i = 0; $i < count($packet->items); $i++){
 					if($i >= 0 and $i < 9){
-						$hotbar[] = $packet->items[$i];
+						$hotBar[] = $packet->items[$i];
 					}else{
 						$inventory[] = $packet->items[$i];
 						$pk->items[] = $packet->items[$i];
 					}
 				}
 
-				foreach($hotbar as $item){
+				foreach($hotBar as $item){
 					$pk->items[] = $item;
 				}
 
 				$pk->items[] = Item::get(Item::AIR, 0, 0);//offhand
 
 				$this->playerInventorySlot = $inventory;
-				$this->playerHotbarSlot = $hotbar;
+				$this->playerHotBarSlot = $hotBar;
 
 				$packets[] = $pk;
 			break;
@@ -522,7 +522,7 @@ class InventoryUtils{
 					$this->windowInfo[$packet->windowId]["items"] = $packet->items;
 
 					$pk->items = $this->getInventory($pk->items);
-					$pk->items = $this->getHotbar($pk->items);
+					$pk->items = $this->getHotBar($pk->items);
 
 					$packets[] = $pk;
 				}else{
@@ -630,8 +630,8 @@ class InventoryUtils{
 							$accepted = true;
 
 							$newItem = $this->getItemAndSlot($packet->windowID, $packet->slot);
-							$item = $this->playerHotbarSlot[$packet->button];
-							$this->playerHotbarSlot[$packet->button] = $newItem;
+							$item = $this->playerHotBarSlot[$packet->button];
+							$this->playerHotBarSlot[$packet->button] = $newItem;
 							$otherAction[] = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::INVENTORY, $packet->button, $item, $newItem);
 						}
 					break;
@@ -933,13 +933,12 @@ class InventoryUtils{
 			}else{//Inventory
 				$newItem = $packet->item;
 
-				if($packet->slot > 35 and $packet->slot < 45){//hotbar
+				if($packet->slot > 35 and $packet->slot < 45){//hotBar
 					$saveInventorySlot = $packet->slot - 36;
 					$inventorySlot = $saveInventorySlot;
 
-
-					$oldItem = $this->playerHotbarSlot[$inventorySlot];
-					$this->playerHotbarSlot[$inventorySlot] = $newItem;
+					$oldItem = $this->playerHotBarSlot[$inventorySlot];
+					$this->playerHotBarSlot[$inventorySlot] = $newItem;
 				}else{
 					$saveInventorySlot = $packet->slot;
 					$inventorySlot = $packet->slot - 9;
@@ -1090,37 +1089,6 @@ class InventoryUtils{
 				$inputSlotMap[$y][$x] = $gridItem->setCount(1);//blame pmmp
 			}
 		}
-
-
-		/*$xOffset = $gridSize;
-		$yOffset = $gridSize;
-
-		$height = 0;
-		$width = 0;
-
-		foreach($inputSlotMap as $y => $row){
-			foreach($row as $x => $item){
-				if(!$item->isNull()){
-					$xOffset = min($x, $xOffset);
-					$yOffset = min($y, $yOffset);
-
-					$height = max($y + 1 - $yOffset, $height);
-					$width = max($x + 1 - $xOffset, $width);
-				}
-			}
-		}
-
-		if($height === 0 or $width === 0){
-			//TODO
-		}
-
-		$air = Item::get(Item::AIR, 0, 0);
-		$reindexed = array_fill(0, $height, array_fill(0, $width, $air));
-		foreach($reindexed as $y => $row){
-			foreach($row as $x => $item){
-				$reindexed[$y][$x] = $inputSlotMap[$y + $yOffset][$x + $xOffset];
-			}
-		}*/
 
 		$resultRecipe = null;
 		foreach($this->shapedRecipes as $jsonResult => $jsonSlotData){

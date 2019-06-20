@@ -162,9 +162,9 @@ class PNGUtils{
 	}
 
 	private function readIDAT(int $length){
-		$chunkdata = zlib_decode($this->stream->get($length));
+		$chunkData = zlib_decode($this->stream->get($length));
 
-		$this->rawImageData .= $chunkdata;
+		$this->rawImageData .= $chunkData;
 	}
 
 	private function readAllIDAT(){
@@ -304,9 +304,9 @@ class PNGUtils{
 		$this->generatePixelData();
 	}
 
-	public function setRGBA($x, $z, $pixeldata) : bool{
+	public function setRGBA(int $x, int $z, array $pixelData) : bool{
 		if(isset($this->pixelData[$x][$z])){
-			$this->pixelData[$x][$z] = $pixeldata;
+			$this->pixelData[$x][$z] = $pixelData;
 			return true;
 		}
 
@@ -314,7 +314,7 @@ class PNGUtils{
 	}
 
 	private function generatePixelData(){
-		$old_pixeldata = $this->pixelData;
+		$old_pixelData = $this->pixelData;
 		$this->pixelData = [];
 
 		for($height = 0; $height < $this->height; $height++){
@@ -322,8 +322,8 @@ class PNGUtils{
 
 			for($width = 0; $width < $this->width; $width++){
 				$pixel = [0,0,0,255];
-				if(isset($old_pixeldata[$height][$width])){
-					$pixel = $old_pixeldata[$height][$width];
+				if(isset($old_pixelData[$height][$width])){
+					$pixel = $old_pixelData[$height][$width];
 				}
 
 				$this->pixelData[$height][$width] = $pixel;

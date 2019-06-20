@@ -38,7 +38,7 @@ class EntityActionPacket extends InboundPacket{
 	/** @var int */
 	public $actionID;
 	/** @var int */
-	public $jumpboost;
+	public $jumpBoost;
 
 	public function pid() : int{
 		return self::ENTITY_ACTION_PACKET;
@@ -47,6 +47,6 @@ class EntityActionPacket extends InboundPacket{
 	protected function decode() : void{
 		$this->eid = $this->getVarInt();
 		$this->actionID = $this->getVarInt();
-		$this->jumpboost = $this->getVarInt();
+		$this->jumpBoost = $this->getVarInt();
 	}
 }

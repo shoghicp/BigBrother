@@ -107,12 +107,12 @@ class ItemFrameBlockEntity extends Position{
 	 * @return bool
 	 */
 	public function hasItem() : bool{
-		$retval = false;
 		$tile = $this->getLevel()->getTile($this);
 		if($tile instanceof ItemFrame){
-			$retval = $tile->hasItem();
+			return $tile->hasItem();
 		}
-		return $retval;
+
+		return false;
 	}
 
 	/**

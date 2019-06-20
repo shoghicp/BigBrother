@@ -39,8 +39,8 @@ $include_files = ['LICENSE', 'README.md', 'plugin.yml'];
 
 try {
 	if(ini_get("phar.readonly") == 1){
-		system(join(' ', array_merge([PHP_BINARY, '-dphar.readonly=0'], $argv)), $retval);
-		exit($retval);
+		system(join(' ', array_merge([PHP_BINARY, '-dphar.readonly=0'], $argv)), $value);
+		exit($value);
 	}
 
 	/**
@@ -55,7 +55,7 @@ try {
 		//check if devtools is up to date
 		if(!isset($atime) or strtotime($asset->updated_at) > $atime){
 			@mkdir(dirname(PROJECT_ROOT . DEVTOOL_FILE));
-			echo sprintf("Downloding DevTools from '%s'", $asset->browser_download_url) . PHP_EOL;
+			echo sprintf("Downloading DevTools from '%s'", $asset->browser_download_url) . PHP_EOL;
 			@file_put_contents(PROJECT_ROOT . DEVTOOL_FILE, @file_get_contents($asset->browser_download_url));
 		}
 	}
@@ -77,7 +77,7 @@ try {
 		$phar->addFile(PROJECT_ROOT . '/' . $file, $file);
 	}
 }catch(Exception $e){
-	echo "unexpected error has occured!" . PHP_EOL;
+	echo "unexpected error has occurred!" . PHP_EOL;
 	echo $e->getTraceAsString() . PHP_EOL;
 	exit(1);
 }

@@ -142,11 +142,11 @@ class ConvertUtils{
 		[[ 85,   4], [192,   0]], //Acacia Fence
 		[[ 85,   5], [191,   0]], //Dark Oak Fence
 		[[240,   0], [199,   0]], //Chorus Plant
-		[[199,  -1], [ 68,  -1]], //Item Frame is temporaly a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
+		[[199,  -1], [ 68,  -1]], //Item Frame is temporary a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
 		[[252,  -1], [255,  -1]], //Structures Block
 		[[236,  -1], [251,  -1]], //Concretes
 		[[237,  -1], [252,  -1]], //Concretes Powder
-		//******** Glazed Terracota ********//
+		//******** Glazed Terracotta ********//
 		[[220,   0], [235,   0]],
 		[[221,   0], [236,   0]],
 		[[222,   0], [237,   0]],
@@ -198,7 +198,7 @@ class ConvertUtils{
 	];
 
 	/** @var array */
-	private static $idlistIndex = [
+	private static $idListIndex = [
 		[/* Index for PE => PC */],
 		[/* Index for PC => PE */],
 	];
@@ -251,24 +251,24 @@ class ConvertUtils{
 		self::$timingConvertBlock = new TimingsHandler("BigBrother - Convert Block Data");
 
 		//reset all index
-		self::$idlistIndex = [
+		self::$idListIndex = [
 			[/* PE => PC */],
 			[/* PC => PE */]
 		];
 
 		foreach(self::$idList as $entry){
 			//append index (PE => PC)
-			if(isset(self::$idlistIndex[0][$entry[0][0]])){
-				self::$idlistIndex[0][$entry[0][0]][] = $entry;
+			if(isset(self::$idListIndex[0][$entry[0][0]])){
+				self::$idListIndex[0][$entry[0][0]][] = $entry;
 			}else{
-				self::$idlistIndex[0][$entry[0][0]] = [$entry];
+				self::$idListIndex[0][$entry[0][0]] = [$entry];
 			}
 
 			//append index (PC => PE)
-			if(isset(self::$idlistIndex[1][$entry[1][0]])){
-				self::$idlistIndex[1][$entry[1][0]][] = $entry;
+			if(isset(self::$idListIndex[1][$entry[1][0]])){
+				self::$idListIndex[1][$entry[1][0]][] = $entry;
 			}else{
-				self::$idlistIndex[1][$entry[1][0]] = [$entry];
+				self::$idListIndex[1][$entry[1][0]] = [$entry];
 			}
 		}
 
@@ -603,7 +603,7 @@ class ConvertUtils{
 					$src = 1; $dst = 0;
 				}
 
-				foreach(self::$idlistIndex[$src][$itemId] ?? [] as $convertItemData){
+				foreach(self::$idListIndex[$src][$itemId] ?? [] as $convertItemData){
 					if($convertItemData[$src][1] === -1){
 						$itemId = $convertItemData[$dst][0];
 						if($convertItemData[$dst][1] === -1){
@@ -631,42 +631,42 @@ class ConvertUtils{
 	}
 
 	/**
-	 * Convert block data from PE => PC when $iscomputer is set to true,
+	 * Convert block data from PE => PC when $isComputer is set to true,
 	 * else convert block data opposite way.
 	 *
-	 * @param bool $iscomputer
-	 * @param int  &$blockid to convert
-	 * @param int  &$blockdata to convert
+	 * @param bool $isComputer
+	 * @param int  &$blockId to convert
+	 * @param int  &$blockData to convert
 	 */
-	public static function convertBlockData(bool $iscomputer, int &$blockid, int &$blockdata) : void{
+	public static function convertBlockData(bool $isComputer, int &$blockId, int &$blockData) : void{
 		self::$timingConvertBlock->startTiming();
 
-		switch($blockid){
+		switch($blockId){
 			case Block::WOODEN_TRAPDOOR:
 			case Block::IRON_TRAPDOOR:
-				self::convertTrapdoor($blockdata);
+				self::convertTrapdoor($blockData);
 			break;
 			case Block::STONE_BUTTON:
 			case Block::WOODEN_BUTTON:
-				self::convertButton($blockdata);
+				self::convertButton($blockData);
 			break;
 			default:
-				if($iscomputer){
+				if($isComputer){
 					$src = 0; $dst = 1;
 				}else{
 					$src = 1; $dst = 0;
 				}
 
-				foreach(self::$idlistIndex[$src][$blockid] ?? [] as $convertblockdata){
-					if($convertblockdata[$src][1] === -1){
-						$blockid = $convertblockdata[$dst][0];
-						if($convertblockdata[$dst][1] !== -1){
-							$blockdata = $convertblockdata[$dst][1];
+				foreach(self::$idListIndex[$src][$blockId] ?? [] as $convertBlockData){
+					if($convertBlockData[$src][1] === -1){
+						$blockId = $convertBlockData[$dst][0];
+						if($convertBlockData[$dst][1] !== -1){
+							$blockData = $convertBlockData[$dst][1];
 						}
 						break;
-					}elseif($convertblockdata[$src][1] === $blockdata){
-						$blockid = $convertblockdata[$dst][0];
-						$blockdata = $convertblockdata[$dst][1];
+					}elseif($convertBlockData[$src][1] === $blockData){
+						$blockId = $convertBlockData[$dst][0];
+						$blockData = $convertBlockData[$dst][1];
 						break;
 					}
 				}
@@ -677,13 +677,13 @@ class ConvertUtils{
 	}
 
 	/**
-	 * @param array $olddata
+	 * @param array $oldData
 	 * @return array converted
 	 */
-	public static function convertPEToPCMetadata(array $olddata) : array{
-		$newdata = [];
+	public static function convertPEToPCMetadata(array $oldData) : array{
+		$newData = [];
 
-		foreach($olddata as $bottom => $d){
+		foreach($oldData as $bottom => $d){
 			switch($bottom){
 				case Human::DATA_FLAGS://Flags
 					$flags = 0;
@@ -705,37 +705,37 @@ class ConvertUtils{
 					}
 
 					if(((int) $d[1] & (1 << Human::DATA_FLAG_CAN_SHOW_NAMETAG)) > 0){
-						$newdata[3] = [6, true];
+						$newData[3] = [6, true];
 					}
 
 					if(((int) $d[1] & (1 << Human::DATA_FLAG_ALWAYS_SHOW_NAMETAG)) > 0){
-						$newdata[3] = [6, true];
+						$newData[3] = [6, true];
 					}
 
 					/*if(((int) $d[1] & (1 << Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
-						//$newdata[11] = [0, true];
+						//$newData[11] = [0, true];
 					}*/
 
 					if(((int) $d[1] & (1 << Human::DATA_FLAG_SILENT)) > 0){
-						$newdata[4] = [6, true];
+						$newData[4] = [6, true];
 					}
 
-					$newdata[0] = [0, $flags];
+					$newData[0] = [0, $flags];
 				break;
 				case Human::DATA_AIR://Air
-					$newdata[1] = [1, $d[1]];
+					$newData[1] = [1, $d[1]];
 				break;
 				case Human::DATA_NAMETAG://Custom name
-					$newdata[2] = [3, str_replace("\n", "", $d[1])];//TODO
+					$newData[2] = [3, str_replace("\n", "", $d[1])];//TODO
 				break;
 				case Human::DATA_FUSE_LENGTH://TNT
-					$newdata[6] = [1, $d[1]];
+					$newData[6] = [1, $d[1]];
 				break;
 				case Human::DATA_POTION_COLOR:
-					$newdata[8] = [1, $d[1]];
+					$newData[8] = [1, $d[1]];
 				break;
 				case Human::DATA_POTION_AMBIENT:
-					$newdata[9] = [6, $d[1] ? true : false];
+					$newData[9] = [6, $d[1] ? true : false];
 				break;
 				case Human::DATA_VARIANT:
 				case Human::DATA_PLAYER_FLAGS:
@@ -746,6 +746,7 @@ class ConvertUtils{
 				case Human::DATA_OWNER_EID:
 				case Human::DATA_BOUNDING_BOX_WIDTH:
 				case Human::DATA_BOUNDING_BOX_HEIGHT:
+				case Human::DATA_ALWAYS_SHOW_NAMETAG://TODO: sendPacket?
 				case Projectile::DATA_SHOOTER_ID:
 					//Unused
 				break;
@@ -756,25 +757,25 @@ class ConvertUtils{
 			}
 		}
 
-		$newdata["convert"] = true;
+		$newData["convert"] = true;
 
-		return $newdata;
+		return $newData;
 	}
 
-	/*
+	/**
 	 * Blame Mojang!! :-@
 	 * Why Mojang change the order of flag bits?
 	 * Why Mojang change the directions??
 	 *
-	 * @param int &$blockdata
+	 * @param int &$blockData
 	 *
 	 * #blamemojang
 	 */
-	private static function convertTrapdoor(int &$blockdata) : void{
+	private static function convertTrapdoor(int &$blockData) : void{
 		//swap bits
-		$blockdata ^= (($blockdata & 0x04) << 1);
-		$blockdata ^= (($blockdata & 0x08) >> 1);
-		$blockdata ^= (($blockdata & 0x04) << 1);
+		$blockData ^= (($blockData & 0x04) << 1);
+		$blockData ^= (($blockData & 0x08) >> 1);
+		$blockData ^= (($blockData & 0x04) << 1);
 
 		//swap directions
 		$directions = [
@@ -784,18 +785,18 @@ class ConvertUtils{
 			3 => 0
 		];
 
-		$blockdata = (($blockdata >> 2) << 2) | $directions[$blockdata & 0x03];
+		$blockData = (($blockData >> 2) << 2) | $directions[$blockData & 0x03];
 	}
 
-	/*
+	/**
 	 * Blame Mojang!! :-@
 	 * Why Mojang change the directions??
 	 *
-	 * @param int &$blockdata
+	 * @param int &$blockData
 	 *
 	 * #blamemojang
 	 */
-	private static function convertButton(int &$blockdata) : void{
+	private static function convertButton(int &$blockData) : void{
 		$directions = [
 			0 => 0, // Button on block bottom facing down
 			1 => 5, // Button on block top facing up
@@ -805,7 +806,7 @@ class ConvertUtils{
 			5 => 1, // Button on block side facing east
 		];
 
-		$blockdata = ($blockdata & 0x08) | $directions[$blockdata & 0x07];
+		$blockData = ($blockData & 0x08) | $directions[$blockData & 0x07];
 	}
 
 }

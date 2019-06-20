@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\network\mcpe\VerifyLoginTask;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -76,7 +77,7 @@ class DesktopPlayer extends Player{
 	/** @var string */
 	protected $bigBrother_uuid;
 	/** @var string */
-	protected $bigBrother_formatedUUID;
+	protected $bigBrother_formattedUUID;
 	/** @var array */
 	protected $bigBrother_properties = [];
 	/** @var string */
@@ -86,11 +87,11 @@ class DesktopPlayer extends Player{
 	/** @var string */
 	private $bigBrother_username;
 	/** @var string */
-	private $bigbrother_clientId;
+	private $bigBrother_clientId;
 	/** @var int */
 	private $bigBrother_dimension = 0;
 	/** @var string[] */
-	private $bigBrother_entitylist = [];
+	private $bigBrother_entityList = [];
 	/** @var InventoryUtils */
 	private $inventoryUtils;
 	/** @var RecipeUtils */
@@ -122,7 +123,7 @@ class DesktopPlayer extends Player{
 	 */
 	public function __construct(SourceInterface $interface, string $clientID, string $address, int $port, BigBrother $plugin){
 		$this->plugin = $plugin;
-		$this->bigbrother_clientId = $clientID;
+		$this->bigBrother_clientId = $clientID;
 		parent::__construct($interface, $address, $port);
 
 		$this->bigBrother_breakPosition = [new Vector3(0, 0, 0), 0];
@@ -174,11 +175,11 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * @param int    $eid
-	 * @param string $entitytype
+	 * @param string $entityType
 	 */
-	public function bigBrother_addEntityList(int $eid, string $entitytype) : void{
-		if(!isset($this->bigBrother_entitylist[$eid])){
-			$this->bigBrother_entitylist[$eid] = $entitytype;
+	public function bigBrother_addEntityList(int $eid, string $entityType) : void{
+		if(!isset($this->bigBrother_entityList[$eid])){
+			$this->bigBrother_entityList[$eid] = $entityType;
 		}
 	}
 
@@ -187,8 +188,8 @@ class DesktopPlayer extends Player{
 	 * @return string
 	 */
 	public function bigBrother_getEntityList(int $eid) : string{
-		if(isset($this->bigBrother_entitylist[$eid])){
-			return $this->bigBrother_entitylist[$eid];
+		if(isset($this->bigBrother_entityList[$eid])){
+			return $this->bigBrother_entityList[$eid];
 		}
 		return "generic";
 	}
@@ -197,8 +198,8 @@ class DesktopPlayer extends Player{
 	 * @param int $eid
 	 */
 	public function bigBrother_removeEntityList(int $eid) : void{
-		if(isset($this->bigBrother_entitylist[$eid])){
-			unset($this->bigBrother_entitylist[$eid]);
+		if(isset($this->bigBrother_entityList[$eid])){
+			unset($this->bigBrother_entityList[$eid]);
 		}
 	}
 
@@ -288,8 +289,8 @@ class DesktopPlayer extends Player{
 	/**
 	 * @return string formatted uuid
 	 */
-	public function bigBrother_getformatedUUID() : string{
-		return $this->bigBrother_formatedUUID;
+	public function bigBrother_getFormattedUUID() : string{
+		return $this->bigBrother_formattedUUID;
 	}
 
 	/**
@@ -462,6 +463,16 @@ class DesktopPlayer extends Player{
 		$this->sendAdvancements(true);
 	}
 
+	private function generateClientDataJWT(): string{
+		$headB64 = base64_encode(json_encode([
+			"x5u" => VerifyLoginTask::MOJANG_ROOT_PUBLIC_KEY
+		]));
+		$payloadB64 = base64_encode(json_encode([]));
+		$sigB64 = base64_encode("signature by BigBrother.");
+
+		return implode(".", [$headB64, $payloadB64, $sigB64]);
+	}
+
 	public function bigBrother_respawn() : void{
 		$pk = new PlayerPositionAndLookPacket();
 		$pk->x = $this->getX();
@@ -487,12 +498,12 @@ class DesktopPlayer extends Player{
 	public function bigBrother_authenticate(string $uuid, ?array $onlineModeData = null) : void{
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_uuid = $uuid;
-			$this->bigBrother_formatedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
+			$this->bigBrother_formattedUUID = Binary::UUIDtoString($this->bigBrother_uuid);
 
 			$this->interface->setCompression($this);
 
 			$pk = new LoginSuccessPacket();
-			$pk->uuid = $this->bigBrother_formatedUUID;
+			$pk->uuid = $this->bigBrother_formattedUUID;
 			$pk->name = $this->bigBrother_username;
 			$this->putRawPacket($pk);
 
@@ -526,8 +537,8 @@ class DesktopPlayer extends Player{
 			$pk = new LoginPacket();
 			$pk->username = $this->bigBrother_username;
 			$pk->protocol = Info::CURRENT_PROTOCOL;
-			$pk->clientUUID = $this->bigBrother_formatedUUID;
-			$pk->clientId = crc32($this->bigbrother_clientId);
+			$pk->clientUUID = $this->bigBrother_formattedUUID;
+			$pk->clientId = crc32($this->bigBrother_clientId);
 			$pk->xuid = str_repeat("0", 16);
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->locale = "en_US";
@@ -535,10 +546,10 @@ class DesktopPlayer extends Player{
 			$pk->clientData["SkinGeometry"] = "";//TODO
 
 			if($model){
-				$pk->clientData["SkinId"] = $this->bigBrother_formatedUUID."_CustomSlim";
+				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_CustomSlim";
 				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.customSlim";
 			}else{
-				$pk->clientData["SkinId"] = $this->bigBrother_formatedUUID."_Custom";
+				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_Custom";
 				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.custom";
 			}
 
@@ -549,7 +560,7 @@ class DesktopPlayer extends Player{
 			$pk->clientData["CapeData"] = $cape->getCapeData();
 
 			$pk->chainData = ["chain" => []];
-			$pk->clientDataJwt = "eyJ4NXUiOiJNSFl3RUFZSEtvWkl6ajBDQVFZRks0RUVBQ0lEWWdBRThFTGtpeHlMY3dsWnJ5VVFjdTFUdlBPbUkyQjd2WDgzbmRuV1JVYVhtNzR3RmZhNWZcL2x3UU5UZnJMVkhhMlBtZW5wR0k2SmhJTVVKYVdacmptTWo5ME5vS05GU05CdUtkbThyWWlYc2ZhejNLMzZ4XC8xVTI2SHBHMFp4S1wvVjFWIn0.W10.QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB";
+			$pk->clientDataJwt = $this->generateClientDataJWT();
 			$this->handleDataPacket($pk);
 		}
 	}
@@ -592,10 +603,10 @@ class DesktopPlayer extends Player{
 				public function onRun(){
 					$result = null;
 
-					$query = http_build_query(array(
-						'username' => $this->username,
-						'serverId' => $this->hash
-					));
+					$query = http_build_query([
+						"username" => $this->username,
+						"serverId" => $this->hash
+					]);
 
 					$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?".$query, 5, [], $err);
 					if($response === false){

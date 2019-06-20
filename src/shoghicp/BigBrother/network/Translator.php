@@ -30,9 +30,8 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\network;
 
 use InvalidStateException;
-use pocketmine\block\Block;
-use pocketmine\block\BlockFactory;
 use const pocketmine\DEBUG;
+use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\particle\Particle;
@@ -94,6 +93,8 @@ use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
+use /** @noinspection PhpInternalEntityUsedInspection */
+	pocketmine\network\mcpe\protocol\types\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\network\mcpe\NetworkBinaryStream;
@@ -1530,7 +1531,8 @@ class Translator{
 
 			case Info::UPDATE_BLOCK_PACKET:
 				/** @var UpdateBlockPacket $packet */
-				$block = BlockFactory::fromStaticRuntimeId($packet->blockRuntimeId);
+				/** @noinspection PhpInternalEntityUsedInspection */
+				$block = RuntimeBlockMapping::fromStaticRuntimeId($packet->blockRuntimeId);
 
 				if(($entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z)) !== null){
 					if($block[0] !== Block::FRAME_BLOCK){
@@ -1802,7 +1804,8 @@ class Translator{
 					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_TERRAIN:
 						$isParticle = true;
 
-						$block = BlockFactory::fromStaticRuntimeId($packet->data);//block data
+						/** @noinspection PhpInternalEntityUsedInspection */
+						$block = RuntimeBlockMapping::fromStaticRuntimeId($packet->data);//block data
 						ConvertUtils::convertBlockData(true, $block[0], $block[1]);
 
 						$packet->data = $block[0] | ($block[1] << 12);
@@ -1821,7 +1824,8 @@ class Translator{
 						//TODO
 					break;
 					case LevelEventPacket::EVENT_PARTICLE_DESTROY:
-						$block = BlockFactory::fromStaticRuntimeId($packet->data);//block data
+						/** @noinspection PhpInternalEntityUsedInspection */
+						$block = RuntimeBlockMapping::fromStaticRuntimeId($packet->data);//block data
 						ConvertUtils::convertBlockData(true, $block[0], $block[1]);
 
 						$packet->data = $block[0] | ($block[1] << 12);
@@ -2553,7 +2557,8 @@ class Translator{
 				/** @var BatchPacket $packet */
 				$packet->decode();
 
-				for($stream=new NetworkBinaryStream($packet->payload); !$stream->feof();){
+				$stream = new NetworkBinaryStream($packet->payload);
+				while(!$stream->feof()){
 					$buf = $stream->getString();
 
 					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){

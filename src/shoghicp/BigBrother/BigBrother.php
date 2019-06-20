@@ -115,8 +115,8 @@ class BigBrother extends PluginBase implements Listener{
 				if(!$this->isPhar() and is_dir($this->getFile().".git")){
 					$cwd = getcwd();
 					chdir($this->getFile());
-					@exec("git describe --tags --always --dirty", $revision, $retval);
-					if($retval == 0){
+					@exec("git describe --tags --always --dirty", $revision, $value);
+					if($value == 0){
 						$this->getLogger()->info("BigBrother revision: ".$revision[0]);
 					}
 					chdir($cwd);
