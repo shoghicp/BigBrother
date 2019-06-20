@@ -1541,7 +1541,9 @@ class Translator{
 
 						ItemFrameBlockEntity::removeItemFrame($entity);
 					}else{
-						$entity->spawnTo($player);
+						if(($packet->flags & UpdateBlockPacket::FLAG_NEIGHBORS) == 0){
+							$entity->spawnTo($player);
+						}
 
 						return null;
 					}
