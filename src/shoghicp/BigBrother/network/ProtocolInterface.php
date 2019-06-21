@@ -88,12 +88,6 @@ class ProtocolInterface implements SourceInterface{
 	/** @var DesktopPlayer[] */
 	protected $sessionsPlayers = [];
 
-	/** @var DesktopPlayer[] */
-	protected $identifiers = [];
-
-	/** @var int */
-	protected $identifier = 0;
-
 	/** @var int */
 	private $threshold;
 
@@ -170,7 +164,6 @@ class ProtocolInterface implements SourceInterface{
 			/** @var int $identifier */
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
-			unset($this->identifiers[$identifier]);
 			$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
 		}else{
 			return;
@@ -236,15 +229,10 @@ class ProtocolInterface implements SourceInterface{
 	 * @param bool       $needACK
 	 * @param bool       $immediate
 	 *
-	 * @return int|null identifier if $needAck === false else null
+	 * @return int|null identifier if $needAck === true else null
 	 * @override
 	 */
 	public function putPacket(Player $player, DataPacket $packet, bool $needACK = false, bool $immediate = true){
-		$id = 0;
-		if($needACK){
-			$id = $this->identifier++;
-			$this->identifiers[$id] = $player;
-		}
 		assert($player instanceof DesktopPlayer);
 		$packets = $this->translator->serverToInterface($player, $packet);
 		if($packets !== null and $this->sessions->contains($player)){
@@ -259,7 +247,7 @@ class ProtocolInterface implements SourceInterface{
 			}
 		}
 
-		return $id;
+		return null;
 	}
 
 	/**
@@ -410,12 +398,6 @@ class ProtocolInterface implements SourceInterface{
 	 * @override
 	 */
 	public function process() : void{
-		if(count($this->identifiers) > 0){
-			foreach($this->identifiers as $id => $player){
-				$player->handleACK($id);
-			}
-		}
-
 		while(is_string($buffer = $this->thread->readThreadToMainPacket())){
 			$offset = 1;
 			$pid = ord($buffer{0});
