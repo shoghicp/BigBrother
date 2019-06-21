@@ -1,0 +1,17 @@
+language: php
+
+php:
+  - 7.2
+  - 7.3
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_script:
+  - echo | pecl install channel://pecl.php.net/yaml-2.0.4
+  - find src/ -type f -name '*.php' | xargs -n 1 php -l
+  - composer install --no-dev
+
+script:
+  - composer build
