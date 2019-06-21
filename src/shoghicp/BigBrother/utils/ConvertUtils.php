@@ -49,7 +49,6 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Binary;
-use pocketmine\utils\Color;
 use UnexpectedValueException;
 
 class ConvertUtils{
@@ -274,7 +273,6 @@ class ConvertUtils{
 		}
 
 		self::$reverseSpawnEggList = array_flip(self::$spawnEggList);
-
 	}
 
 	/**
@@ -357,8 +355,6 @@ class ConvertUtils{
 				$stream->put(pack("N*", ...$nbt->getValue()));
 			break;
 		}
-
-
 
 		return $stream->getBuffer();
 	}
