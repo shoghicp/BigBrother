@@ -43,7 +43,7 @@ class MapPacket extends OutboundPacket{
 	public $scale;
 	/** @var bool */
 	public $trackingPosition = false;
-	/** @var int */
+	/** @var resource *///TODO: We must change object type
 	public $icons = [];
 	/** @var int */
 	public $columns = 0;
@@ -65,12 +65,13 @@ class MapPacket extends OutboundPacket{
 		$this->putByte($this->scale);
 		$this->putBool($this->trackingPosition);
 
-		$this->putVarInt(count($this->icons));
+		$this->putVarInt(0);
+		/*$this->putVarInt(count($this->icons));
 		foreach($this->icons as $icon){
 			$this->putByte($icon->directionAndType);
 			$this->putByte($icon->X);
 			$this->putByte($icon->Z);
-		}
+		}*/
 
 		$this->putByte($this->columns);
 		if($this->columns > 0){

@@ -2490,7 +2490,7 @@ class Translator{
 					 * @override
 					 */
 					public function onCompletion(Server $server){
-						/** @var DesktopPlayer */
+						/** @var DesktopPlayer $player */
 						$player = self::fetchLocal();
 
 						$pk = new MapPacket();
