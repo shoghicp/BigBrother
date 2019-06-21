@@ -610,6 +610,8 @@ class DesktopPlayer extends Player{
 					$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?".$query, 5, [], $err);
 					if($response === false){
 						$this->publishProgress("InternetException: failed to fetch session data; err=".$err);
+						$this->setResult(false);
+						return;
 					}
 
 					$this->setResult(json_decode($response, true));
