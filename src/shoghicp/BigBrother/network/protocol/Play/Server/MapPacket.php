@@ -30,8 +30,6 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
-use shoghicp\BigBrother\utils\ConvertUtil;
-use pocketmine\utils\Color;
 
 class MapPacket extends OutboundPacket{
 
