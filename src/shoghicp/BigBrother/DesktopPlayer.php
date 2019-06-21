@@ -259,7 +259,7 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * @param string $bossBarData
-	 * @param string|array $data
+	 * @param int|string|array $data
 	 */
 	public function bigBrother_setBossBarData(string $bossBarData, $data) : void{
 		$this->bigBrother_bossBarData[$bossBarData] = $data;
@@ -394,7 +394,7 @@ class DesktopPlayer extends Player{
 	/**
 	 * @param int   $chunkX
 	 * @param int   $chunkZ
-	 * @param Level $level
+	 * @param ?Level $level
 	 * @override
 	 */
 	protected function unloadChunk(int $chunkX, int $chunkZ, Level $level = null){
@@ -426,7 +426,7 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * @param LoginPacket $packet
-	 * @param string $error
+	 * @param ?string $error
 	 * @param bool $signedByMojang
 	 * @override
 	 */
