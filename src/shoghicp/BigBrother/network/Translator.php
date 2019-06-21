@@ -98,6 +98,8 @@ use /** @noinspection PhpInternalEntityUsedInspection */
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
 use pocketmine\Player;
 use pocketmine\tile\Spawnable;
 use pocketmine\tile\Tile;
@@ -133,6 +135,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityVelocityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\ExplosionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
+use shoghicp\BigBrother\network\protocol\Play\Server\MapPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\JoinGamePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\KeepAlivePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\NamedSoundEffectPacket;
@@ -161,6 +164,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UseBedPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use shoghicp\BigBrother\utils\ColorUtils;
 use stdClass;
 
 class Translator{
@@ -1540,7 +1544,9 @@ class Translator{
 
 						ItemFrameBlockEntity::removeItemFrame($entity);
 					}else{
-						$entity->spawnTo($player);
+						if(($packet->flags & UpdateBlockPacket::FLAG_NEIGHBORS) == 0){
+							$entity->spawnTo($player);
+						}
 
 						return null;
 					}
@@ -2461,6 +2467,48 @@ class Translator{
 				}
 
 				return $pk;
+
+			case Info::CLIENTBOUND_MAP_ITEM_DATA_PACKET:
+				$player->getServer()->getAsyncPool()->submitTask(new class($player, $packet) extends AsyncTask{
+
+					private $packet;
+
+					public function __construct(DesktopPlayer $player, $packet){
+						self::storeLocal($player);
+						$this->packet = $packet;
+					}
+
+					/*
+					 * @override
+					 */
+					public function onRun(){
+						$this->setResult(ColorUtils::convertColorsToPC($this->packet->colors, $this->packet->width, $this->packet->height));
+					}
+
+					/*
+					 * @param Server $server
+					 * @override
+					 */
+					public function onCompletion(Server $server){
+						/** @var DesktopPlayer */
+						$player = self::fetchLocal();
+
+						$pk = new MapPacket();
+
+						$pk->itemDamage = $this->packet->mapId;
+						$pk->scale = $this->packet->scale;
+						$pk->columns = $this->packet->width;
+						$pk->rows = $this->packet->height;
+
+						// TODO implement tracked entities handling and general map behaviour
+
+						$pk->data = $this->getResult();
+
+						$player->putRawPacket($pk);
+					}
+				});
+
+				return null;
 
 			case Info::BOSS_EVENT_PACKET:
 				/** @var BossEventPacket $packet */

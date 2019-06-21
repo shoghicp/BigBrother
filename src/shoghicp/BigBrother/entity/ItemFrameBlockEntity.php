@@ -36,7 +36,7 @@ use pocketmine\level\Position;
 use pocketmine\entity\Entity;
 use pocketmine\tile\ItemFrame;
 use pocketmine\utils\UUID;
-use ReflectionClass;
+use pocketmine\network\mcpe\protocol\MapInfoRequestPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\DestroyEntitiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\SpawnObjectPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityMetadataPacket;
@@ -78,12 +78,7 @@ class ItemFrameBlockEntity extends Position{
 	 */
 	private function __construct(Level $level, int $x, int $y, int $z, int $data){
 		parent::__construct($x, $y, $z, $level);
-
-		$prop = (new ReflectionClass(Entity::class))->getProperty("entityCount");
-		$prop->setAccessible(true);
-		$this->eid = $prop->getValue();
-		$prop->setValue($this->eid + 1);
-
+		$this->eid = Entity::$entityCount++;
 		$this->uuid = UUID::fromRandom()->toBinary();
 		$this->facing = $data;
 		$this->yaw = self::$mapping[$data][0] ?? 0;
@@ -142,6 +137,19 @@ class ItemFrameBlockEntity extends Position{
 		$tile = $this->getLevel()->getTile($this);
 		if($tile instanceof ItemFrame){
 			$item = $tile->hasItem() ? $tile->getItem() : Item::get(Item::AIR, 0, 0);
+
+			if($item->getId() === Item::FILLED_MAP){
+				$mapId = (int)$item->getNamedTag()->getString("map_uuid");
+				if($mapId != null){
+					// store $mapId as meta
+					$item->setDamage($mapId);
+
+					$req  = new MapInfoRequestPacket();
+					$req->mapId = $mapId;
+					$player->handleDataPacket($req);
+				}
+			}
+
 			ConvertUtils::convertItemData(true, $item);
 			$pk->metadata[6] = [5, $item];
 			$pk->metadata[7] = [1, $tile->getItemRotation()];
