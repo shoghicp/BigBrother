@@ -164,6 +164,7 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UpdateBlockEntityPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UpdateHealthPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\UseBedPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use shoghicp\BigBrother\utils\ColorUtils;
 use stdClass;
 
 class Translator{
@@ -2481,7 +2482,7 @@ class Translator{
 					 * @override
 					 */
 					public function onRun(){
-						$this->setResult(ConvertUtils::convertColorsToPC($this->packet->colors, $this->packet->width, $this->packet->height));
+						$this->setResult(ColorUtils::convertColorsToPC($this->packet->colors, $this->packet->width, $this->packet->height));
 					}
 
 					/*
