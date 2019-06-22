@@ -49,6 +49,7 @@ use pocketmine\network\mcpe\protocol\types\WindowTypes;
 use pocketmine\entity\object\ItemEntity;
 use pocketmine\entity\projectile\Arrow;
 use pocketmine\inventory\transaction\action\CreativeInventoryAction;
+use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\inventory\InventoryPickupArrowEvent;
 use pocketmine\inventory\InventoryHolder;
@@ -1172,10 +1173,8 @@ class InventoryUtils{
 		}
 
 		foreach($actions as $actionNumber => $action){
-			$reflection = new ReflectionClass($action);
-			if(($shortName = $reflection->getShortName()) === "SlotChangeAction"){
-				$reflection = new ReflectionClass($action->getInventory());
-				$windowName = $reflection->getShortName();
+			if($action instanceof SlotChangeAction){
+				$windowName = (new ReflectionClass($action->getInventory()))->getShortName();
 			}else{
 				$windowName = "CreativeInventoryAction";
 			}
@@ -1187,10 +1186,10 @@ class InventoryUtils{
 			}else{
 				if(DEBUG > 3){
 					echo "[Action Number #".$actionNumber."][Window Name: ".$windowName."] invalid Item!\n";
-					if($shortName === "SlotChangeAction"){
+					if($action instanceof SlotChangeAction){
 						$checkItem = $action->getInventory()->getItem($action->getSlot());
 						var_dump(["checkItem" => $checkItem, "sourceItem" => $action->getSourceItem()]);//json_encode
-					}elseif($shortName === "CreativeInventoryAction"){
+					}elseif($action instanceof CreativeInventoryAction){
 						var_dump([
 							$this->player->isCreative(true),
 							($action->getActionType() === CreativeInventoryAction::TYPE_DELETE_ITEM or Item::getCreativeItemIndex($action->getSourceItem()) !== -1)
