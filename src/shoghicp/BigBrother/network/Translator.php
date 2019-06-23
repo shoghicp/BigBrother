@@ -2297,8 +2297,17 @@ class Translator{
 				$nbt = $nbt->read($packet->namedtag, true);
 
 				switch($nbt["id"]){
+					case Tile::BANNER:
+						$pk->actionID = 6;
+						$pk->namedtag = $nbt;
+					break;
+					case Tile::BED:
+						$pk->actionID = 11;
+						$pk->namedtag = $nbt;
+					break;
 					case Tile::CHEST:
 					case Tile::ENCHANT_TABLE:
+					case Tile::ENDER_CHEST:
 					case Tile::FURNACE:
 						$pk->actionID = 7;
 						$pk->namedtag = $nbt;
@@ -2336,14 +2345,6 @@ class Translator{
 					break;
 					case Tile::SKULL:
 						$pk->actionID = 4;
-						$pk->namedtag = $nbt;
-					break;
-					case Tile::BED:
-						$pk->actionID = 11;
-						$pk->namedtag = $nbt;
-					break;
-					case Tile::BANNER:
-						$pk->actionID = 6;
 						$pk->namedtag = $nbt;
 					break;
 					default:
