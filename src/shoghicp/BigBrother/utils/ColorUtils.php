@@ -230,22 +230,7 @@ class ColorUtils extends Color{
 
 		for($y=0; $y<$height; ++$y){
 			for($x=0; $x<$width; ++$x){
-				$min = PHP_INT_MAX;
-				$ind = 0x00;
-
-				$color = $colors[$y][$x];
-
-				if($color->a >= 128){
-					foreach(self::$colorTable as $index => $rgb){
-						$squared = ($rgb[0]-$color->r)**2 + ($rgb[1]-$color->g)**2 + ($rgb[2]-$color->b)**2;
-						if($squared < $min){
-							$ind = $index;
-							$min = $squared;
-						}
-					}
-				}
-
-				$ret .= chr($ind);
+				$ret .= $colors[$y][$x]->a >= 128 ? self::$index{($colors[$y][$x]->r << 16) + ($colors[$y][$x]->g << 8) + $colors[$y][$x]->b} : chr(0x00);
 			}
 		}
 

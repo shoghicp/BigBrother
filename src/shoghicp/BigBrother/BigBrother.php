@@ -49,6 +49,7 @@ use shoghicp\BigBrother\network\Translator;
 use shoghicp\BigBrother\network\protocol\Play\Server\RespawnPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\OpenSignEditorPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
+use shoghicp\BigBrother\utils\ColorUtils;
 
 class BigBrother extends PluginBase implements Listener{
 
@@ -106,6 +107,8 @@ class BigBrother extends PluginBase implements Listener{
 				$this->saveResource("color_index.dat", true);
 				$this->saveResource("openssl.cnf", false);
 				$this->reloadConfig();
+
+				ColorUtils::loadColorIndex($this->getDataFolder()."color_index.dat");
 
 				$this->getLogger()->info("OS: ".php_uname());
 				$this->getLogger()->info("PHP version: ".PHP_VERSION);
