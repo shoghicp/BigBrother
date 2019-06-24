@@ -178,6 +178,45 @@ class ColorUtils extends Color{
 		0x8F => [0x3B, 0x01, 0x00], // Netherrack, Quartz Ore, Nether Wart, Nether Brick Items
 	];
 
+	/** @var ?string */
+	private static $index = null;
+
+	/**
+	 * @var string $path
+	 * @internal
+	 */
+	public static function generateColorIndex(string $path){
+		$indexes = "";
+
+		for($r=0; $r<256; ++$r){
+			for($g=0; $g<256; ++$g){
+				for($b=0; $b<256; ++$b){
+					$ind = 0x00;
+					$min = PHP_INT_MAX;
+
+					foreach(self::$colorTable as $index => $rgb){
+						$squared = ($rgb[0]-$r)**2 + ($rgb[1]-$g)**2 + ($rgb[2]-$b)**2;
+						if($squared < $min){
+							$ind = $index;
+							$min = $squared;
+						}
+					}
+
+					$indexes .= chr($ind);
+				}
+			}
+		}
+
+		file_put_contents($path, zlib_encode($indexes, ZLIB_ENCODING_DEFLATE, 9));
+	}
+
+	/**
+	 * @var string $path
+	 */
+	public static function loadColorIndex(string $path){
+		self::$index= zlib_decode(file_get_contents($path));
+	}
+
 	/**
 	 * Find nearest color defined in self::$colorTable for each pixel in $colors
 	 *

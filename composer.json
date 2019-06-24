@@ -32,7 +32,12 @@
   "scripts": {
     "build": [
       "@composer install --no-dev -o",
+      "@composer reindex",
       "@php scripts/build"
+    ],
+    "reindex": [
+      "@composer install --no-dev -o",
+      "@php scripts/reindex"
     ]
   },
   "require": {
