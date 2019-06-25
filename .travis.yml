@@ -1,5 +1,8 @@
 language: php
 
+git:
+  depth: false
+
 php:
   - 7.2
   - 7.3
@@ -16,3 +19,16 @@ before_script:
 
 script:
   - composer build
+
+before_deploy:
+  - scripts/before_deploy
+
+deploy:
+  provider: bintray
+  user: ${BINTRAY_USER}
+  key: ${BINTRAY_SECRET}
+  skip_cleanup: true
+  on:
+    all_branches: true
+    condition: $TRAVIS_PHP_VERSION = 7.2
+  file: build/bintray.json

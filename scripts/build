@@ -28,8 +28,8 @@
 
 define("PROJECT_ROOT", dirname(__FILE__, 2));
 define("DEVTOOL_REPO", "pmmp/PocketMine-DevTools");
-define("DEVTOOL_FILE", "/dists/DevTools.phar");
-define("BIGBROS_FILE", "/dists/BigBrother.phar");
+define("DEVTOOL_FILE", "/build/DevTools.phar");
+define("BIGBROS_FILE", "/build/BigBrother.phar");
 
 define("GITHUB_API", "https://api.github.com/repos/%s/releases");
 define("USER_AGENT", "User-Agent: Mozilla/5.0 like Gecko");
