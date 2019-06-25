@@ -1,6 +1,7 @@
 BigBrother
 =============
 [![Build Status](https://travis-ci.org/BigBrotherTeam/BigBrother.svg?branch=master)](https://travis-ci.org/BigBrotherTeam/BigBrother)
+[![Download](https://api.bintray.com/packages/bigbrotherteam/BigBrother/BigBrother/images/download.svg)](https://bintray.com/bigbrotherteam/BigBrother/BigBrother/_latestVersion)
 [![license](https://img.shields.io/github/license/BigBrotherTeam/BigBrother.svg)](https://github.com/BigBrotherTeam/BigBrother/blob/master/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/BigBrotherTeam/BigBrother.svg)](https://github.com/BigBrotherTeam/BigBrother/graphs/contributors)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/BigBrotherTeam/BigBrother.svg)](http://isitmaintained.com/project/BigBrotherTeam/BigBrother "Average time to resolve an issue")
