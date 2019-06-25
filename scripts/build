@@ -28,9 +28,9 @@
 
 define("PROJECT_ROOT", dirname(__FILE__, 2));
 define("DEVTOOL_REPO", "pmmp/PocketMine-DevTools");
-define("DEVTOOL_FILE", "/dists/DevTools.phar");
-define("BIGBROS_FILE", "/dists/BigBrother.phar");
-
+define("DEVTOOL_FILE", "/build/DevTools.phar");
+define("BIGBROS_FILE", "/build/BigBrother.phar");
+define("REVISION_FILE", "/resources/revision");
 define("GITHUB_API", "https://api.github.com/repos/%s/releases");
 define("USER_AGENT", "User-Agent: Mozilla/5.0 like Gecko");
 
@@ -43,20 +43,48 @@ try {
 		exit($value);
 	}
 
+	@unlink(PROJECT_ROOT . REVISION_FILE);
+	@exec("git describe --tags --always --dirty", $revision, $value);
+	if($value == 0){
+		file_put_contents(PROJECT_ROOT . REVISION_FILE, $revision[0]);
+	}
+
 	/**
 	 * skip if devtools is already downloaded less than 15 min
 	 * to avoid reaching github API rate limit
 	 */
 	if(!file_exists(PROJECT_ROOT . DEVTOOL_FILE) or time() > ($atime = fileatime(PROJECT_ROOT . DEVTOOL_FILE)) +900){
+		$headers = [
+			"User-Agent: ". USER_AGENT,
+		];
+
+		if($GITHUB_OAUTH_TOKEN = getenv("GITHUB_OAUTH_TOKEN")){
+			$headers[] = "Authorization: bearer $GITHUB_OAUTH_TOKEN";
+		}
+
+		$ctx = stream_context_create(["http" => ["header" => join("\r\n", $headers)]]);
+
 		//query latest devtool release
-		$ctx = stream_context_create(["http" => ["header" => "User-Agent: ". USER_AGENT]]);
-		$asset = json_decode(@file_get_contents(sprintf(GITHUB_API, DEVTOOL_REPO), false, $ctx))[0]->assets[0];
+		$releases = json_decode(file_get_contents(sprintf(GITHUB_API, DEVTOOL_REPO), false, $ctx));
+		if(!is_array($releases)) {
+			echo "Failed to retrieve DevTools release info from github" . PHP_EOL;
+			exit(1);
+		}
 
 		//check if devtools is up to date
-		if(!isset($atime) or strtotime($asset->updated_at) > $atime){
-			@mkdir(dirname(PROJECT_ROOT . DEVTOOL_FILE));
+		if(!isset($atime) or strtotime($releases[0]->assets[0]->updated_at) > $atime){
+			$asset = $releases[0]->assets[0];
+
+			mkdir(dirname(PROJECT_ROOT . DEVTOOL_FILE));
 			echo sprintf("Downloading DevTools from '%s'", $asset->browser_download_url) . PHP_EOL;
-			@file_put_contents(PROJECT_ROOT . DEVTOOL_FILE, @file_get_contents($asset->browser_download_url));
+
+			$binary = file_get_contents($asset->browser_download_url);
+			if($binary === false){
+				echo "Failed to download DevTools.phar" . PHP_EOL;
+				exit(1);
+			}
+
+			file_put_contents(PROJECT_ROOT . DEVTOOL_FILE, $binary);
 		}
 	}
 

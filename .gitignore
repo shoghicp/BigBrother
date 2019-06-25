@@ -1,3 +1,4 @@
 
-dists/
+build/
 vendor/
+resources/revision
