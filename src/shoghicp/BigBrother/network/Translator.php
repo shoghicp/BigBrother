@@ -2470,46 +2470,18 @@ class Translator{
 				return $pk;
 
 			case Info::CLIENTBOUND_MAP_ITEM_DATA_PACKET:
-				$player->getServer()->getAsyncPool()->submitTask(new class($player, $packet) extends AsyncTask{
+				$pk = new MapPacket();
 
-					private $packet;
+				$pk->itemDamage = $packet->mapId;
+				$pk->scale = $packet->scale;
+				$pk->columns = $packet->width;
+				$pk->rows = $packet->height;
 
-					public function __construct(DesktopPlayer $player, $packet){
-						self::storeLocal($player);
-						$this->packet = $packet;
-					}
+				// TODO implement tracked entities handling and general map behaviour
 
-					/*
-					 * @override
-					 */
-					public function onRun(){
-						$this->setResult(ColorUtils::convertColorsToPC($this->packet->colors, $this->packet->width, $this->packet->height));
-					}
+				$pk->data = ColorUtils::convertColorsToPC($packet->colors, $packet->width, $packet->height);
 
-					/*
-					 * @param Server $server
-					 * @override
-					 */
-					public function onCompletion(Server $server){
-						/** @var DesktopPlayer $player */
-						$player = self::fetchLocal();
-
-						$pk = new MapPacket();
-
-						$pk->itemDamage = $this->packet->mapId;
-						$pk->scale = $this->packet->scale;
-						$pk->columns = $this->packet->width;
-						$pk->rows = $this->packet->height;
-
-						// TODO implement tracked entities handling and general map behaviour
-
-						$pk->data = $this->getResult();
-
-						$player->putRawPacket($pk);
-					}
-				});
-
-				return null;
+				return $pk;
 
 			case Info::BOSS_EVENT_PACKET:
 				/** @var BossEventPacket $packet */
