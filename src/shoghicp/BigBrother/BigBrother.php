@@ -120,6 +120,8 @@ class BigBrother extends PluginBase implements Listener{
 						$this->getLogger()->info("BigBrother revision: ".$revision[0]);
 					}
 					chdir($cwd);
+				}elseif(($resource = $this->getResource("revision")) and ($revision = stream_get_contents($resource))){
+					$this->getLogger()->info("BigBrother.phar; revision: ".$revision);
 				}
 
 				$aes = new AES(AES::MODE_CFB8);

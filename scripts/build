@@ -30,7 +30,7 @@ define("PROJECT_ROOT", dirname(__FILE__, 2));
 define("DEVTOOL_REPO", "pmmp/PocketMine-DevTools");
 define("DEVTOOL_FILE", "/build/DevTools.phar");
 define("BIGBROS_FILE", "/build/BigBrother.phar");
-
+define("REVISION_FILE", "/resources/revision");
 define("GITHUB_API", "https://api.github.com/repos/%s/releases");
 define("USER_AGENT", "User-Agent: Mozilla/5.0 like Gecko");
 
@@ -41,6 +41,12 @@ try {
 	if(ini_get("phar.readonly") == 1){
 		system(join(' ', array_merge([PHP_BINARY, '-dphar.readonly=0'], $argv)), $value);
 		exit($value);
+	}
+
+	@unlink(PROJECT_ROOT . REVISION_FILE);
+	@exec("git describe --tags --always --dirty", $revision, $value);
+	if($value == 0){
+		file_put_contents(PROJECT_ROOT . REVISION_FILE, $revision[0]);
 	}
 
 	/**
