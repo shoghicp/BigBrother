@@ -4,13 +4,15 @@ BINTRAY_JSON="$(dirname $(readlink -f $0))/../build/bintray.json"
 GIT_REVISION="$(git describe --tags --always --dirty)"
 GIT_SHA1="$(git log -1 --format=[%h])"
 
-BINTRAY_SUBJECT="${BINTRAY_SUBJECT:-BigBrotherTeam}"
+BINTRAY_SUBJECT="${BINTRAY_SUBJECT:-bigbrotherteam}"
+BINTRAY_REPO="${BINTRAY_REPO:-BigBrother}"
+BINTRAY_PACKAGE="${BINTRAY_PACKAGE:-BigBrother}"
 
 cat<<EOF >"${BINTRAY_JSON}"
 {
   "package": {
-    "name": "BigBrother",
-    "repo": "Test",
+    "name": "${BINTRAY_PACKAGE}",
+    "repo": "${BINTRAY_REPO}",
     "subject": "${BINTRAY_SUBJECT}",
     "desc": "Allows the connection of Minecraft: Java Edtion clients to PocketMine-MP servers. Made for PocketMine-MP",
     "website_url": "https://github.com/BigBrotherTeam/BigBrother",
