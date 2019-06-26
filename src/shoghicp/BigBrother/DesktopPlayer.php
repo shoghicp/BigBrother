@@ -565,18 +565,17 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param BigBrother $plugin
 	 * @param EncryptionResponsePacket $packet
 	 */
-	public function bigBrother_processAuthentication(BigBrother $plugin, EncryptionResponsePacket $packet) : void{
-		$this->bigBrother_secret = $plugin->decryptBinary($packet->sharedSecret);
-		$token = $plugin->decryptBinary($packet->verifyToken);
+	public function bigBrother_processAuthentication(EncryptionResponsePacket $packet) : void{
+		$this->bigBrother_secret = $this->plugin->decryptBinary($packet->sharedSecret);
+		$token = $this->plugin->decryptBinary($packet->verifyToken);
 		$this->interface->enableEncryption($this, $this->bigBrother_secret);
 		if($token !== $this->bigBrother_checkToken){
 			$this->close("", "Invalid check token");
 		}else{
 			$username = $this->bigBrother_username;
-			$hash = Binary::sha1("".$this->bigBrother_secret.$plugin->getASN1PublicKey());
+			$hash = Binary::sha1("".$this->bigBrother_secret.$this->plugin->getASN1PublicKey());
 
 			$this->getServer()->getAsyncPool()->submitTask(new class($this, $username, $hash) extends AsyncTask{
 
@@ -645,17 +644,16 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param BigBrother $plugin
 	 * @param string $username
 	 * @param bool $onlineMode
 	 */
-	public function bigBrother_handleAuthentication(BigBrother $plugin, string $username, bool $onlineMode = false) : void{
+	public function bigBrother_handleAuthentication(string $username, bool $onlineMode = false) : void{
 		if($this->bigBrother_status === 0){
 			$this->bigBrother_username = $username;
 			if($onlineMode){
 				$pk = new EncryptionRequestPacket();
 				$pk->serverID = "";
-				$pk->publicKey = $plugin->getASN1PublicKey();
+				$pk->publicKey = $this->plugin->getASN1PublicKey();
 				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);
 				$this->putRawPacket($pk);
 			}else{

@@ -383,11 +383,11 @@ class ProtocolInterface implements SourceInterface{
 			if($pid === InboundPacket::LOGIN_START_PACKET){
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
-				$player->bigBrother_handleAuthentication($this->plugin, $pk->name, $this->plugin->isOnlineMode());
+				$player->bigBrother_handleAuthentication($pk->name, $this->plugin->isOnlineMode());
 			}elseif($pid === InboundPacket::ENCRYPTION_RESPONSE_PACKET and $this->plugin->isOnlineMode()){
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);
-				$player->bigBrother_processAuthentication($this->plugin, $pk);
+				$player->bigBrother_processAuthentication($pk);
 			}else{
 				$player->close($player->getLeaveMessage(), "Unexpected packet $pid");
 			}
