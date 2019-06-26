@@ -2,7 +2,6 @@
 
 BINTRAY_JSON="$(dirname $(readlink -f $0))/../build/bintray.json"
 GIT_REVISION="$(git describe --tags --always --dirty)"
-GIT_SHA1="$(git log -1 --format=[%h])"
 
 BINTRAY_SUBJECT="${BINTRAY_SUBJECT:-bigbrotherteam}"
 BINTRAY_REPO="${BINTRAY_REPO:-BigBrother}"
@@ -31,7 +30,7 @@ cat<<EOF >"${BINTRAY_JSON}"
 
   "files":
     [
-      {"includePattern": "build/BigBrother.phar", "uploadPattern": "${TRAVIS_BRANCH}/BigBrother-${GIT_REVISION}${GIT_SHA1}.phar"}
+      {"includePattern": "build/BigBrother.phar", "uploadPattern": "${TRAVIS_BRANCH}/BigBrother-${GIT_REVISION}.phar"}
     ],
   "publish": true
 }
