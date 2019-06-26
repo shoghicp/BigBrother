@@ -214,7 +214,7 @@ class ColorUtils extends Color{
 	 * @var string $path
 	 */
 	public static function loadColorIndex(string $path){
-		self::$index= zlib_decode(file_get_contents($path));
+		self::$index = zlib_decode(file_get_contents($path));
 	}
 
 	/**
