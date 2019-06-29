@@ -525,6 +525,8 @@ class DesktopPlayer extends Player{
 						}
 
 						$skinImage = file_get_contents($textures["textures"]["SKIN"]["url"]);
+					}else{
+						$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/steve.png");
 					}
 
 					if(isset($textures["textures"]["CAPE"])){
