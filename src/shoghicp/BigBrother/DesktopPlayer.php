@@ -392,12 +392,12 @@ class DesktopPlayer extends Player{
 	}
 
 	/**
-	 * @param int   $chunkX
-	 * @param int   $chunkZ
-	 * @param ?Level $level
+	 * @param int $chunkX
+	 * @param int $chunkZ
+	 * @param Level|null $level
 	 * @override
 	 */
-	protected function unloadChunk(int $chunkX, int $chunkZ, Level $level = null){
+	protected function unloadChunk(int $chunkX, int $chunkZ, ?Level $level = null){
 		parent::unloadChunk($chunkX, $chunkZ, $level);
 
 		$pk = new UnloadChunkPacket();
@@ -426,7 +426,7 @@ class DesktopPlayer extends Player{
 
 	/**
 	 * @param LoginPacket $packet
-	 * @param ?string $error
+	 * @param string|null $error
 	 * @param bool $signedByMojang
 	 * @override
 	 */

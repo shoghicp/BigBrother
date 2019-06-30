@@ -13,7 +13,7 @@ cat<<EOF >"${BINTRAY_JSON}"
     "name": "${BINTRAY_PACKAGE}",
     "repo": "${BINTRAY_REPO}",
     "subject": "${BINTRAY_SUBJECT}",
-    "desc": "Allows the connection of Minecraft: Java Edtion clients to PocketMine-MP servers. Made for PocketMine-MP",
+    "desc": "Allows the connection of Minecraft: Java Edition clients to PocketMine-MP servers. Made for PocketMine-MP",
     "website_url": "https://github.com/BigBrotherTeam/BigBrother",
     "issue_tracker_url": "https://github.com/BigBrotherTeam/BigBrother/issues",
     "vcs_url": "https://github.com/BigBrotherTeam/BigBrother.git",

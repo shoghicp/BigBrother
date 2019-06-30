@@ -54,6 +54,7 @@ use pocketmine\network\mcpe\protocol\BlockEventPacket;
 use pocketmine\network\mcpe\protocol\BookEditPacket;
 use pocketmine\network\mcpe\protocol\BossEventPacket;
 use pocketmine\network\mcpe\protocol\ChangeDimensionPacket;
+use pocketmine\network\mcpe\protocol\ClientboundMapItemDataPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\ContainerSetDataPacket;
@@ -98,8 +99,6 @@ use /** @noinspection PhpInternalEntityUsedInspection */
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\network\mcpe\NetworkBinaryStream;
-use pocketmine\scheduler\AsyncTask;
-use pocketmine\Server;
 use pocketmine\Player;
 use pocketmine\tile\Spawnable;
 use pocketmine\tile\Tile;
@@ -2470,6 +2469,7 @@ class Translator{
 				return $pk;
 
 			case Info::CLIENTBOUND_MAP_ITEM_DATA_PACKET:
+				/** @var ClientboundMapItemDataPacket $packet */
 				$pk = new MapPacket();
 
 				$pk->itemDamage = $packet->mapId;
