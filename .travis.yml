@@ -14,7 +14,6 @@ cache:
 before_script:
   - echo | pecl install channel://pecl.php.net/yaml-2.0.4
   - find src/ -type f -name '*.php' | xargs -n 1 php -l
-  - composer config -g github-oauth.github.com ${GITHUB_OAUTH_TOKEN}
   - composer install --no-dev
 
 script:

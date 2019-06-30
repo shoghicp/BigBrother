@@ -49,7 +49,6 @@ class SkinUtils{
 				}
 			}
 		}else{
-			//TODO implement default skin
 			$data = str_repeat(" ", 64 * 32 * 4);//dummy data
 		}
 
