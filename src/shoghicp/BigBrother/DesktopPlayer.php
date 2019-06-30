@@ -531,11 +531,12 @@ class DesktopPlayer extends Player{
 						 * Ref) https://github.com/mapcrafter/mapcrafter-playermarkers/blob/c583dd9157a041a3c9ec5c68244f73b8d01ac37a/playermarkers/player.php#L8-L19
 						 */
 						$s = str_replace("-", "", trim($uuid));
-						for($i=0; $i<4; ++$i){
-							$sub[$i] = hexdec(substr($s, $i*8, 8));
+						$sub = [0, 0, 0, 0];
+						for($i = 0; $i < 4; ++$i){
+							$sub[$i] = hexdec(substr($s, $i * 8, 8));
 						}
 
-						if((bool)((($sub[0] ^ $sub[1]) ^ ($sub[2] ^ $sub[3])) % 2)){
+						if((bool) ((($sub[0] ^ $sub[1]) ^ ($sub[2] ^ $sub[3])) % 2)){
 							$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/alex.png");
 						}else{
 							$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/steve.png");
