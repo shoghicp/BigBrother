@@ -1220,10 +1220,10 @@ class Translator{
 
 						$data = $blockId | ($blockDamage << 12);
 					break;
-					/*case 68://ThrownExpBottle
-						//Spawn Object
+					case 68://ThrownExpBottle
+						$isObject = true;
+						$packet->type = 75;
 					break;
-					*/
 					case 69://XPOrb
 						$entity = $player->getLevel()->getEntity($packet->entityRuntimeId);
 
