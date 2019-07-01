@@ -668,82 +668,91 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);
 				$this->putRawPacket($pk);
 			}else{
-				$this->getServer()->getAsyncPool()->submitTask(new class($this, $username) extends AsyncTask{
+				if($info = $this->plugin->getProfileCache($username)){
+					echo "cache hit !!".PHP_EOL;
+					$this->bigBrother_authenticate($info["id"], $info["properties"]);
+				}else{
+					$this->getServer()->getAsyncPool()->submitTask(new class($this->plugin, $this, $username) extends AsyncTask{
 
-					/** @var string */
-					private $username;
+						/** @var string */
+						private $username;
 
-					/**
-					 * @param DesktopPlayer $player
-					 * @param string $username
-					 */
-					public function __construct(DesktopPlayer $player, string $username){
-						self::storeLocal($player);
-						$this->username = $username;
-					}
-
-					/**
-					 * @override
-					 */
-					public function onRun(){
-						$profile = null;
-						$info = null;
-
-						$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username, 10, [], $err);
-						if($response === false){
-							$this->publishProgress("InternetException: failed to fetch profile; err=".$err);
-							$this->setResult(false);
-							return;
+						/**
+						 * @param DesktopPlayer $player
+						 * @param string $username
+						 */
+						public function __construct(BigBrother $plugin, DesktopPlayer $player, string $username){
+							self::storeLocal([$plugin, $player]);
+							$this->username = $username;
 						}
 
-						$profile = json_decode($response, true);
-						if(!is_array($profile)){
-							$this->publishProgress("UnknownError: failed to parse profile; response=".$response);
-							$this->setResult(false);
-							return;
+						/**
+						 * @override
+						 */
+						public function onRun(){
+							$profile = null;
+							$info = null;
+
+							$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username, 10, [], $err);
+							if($response === false){
+								$this->publishProgress("InternetException: failed to fetch profile; err=".$err);
+								$this->setResult(false);
+								return;
+							}
+
+							$profile = json_decode($response, true);
+							if(!is_array($profile)){
+								$this->publishProgress("UnknownError: failed to parse profile; response=".$response);
+								$this->setResult(false);
+								return;
+							}
+
+							$uuid = $profile["id"];
+							$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3, [], $err);
+							if($response === false){
+								$this->publishProgress("InternetException: failed to fetch profile info; err=".$err);
+								$this->setResult(false);
+								return;
+							}
+
+							$info = json_decode($response, true);
+							if($info === null or !isset($info["id"])){
+								$this->publishProgress("UnknownError: failed to parse profile info; response=".$response);
+								$this->setResult(false);
+								return;
+							}
+
+							$this->setResult($info);
 						}
 
-						$uuid = $profile["id"];
-						$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3, [], $err);
-						if($response === false){
-							$this->publishProgress("InternetException: failed to fetch profile info; err=".$err);
-							$this->setResult(false);
-							return;
+						/**
+						 * @override
+						 * @param Server $server
+						 * @param mixed $message
+						 */
+						public function onProgressUpdate(Server $server, $message){
+							$server->getLogger()->error($message);
 						}
 
-						$info = json_decode($response, true);
-						if($info === null or !isset($info["id"])){
-							$this->publishProgress("UnknownError: failed to parse profile info; response=".$response);
-							$this->setResult(false);
-							return;
+						/**
+						 * @override
+						 * @param Server $server
+						 */
+						public function onCompletion(Server $server){
+							$info = $this->getResult();
+							if(is_array($info)){
+								list($plugin, $player) = self::fetchLocal();
+
+								/** @var BigBrother $plugin */
+								$plugin->setProfileCache($this->username, $info);
+
+								/** @var DesktopPlayer $player */
+								$player->bigBrother_authenticate($info["id"], $info["properties"]);
+							}
 						}
 
-						$this->setResult($info);
-					}
-
-					/**
-					 * @override
-					 * @param Server $server
-					 * @param mixed $message
-					 */
-					public function onProgressUpdate(Server $server, $message){
-						$server->getLogger()->error($message);
-					}
-
-					/**
-					 * @override
-					 * @param Server $server
-					 */
-					public function onCompletion(Server $server){
-						$info = $this->getResult();
-						if(is_array($info)){
-							/** @var DesktopPlayer $player */
-							$player = self::fetchLocal();
-							$player->bigBrother_authenticate($info["id"], $info["properties"]);
-						}
-					}
-
-				});
+					});
+				}
 			}
 		}
 	}

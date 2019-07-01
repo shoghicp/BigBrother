@@ -71,6 +71,9 @@ class BigBrother extends PluginBase implements Listener{
 	/** @var Translator */
 	protected $translator;
 
+	/** @var array */
+	protected $profileCache = [];
+
 	/**
 	 * @override
 	 */
@@ -240,6 +243,30 @@ class BigBrother extends PluginBase implements Listener{
 	 */
 	public function decryptBinary(string $cipher) : string{
 		return $this->rsa->decrypt($cipher);
+	}
+
+	/**
+	 * @param string $username
+	 * @return array|null
+	 */
+	public function getProfileCache(string $username, int $timeout=60){
+		if(isset($this->profileCache[$username]) && (microtime(true) - $this->profileCache[$username]["timestamp"] < $timeout)){
+			return $this->profileCache[$username]["profile"];
+		}else{
+			unset($this->profileCache[$username]);
+			return null;
+		}
+	}
+
+	/**
+	 * @param string $username
+	 * @param array profile
+	 */
+	public function setProfileCache(string $username, array $profile) : void{
+		$this->profileCache[$username] = [
+			"timestamp" => microtime(true),
+			"profile" => $profile
+		];
 	}
 
 	/**
