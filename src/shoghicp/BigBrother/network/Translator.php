@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
-use InvalidStateException;
+use UnexpectedValueException;
 use const pocketmine\DEBUG;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
@@ -2582,20 +2582,19 @@ class Translator{
 				while(!$stream->feof()){
 					$buf = $stream->getString();
 
-					if(($pk = PacketPool::getPacketById(ord($buf{0}))) !== null){
-						if($pk::NETWORK_ID === BatchPacket::NETWORK_ID){
-							throw new InvalidStateException("Invalid BatchPacket inside BatchPacket");
+					if(($pk = PacketPool::getPacket($buf)) !== null){
+						if(!$pk->canBeBatched()){
+							throw new UnexpectedValueException("Received invalid " . get_class($pk) . " inside BatchPacket");
 						}
-					}
 
-					$pk->setBuffer($buf, 1);
-					$pk->decode();
+						$pk->decode();
 
-					if(($desktop = $this->serverToInterface($player, $pk)) !== null){
-						if(is_array($desktop)){
-							$packets = array_merge($packets, $desktop);
-						}else{
-							$packets[] = $desktop;
+						if(($desktop = $this->serverToInterface($player, $pk)) !== null){
+							if(is_array($desktop)){
+								$packets = array_merge($packets, $desktop);
+							}else{
+								$packets[] = $desktop;
+							}
 						}
 					}
 				}
