@@ -231,8 +231,20 @@ class Translator{
 				if(isset($packet->lang{2})){
 					$locale .= $packet->lang{2}.strtoupper($packet->lang{3}.$packet->lang{4});
 				}
-
 				$player->setLocale($locale);
+
+				$pk = new EntityMetadataPacket();
+				$pk->eid = $player->getId();
+				$pk->metadata = [//Enable Display Skin Parts
+					13 => [0, $packet->skinSetting],//enabled all flags
+					"convert" => true,
+				];
+				$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
+				foreach($loggedInPlayers as $playerData){
+					if($playerData instanceof DesktopPlayer){
+						$playerData->putRawPacket($pk);
+					}
+				}
 
 				$pk = new RequestChunkRadiusPacket();
 				$pk->radius = $packet->view;
@@ -1010,14 +1022,6 @@ class Translator{
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
-				$pk = new EntityMetadataPacket();
-				$pk->eid = $packet->entityRuntimeId;
-				$pk->metadata = [//Enable Display Skin Parts
-					13 => [0, 0x7f],//enabled all flags
-					"convert" => true,
-				];
-				$packets[] = $pk;
-
 				$pk = new EntityTeleportPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->x = $packet->position->x;
@@ -1036,6 +1040,27 @@ class Translator{
 				$pk = new EntityHeadLookPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->yaw = $packet->yaw;
+				$packets[] = $pk;
+
+				$playerData = null;
+				$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
+				if(isset($loggedInPlayers[$packet->uuid->toBinary()])){
+					$playerData = $loggedInPlayers[$packet->uuid->toBinary()];
+				}
+
+				$skinFlags = 0x7f;
+				if($playerData instanceof DesktopPlayer){
+					if(isset($playerData->bigBrother_getClientSetting()["SkinSettings"])){
+						$skinFlags = $playerData->bigBrother_getClientSetting()["SkinSettings"];
+					}
+				}
+
+				$pk = new EntityMetadataPacket();
+				$pk->eid = $packet->entityRuntimeId;
+				$pk->metadata = [//Enable Display Skin Parts
+					13 => [0, $skinFlags],//enabled all flags
+					"convert" => true,
+				];
 				$packets[] = $pk;
 
 				$player->bigBrother_addEntityList($packet->entityRuntimeId, "player");
