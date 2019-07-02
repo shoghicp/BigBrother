@@ -533,6 +533,7 @@ class DesktopPlayer extends Player{
 						$sub = array_map('hexdec', str_split(str_replace("-", "", trim($uuid)), 8));
 						if((bool) ((($sub[0] ^ $sub[1]) ^ ($sub[2] ^ $sub[3])) % 2)){
 							$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/alex.png");
+							$model = true;
 						}else{
 							$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/steve.png");
 						}
