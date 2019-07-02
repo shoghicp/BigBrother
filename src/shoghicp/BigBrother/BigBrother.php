@@ -77,8 +77,7 @@ class BigBrother extends PluginBase implements Listener{
 	/**
 	 * @override
 	 */
-	public function onLoad()
-	{
+	public function onLoad(){
 		if(is_file($composer = $this->getFile() . "vendor/autoload.php")){
 			$this->getLogger()->info("Registering Composer autoloader...");
 			__require($composer);
@@ -247,9 +246,10 @@ class BigBrother extends PluginBase implements Listener{
 
 	/**
 	 * @param string $username
+	 * @param int $timeout
 	 * @return array|null
 	 */
-	public function getProfileCache(string $username, int $timeout=60){
+	public function getProfileCache(string $username, int $timeout = 60){
 		if(isset($this->profileCache[$username]) && (microtime(true) - $this->profileCache[$username]["timestamp"] < $timeout)){
 			return $this->profileCache[$username]["profile"];
 		}else{

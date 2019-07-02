@@ -669,7 +669,7 @@ class DesktopPlayer extends Player{
 				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);
 				$this->putRawPacket($pk);
 			}else{
-				if($info = $this->plugin->getProfileCache($username)){
+				if(!is_null(($info = $this->plugin->getProfileCache($username)))){
 					$this->bigBrother_authenticate($info["id"], $info["properties"]);
 				}else{
 					$this->getServer()->getAsyncPool()->submitTask(new class($this->plugin, $this, $username) extends AsyncTask{
@@ -678,6 +678,7 @@ class DesktopPlayer extends Player{
 						private $username;
 
 						/**
+						 * @param BigBrother $plugin
 						 * @param DesktopPlayer $player
 						 * @param string $username
 						 */
