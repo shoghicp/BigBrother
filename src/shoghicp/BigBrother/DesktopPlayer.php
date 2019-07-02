@@ -669,7 +669,6 @@ class DesktopPlayer extends Player{
 				$this->putRawPacket($pk);
 			}else{
 				if($info = $this->plugin->getProfileCache($username)){
-					echo "cache hit !!".PHP_EOL;
 					$this->bigBrother_authenticate($info["id"], $info["properties"]);
 				}else{
 					$this->getServer()->getAsyncPool()->submitTask(new class($this->plugin, $this, $username) extends AsyncTask{
