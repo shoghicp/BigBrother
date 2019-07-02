@@ -1010,6 +1010,14 @@ class Translator{
 				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
+				$pk = new EntityMetadataPacket();
+				$pk->eid = $packet->entityRuntimeId;
+				$pk->metadata = [//Enable Display Skin Parts
+					13 => [0, 0x7f],//enabled all flags
+					"convert" => true,
+				];
+				$packets[] = $pk;
+
 				$pk = new EntityTeleportPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->x = $packet->position->x;
