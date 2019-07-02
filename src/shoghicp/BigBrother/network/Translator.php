@@ -236,7 +236,7 @@ class Translator{
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $player->getId();
 				$pk->metadata = [//Enable Display Skin Parts
-					13 => [0, $packet->skinSetting],//enabled all flags
+					13 => [0, $packet->skinSetting],
 					"convert" => true,
 				];
 				$loggedInPlayers = $player->getServer()->getLoggedInPlayers();
@@ -1048,7 +1048,7 @@ class Translator{
 					$playerData = $loggedInPlayers[$packet->uuid->toBinary()];
 				}
 
-				$skinFlags = 0x7f;
+				$skinFlags = 0x7f;//enabled all flags
 				if($playerData instanceof DesktopPlayer){
 					if(isset($playerData->bigBrother_getClientSetting()["SkinSettings"])){
 						$skinFlags = $playerData->bigBrother_getClientSetting()["SkinSettings"];
@@ -1058,7 +1058,7 @@ class Translator{
 				$pk = new EntityMetadataPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->metadata = [//Enable Display Skin Parts
-					13 => [0, $skinFlags],//enabled all flags
+					13 => [0, $skinFlags],
 					"convert" => true,
 				];
 				$packets[] = $pk;
