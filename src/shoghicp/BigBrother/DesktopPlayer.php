@@ -530,8 +530,7 @@ class DesktopPlayer extends Player{
 						 * Detect whether the player has the “Alex?” or “Steve?”
 						 * Ref) https://github.com/mapcrafter/mapcrafter-playermarkers/blob/c583dd9157a041a3c9ec5c68244f73b8d01ac37a/playermarkers/player.php#L8-L19
 						 */
-						$sub = array_map('hexdec', str_split(str_replace("-", "", trim($uuid)), 8));
-						if((bool) ((($sub[0] ^ $sub[1]) ^ ($sub[2] ^ $sub[3])) % 2)){
+						if((bool) (array_reduce(str_split($uuid, 8), function($acm, $val) { return $acm ^ hexdec($val); }, 0) % 2)){
 							$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/alex.png");
 							$model = true;
 						}else{
