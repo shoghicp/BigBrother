@@ -52,6 +52,7 @@ use pocketmine\level\format\Chunk;
 use pocketmine\timings\Timings;
 use pocketmine\utils\Internet;
 use pocketmine\utils\TextFormat;
+use pocketmine\utils\UUID;
 use shoghicp\BigBrother\network\Packet;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionRequestPacket;
 use shoghicp\BigBrother\network\protocol\Login\EncryptionResponsePacket;
@@ -696,7 +697,11 @@ class DesktopPlayer extends Player{
 							$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username, 10, [], $err, $header, $status);
 							if($status === 204){
 								$this->publishProgress("UserNotFound: failed to fetch profile for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
-								$this->setResult(false);
+								$this->setResult([
+									"id" => str_replace("-", "", UUID::fromRandom()),
+									"name" => $this->username,
+									"properties" => []
+								]);
 								return;
 							}
 
