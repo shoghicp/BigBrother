@@ -619,7 +619,7 @@ class DesktopPlayer extends Player{
 
 					$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/hasJoined?".$query, 5, [], $err, $header, $status);
 					if($response === false || $status !== 200){
-						$this->publishProgress("InternetException: failed to fetch session data; status=$status; err=$err; response_header=".json_encode($header));
+						$this->publishProgress("InternetException: failed to fetch session data for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
 						$this->setResult(false);
 						return;
 					}
@@ -695,14 +695,14 @@ class DesktopPlayer extends Player{
 
 							$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username, 10, [], $err, $header, $status);
 							if($response === false || $status !== 200){
-								$this->publishProgress("InternetException: failed to fetch profile; status=$status; err=$err; response_header=".json_encode($header));
+								$this->publishProgress("InternetException: failed to fetch profile for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
 								$this->setResult(false);
 								return;
 							}
 
 							$profile = json_decode($response, true);
 							if(!is_array($profile)){
-								$this->publishProgress("UnknownError: failed to parse profile; status=$status; response=$response; response_header=".json_encode($header));
+								$this->publishProgress("UnknownError: failed to parse profile for '$this->username'; status=$status; response=$response; response_header=".json_encode($header));
 								$this->setResult(false);
 								return;
 							}
@@ -710,14 +710,14 @@ class DesktopPlayer extends Player{
 							$uuid = $profile["id"];
 							$response = Internet::getURL("https://sessionserver.mojang.com/session/minecraft/profile/".$uuid, 3, [], $err, $header, $status);
 							if($response === false || $status !== 200){
-								$this->publishProgress("InternetException: failed to fetch profile info; status=$status; err=$err; response_header=".json_encode($header));
+								$this->publishProgress("InternetException: failed to fetch profile info for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
 								$this->setResult(false);
 								return;
 							}
 
 							$info = json_decode($response, true);
 							if($info === null or !isset($info["id"])){
-								$this->publishProgress("UnknownError: failed to parse profile info; status=$status; response=$response; response_header=".json_encode($header));
+								$this->publishProgress("UnknownError: failed to parse profile info for '$this->username'; status=$status; response=$response; response_header=".json_encode($header));
 								$this->setResult(false);
 								return;
 							}
