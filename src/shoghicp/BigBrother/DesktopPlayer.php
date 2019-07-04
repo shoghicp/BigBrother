@@ -694,6 +694,12 @@ class DesktopPlayer extends Player{
 							$info = null;
 
 							$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/".$this->username, 10, [], $err, $header, $status);
+							if($status === 204){
+								$this->publishProgress("UserNotFound: failed to fetch profile for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
+								$this->setResult(false);
+								return;
+							}
+
 							if($response === false || $status !== 200){
 								$this->publishProgress("InternetException: failed to fetch profile for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
 								$this->setResult(false);
