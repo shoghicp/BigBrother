@@ -115,10 +115,6 @@ class BigBrother extends PluginBase implements Listener{
 					$this->getLogger()->info("BigBrother.phar; revision: ".$revision);
 				}
 
-				if(!$this->isEnabled()){
-					return;
-				}
-
 				if(is_file($composer = $this->getFile() . "vendor/autoload.php")){
 					$this->getLogger()->info("Registering Composer autoloader...");
 					__require($composer);
