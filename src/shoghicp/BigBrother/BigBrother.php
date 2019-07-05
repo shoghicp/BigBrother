@@ -77,21 +77,6 @@ class BigBrother extends PluginBase implements Listener{
 	/**
 	 * @override
 	 */
-	public function onLoad(){
-		if(is_file($composer = $this->getFile() . "vendor/autoload.php")){
-			$this->getLogger()->info("Registering Composer autoloader...");
-			__require($composer);
-		}else{
-			$this->getLogger()->critical("Composer autoloader not found");
-			$this->getLogger()->critical("Please initialize composer dependencies before running");
-			$this->getServer()->getPluginManager()->disablePlugin($this);
-			return;
-		}
-	}
-
-	/**
-	 * @override
-	 */
 	public function onEnable(){
 		$enable = true;
 		foreach($this->getServer()->getNetwork()->getInterfaces() as $interface){
@@ -128,6 +113,20 @@ class BigBrother extends PluginBase implements Listener{
 					chdir($cwd);
 				}elseif(($resource = $this->getResource("revision")) and ($revision = stream_get_contents($resource))){
 					$this->getLogger()->info("BigBrother.phar; revision: ".$revision);
+				}
+
+				if(!$this->isEnabled()){
+					return;
+				}
+
+				if(is_file($composer = $this->getFile() . "vendor/autoload.php")){
+					$this->getLogger()->info("Registering Composer autoloader...");
+					__require($composer);
+				}else{
+					$this->getLogger()->critical("Composer autoloader not found");
+					$this->getLogger()->critical("Please initialize composer dependencies before running");
+					$this->getServer()->getPluginManager()->disablePlugin($this);
+					return;
 				}
 
 				$aes = new AES(AES::MODE_CFB8);
