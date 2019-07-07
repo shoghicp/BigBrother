@@ -698,7 +698,7 @@ class DesktopPlayer extends Player{
 							if($status === 204){
 								$this->publishProgress("UserNotFound: failed to fetch profile for '$this->username'; status=$status; err=$err; response_header=".json_encode($header));
 								$this->setResult([
-									"id" => str_replace("-", "", UUID::fromRandom()),
+									"id" => str_replace("-", "", UUID::fromRandom()->toString()),
 									"name" => $this->username,
 									"properties" => []
 								]);
