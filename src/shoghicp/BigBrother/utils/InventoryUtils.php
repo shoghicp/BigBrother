@@ -40,7 +40,7 @@ use pocketmine\network\mcpe\protocol\ContainerSetDataPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
-use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
+use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
@@ -974,11 +974,11 @@ class InventoryUtils{
 	}
 
 	/**
-	 * @param TakeItemEntityPacket $packet
+	 * @param TakeItemActorPacket $packet
 	 * @return OutboundPacket|null
 	 * @throws
 	 */
-	public function onTakeItemEntity(TakeItemEntityPacket $packet) : ?OutboundPacket{
+	public function onTakeItemEntity(TakeItemActorPacket $packet) : ?OutboundPacket{
 		$itemCount = 1;
 		$item = Item::get(0);
 

@@ -29,6 +29,16 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother\network;
 
+use pocketmine\network\mcpe\protocol\ActorEventPacket;
+use pocketmine\network\mcpe\protocol\AddActorPacket;
+use pocketmine\network\mcpe\protocol\AddItemActorPacket;
+use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
+use pocketmine\network\mcpe\protocol\LevelChunkPacket;
+use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
+use pocketmine\network\mcpe\protocol\RemoveActorPacket;
+use pocketmine\network\mcpe\protocol\SetActorDataPacket;
+use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
+use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use UnexpectedValueException;
 use const pocketmine\DEBUG;
 use pocketmine\block\Block;
@@ -42,14 +52,11 @@ use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\event\player\PlayerDropItemEvent;
-use pocketmine\network\mcpe\protocol\AddEntityPacket;
-use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
 use pocketmine\network\mcpe\protocol\AddPaintingPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BatchPacket;
-use pocketmine\network\mcpe\protocol\BlockEntityDataPacket;
 use pocketmine\network\mcpe\protocol\BlockEventPacket;
 use pocketmine\network\mcpe\protocol\BookEditPacket;
 use pocketmine\network\mcpe\protocol\BossEventPacket;
@@ -61,9 +68,7 @@ use pocketmine\network\mcpe\protocol\ContainerSetDataPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\DisconnectPacket;
-use pocketmine\network\mcpe\protocol\EntityEventPacket;
 use pocketmine\network\mcpe\protocol\ExplodePacket;
-use pocketmine\network\mcpe\protocol\FullChunkDataPacket;
 use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
@@ -74,25 +79,20 @@ use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEffectPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
-use pocketmine\network\mcpe\protocol\MoveEntityAbsolutePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
-use pocketmine\network\mcpe\protocol\RemoveEntityPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\SetDifficultyPacket;
-use pocketmine\network\mcpe\protocol\SetEntityDataPacket;
-use pocketmine\network\mcpe\protocol\SetEntityMotionPacket;
 use pocketmine\network\mcpe\protocol\SetHealthPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
 use pocketmine\network\mcpe\protocol\SetSpawnPositionPacket;
 use pocketmine\network\mcpe\protocol\SetTimePacket;
 use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
-use pocketmine\network\mcpe\protocol\TakeItemEntityPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use /** @noinspection PhpInternalEntityUsedInspection */
 	pocketmine\network\mcpe\protocol\types\RuntimeBlockMapping;
@@ -813,7 +813,7 @@ class Translator{
 
 				$nbt = new NetworkLittleEndianNBTStream();;
 
-				$pk = new BlockEntityDataPacket();
+				$pk = new BlockActorDataPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
 				$pk->z = $packet->z;
@@ -1070,8 +1070,8 @@ class Translator{
 
 				return $packets;
 
-			case Info::ADD_ENTITY_PACKET:
-				/** @var AddEntityPacket $packet */
+			case Info::ADD_ACTOR_PACKET:
+				/** @var AddActorPacket $packet */
 				$packets = [];
 
 				$isObject = false;
@@ -1404,8 +1404,8 @@ class Translator{
 
 				return $packets;
 
-			case Info::REMOVE_ENTITY_PACKET:
-				/** @var RemoveEntityPacket $packet */
+			case Info::REMOVE_ACTOR_PACKET:
+				/** @var RemoveActorPacket $packet */
 				$packets = [];
 
 				if($packet->entityUniqueId === $player->bigBrother_getBossBarData("entityRuntimeId")){
@@ -1431,8 +1431,8 @@ class Translator{
 
 				return $packets;
 
-			case Info::ADD_ITEM_ENTITY_PACKET:
-				/** @var AddItemEntityPacket $packet */
+			case Info::ADD_ITEM_ACTOR_PACKET:
+				/** @var AddItemActorPacket $packet */
 				$item = clone $packet->item;
 				ConvertUtils::convertItemData(true, $item);
 
@@ -1465,14 +1465,14 @@ class Translator{
 
 				return $packets;
 
-			case Info::TAKE_ITEM_ENTITY_PACKET:
-				/** @var TakeItemEntityPacket $packet */
+			case Info::TAKE_ITEM_ACTOR_PACKET:
+				/** @var TakeItemActorPacket $packet */
 				$pk = $player->getInventoryUtils()->onTakeItemEntity($packet);
 
 				return $pk;
 
-			case Info::MOVE_ENTITY_ABSOLUTE_PACKET:
-				/** @var MoveEntityAbsolutePacket $packet */
+			case Info::MOVE_ACTOR_ABSOLUTE_PACKET:
+				/** @var MoveActorAbsolutePacket $packet */
 				if($packet->entityRuntimeId === $player->getId()){//TODO
 					return null;
 				}else{
@@ -1611,7 +1611,7 @@ class Translator{
 					3 => Vector3::SIDE_EAST
 				];
 
-				$paintingPos = new Vector3($packet->x, $packet->y, $packet->z);
+				$paintingPos = new Vector3($packet->position->x, $packet->position->y, $packet->position->z);
 				$spawnPaintingPos = $paintingPos->getSide($directions[$packet->direction]);
 
 				$pk = new SpawnPaintingPacket();
@@ -1990,10 +1990,10 @@ class Translator{
 
 				return null;
 
-			case Info::ENTITY_EVENT_PACKET:
-				/** @var EntityEventPacket $packet */
+			case Info::ACTOR_EVENT_PACKET:
+				/** @var ActorEventPacket $packet */
 				switch($packet->event){
-					case EntityEventPacket::HURT_ANIMATION:
+					case ActorEventPacket::HURT_ANIMATION:
 						$type = $player->bigBrother_getEntityList($packet->entityRuntimeId);
 
 						$packets = [];
@@ -2015,7 +2015,7 @@ class Translator{
 
 						return $packets;
 					break;
-					case EntityEventPacket::DEATH_ANIMATION:
+					case ActorEventPacket::DEATH_ANIMATION:
 						$type = $player->bigBrother_getEntityList($packet->entityRuntimeId);
 
 						$packets = [];
@@ -2037,7 +2037,7 @@ class Translator{
 
 						return $packets;
 					break;
-					case EntityEventPacket::RESPAWN:
+					case ActorEventPacket::RESPAWN:
 						//unused
 					break;
 					default:
@@ -2205,8 +2205,8 @@ class Translator{
 				/** @var MobArmorEquipmentPacket $packet */
 				return $player->getInventoryUtils()->onMobArmorEquipment($packet);
 
-			case Info::SET_ENTITY_DATA_PACKET:
-				/** @var SetEntityDataPacket $packet */
+			case Info::SET_ACTOR_DATA_PACKET:
+				/** @var SetActorDataPacket $packet */
 				$packets = [];
 
 				if($packet->entityRuntimeId === $player->bigBrother_getBossBarData("entityRuntimeId")){
@@ -2248,8 +2248,8 @@ class Translator{
 
 				return $packets;
 
-			case Info::SET_ENTITY_MOTION_PACKET:
-				/** @var SetEntityMotionPacket $packet */
+			case Info::SET_ACTOR_MOTION_PACKET:
+				/** @var SetActorMotionPacket $packet */
 				$pk = new EntityVelocityPacket();
 				$pk->eid = $packet->entityRuntimeId;
 				$pk->velocityX = $packet->motion->x;
@@ -2318,8 +2318,8 @@ class Translator{
 				/** @var InventoryContentPacket $packet */
 				return $player->getInventoryUtils()->onWindowSetContent($packet);
 
-			case Info::BLOCK_ENTITY_DATA_PACKET:
-				/** @var BlockEntityDataPacket $packet */
+			case Info::BLOCK_ACTOR_DATA_PACKET:
+				/** @var BlockActorDataPacket $packet */
 				$pk = new UpdateBlockEntityPacket();
 				$pk->x = $packet->x;
 				$pk->y = $packet->y;
@@ -2413,20 +2413,20 @@ class Translator{
 
 				return $packets;
 
-			case Info::FULL_CHUNK_DATA_PACKET:
-				/** @var FullChunkDataPacket $packet */
+			case Info::LEVEL_CHUNK_PACKET:
+				/** @var LevelChunkPacket $packet */
 				$blockEntities = [];
-				foreach($player->getLevel()->getChunkTiles($packet->chunkX, $packet->chunkZ) as $tile){
+				foreach($player->getLevel()->getChunkTiles($packet->getChunkX(), $packet->getChunkZ()) as $tile){
 					if($tile instanceof Spawnable){
 						$blockEntities[] = clone $tile->getSpawnCompound();
 					}
 				}
 
-				$chunk = new DesktopChunk($player, $packet->chunkX, $packet->chunkZ);
+				$chunk = new DesktopChunk($player, $packet->getChunkX(), $packet->getChunkZ());
 
 				$pk = new ChunkDataPacket();
-				$pk->chunkX = $packet->chunkX;
-				$pk->chunkZ = $packet->chunkZ;
+				$pk->chunkX = $packet->getChunkX();
+				$pk->chunkZ = $packet->getChunkZ();
 				$pk->groundUp = true;
 				$pk->primaryBitmap = $chunk->getBitMapData();
 				$pk->payload = $chunk->getChunkData();
