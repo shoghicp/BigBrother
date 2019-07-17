@@ -1834,9 +1834,12 @@ class Translator{
 							break;
 						}
 					break;
+					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_CRITICAL:
+						$isParticle = true;
+						$id = 9;
+					break;
 					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_HUGE_EXPLODE_SEED:
 						$isParticle = true;
-
 						$id = 2;
 					break;
 					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_TERRAIN:
@@ -1853,9 +1856,17 @@ class Translator{
 							$packet->data
 						];
 					break;
+					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_DUST:
+						$isParticle = true;
+						$id = 46;
+						$addData = [
+							$packet->data//TODO: RGBA
+						];
+					break;
+					/*case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_INK:
+					break;*/
 					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_SNOWBALL_POOF:
 						$isParticle = true;
-
 						$id = 31;
 					break;
 					case LevelEventPacket::EVENT_ADD_PARTICLE_MASK | Particle::TYPE_ITEM_BREAK:

@@ -555,6 +555,7 @@ class DesktopPlayer extends Player{
 			$pk->locale = "en_US";
 			$pk->skipVerification = true;
 			$pk->clientData["SkinGeometry"] = "";//TODO
+			$pk->clientData["CurrentInputMode"] = 1;//Keyboard and mouse
 
 			if($model){
 				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_CustomSlim";
