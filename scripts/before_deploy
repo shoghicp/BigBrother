@@ -6,11 +6,16 @@ GIT_REVISION="$(git describe --tags --always --dirty)"
 BINTRAY_SUBJECT="${BINTRAY_SUBJECT:-bigbrotherteam}"
 BINTRAY_REPO="${BINTRAY_REPO:-BigBrother}"
 BINTRAY_PACKAGE="${BINTRAY_PACKAGE:-BigBrother}"
+BINTRAY_FLAVOR=""
 
-cat<<EOF >"${BINTRAY_JSON}"
+if [[ $TRAVIS_BRANCH != master ]]; then
+	BINTRAY_FLAVOR="-${TRAVIS_BRANCH}"
+fi
+
+tee "${BINTRAY_JSON}" <<EOF
 {
   "package": {
-    "name": "${BINTRAY_PACKAGE}",
+    "name": "${BINTRAY_PACKAGE}${BINTRAY_FLAVOR}",
     "repo": "${BINTRAY_REPO}",
     "subject": "${BINTRAY_SUBJECT}",
     "desc": "Allows the connection of Minecraft: Java Edition clients to PocketMine-MP servers. Made for PocketMine-MP",
@@ -35,5 +40,3 @@ cat<<EOF >"${BINTRAY_JSON}"
   "publish": true
 }
 EOF
-
-cat "${BINTRAY_JSON}"
