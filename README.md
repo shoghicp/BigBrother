@@ -32,7 +32,7 @@ Welcome to BigBrother, a [shoghicp project that was abandoned](https://github.co
 
 #### Features not yet implemented
 * Crafting
-* ~~Offhand (who only accept Totem Of Undying & Arrows)~~
+* ~~Offhand (who only accept Totem Of Undying & Arrows)~~  
 (Implement after offhand is implemented by pmmp)
 
 #### Experimental package flavors
@@ -41,9 +41,9 @@ These package flavors below are EXPERIMENTAL which support newer version of Mine
 Currently, there are lot of problem and not stable yet.
 Any patches are welcome, and well-debugged and well-described issues are also welcom.
 
-* 1.13.2
+* 1.13.2  
 [![Build Status](https://travis-ci.org/BigBrotherTeam/BigBrother.svg?branch=1.13.2)](https://travis-ci.org/BigBrotherTeam/BigBrother)
 [![Download](https://api.bintray.com/packages/bigbrotherteam/BigBrother/BigBrother-1.13.2/images/download.svg)](https://bintray.com/bigbrotherteam/BigBrother/BigBrother-1.13.2/_latestVersion)
-* 1.14.4
+* 1.14.4  
 [![Build Status](https://travis-ci.org/BigBrotherTeam/BigBrother.svg?branch=1.14.4)](https://travis-ci.org/BigBrotherTeam/BigBrother)
 [![Download](https://api.bintray.com/packages/bigbrotherteam/BigBrother/BigBrother-1.14.4/images/download.svg)](https://bintray.com/bigbrotherteam/BigBrother/BigBrother-1.14.4/_latestVersion)
