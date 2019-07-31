@@ -39,7 +39,7 @@ Welcome to BigBrother, a [shoghicp project that was abandoned](https://github.co
 
 These package flavors below are EXPERIMENTAL which support newer version of Minecraft PC Java Edition.
 Currently, there are lot of problem and not stable yet.
-Any patches are welcome, and well-debugged and well-described issues are also welcom.
+Any patches are welcome, and well-debugged and well-described issues are also welcome.
 
 * 1.13.2  
 [![Build Status](https://travis-ci.org/BigBrotherTeam/BigBrother.svg?branch=1.13.2)](https://travis-ci.org/BigBrotherTeam/BigBrother)
