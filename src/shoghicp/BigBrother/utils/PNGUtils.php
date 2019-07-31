@@ -144,7 +144,7 @@ class PNGUtils{
 	private function readtRNS(int $length){
 		switch($this->colorType){
 			/*case 0:
-				
+
 			break;
 			case 2:
 
@@ -194,48 +194,37 @@ class PNGUtils{
 						break;
 						case 1:
 							$left = $this->getRGBA($height, $width - 1);
-							$r = ($r + $left[0]) % 256;
-							$g = ($g + $left[1]) % 256;
-							$b = ($b + $left[2]) % 256;
-							$a = ($a + $left[3]) % 256;
+							$r = $this->overflow($r, $left[0]);
+							$g = $this->overflow($g, $left[1]);
+							$b = $this->overflow($b, $left[2]);
+							$a = $this->overflow($a, $left[3]);
 						break;
 						case 2:
 							$above = $this->getRGBA($height - 1, $width);
-							$r = ($r + $above[0]) % 256;
-							$g = ($g + $above[1]) % 256;
-							$b = ($b + $above[2]) % 256;
-							$a = ($a + $above[3]) % 256;
+							$r = $this->overflow($r, $above[0]);
+							$g = $this->overflow($g, $above[1]);
+							$b = $this->overflow($b, $above[2]);
+							$a = $this->overflow($a, $above[3]);
 						break;
 						case 3:
 							$left = $this->getRGBA($height, $width - 1);
 							$above = $this->getRGBA($height - 1, $width);
-							$avrgR = floor(($left[0] + $above[0]) / 2);
-							$avrgG = floor(($left[1] + $above[1]) / 2);
-							$avrgB = floor(($left[2] + $above[2]) / 2);
-							$avrgA = floor(($left[3] + $above[3]) / 2);
-
-							$r = ($r + $avrgR) % 256;
-							$g = ($g + $avrgG) % 256;
-							$b = ($b + $avrgB) % 256;
-							$a = ($a + $avrgA) % 256;
+							$r = $this->overflow($r, (int) floor(($left[0] + $above[0]) / 2));
+							$g = $this->overflow($g, (int) floor(($left[1] + $above[1]) / 2));
+							$b = $this->overflow($b, (int) floor(($left[2] + $above[2]) / 2));
+							$a = $this->overflow($a, (int) floor(($left[3] + $above[3]) / 2));
 						break;
 						case 4:
 							$left = $this->getRGBA($height, $width - 1);
 							$above = $this->getRGBA($height - 1, $width);
 							$upperLeft = $this->getRGBA($height - 1, $width - 1);
-
-							$paethR = $this->paethPredictor($left[0], $above[0], $upperLeft[0]);
-							$paethG = $this->paethPredictor($left[1], $above[1], $upperLeft[1]);
-							$paethB = $this->paethPredictor($left[2], $above[2], $upperLeft[2]);
-							$paethA = $this->paethPredictor($left[3], $above[3], $upperLeft[3]);
-
-							$r = ($r + $paethR) % 256;
-							$g = ($g + $paethG) % 256;
-							$b = ($b + $paethB) % 256;
-							$a = ($a + $paethA) % 256;
+							$r = $this->overflow($r, $this->paethPredictor($left[0], $above[0], $upperLeft[0]));
+							$g = $this->overflow($r, $this->paethPredictor($left[1], $above[1], $upperLeft[1]));
+							$b = $this->overflow($b, $this->paethPredictor($left[2], $above[2], $upperLeft[2]));
+							$a = $this->overflow($a, $this->paethPredictor($left[3], $above[3], $upperLeft[3]));
 						break;
 					}
-					
+
 					$this->setRGBA($height, $width, [$r, $g, $b, $a]);
 				}
 			}
@@ -274,6 +263,10 @@ class PNGUtils{
 			break;
 		}
 		return 0;
+	}
+
+	public function overflow($color, $color2){
+		return ($color + $color2) % 256;
 	}
 
 	private function paethPredictor($a, $b, $c){
