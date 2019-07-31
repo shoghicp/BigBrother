@@ -1,8 +1,8 @@
 # http://editorconfig.org/
-root = yes
+root = true
 
 [*]
-indent_size = 2
+indent_size = 4
 indent_style = tab
 insert_final_newline = true
 trim_trailing_whitespace = true
