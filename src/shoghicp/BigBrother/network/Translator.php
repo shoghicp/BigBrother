@@ -1604,15 +1604,7 @@ class Translator{
 
 			case Info::ADD_PAINTING_PACKET:
 				/** @var AddPaintingPacket $packet */
-				$directions = [
-					0 => Vector3::SIDE_SOUTH,
-					1 => Vector3::SIDE_WEST,
-					2 => Vector3::SIDE_NORTH,
-					3 => Vector3::SIDE_EAST
-				];
-
-				$paintingPos = new Vector3($packet->position->x, $packet->position->y, $packet->position->z);
-				$spawnPaintingPos = $paintingPos->getSide($directions[$packet->direction]);
+				$spawnPaintingPos = (new Vector3($packet->position->x, $packet->position->y, $packet->position->z))->floor();
 
 				$pk = new SpawnPaintingPacket();
 				$pk->eid = $packet->entityRuntimeId;
