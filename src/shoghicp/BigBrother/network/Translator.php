@@ -2464,7 +2464,7 @@ class Translator{
 
 							$pk->players[] = [
 								$entry->uuid->toBinary(),
-								TextFormat::clean($displayName),
+								substr(TextFormat::clean($displayName), 0, 16),
 								$properties,
 								$gameMode,
 								0,
