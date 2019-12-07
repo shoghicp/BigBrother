@@ -39,7 +39,7 @@ class CapeUtils{
 		}
 	}
 
-	public function getCapeData() : string{
+	public function getRawCapeData() : string{
 		$data = "";
 		if($this->existCape){
 			for($height = 0; $height < $this->utils->getHeight(); $height++){
@@ -49,7 +49,11 @@ class CapeUtils{
 				}
 			}
 		}
-		return base64_encode($data);
+		return $data;
+	}
+
+	public function getCapeData() : string{
+		return base64_encode($this->getRawCapeData());
 	}
 
 }

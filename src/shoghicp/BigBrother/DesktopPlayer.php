@@ -557,24 +557,47 @@ class DesktopPlayer extends Player{
 			$pk->clientData["SkinGeometry"] = "";//TODO
 			$pk->clientData["CurrentInputMode"] = 1;//Keyboard and mouse
 
+			$pk->clientData["AnimatedImageData"] = [];
+
 			if($model){
 				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_CustomSlim";
-				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.customSlim";
+				$pk->clientData["SkinResourcePatch"] = base64_encode(json_encode(["geometry" => ["default" => "geometry.humanoid.customSlim"]]));
 			}else{
 				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_Custom";
-				$pk->clientData["SkinGeometryName"] = "geometry.humanoid.custom";
+				$pk->clientData["SkinResourcePatch"] = base64_encode(json_encode(["geometry" => ["default" => "geometry.humanoid.custom"]]));
 			}
 
 			$skin = new SkinUtils($skinImage);
 			$pk->clientData["SkinData"] = $skin->getSkinData();
+			$skinSize = $this->getSkinImageSize(strlen($skin->getRawSkinData()));
+			$pk->clientData["SkinImageHeight"] = $skinSize[0];
+			$pk->clientData["SkinImageWidth"] = $skinSize[1];
 
 			$cape = new CapeUtils($capeImage);
 			$pk->clientData["CapeData"] = $cape->getCapeData();
+			$capeSize = $this->getSkinImageSize(strlen($cape->getRawCapeData()));
+			$pk->clientData["CapeImageHeight"] = $capeSize[0];
+			$pk->clientData["CapeImageWidth"] = $capeSize[1];
 
 			$pk->chainData = ["chain" => []];
 			$pk->clientDataJwt = $this->generateClientDataJWT();
 			$this->handleDataPacket($pk);
 		}
+	}
+
+	private function getSkinImageSize(int $skinImageLength) : array{
+		switch($skinImageLength){
+			case 64 * 32 * 4:
+				return [64, 32];
+			case 64 * 64 * 4:
+				return [64, 64];
+			case 128 * 64 * 4:
+				return [128, 64];
+			case 128 * 128 * 4:
+				return [128, 128];
+		}
+
+		return [0, 0];
 	}
 
 	/**
