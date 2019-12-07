@@ -68,7 +68,6 @@ use pocketmine\network\mcpe\protocol\ContainerSetDataPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\DisconnectPacket;
-use pocketmine\network\mcpe\protocol\ExplodePacket;
 use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
@@ -132,7 +131,6 @@ use shoghicp\BigBrother\network\protocol\Play\Server\EntityPropertiesPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityStatusPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityTeleportPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\EntityVelocityPacket;
-use shoghicp\BigBrother\network\protocol\Play\Server\ExplosionPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\HeldItemChangePacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\MapPacket;
 use shoghicp\BigBrother\network\protocol\Play\Server\JoinGamePacket;
@@ -811,7 +809,7 @@ class Translator{
 					new IntTag("z", (int) $packet->z)
 				]);
 
-				$nbt = new NetworkLittleEndianNBTStream();;
+				$nbt = new NetworkLittleEndianNBTStream();
 
 				$pk = new BlockActorDataPacket();
 				$pk->x = $packet->x;
@@ -1614,20 +1612,6 @@ class Translator{
 				$pk->z = $spawnPaintingPos->z;
 				$pk->title = $packet->title;
 				$pk->direction = $packet->direction;
-
-				return $pk;
-
-			case Info::EXPLODE_PACKET:
-				/** @var ExplodePacket $packet */
-				$pk = new ExplosionPacket();
-				$pk->x = $packet->position->x;
-				$pk->y = $packet->position->y;
-				$pk->z = $packet->position->z;
-				$pk->radius = $packet->radius;
-				$pk->records = $packet->records;
-				$pk->motionX = 0;
-				$pk->motionY = 0;
-				$pk->motionZ = 0;
 
 				return $pk;
 

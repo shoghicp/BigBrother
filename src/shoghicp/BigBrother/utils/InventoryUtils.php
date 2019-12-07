@@ -387,7 +387,7 @@ class InventoryUtils{
 			break;
 			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
-			case ContainerIds::CURSOR://TODO
+			case ContainerIds::UI://TODO
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowId])){
@@ -512,7 +512,7 @@ class InventoryUtils{
 			break;
 			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
-			case ContainerIds::CURSOR://TODO
+			case ContainerIds::UI://TODO
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowId])){
@@ -863,7 +863,7 @@ class InventoryUtils{
 			}
 
 			if(!$heldItem->equalsExact($this->playerHeldItem)){
-				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::CURSOR, 0, $heldItem, $this->playerHeldItem);
+				$action = $this->addNetworkInventoryAction(NetworkInventoryAction::SOURCE_CONTAINER, ContainerIds::UI, 0, $heldItem, $this->playerHeldItem);
 				$pk->actions[] = $action;
 			}
 		}
@@ -997,7 +997,7 @@ class InventoryUtils{
 		if($entity instanceof Arrow){
 			$ev = new InventoryPickupArrowEvent($this->player->getInventory(), $entity);
 			$ev->call();
-			
+
 			if($ev->isCancelled()){
 				return null;
 			}
