@@ -39,7 +39,7 @@ class SkinUtils{
 		}
 	}
 
-	public function getSKinData() : string{
+	public function getRawSkinData() : string{
 		$data = "";
 		if($this->existSkin){
 			for($height = 0; $height < $this->utils->getHeight(); $height++){
@@ -52,7 +52,11 @@ class SkinUtils{
 			$data = str_repeat(" ", 64 * 32 * 4);//dummy data
 		}
 
-		return base64_encode($data);
+		return $data;
+	}
+
+	public function getSkinData() : string{
+		return base64_encode($this->getRawSkinData());
 	}
 
 }
