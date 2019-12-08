@@ -553,7 +553,6 @@ class DesktopPlayer extends Player{
 			$pk->serverAddress = "127.0.0.1:25565";
 			$pk->locale = "en_US";
 			$pk->skipVerification = true;
-			$pk->clientData["SkinGeometry"] = "";//TODO
 			$pk->clientData["CurrentInputMode"] = 1;//Keyboard and mouse
 
 			$pk->clientData["AnimatedImageData"] = [];
