@@ -174,11 +174,9 @@ class Translator{
 	 */
 	public function interfaceToServer(DesktopPlayer $player, Packet $packet){
 		switch($packet->pid()){
-			case InboundPacket::TELEPORT_CONFIRM_PACKET://Confirm
-				return null;
-
+			case InboundPacket::TELEPORT_CONFIRM_PACKET://Teleport Confirm
+			case InboundPacket::CONFIRM_TRANSACTION_PACKET://Transaction Confirm
 			case InboundPacket::TAB_COMPLETE_PACKET:
-				//TODO: Tab Button
 				return null;
 
 			case InboundPacket::CHAT_PACKET:
@@ -248,9 +246,6 @@ class Translator{
 				$pk->radius = $packet->view;
 
 				return $pk;
-
-			case InboundPacket::CONFIRM_TRANSACTION_PACKET://Confirm
-				return null;
 
 			case InboundPacket::CLICK_WINDOW_PACKET:
 				/** @var ClickWindowPacket $packet */
@@ -1622,7 +1617,7 @@ class Translator{
 				$pk->difficulty = $player->getServer()->getDifficulty();
 				$pk->gamemode = $player->getGamemode();
 				$pk->levelType = "default";
-	
+
 				$player->bigBrother_respawn();
 
 				return $pk;
@@ -2109,7 +2104,7 @@ class Translator{
 									7 => [2, $entry->getValue()],
 									"convert" => true,
 								];
-								
+
 							}
 
 							$packets[] = $pk;

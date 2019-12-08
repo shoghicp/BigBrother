@@ -66,10 +66,9 @@ use shoghicp\BigBrother\network\protocol\Play\Server\UnloadChunkPacket;
 use shoghicp\BigBrother\network\ProtocolInterface;
 use shoghicp\BigBrother\entity\ItemFrameBlockEntity;
 use shoghicp\BigBrother\utils\Binary;
-use shoghicp\BigBrother\utils\CapeUtils;
 use shoghicp\BigBrother\utils\InventoryUtils;
 use shoghicp\BigBrother\utils\RecipeUtils;
-use shoghicp\BigBrother\utils\SkinUtils;
+use shoghicp\BigBrother\utils\SkinImage;
 
 class DesktopPlayer extends Player{
 
@@ -567,15 +566,15 @@ class DesktopPlayer extends Player{
 				$pk->clientData["SkinResourcePatch"] = base64_encode(json_encode(["geometry" => ["default" => "geometry.humanoid.custom"]]));
 			}
 
-			$skin = new SkinUtils($skinImage);
-			$pk->clientData["SkinData"] = $skin->getSkinData();
-			$skinSize = $this->getSkinImageSize(strlen($skin->getRawSkinData()));
+			$skin = new SkinImage($skinImage);
+			$pk->clientData["SkinData"] = $skin->getSkinImageData(true);
+			$skinSize = $this->getSkinImageSize(strlen($skin->getRawSkinImageData(true)));
 			$pk->clientData["SkinImageHeight"] = $skinSize[0];
 			$pk->clientData["SkinImageWidth"] = $skinSize[1];
 
-			$cape = new CapeUtils($capeImage);
-			$pk->clientData["CapeData"] = $cape->getCapeData();
-			$capeSize = $this->getSkinImageSize(strlen($cape->getRawCapeData()));
+			$cape = new SkinImage($capeImage);
+			$pk->clientData["CapeData"] = $cape->getSkinImageData();
+			$capeSize = $this->getSkinImageSize(strlen($cape->getRawSkinImageData()));
 			$pk->clientData["CapeImageHeight"] = $capeSize[0];
 			$pk->clientData["CapeImageWidth"] = $capeSize[1];
 

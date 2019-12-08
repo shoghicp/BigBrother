@@ -473,56 +473,6 @@ class ConvertUtils{
 				$itemDamage = 0;
 			break;
 			case Item::WRITABLE_BOOK:
-				if($isComputer){
-					$listTag = [];
-					$photoListTag = [];
-					foreach($itemNBT["pages"] as $pageNumber => $pageTags){
-						if($pageTags instanceof CompoundTag){
-							foreach($pageTags as $name => $tag){
-								if($tag instanceof StringTag){
-									switch($tag->getName()){
-										case "text":
-											$listTag[] = new StringTag("", $tag->getValue());
-										break;
-										case "photoname":
-											$photoListTag[] = new StringTag("", $tag->getValue());
-										break;
-									}
-								}
-							}
-						}
-					}
-
-					$itemNBT->removeTag("pages");
-					$itemNBT->setTag(new ListTag("pages", $listTag));
-					$itemNBT->setTag(new ListTag("photoname", $photoListTag));
-				}else{
-					$listTag = [];
-					foreach($itemNBT["pages"] as $pageNumber => $tag){
-						if($tag instanceof StringTag){
-							$tag->setName("text");
-
-							$value = "";
-							if(isset($itemNBT["photoname"][$pageNumber])){
-								$value = $itemNBT["photoname"][$pageNumber];
-							}
-							$photoNameTag = new StringTag("photoname", $value);
-
-							$listTag[] = new CompoundTag("", [
-								$tag,
-								$photoNameTag,
-							]);
-						}
-					}
-
-					$itemNBT->removeTag("pages");
-					if($itemNBT->hasTag("photoname")){
-						$itemNBT->removeTag("photoname");
-					}
-
-					$itemNBT->setTag(new ListTag("pages", $listTag));
-				}
-			break;
 			case Item::WRITTEN_BOOK:
 				if($isComputer){
 					$listTag = [];

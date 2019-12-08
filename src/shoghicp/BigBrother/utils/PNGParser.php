@@ -31,7 +31,7 @@ namespace shoghicp\BigBrother\utils;
 
 use pocketmine\utils\BinaryStream;
 
-class PNGUtils{
+class PNGParser{
 	const PNGFileSignature = "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a";
 
 	private $stream;
@@ -144,7 +144,7 @@ class PNGUtils{
 	private function readtRNS(int $length){
 		switch($this->colorType){
 			/*case 0:
-				
+
 			break;
 			case 2:
 
@@ -190,36 +190,36 @@ class PNGUtils{
 					}
 
 					switch($filterMethod){
-						case 0://none
+						case 0://None
 						break;
-						case 1:
+						case 1://Sub
 							$left = $this->getRGBA($height, $width - 1);
-							$r = ($r + $left[0]) % 256;
-							$g = ($g + $left[1]) % 256;
-							$b = ($b + $left[2]) % 256;
-							$a = ($a + $left[3]) % 256;
+							$r = $this->calculateColor($r, $left[0]);
+							$g = $this->calculateColor($g, $left[1]);
+							$b = $this->calculateColor($b, $left[2]);
+							$a = $this->calculateColor($a, $left[3]);
 						break;
-						case 2:
+						case 2://Up
 							$above = $this->getRGBA($height - 1, $width);
-							$r = ($r + $above[0]) % 256;
-							$g = ($g + $above[1]) % 256;
-							$b = ($b + $above[2]) % 256;
-							$a = ($a + $above[3]) % 256;
+							$r = $this->calculateColor($r, $above[0]);
+							$g = $this->calculateColor($g, $above[1]);
+							$b = $this->calculateColor($b, $above[2]);
+							$a = $this->calculateColor($a, $above[3]);
 						break;
-						case 3:
+						case 3://Average
 							$left = $this->getRGBA($height, $width - 1);
 							$above = $this->getRGBA($height - 1, $width);
-							$avrgR = floor(($left[0] + $above[0]) / 2);
-							$avrgG = floor(($left[1] + $above[1]) / 2);
-							$avrgB = floor(($left[2] + $above[2]) / 2);
-							$avrgA = floor(($left[3] + $above[3]) / 2);
+							$avrgR = $this->average($left[0], $above[0]);
+							$avrgG = $this->average($left[1], $above[1]);
+							$avrgB = $this->average($left[2], $above[2]);
+							$avrgA = $this->average($left[3], $above[3]);
 
-							$r = ($r + $avrgR) % 256;
-							$g = ($g + $avrgG) % 256;
-							$b = ($b + $avrgB) % 256;
-							$a = ($a + $avrgA) % 256;
+							$r = $this->calculateColor($r, $avrgR);
+							$g = $this->calculateColor($g, $avrgG);
+							$b = $this->calculateColor($b, $avrgB);
+							$a = $this->calculateColor($a, $avrgA);
 						break;
-						case 4:
+						case 4://Paeth
 							$left = $this->getRGBA($height, $width - 1);
 							$above = $this->getRGBA($height - 1, $width);
 							$upperLeft = $this->getRGBA($height - 1, $width - 1);
@@ -229,13 +229,13 @@ class PNGUtils{
 							$paethB = $this->paethPredictor($left[2], $above[2], $upperLeft[2]);
 							$paethA = $this->paethPredictor($left[3], $above[3], $upperLeft[3]);
 
-							$r = ($r + $paethR) % 256;
-							$g = ($g + $paethG) % 256;
-							$b = ($b + $paethB) % 256;
-							$a = ($a + $paethA) % 256;
+							$r = $this->calculateColor($r, $paethR);
+							$g = $this->calculateColor($g, $paethG);
+							$b = $this->calculateColor($b, $paethB);
+							$a = $this->calculateColor($a, $paethA);
 						break;
 					}
-					
+
 					$this->setRGBA($height, $width, [$r, $g, $b, $a]);
 				}
 			}
@@ -274,6 +274,14 @@ class PNGUtils{
 			break;
 		}
 		return 0;
+	}
+
+	private function calculateColor($color1, $color2){
+		return ($color1 + $color2) % 256;
+	}
+
+	private function average($color1, $color2){
+		return floor(($color1[0] + $color2[0]) / 2);
 	}
 
 	private function paethPredictor($a, $b, $c){
