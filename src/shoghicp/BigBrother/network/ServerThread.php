@@ -239,6 +239,5 @@ class ServerThread extends Thread{
 	}
 
 	public function setGarbage(){
-		// TODO: Implement setGarbage() method.
 	}
 }

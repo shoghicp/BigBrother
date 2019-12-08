@@ -142,7 +142,7 @@ class ConvertUtils{
 		[[ 85,   4], [192,   0]], //Acacia Fence
 		[[ 85,   5], [191,   0]], //Dark Oak Fence
 		[[240,   0], [199,   0]], //Chorus Plant
-		[[199,  -1], [ 68,  -1]], //Item Frame is temporary a standing sign | TODO: Convert Item Frame block to its entity. #blamemojang
+		[[199,  -1], [ 68,  -1]], //Item Frame is temporary a standing sign | #blamemojang
 		[[252,  -1], [255,  -1]], //Structures Block
 		[[236,  -1], [251,  -1]], //Concretes
 		[[237,  -1], [252,  -1]], //Concretes Powder
