@@ -2083,7 +2083,6 @@ class Translator{
 								$pk->health = $entry->getValue();//TODO: Default Value
 								$pk->food = (int) $player->getFood();//TODO: Default Value
 								$pk->saturation = $player->getSaturation();//TODO: Default Value
-
 							}elseif($packet->entityRuntimeId === $player->bigBrother_getBossBarData("entityRuntimeId")){
 								$uuid = $player->bigBrother_getBossBarData("uuid");
 								if($uuid === ""){
@@ -2104,7 +2103,6 @@ class Translator{
 									7 => [2, $entry->getValue()],
 									"convert" => true,
 								];
-
 							}
 
 							$packets[] = $pk;
