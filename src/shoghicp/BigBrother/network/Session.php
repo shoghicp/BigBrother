@@ -137,20 +137,7 @@ class Session{
 	 * @param Packet $packet
 	 */
 	public function writePacket(Packet $packet) : void{
-		$data = $packet->write();
-		if($this->threshold === null){
-			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
-		}else{
-			$dataLength = strlen($data);
-			if($dataLength >= $this->threshold){
-				$data = zlib_encode($data, ZLIB_ENCODING_DEFLATE, 7);
-			}else{
-				$dataLength = 0;
-			}
-
-			$data = Binary::writeComputerVarInt($dataLength) . $data;
-			$this->write(Binary::writeComputerVarInt(strlen($data)) . $data);
-		}
+		$this->writeRaw($packet->write());
 	}
 
 	/**
