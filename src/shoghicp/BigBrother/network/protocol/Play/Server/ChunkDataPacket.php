@@ -31,11 +31,6 @@ namespace shoghicp\BigBrother\network\protocol\Play\Server;
 
 use shoghicp\BigBrother\network\OutboundPacket;
 use shoghicp\BigBrother\utils\ConvertUtils;
-use shoghicp\BigBrother\BigBrother;
-use pocketmine\tile\Tile;
-use pocketmine\nbt\tag\IntTag;
-use pocketmine\nbt\tag\StringTag;
-use pocketmine\nbt\tag\ShortTag;
 
 class ChunkDataPacket extends OutboundPacket{
 
@@ -73,26 +68,7 @@ class ChunkDataPacket extends OutboundPacket{
 		}
 		$this->putVarInt(count($this->blockEntities));
 		foreach($this->blockEntities as $blockEntity){
-			switch($blockEntity["id"]){
-				case Tile::FLOWER_POT:
-					$blockEntity->setTag(new ShortTag("Item", $blockEntity["item"]));
-					$blockEntity->setTag(new IntTag("Data", $blockEntity["mData"]));
-
-					$blockEntity->removeTag("item", "mdata");
-				break;
-				case Tile::SIGN:
-					$textData = explode("\n", $blockEntity["Text"]);
-
-					$blockEntity->setTag(new StringTag("Text1", BigBrother::toJSON($textData[0])));
-					$blockEntity->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
-					$blockEntity->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
-					$blockEntity->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
-
-					$blockEntity->removeTag("Text");
-				break;
-			}
-
-			$this->put(ConvertUtils::convertNBTDataFromPEtoPC($blockEntity));
+			$this->put(ConvertUtils::convertNBTDataFromPEtoPC(ConvertUtils::convertBlockEntity(true, $blockEntity)));
 		}
 	}
 }
