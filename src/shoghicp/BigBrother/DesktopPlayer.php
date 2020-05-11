@@ -556,6 +556,8 @@ class DesktopPlayer extends Player{
 			$pk->clientData["CurrentInputMode"] = 1;//Keyboard and mouse
 
 			$pk->clientData["AnimatedImageData"] = [];
+			$pk->clientData["PersonaPieces"] = [];
+			$pk->clientData["PieceTintColors"] = [];
 
 			if($model){
 				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_CustomSlim";
