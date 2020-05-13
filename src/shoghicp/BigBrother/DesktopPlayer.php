@@ -556,6 +556,8 @@ class DesktopPlayer extends Player{
 			$pk->clientData["CurrentInputMode"] = 1;//Keyboard and mouse
 
 			$pk->clientData["AnimatedImageData"] = [];
+			$pk->clientData["PersonaPieces"] = [];
+			$pk->clientData["PieceTintColors"] = [];
 
 			if($model){
 				$pk->clientData["SkinId"] = $this->bigBrother_formattedUUID."_CustomSlim";
@@ -622,7 +624,6 @@ class DesktopPlayer extends Player{
 				 * @param DesktopPlayer $player
 				 * @param string $username
 				 * @param string $hash
-				 * @noinspection PhpUndefinedMethodInspection TODO: Remove
 				 */
 				public function __construct(DesktopPlayer $player, string $username, string $hash){
 					self::storeLocal($player);
@@ -663,7 +664,6 @@ class DesktopPlayer extends Player{
 				/**
 				 * @override
 				 * @param $server
-				 * @noinspection PhpUndefinedMethodInspection TODO: Remove
 				 */
 				public function onCompletion(Server $server){
 					$result = $this->getResult();
@@ -705,7 +705,6 @@ class DesktopPlayer extends Player{
 						 * @param BigBrother $plugin
 						 * @param DesktopPlayer $player
 						 * @param string $username
-						 * @noinspection PhpUndefinedMethodInspection TODO: Remove
 						 */
 						public function __construct(BigBrother $plugin, DesktopPlayer $player, string $username){
 							self::storeLocal([$plugin, $player]);
@@ -773,7 +772,6 @@ class DesktopPlayer extends Player{
 						/**
 						 * @override
 						 * @param Server $server
-						 * @noinspection PhpUndefinedMethodInspection TODO: Remove
 						 */
 						public function onCompletion(Server $server){
 							$info = $this->getResult();

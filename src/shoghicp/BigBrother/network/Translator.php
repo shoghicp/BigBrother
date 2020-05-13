@@ -50,7 +50,6 @@ use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
-use pocketmine\nbt\tag\ShortTag;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\network\mcpe\protocol\AddPaintingPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
@@ -2326,14 +2325,8 @@ class Translator{
 					break;
 					case Tile::FLOWER_POT:
 						$pk->actionID = 5;
-
 						/** @var CompoundTag $nbt */
-						$nbt->setTag(new ShortTag("Item", $nbt->getTagValue("item", ShortTag::class)));
-						$nbt->setTag(new IntTag("Data", $nbt->getTagValue("mData", IntTag::class)));
-
-						$nbt->removeTag("item", "mdata");
-
-						$pk->namedtag = $nbt;
+						$pk->namedtag = ConvertUtils::convertBlockEntity(true, $nbt);
 					break;
 					case Tile::ITEM_FRAME:
 						if(($entity = ItemFrameBlockEntity::getItemFrame($player->getLevel(), $packet->x, $packet->y, $packet->z)) !== null){
@@ -2344,16 +2337,7 @@ class Translator{
 					case Tile::SIGN:
 						$pk->actionID = 9;
 						/** @var CompoundTag $nbt */
-						$textData = explode("\n", $nbt->getTagValue("Text", StringTag::class));
-
-						//blame mojang
-						$nbt->setTag(new StringTag("Text1", BigBrother::toJSON($textData[0])));
-						$nbt->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
-						$nbt->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
-						$nbt->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
-						$nbt->removeTag("Text");
-
-						$pk->namedtag = $nbt;
+						$pk->namedtag = ConvertUtils::convertBlockEntity(true, $nbt);
 					break;
 					case Tile::SKULL:
 						$pk->actionID = 4;
