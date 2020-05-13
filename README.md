@@ -38,7 +38,7 @@ Welcome to BigBrother, a [shoghicp project that was abandoned](https://github.co
 #### Experimental package flavors
 
 These package flavors below are EXPERIMENTAL which support newer version of Minecraft PC Java Edition.
-Currently, there are lot of problem and not stable yet.
+Currently, there are a lot of problems and not stable yet.
 Any patches are welcome, and well-debugged and well-described issues are also welcome.
 
 * 1.13.2  
