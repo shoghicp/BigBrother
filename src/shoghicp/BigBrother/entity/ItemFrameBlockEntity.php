@@ -139,8 +139,8 @@ class ItemFrameBlockEntity extends Position{
 			$item = $tile->hasItem() ? $tile->getItem() : Item::get(Item::AIR, 0, 0);
 
 			if($item->getId() === Item::FILLED_MAP){
-				$mapId = (int)$item->getNamedTag()->getString("map_uuid");
-				if($mapId != null){
+				$mapId = $item->getNamedTag()->getLong("map_uuid");
+				if($mapId !== null){
 					// store $mapId as meta
 					$item->setDamage($mapId);
 
