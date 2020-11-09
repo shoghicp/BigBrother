@@ -80,21 +80,21 @@ class InventoryUtils{
 	/** @var array */
 	private $windowInfo = [];
 	/** @var ShapedRecipe[][] */
-	private $shapedRecipes = [];
+	private $shapedRecipes;
 	/** @var ShapelessRecipe[][] */
-	private $shapelessRecipes = [];
+	private $shapelessRecipes;
 	/** @var Item */
-	private $playerHeldItem = null;
+	private $playerHeldItem;
 	/** @var Item[] */
-	private $playerCraftSlot = [];
+	private $playerCraftSlot;
 	/** @var Item[] */
-	private $playerCraftTableSlot = [];
+	private $playerCraftTableSlot;
 	/** @var Item[] */
-	private $playerArmorSlot = [];
+	private $playerArmorSlot;
 	/** @var Item[] */
-	private $playerInventorySlot = [];
+	private $playerInventorySlot;
 	/** @var Item[] */
-	private $playerHotBarSlot = [];
+	private $playerHotBarSlot;
 
 	/**
 	 * @param DesktopPlayer $player
@@ -140,10 +140,9 @@ class InventoryUtils{
 	/**
 	 * @param int $windowId
 	 * @param int $inventorySlot
-	 * @param int &$targetWindowId
-	 * @param int &$targetInventorySlot
+	 * @param int|null $targetWindowId
+	 * @param int|null $targetInventorySlot
 	 * @return Item&
-	 * @throws InvalidArgumentException
 	 */
 	private function &getItemAndSlot(int $windowId, int $inventorySlot, int &$targetWindowId = null, int &$targetInventorySlot = null) : Item{
 		$targetInventorySlot = $inventorySlot;
@@ -357,18 +356,18 @@ class InventoryUtils{
 
 		switch($packet->windowId){
 			case ContainerIds::INVENTORY:
-				$pk->item = $packet->item;
+				$pk->item = $packet->item->getItemStack();
 
 				if($packet->inventorySlot >= 0 and $packet->inventorySlot < $this->player->getInventory()->getHotbarSize()){
 					$pk->slot = $packet->inventorySlot + 36;
 					$inventorySlot = $packet->inventorySlot;
 
-					$this->playerHotBarSlot[$inventorySlot] = $packet->item;
+					$this->playerHotBarSlot[$inventorySlot] = $packet->item->getItemStack();
 				}elseif($packet->inventorySlot >= $this->player->getInventory()->getHotbarSize() and $packet->inventorySlot < $this->player->getInventory()->getSize()){
 					$pk->slot = $packet->inventorySlot;
 					$inventorySlot = $packet->inventorySlot - 9;
 
-					$this->playerInventorySlot[$inventorySlot] = $packet->item;
+					$this->playerInventorySlot[$inventorySlot] = $packet->item->getItemStack();
 				}elseif($packet->inventorySlot >= $this->player->getInventory()->getSize() and $packet->inventorySlot < $this->player->getInventory()->getSize() + 4){
 					// ignore this packet (this packet is not needed because this is duplicated packet)
 					$pk = null;
@@ -378,10 +377,10 @@ class InventoryUtils{
 			break;
 			case ContainerIds::ARMOR:
 				$pk->windowID = ContainerIds::INVENTORY;
-				$pk->item = $packet->item;
+				$pk->item = $packet->item->getItemStack();
 				$pk->slot = $packet->inventorySlot + 5;
 
-				$this->playerArmorSlot[$packet->inventorySlot] = $packet->item;
+				$this->playerArmorSlot[$packet->inventorySlot] = $packet->item->getItemStack();
 
 				return $pk;
 			break;
@@ -391,10 +390,10 @@ class InventoryUtils{
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowId])){
-					$pk->item = $packet->item;
+					$pk->item = $packet->item->getItemStack();
 					$pk->slot = $packet->inventorySlot;
 
-					$this->windowInfo[$packet->windowId]["items"][$packet->inventorySlot] = $packet->item;
+					$this->windowInfo[$packet->windowId]["items"][$packet->inventorySlot] = $packet->item->getItemStack();
 
 					return $pk;
 				}
@@ -480,10 +479,10 @@ class InventoryUtils{
 				$inventory = [];
 				for($i = 0; $i < count($packet->items); $i++){
 					if($i >= 0 and $i < 9){
-						$hotBar[] = $packet->items[$i];
+						$hotBar[] = $packet->items[$i]->getItemStack();
 					}else{
-						$inventory[] = $packet->items[$i];
-						$pk->items[] = $packet->items[$i];
+						$inventory[] = $packet->items[$i]->getItemStack();
+						$pk->items[] = $packet->items[$i]->getItemStack();
 					}
 				}
 
@@ -502,7 +501,7 @@ class InventoryUtils{
 				foreach($packet->items as $slot => $item){
 					$pk = new SetSlotPacket();
 					$pk->windowID = ContainerIds::INVENTORY;
-					$pk->item = $item;
+					$pk->item = $item->getItemStack();
 					$pk->slot = $slot + 5;
 
 					$packets[] = $pk;
@@ -510,20 +509,27 @@ class InventoryUtils{
 
 				$this->playerArmorSlot = $packet->items;
 			break;
-			case ContainerIds::CREATIVE:
+			//case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
 			case ContainerIds::UI://TODO
 			break;
 			default:
 				if(isset($this->windowInfo[$packet->windowId])){
+					$items = [];
+					foreach($packet->items as $slot => $item){
+						$items[] = $item->getItemStack();
+					}
+
 					$pk = new WindowItemsPacket();
 					$pk->windowID = $packet->windowId;
-					$pk->items = $packet->items;
+					$pk->items = $items;
 
-					$this->windowInfo[$packet->windowId]["items"] = $packet->items;
+					$this->windowInfo[$packet->windowId]["items"] = $items;
 
 					$pk->items = $this->getInventory($pk->items);
 					$pk->items = $this->getHotBar($pk->items);
+
+					var_dump(count($pk->items));
 
 					$packets[] = $pk;
 				}else{

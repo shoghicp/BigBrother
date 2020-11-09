@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace shoghicp\BigBrother;
 
+use pocketmine\network\mcpe\protocol\types\GeneratorType;
 use pocketmine\network\mcpe\VerifyLoginTask;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -101,7 +102,7 @@ class DesktopPlayer extends Player{
 	/** @var array */
 	private $bigBrother_pluginMessageList = [];
 	/** @var array */
-	private $bigBrother_breakPosition = [];
+	private $bigBrother_breakPosition;
 	/** @var array */
 	private $bigBrother_bossBarData = [
 		"entityRuntimeId" => -1,
@@ -159,13 +160,15 @@ class DesktopPlayer extends Player{
 	public function bigBrother_getDimensionPEToPC(int $level_dimension) : int{
 		$dimension = 0;
 		switch($level_dimension){
-			case 0://Over world
+			case GeneratorType::FINITE_OVERWORLD://Over world
+			case GeneratorType::OVERWORLD:
+			case GeneratorType::FLAT:
 				$dimension = 0;
 			break;
-			case 1://Nether
+			case GeneratorType::NETHER://Nether
 				$dimension = -1;
 			break;
-			case 2://The End
+			case GeneratorType::THE_END://The End
 				$dimension = 1;
 			break;
 		}

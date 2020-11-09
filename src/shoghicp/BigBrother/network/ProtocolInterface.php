@@ -165,8 +165,6 @@ class ProtocolInterface implements SourceInterface{
 			$identifier = $this->sessions[$player];
 			$this->sessions->detach($player);
 			$this->thread->pushMainToThreadPacket(chr(ServerManager::PACKET_CLOSE_SESSION) . Binary::writeInt($identifier));
-		}else{
-			return;
 		}
 	}
 

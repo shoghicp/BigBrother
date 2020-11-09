@@ -242,7 +242,7 @@ class PNGParser{
 		}
 	}
 
-	private function getData(BinaryStream &$stream){
+	private function getData(BinaryStream $stream){
 		switch($this->bitDepth){
 			/*case 1:
 

@@ -225,7 +225,7 @@ class ColorUtils extends Color{
 	 * @param int $height
 	 * @return string
 	 */
-	public static function convertColorsToPC($colors, $width, $height) : string{
+	public static function convertColorsToPC(array $colors, int $width, int $height) : string{
 		$ret = "";
 
 		for($y=0; $y<$height; ++$y){

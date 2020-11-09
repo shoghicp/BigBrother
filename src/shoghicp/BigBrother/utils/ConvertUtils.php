@@ -802,4 +802,5 @@ class ComputerItem extends Item{
 		$this->setCount($count);
 		$this->setCompoundTag($tag);
 	}
+
 }

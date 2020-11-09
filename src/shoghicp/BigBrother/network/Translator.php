@@ -39,6 +39,16 @@ use pocketmine\network\mcpe\protocol\RemoveActorPacket;
 use pocketmine\network\mcpe\protocol\SetActorDataPacket;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\AdvancementTabPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClientSettingsPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\ClientStatusPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\EntityActionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerBlockPlacementPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerDiggingPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerLookPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\PlayerPositionPacket;
+use shoghicp\BigBrother\network\protocol\Play\Client\UpdateSignPacket;
 use UnexpectedValueException;
 use const pocketmine\DEBUG;
 use pocketmine\block\Block;
@@ -93,7 +103,7 @@ use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use /** @noinspection PhpInternalEntityUsedInspection */
-	pocketmine\network\mcpe\protocol\types\RuntimeBlockMapping;
+	pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\network\mcpe\NetworkBinaryStream;
@@ -179,6 +189,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::CHAT_PACKET:
+				/** @var protocol\Play\Client\ChatPacket $packet */
 				$pk = new TextPacket();
 				$pk->type = 1;//Chat Type
 				$pk->sourceName = "";
@@ -186,6 +197,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::CLIENT_STATUS_PACKET:
+				/** @var ClientStatusPacket $packet */
 				switch($packet->actionID){
 					case 0:
 						$pk = new PlayerActionPacket();
@@ -214,6 +226,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::CLIENT_SETTINGS_PACKET:
+				/** @var ClientSettingsPacket $packet */
 				$player->bigBrother_setClientSetting([
 					"Lang" => $packet->lang,
 					"View" => $packet->view,
@@ -259,6 +272,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLUGIN_MESSAGE_PACKET:
+				/** @var PluginMessagePacket $packet */
 				switch($packet->channel){
 					case "REGISTER"://Mods Register
 						$player->bigBrother_setPluginMessageList("Channels", $packet->data);
@@ -337,6 +351,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::USE_ENTITY_PACKET:
+				/** @var UseEntityPacket $packet */
 				$frame = ItemFrameBlockEntity::getItemFrameById($player->getLevel(), $packet->target);
 				if($frame !== null){
 					switch($packet->type){
@@ -424,10 +439,12 @@ class Translator{
 				return null;
 
 			case InboundPacket::PLAYER_PACKET:
+				/** @var PlayerPacket $packet */
 				$player->onGround = $packet->onGround;
 				return null;
 
 			case InboundPacket::PLAYER_POSITION_PACKET:
+				/** @var PlayerPositionPacket $packet */
 				if($player->isImmobile()){
 					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $player->x;
@@ -465,6 +482,7 @@ class Translator{
 				return $packets;
 
 			case InboundPacket::PLAYER_POSITION_AND_LOOK_PACKET:
+				/** @var protocol\Play\Client\PlayerPositionAndLookPacket $packet */
 				if($player->isImmobile()){
 					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $player->x;
@@ -502,6 +520,7 @@ class Translator{
 				return $packets;
 
 			case InboundPacket::PLAYER_LOOK_PACKET:
+				/** @var PlayerLookPacket $packet */
 				if($player->isImmobile()){
 					$pk = new PlayerPositionAndLookPacket();
 					$pk->x = $player->x;
@@ -525,6 +544,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_ABILITIES_PACKET:
+				/** @var PlayerAbilitiesPacket $packet */
 				$pk = new AdventureSettingsPacket();
 				$pk->entityUniqueId = $player->getId();
 				$pk->setFlag(AdventureSettingsPacket::FLYING, $packet->isFlying);
@@ -532,6 +552,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_DIGGING_PACKET:
+				/** @var PlayerDiggingPacket $packet */
 				switch($packet->status){
 					case 0:
 						if($player->getGamemode() === 1){
@@ -708,6 +729,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::ENTITY_ACTION_PACKET:
+				/** @var EntityActionPacket $packet */
 				switch($packet->actionID){
 					case 0://Start sneaking
 						$pk = new PlayerActionPacket();
@@ -767,6 +789,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::ADVANCEMENT_TAB_PACKET:
+				/** @var AdvancementTabPacket $packet */
 				if($packet->status === 0){
 					$pk = new SelectAdvancementTabPacket();
 					$pk->hasTab = true;
@@ -777,6 +800,7 @@ class Translator{
 				return null;
 
 			case InboundPacket::HELD_ITEM_CHANGE_PACKET:
+				/** @var HeldItemChangePacket $packet */
 				$pk = new MobEquipmentPacket();
 				$pk->entityRuntimeId = $player->getId();
 				$pk->item = $player->getInventory()->getHotbarSlotItem($packet->selectedSlot);
@@ -792,6 +816,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::UPDATE_SIGN_PACKET:
+				/** @var UpdateSignPacket $packet */
 				$tags = new CompoundTag("", [
 					new StringTag("id", Tile::SIGN),
 					new StringTag("Text1", $packet->line1),
@@ -838,6 +863,7 @@ class Translator{
 				return $pk;
 
 			case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
+				/** @var PlayerBlockPlacementPacket $packet */
 				$blockClicked = $player->getLevel()->getBlock(new Vector3($packet->x, $packet->y, $packet->z));
 				$blockReplace = $blockClicked->getSide($packet->direction);
 
@@ -976,7 +1002,7 @@ class Translator{
 				$pk = new JoinGamePacket();
 				$pk->eid = $packet->entityUniqueId;
 				$pk->gamemode = $packet->playerGamemode;
-				$pk->dimension = $player->bigBrother_getDimensionPEToPC($packet->dimension);
+				$pk->dimension = $player->bigBrother_getDimensionPEToPC($packet->generator);
 				$pk->difficulty = $packet->difficulty;
 				$pk->maxPlayers = $player->getServer()->getMaxPlayers();
 				$pk->levelType = "default";
@@ -2400,7 +2426,7 @@ class Translator{
 				return $pk;
 
 			case Info::PLAYER_LIST_PACKET:
-				/** @var PlayerListPacket $packet */
+				/** @var \pocketmine\network\mcpe\protocol\PlayerListPacket $packet */
 				$pk = new PlayerListPacket();
 
 				switch($packet->type){
