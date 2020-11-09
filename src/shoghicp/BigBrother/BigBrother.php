@@ -399,7 +399,6 @@ class BigBrother extends PluginBase implements Listener{
 	/**
 	 * Returns an JSON-formatted string with colors/markup
 	 *
-	 *
 	 * @internal
 	 * @param string|string[] $string
 	 */
