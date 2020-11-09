@@ -271,13 +271,13 @@ class ProtocolInterface implements SourceInterface{
 	 */
 	protected function handlePacket(DesktopPlayer $player, string $payload){
 		if(DEBUG > 4){
-			$id = bin2hex(chr(ord($payload{0})));
+			$id = bin2hex(chr(ord($payload[0])));
 			if($id !== "0b"){//KeepAlivePacket
-				echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload{0})))."\n";
+				echo "[Receive][Interface] 0x".bin2hex(chr(ord($payload[0])))."\n";
 			}
 		}
 
-		$pid = ord($payload{0});
+		$pid = ord($payload[0]);
 		$offset = 1;
 
 		$status = $player->bigBrother_getStatus();
@@ -398,7 +398,7 @@ class ProtocolInterface implements SourceInterface{
 	public function process() : void{
 		while(is_string($buffer = $this->thread->readThreadToMainPacket())){
 			$offset = 1;
-			$pid = ord($buffer{0});
+			$pid = ord($buffer[0]);
 
 			if($pid === ServerManager::PACKET_SEND_PACKET){
 				$id = Binary::readInt(substr($buffer, $offset, 4));
@@ -423,7 +423,7 @@ class ProtocolInterface implements SourceInterface{
 				if(isset($this->sessionsPlayers[$id])){
 					continue;
 				}
-				$len = ord($buffer{$offset++});
+				$len = ord($buffer[$offset++]);
 				$address = substr($buffer, $offset, $len);
 				$offset += $len;
 				$port = Binary::readShort(substr($buffer, $offset, 2));

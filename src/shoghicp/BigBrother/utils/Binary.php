@@ -135,7 +135,7 @@ class Binary extends \pocketmine\utils\Binary{
 		$shift = 0;
 
 		while(true){
-			$c = ord($buffer{$offset++});
+			$c = ord($buffer[$offset++]);
 			$number |= ($c & 0x7f) << $shift;
 			$shift += 7;
 			if(($c & 0x80) === 0x00){

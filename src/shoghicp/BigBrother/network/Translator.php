@@ -235,9 +235,9 @@ class Translator{
 					"SkinSettings" => $packet->skinSetting,
 				]);
 
-				$locale = $packet->lang{0}.$packet->lang{1};
-				if(isset($packet->lang{2})){
-					$locale .= $packet->lang{2}.strtoupper($packet->lang{3}.$packet->lang{4});
+				$locale = $packet->lang[0].$packet->lang[1];
+				if(isset($packet->lang[2])){
+					$locale .= $packet->lang[2].strtoupper($packet->lang[3].$packet->lang[4]);
 				}
 				$player->setLocale($locale);
 

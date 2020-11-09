@@ -53,7 +53,7 @@ abstract class Packet extends stdClass{
 
 		$buffer = "";
 		for(; $len > 0; --$len, ++$this->offset){
-			$buffer .= @$this->buffer{$this->offset};
+			$buffer .= @$this->buffer[$this->offset];
 		}
 
 		return $buffer;
@@ -143,11 +143,11 @@ abstract class Packet extends stdClass{
 	}
 
 	protected function getByte() : int{
-		return ord($this->buffer{$this->offset++});
+		return ord($this->buffer[$this->offset++]);
 	}
 
 	protected function getSignedByte() : int{
-		return ord($this->buffer{$this->offset++}) << 56 >> 56;
+		return ord($this->buffer[$this->offset++]) << 56 >> 56;
 	}
 
 	protected function getAngle() : float{
@@ -163,7 +163,7 @@ abstract class Packet extends stdClass{
 	}
 
 	protected function feof() : bool{
-		return !isset($this->buffer{$this->offset});
+		return !isset($this->buffer[$this->offset]);
 	}
 
 	protected function put(string $str) : void{

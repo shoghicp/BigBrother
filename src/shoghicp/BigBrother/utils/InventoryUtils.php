@@ -384,7 +384,6 @@ class InventoryUtils{
 
 				return $pk;
 			break;
-			case ContainerIds::CREATIVE:
 			case ContainerIds::HOTBAR:
 			case ContainerIds::UI://TODO
 			break;

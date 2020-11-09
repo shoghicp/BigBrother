@@ -175,7 +175,7 @@ class ServerManager{
 	protected function processPacket() : bool{
 		@fread($this->fp, 1);
 		if(is_string($packet = $this->thread->readMainToThreadPacket())){
-			$pid = ord($packet{0});
+			$pid = ord($packet[0]);
 			$buffer = substr($packet, 1);
 
 			switch($pid){
@@ -211,7 +211,7 @@ class ServerManager{
 				break;
 				case self::PACKET_SET_OPTION:
 					$offset = 1;
-					$len = ord($packet{$offset++});
+					$len = ord($packet[$offset++]);
 					$name = substr($packet, $offset, $len);
 					$offset += $len;
 					$value = substr($packet, $offset);

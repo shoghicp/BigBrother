@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace shoghicp\BigBrother\network;
 
 use phpseclib\Crypt\AES;
-use pocketmine\utils\TextFormat;
+use shoghicp\BigBrother\BigBrother;
 use shoghicp\BigBrother\network\protocol\Login\LoginDisconnectPacket;
 use shoghicp\BigBrother\network\protocol\Status\PingPacket;
 use shoghicp\BigBrother\utils\Binary;
@@ -210,7 +210,7 @@ class Session{
 						"online" => $this->manager->getServerData()["OnlinePlayers"],
 						"sample" => $sample,
 					],
-					"description" => json_decode(TextFormat::toJSON($this->manager->description))
+					"description" => json_decode(BigBrother::toJSONInternal($this->manager->description))
 				];
 				if($this->manager->favicon !== null){
 					$data["favicon"] = $this->manager->favicon;
