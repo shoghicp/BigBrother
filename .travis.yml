@@ -40,5 +40,5 @@ deploy:
   skip_cleanup: true
   on:
     all_branches: true
-    condition: $TRAVIS_PHP_VERSION = 7.2 && $TRAVIS_PULL_REQUEST = false && $TRAVIS_BRANCH =~ ^(master|1.13.2|1.14.4)$
+    condition: $TRAVIS_PHP_VERSION = 7.2 && $TRAVIS_PULL_REQUEST = false && $TRAVIS_BRANCH =~ ^(master|1.13.2|1.14.4|1.16.4)$
   file: build/bintray.json
