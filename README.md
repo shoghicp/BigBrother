@@ -47,3 +47,6 @@ Any patches are welcome, and well-debugged and well-described issues are also we
 * 1.14.4  
 [![Build Status](https://travis-ci.org/BigBrotherTeam/BigBrother.svg?branch=1.14.4)](https://travis-ci.org/BigBrotherTeam/BigBrother)
 [![Download](https://api.bintray.com/packages/bigbrotherteam/BigBrother/BigBrother-1.14.4/images/download.svg)](https://bintray.com/bigbrotherteam/BigBrother/BigBrother-1.14.4/_latestVersion)
+* 1.16.4  
+[![Build Status](https://travis-ci.org/BigBrotherTeam/BigBrother.svg?branch=1.16.4)](https://travis-ci.org/BigBrotherTeam/BigBrother)
+[![Download](https://api.bintray.com/packages/bigbrotherteam/BigBrother/BigBrother-1.16.4/images/download.svg)](https://bintray.com/bigbrotherteam/BigBrother/BigBrother-1.16.4/_latestVersion)
