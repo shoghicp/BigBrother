@@ -765,26 +765,27 @@ class ConvertUtils{
 	 * @return CompoundTag
 	 */
 	public static function convertBlockEntity(bool $isComputer, CompoundTag $blockEntity): ?CompoundTag{
-		switch($blockEntity["id"]){
+		$cloneBlockEntity = clone $blockEntity;//nbtをはかいしてしまうため
+		switch($cloneBlockEntity["id"]){
 			case Tile::FLOWER_POT:
-				$blockEntity->setTag(new ShortTag("Item", $blockEntity->getTagValue("item", ShortTag::class)));
-				$blockEntity->setTag(new IntTag("Data", $blockEntity->getTagValue("mData", IntTag::class)));
+				$cloneBlockEntity->setTag(new ShortTag("Item", $cloneBlockEntity->getShort("item")));
+				$cloneBlockEntity->setTag(new IntTag("Data", $cloneBlockEntity->getInt("mData")));
 
-				$blockEntity->removeTag("item", "mdata");
+				$cloneBlockEntity->removeTag("item", "mdata");
 			break;
 			case Tile::SIGN:
-				$textData = explode("\n", $blockEntity->getTagValue("Text", StringTag::class));
+				$textData = explode("\n", $cloneBlockEntity->getString("Text", "\n\n\n"));
 
-				$blockEntity->setTag(new StringTag("Text1", BigBrother::toJSON($textData[0])));
-				$blockEntity->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
-				$blockEntity->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
-				$blockEntity->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
+				$cloneBlockEntity->setTag(new StringTag("Text1", BigBrother::toJSON($textData[0])));
+				$cloneBlockEntity->setTag(new StringTag("Text2", BigBrother::toJSON($textData[1])));
+				$cloneBlockEntity->setTag(new StringTag("Text3", BigBrother::toJSON($textData[2])));
+				$cloneBlockEntity->setTag(new StringTag("Text4", BigBrother::toJSON($textData[3])));
 
-				$blockEntity->removeTag("Text");
+				$cloneBlockEntity->removeTag("Text");
 			break;
 		}
 
-		return new CompoundTag();
+		return $cloneBlockEntity;
 	}
 
 }
