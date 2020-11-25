@@ -557,6 +557,12 @@ class DesktopPlayer extends Player{
 			$pk->locale = "en_US";
 			$pk->skipVerification = true;
 			$pk->clientData["CurrentInputMode"] = 1;//Keyboard and mouse
+			$pk->clientData["DefaultInputMode"] = 1;
+			$pk->clientData["DeviceModel"] = "Minecraft Java Edition";
+			$pk->clientData["DeviceId"] = "";
+			$pk->clientData["DeviceOS"] = 0;
+			$pk->clientData["GameVersion"] = "";
+			$pk->clientData["GuiScale"] = 1;
 
 			$pk->clientData["AnimatedImageData"] = [];
 			$pk->clientData["PersonaPieces"] = [];
