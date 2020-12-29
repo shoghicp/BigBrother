@@ -15,20 +15,37 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: cache apt
+        id: cache-apt
+        uses: actions/cache@v2
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt
+
       - name: install dependencies
         run:
           sudo apt update && sudo apt install -y re2c libtool libtool-bin zlib1g-dev libcurl4-openssl-dev libxml2-dev libyaml-dev libgmp-dev libzip-dev libssl-dev libtidy-dev libxslt-dev libonig-dev libmcrypt-dev
+
+      - name: cache phpenv
+        id: cache-phpenv
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.phpenv
+            .php-version
+          key: ${{ runner.os }}-phpenv-${{ matrix.php }}
 
       - name: setup path
         run: echo ~/.phpenv/bin >>$GITHUB_PATH
 
       - name: setup php
+        if: steps.cache-phpenv.outputs.cache-hit != 'true'
         run: |
           git clone https://github.com/phpenv/phpenv.git ~/.phpenv
           git clone https://github.com/php-build/php-build $(phpenv root)/plugins/php-build
 
           eval "$(phpenv init -)"
-          phpenv install ${{ matrix.php }}
+          phpenv install -s ${{ matrix.php }}
           phpenv local ${{ matrix.php }}
 
           git clone https://github.com/pmmp/pthreads.git
