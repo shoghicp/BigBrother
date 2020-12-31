@@ -1,11 +1,10 @@
 name: build
 on: push
 jobs:
-  build:
-    name: build plugin
+  docker:
+    name: build docker image
     runs-on: ubuntu-latest
-    container:
-      image: php:${{ matrix.php }}-zts
+    if: ${{ github.repository_owner == 'BigBrotherTeam' }}
     strategy:
       matrix:
         php:
@@ -17,32 +16,49 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: install dependencies
-        run: |
-          apt update
-          apt-get install -y git curl libyaml-dev
+      - name: Rewrite Image Version
+        run: sed -i -e "s/FROM php:7/FROM php:${{ matrix.php }}/" Dockerfile
 
-      - name: install yaml extension
-        run: |
-          pecl install channel://pecl.php.net/yaml-2.0.4
-          docker-php-ext-enable yaml
+      - name: Login GitHub Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: install sockets extension
-        run: docker-php-ext-install sockets
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: |
+            ghcr.io/bigbrotherteam/bigbrother/php:${{ matrix.php }}
+            ghcr.io/bigbrotherteam/bigbrother/php:latest
 
-      - name: install pthreads extension
-        run: |
-          git clone https://github.com/pmmp/pthreads.git /usr/local/src/pthreads
-          cd /usr/local/src/pthreads
-          git checkout 2bcd8b8c10395d58b8a9bc013e3a5328080c867f
-          phpize
-          ./configure
-          make
-          make install
-          docker-php-ext-enable pthreads
+      - name: Push Docker image
+        run: docker push ghcr.io/bigbrotherteam/bigbrother/php:${{ matrix.php }}
 
-      - name: install composer
-        run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+      - name: Update Latest
+        if: matrix.php == '7.4.13'
+        run: docker push ghcr.io/bigbrotherteam/bigbrother/php:latest
+
+
+  build:
+    name: build plugin
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: docker
+    container:
+      image: ghcr.io/bigbrotherteam/bigbrother/php:${{ matrix.php }}
+    strategy:
+      matrix:
+        php:
+          - 7.3.25
+          - 7.4.13
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
 
       - name: build
         run: |
