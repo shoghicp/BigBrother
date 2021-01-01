@@ -1,9 +1,10 @@
 name: build
 on: push
 jobs:
-  build:
-    name: build plugin
+  docker:
+    name: build docker image
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'BigBrotherTeam' }}
     strategy:
       matrix:
         php:
@@ -15,57 +16,52 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: cache apt
-        id: cache-apt
-        uses: actions/cache@v2
+      - name: Rewrite Image Version
+        run: sed -i -e "s/FROM php:7/FROM php:${{ matrix.php }}/" Dockerfile
+
+      - name: Login GitHub Registry
+        uses: docker/login-action@v1
         with:
-          path: /var/cache/apt
-          key: ${{ runner.os }}-apt
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: install dependencies
-        run:
-          sudo apt update && sudo apt install -y re2c libtool libtool-bin zlib1g-dev libcurl4-openssl-dev libxml2-dev libyaml-dev libgmp-dev libzip-dev libssl-dev libtidy-dev libxslt-dev libonig-dev libmcrypt-dev
-
-      - name: cache phpenv
-        id: cache-phpenv
-        uses: actions/cache@v2
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
         with:
-          path: |
-            ~/.phpenv
-            .php-version
-          key: ${{ runner.os }}-phpenv-${{ matrix.php }}
+          context: .
+          tags: |
+            ghcr.io/bigbrotherteam/bigbrother/php:${{ matrix.php }}
+            ghcr.io/bigbrotherteam/bigbrother/php:latest
 
-      - name: setup path
-        run: echo ~/.phpenv/bin >>$GITHUB_PATH
+      - name: Push Docker image
+        run: docker push ghcr.io/bigbrotherteam/bigbrother/php:${{ matrix.php }}
 
-      - name: setup php
-        if: steps.cache-phpenv.outputs.cache-hit != 'true'
+      - name: Update Latest
+        if: matrix.php == '7.4.13'
+        run: docker push ghcr.io/bigbrotherteam/bigbrother/php:latest
+
+
+  build:
+    name: build plugin
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: docker
+    container:
+      image: ghcr.io/bigbrotherteam/bigbrother/php:${{ matrix.php }}
+    strategy:
+      matrix:
+        php:
+          - 7.3.25
+          - 7.4.13
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: build
         run: |
-          git clone https://github.com/phpenv/phpenv.git ~/.phpenv
-          git clone https://github.com/php-build/php-build $(phpenv root)/plugins/php-build
-
-          eval "$(phpenv init -)"
-          phpenv install -s ${{ matrix.php }}
-          phpenv local ${{ matrix.php }}
-
-          git clone https://github.com/pmmp/pthreads.git
-          cd pthreads
-          git checkout 2bcd8b8c10395d58b8a9bc013e3a5328080c867f
-          phpize
-
-          ./configure
-          make -j4
-          make install
-
-          echo "extension=pthreads.so" > ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/pthreads.ini
-        env:
-          PHP_BUILD_CONFIGURE_OPTS: "--enable-maintainer-zts"
-          PHP_BUILD_INSTALL_EXTENSION: "yaml=2.0.4"
-          PHP_BUILD_EXTRA_MAKE_ARGUMENTS: "-j4"
-
-      - name: build plugin
-        run: |
-          eval "$(phpenv init -)"
           composer install
           composer build
 
