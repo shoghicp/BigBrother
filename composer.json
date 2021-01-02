@@ -48,5 +48,8 @@
     "ext-zlib": "*",
     "ext-sockets": "*",
     "phpseclib/phpseclib": "2.0.17"
+  },
+  "require-dev": {
+    "pocketmine/pocketmine-mp": "^3.0"
   }
 }

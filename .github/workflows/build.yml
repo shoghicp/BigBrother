@@ -62,7 +62,7 @@ jobs:
 
       - name: build
         run: |
-          composer install
+          composer install --no-dev
           composer build
 
       - name: upload artifact
